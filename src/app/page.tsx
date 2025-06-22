@@ -32,7 +32,7 @@ export default function PurposeCoach() {
     vision: ''
   });
   const [isComplete, setIsComplete] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const questions = [
     {

@@ -70,9 +70,10 @@ export default function PurposeCoach() {
         script.onload = () => {
           if (window.google) {
             window.google.accounts.id.initialize({
-              client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '123456789-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com',
+              client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '348216088961-o64ec4i8q1mpnq1r52rdkf6bg5ddv608.apps.googleusercontent.com',
               callback: handleGoogleSignIn,
               auto_select: false,
+              cancel_on_tap_outside: false,
             });
             
             // Wait a bit for the DOM element to be ready
@@ -86,7 +87,8 @@ export default function PurposeCoach() {
                     size: 'large',
                     text: 'signin_with',
                     shape: 'rectangular',
-                    width: 280
+                    width: 280,
+                    logo_alignment: 'left'
                   }
                 );
               }
@@ -108,6 +110,14 @@ export default function PurposeCoach() {
     };
 
     initializeGoogleAuth();
+
+    // Cleanup function to remove script on unmount
+    return () => {
+      const existingScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+      if (existingScript) {
+        existingScript.remove();
+      }
+    };
   }, []);
 
   const handleGoogleSignIn = (response: any) => {

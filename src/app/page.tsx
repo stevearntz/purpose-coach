@@ -1,11 +1,16 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { User, Heart, Target, Eye, Download, Share2, LogOut } from 'lucide-react';
+
+interface User {
+  name: string;
+  email: string;
+}
 
 export default function Home() {
   const [currentStep, setCurrentStep] = useState('welcome');
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [responses, setResponses] = useState({
     purpose: '',
     mission: '',
@@ -64,7 +69,7 @@ export default function Home() {
   };
 
   const shareResults = () => {
-    const text = `My Purpose Discovery Results:\n\nPurpose: I exist to ${responses.purpose}\n\nMission: I'm on a mission to ${responses.mission}\n\nVision: I see ${responses.vision}`;
+    const text = `My Purpose Discovery Results:\n\nPurpose: I exist to ${responses.purpose}\n\nMission: I&apos;m on a mission to ${responses.mission}\n\nVision: I see ${responses.vision}`;
     
     if (navigator.share) {
       navigator.share({
@@ -124,7 +129,7 @@ export default function Home() {
               )}
             </button>
             <p className="text-center text-sm text-gray-500 mt-4">
-              We'll create your account and keep your journey private
+              We&apos;ll create your account and keep your journey private
             </p>
           </div>
         </div>
@@ -145,7 +150,7 @@ export default function Home() {
                 Your Purpose Discovered
               </h1>
               <p className="text-gray-600">
-                Here's what emerged from our conversation
+                Here&apos;s what emerged from our conversation
               </p>
             </div>
             <button 
@@ -175,7 +180,7 @@ export default function Home() {
                 </div>
                 <div className="bg-blue-50 p-6 rounded-xl">
                   <p className="text-lg text-gray-700 italic">
-                    "I exist to {responses.purpose}"
+                    &ldquo;I exist to {responses.purpose}&rdquo;
                   </p>
                 </div>
               </div>
@@ -187,7 +192,7 @@ export default function Home() {
                 </div>
                 <div className="bg-indigo-50 p-6 rounded-xl">
                   <p className="text-lg text-gray-700 italic">
-                    "I'm on a mission to {responses.mission}"
+                    &ldquo;I&apos;m on a mission to {responses.mission}&rdquo;
                   </p>
                 </div>
               </div>
@@ -199,7 +204,7 @@ export default function Home() {
                 </div>
                 <div className="bg-purple-50 p-6 rounded-xl">
                   <p className="text-lg text-gray-700 italic">
-                    "I see {responses.vision}"
+                    &ldquo;I see {responses.vision}&rdquo;
                   </p>
                 </div>
               </div>
@@ -276,10 +281,10 @@ export default function Home() {
           <div>
             <CoachMessage>
               <p className="text-lg mb-4">
-                Welcome, {user.name}! I'm so glad you're here. 
+                Welcome, {user.name}! I&apos;m so glad you&apos;re here. 
               </p>
               <p className="mb-4">
-                Over the next few minutes, we're going to go on a gentle journey together to discover three fundamental truths about who you are: your purpose, your mission, and your unique vision.
+                Over the next few minutes, we&apos;re going to go on a gentle journey together to discover three fundamental truths about who you are: your purpose, your mission, and your unique vision.
               </p>
               <p>
                 There are no right or wrong answers - just what feels true for you. Trust your instincts and let your authentic voice emerge. Ready to begin?
@@ -301,10 +306,10 @@ export default function Home() {
           <div>
             <CoachMessage>
               <p className="text-lg mb-4">
-                Let's start with the foundation - your purpose. This is about your core reason for being.
+                Let&apos;s start with the foundation - your purpose. This is about your core reason for being.
               </p>
               <p className="mb-4">
-                Don't overthink this. What comes up when you ask yourself: Why do you exist? What is your purpose?
+                Don&apos;t overthink this. What comes up when you ask yourself: Why do you exist? What is your purpose?
               </p>
               <p className="font-medium text-gray-800">
                 Complete this sentence with whatever feels most true:
@@ -341,7 +346,7 @@ export default function Home() {
           <div>
             <CoachMessage>
               <p className="text-lg mb-4">
-                Beautiful. Now let's explore your mission - this is about what you're actively working toward in the world.
+                Beautiful. Now let&apos;s explore your mission - this is about what you&apos;re actively working toward in the world.
               </p>
               <p className="mb-4">
                 Your mission is your purpose in action. What are you here to do or create or change?
@@ -354,7 +359,7 @@ export default function Home() {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex items-center mb-4">
                 <Target className="w-6 h-6 text-indigo-500 mr-3" />
-                <span className="text-lg font-medium text-gray-700">I'm on a mission to...</span>
+                <span className="text-lg font-medium text-gray-700">I&apos;m on a mission to...</span>
               </div>
               <textarea
                 value={currentInput}
@@ -384,7 +389,7 @@ export default function Home() {
                 Perfect. Now for the final piece - your unique vision. This is about your special perspective on the world.
               </p>
               <p className="mb-4">
-                You see things others don't. You notice patterns, possibilities, or problems that others miss. What is that for you?
+                You see things others don&apos;t. You notice patterns, possibilities, or problems that others miss. What is that for you?
               </p>
               <p className="font-medium text-gray-800">
                 Trust your intuition and complete this sentence:

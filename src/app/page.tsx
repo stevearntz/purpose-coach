@@ -131,7 +131,19 @@ export default function PurposeCoach() {
       id: 'demo-user',
       name: 'Demo User',
       email: 'demo@example.com',
-      picture: 'https://via.placeholder.com/150/4F46E5/FFFFFF?text=DU'
+      picture: 'data:image/svg+xml;base64,' + btoa(`
+        <svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <circle cx="75" cy="75" r="75" fill="url(#gradient)"/>
+          <circle cx="75" cy="55" r="25" fill="white" opacity="0.9"/>
+          <path d="M 30 120 Q 75 90 120 120 L 120 150 L 30 150 Z" fill="white" opacity="0.9"/>
+        </svg>
+      `)
     });
   };
 

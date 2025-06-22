@@ -75,16 +75,22 @@ export default function PurposeCoach() {
               auto_select: false,
             });
             
-            window.google.accounts.id.renderButton(
-              document.getElementById('google-signin-button'),
-              {
-                theme: 'outline',
-                size: 'large',
-                text: 'signin_with',
-                shape: 'rectangular',
-                width: 280
+            // Wait a bit for the DOM element to be ready
+            setTimeout(() => {
+              const buttonElement = document.getElementById('google-signin-button');
+              if (buttonElement) {
+                window.google.accounts.id.renderButton(
+                  buttonElement,
+                  {
+                    theme: 'outline',
+                    size: 'large',
+                    text: 'signin_with',
+                    shape: 'rectangular',
+                    width: 280
+                  }
+                );
               }
-            );
+            }, 100);
           }
           setIsLoading(false);
         };

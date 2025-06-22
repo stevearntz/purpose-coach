@@ -58,6 +58,8 @@ export default function PurposeCoach() {
     }
   ];
 
+  // Google Auth functionality (commented out for now)
+  /*
   useEffect(() => {
     const initializeGoogleAuth = async () => {
       try {
@@ -119,6 +121,7 @@ export default function PurposeCoach() {
       }
     };
   }, []);
+  */
 
   const handleGoogleSignIn = (response: any) => {
     try {

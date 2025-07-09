@@ -1,274 +1,276 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useState, useEffect, useRef } from 'react'
 
-interface Conversation {
-  id: string;
-  title: string;
-  description: string;
-  emoji: string;
-  gradient: string;
-  duration: string;
-  tags: string[];
-  href: string;
-  isLive: boolean;
+interface Message {
+  id: string
+  text: string
+  isUser: boolean
+  timestamp: Date
 }
 
-export default function HomePage() {
-  const [hoveredTile, setHoveredTile] = useState<string | null>(null);
+interface UserProfile {
+  name?: string
+  company?: string
+  primaryChallenge?: string
+  teamSize?: string
+  industry?: string
+  previousSolutions?: string[]
+  painPoints?: string[]
+  goals?: string[]
+}
 
-  const conversations: Conversation[] = [
-    {
-      id: 'purpose',
-      title: 'Purpose Coach',
-      description: 'Discover your purpose, define your mission, and envision your future through deep reflection.',
-      emoji: '🔥',
-      gradient: 'from-orange-500 via-red-500 to-pink-500',
-      duration: '15-20 min',
-      tags: ['Self-Discovery', 'Mission', 'Vision'],
-      href: '/purpose',
-      isLive: true
-    },
-    {
-      id: 'values',
-      title: 'Values Explorer',
-      description: 'Uncover your core values and learn how to live in alignment with what matters most.',
-      emoji: '💎',
-      gradient: 'from-blue-500 via-purple-500 to-indigo-500',
-      duration: '12-15 min',
-      tags: ['Values', 'Alignment', 'Authenticity'],
-      href: '/values',
-      isLive: false
-    },
-    {
-      id: 'strengths',
-      title: 'Strengths Finder',
-      description: 'Identify your unique talents and discover how to leverage them for maximum impact.',
-      emoji: '💪',
-      gradient: 'from-green-500 via-emerald-500 to-teal-500',
-      duration: '10-12 min',
-      tags: ['Talents', 'Growth', 'Performance'],
-      href: '/strengths',
-      isLive: false
-    },
-    {
-      id: 'clarity',
-      title: 'Decision Clarity',
-      description: 'Work through complex decisions with a structured framework for confident choices.',
-      emoji: '🎯',
-      gradient: 'from-yellow-500 via-orange-500 to-red-500',
-      duration: '8-10 min',
-      tags: ['Decisions', 'Clarity', 'Strategy'],
-      href: '/clarity',
-      isLive: false
-    },
-    {
-      id: 'relationships',
-      title: 'Relationship Compass',
-      description: 'Navigate challenging relationships and build deeper connections with others.',
-      emoji: '🧭',
-      gradient: 'from-pink-500 via-rose-500 to-red-500',
-      duration: '15-18 min',
-      tags: ['Relationships', 'Communication', 'Connection'],
-      href: '/relationships',
-      isLive: false
-    },
-    {
-      id: 'career',
-      title: 'Career Catalyst',
-      description: 'Explore career paths, overcome obstacles, and design your professional future.',
-      emoji: '🚀',
-      gradient: 'from-indigo-500 via-blue-500 to-cyan-500',
-      duration: '20-25 min',
-      tags: ['Career', 'Growth', 'Strategy'],
-      href: '/career',
-      isLive: false
+export default function CampfireAgent() {
+  const [messages, setMessages] = useState<Message[]>([])
+  const [currentInput, setCurrentInput] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [conversationStage, setConversationStage] = useState(0)
+  const [userProfile, setUserProfile] = useState<UserProfile>({})
+  const [showDemo, setShowDemo] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  useEffect(() => {
+    // Initial welcome message
+    addMessage(
+      "Hi! I'm here to check in on how things are going with your team and culture. It's been a while since we connected, and I'd love to understand what's happening in your world right now.\n\nWhat's the biggest people or culture challenge keeping you up at night these days?",
+      false
+    )
+  }, [])
+
+  const addMessage = (text: string, isUser: boolean) => {
+    const newMessage: Message = {
+      id: Date.now().toString(),
+      text,
+      isUser,
+      timestamp: new Date()
     }
-  ];
+    setMessages(prev => [...prev, newMessage])
+  }
+
+  const updateUserProfile = (updates: Partial<UserProfile>) => {
+    setUserProfile(prev => ({ ...prev, ...updates }))
+  }
+
+  const generateResponse = async (userMessage: string): Promise<string> => {
+    setIsLoading(true)
+    
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          conversationStage,
+          userProfile,
+          messageHistory: messages.slice(-6) // Last 6 messages for context
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to get response')
+      }
+
+      const data = await response.json()
+      return data.response
+    } catch (error) {
+      console.error('Error:', error)
+      return "I apologize, but I'm having trouble connecting right now. Could you try again?"
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleSubmit = async () => {
+    if (!currentInput.trim() || isLoading) return
+
+    const userMessage = currentInput.trim()
+    setCurrentInput('')
+    addMessage(userMessage, true)
+
+    // Update user profile based on keywords and context
+    const lowerMessage = userMessage.toLowerCase()
+    
+    if (conversationStage === 0) {
+      if (lowerMessage.includes('team') || lowerMessage.includes('scaling')) {
+        updateUserProfile({ primaryChallenge: 'team-scaling' })
+      } else if (lowerMessage.includes('engagement') || lowerMessage.includes('culture')) {
+        updateUserProfile({ primaryChallenge: 'culture-engagement' })
+      } else if (lowerMessage.includes('performance') || lowerMessage.includes('productivity')) {
+        updateUserProfile({ primaryChallenge: 'performance' })
+      } else if (lowerMessage.includes('retention') || lowerMessage.includes('turnover')) {
+        updateUserProfile({ primaryChallenge: 'retention' })
+      }
+      setConversationStage(1)
+    } else if (conversationStage === 1) {
+      setConversationStage(2)
+    } else if (conversationStage === 2) {
+      setConversationStage(3)
+    } else if (conversationStage === 3) {
+      setConversationStage(4)
+    }
+
+    const response = await generateResponse(userMessage)
+    addMessage(response, false)
+
+    if (conversationStage >= 4) {
+      setTimeout(() => {
+        setShowDemo(true)
+      }, 2000)
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSubmit()
+    }
+  }
+
+  const handleDemoRequest = () => {
+    window.open('https://calendly.com/campfire-demo', '_blank')
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 via-red-500/20 to-pink-500/20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <span className="text-6xl">🔥</span>
-              <h1 className="text-5xl md:text-7xl font-bold text-white">
-                Chat by the Fire
-              </h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+      {/* Header */}
+      <div className="bg-white/10 backdrop-blur-sm border-b border-white/20">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">🔥</span>
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white">Campfire Guides</h1>
+                <p className="text-blue-200 text-sm">AI-powered culture operating system</p>
+              </div>
             </div>
-            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              Deep conversations that spark insight, clarity, and transformation. 
-              Choose your journey and discover what's possible when you take time to reflect.
-            </p>
+            <a href="/tools" className="text-blue-200 hover:text-white transition-colors text-sm">
+              Explore Tools →
+            </a>
           </div>
         </div>
       </div>
 
-      {/* Conversations Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-white mb-4">
-            Choose Your Conversation
-          </h2>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-            Each conversation is designed to help you go deeper, think clearer, and move forward with confidence.
+      {/* Chat Container */}
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl shadow-2xl border border-white/20 overflow-hidden">
+          {/* Chat Header */}
+          <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 px-6 py-4 border-b border-white/20">
+            <h2 className="text-lg font-semibold text-white">Culture Check-in</h2>
+            <p className="text-blue-200 text-sm mt-1">Let's explore what's happening with your team</p>
+          </div>
+
+          {/* Messages */}
+          <div className="h-96 overflow-y-auto p-6 space-y-4">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
+                    message.isUser
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+                      : 'bg-white/20 text-white border border-white/30'
+                  }`}
+                >
+                  <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+                  <p className="text-xs opacity-70 mt-1">
+                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+              </div>
+            ))}
+            
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-white/20 border border-white/30 rounded-lg px-4 py-3 max-w-xs">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Demo CTA (shows after conversation) */}
+          {showDemo && (
+            <div className="px-6 py-4 bg-gradient-to-r from-orange-500/20 to-red-500/20 border-t border-white/20">
+              <div className="text-center">
+                <p className="text-white mb-3">
+                  Based on our conversation, I think you'd benefit from seeing how Campfire can help. 
+                  Would you like to schedule a quick demo?
+                </p>
+                <button
+                  onClick={handleDemoRequest}
+                  className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-lg font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-200 transform hover:scale-105"
+                >
+                  Schedule Demo 🔥
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Input Area */}
+          <div className="p-6 border-t border-white/20">
+            <div className="flex gap-3">
+              <input
+                type="text"
+                value={currentInput}
+                onChange={(e) => setCurrentInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Share what's on your mind..."
+                className="flex-1 bg-white/10 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={isLoading}
+              />
+              <button
+                onClick={handleSubmit}
+                disabled={isLoading || !currentInput.trim()}
+                className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Progress Indicator */}
+        <div className="mt-6 text-center">
+          <div className="flex justify-center items-center space-x-2">
+            {[0, 1, 2, 3, 4].map((stage) => (
+              <div
+                key={stage}
+                className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+                  stage <= conversationStage
+                    ? 'bg-gradient-to-r from-blue-400 to-blue-500'
+                    : 'bg-white/20'
+                }`}
+              />
+            ))}
+          </div>
+          <p className="text-blue-200 text-sm mt-2">
+            {conversationStage === 0 && "Getting to know your challenges"}
+            {conversationStage === 1 && "Understanding the impact"}
+            {conversationStage === 2 && "Exploring solutions"}
+            {conversationStage === 3 && "Assessing opportunities"}
+            {conversationStage >= 4 && "Ready for next steps"}
           </p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {conversations.map((conversation) => (
-            <div
-              key={conversation.id}
-              className="group relative"
-              onMouseEnter={() => setHoveredTile(conversation.id)}
-              onMouseLeave={() => setHoveredTile(null)}
-            >
-              {conversation.isLive ? (
-                <Link href={conversation.href}>
-                  <ConversationTile 
-                    conversation={conversation} 
-                    isHovered={hoveredTile === conversation.id}
-                  />
-                </Link>
-              ) : (
-                <div className="cursor-not-allowed">
-                  <ConversationTile 
-                    conversation={conversation} 
-                    isHovered={hoveredTile === conversation.id}
-                  />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Coming Soon Section */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
-          <div className="text-center">
-            <h3 className="text-2xl font-bold text-white mb-4">
-              More Conversations Coming Soon
-            </h3>
-            <p className="text-gray-400 mb-6">
-              We're crafting more transformative conversations to help you navigate life's biggest questions and opportunities.
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              {['Leadership', 'Creativity', 'Mindfulness', 'Innovation', 'Legacy'].map((topic) => (
-                <span 
-                  key={topic}
-                  className="px-4 py-2 bg-white/10 rounded-full text-sm text-gray-300 border border-white/20"
-                >
-                  {topic}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="bg-black/20 backdrop-blur-lg border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <span className="text-2xl">🔥</span>
-              <span className="text-xl font-semibold text-white">Chat by the Fire</span>
-            </div>
-            <p className="text-gray-400 text-sm">
-              Deep conversations for meaningful transformation
-            </p>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-}
-
-interface ConversationTileProps {
-  conversation: Conversation;
-  isHovered: boolean;
-}
-
-function ConversationTile({ conversation, isHovered }: ConversationTileProps) {
-  return (
-    <div className={`
-      relative overflow-hidden rounded-2xl border border-white/20 backdrop-blur-lg
-      transition-all duration-500 ease-out
-      ${isHovered ? 'transform scale-105 shadow-2xl' : 'transform scale-100'}
-      ${conversation.isLive ? 'bg-white/10 hover:bg-white/15' : 'bg-white/5'}
-      ${conversation.isLive ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'}
-    `}>
-      {/* Gradient Background */}
-      <div className={`
-        absolute inset-0 bg-gradient-to-br ${conversation.gradient} opacity-20
-        transition-opacity duration-500
-        ${isHovered ? 'opacity-30' : 'opacity-20'}
-      `}></div>
-      
-      {/* Content */}
-      <div className="relative p-8">
-        {/* Status Badge */}
-        <div className="flex items-center justify-between mb-4">
-          <span className={`
-            px-3 py-1 rounded-full text-xs font-semibold
-            ${conversation.isLive 
-              ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
-              : 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
-            }
-          `}>
-            {conversation.isLive ? 'Live' : 'Coming Soon'}
-          </span>
-          <span className="text-3xl">{conversation.emoji}</span>
-        </div>
-
-        {/* Title & Description */}
-        <h3 className="text-2xl font-bold text-white mb-3">
-          {conversation.title}
-        </h3>
-        <p className="text-gray-300 text-sm leading-relaxed mb-6">
-          {conversation.description}
-        </p>
-
-        {/* Duration */}
-        <div className="flex items-center gap-2 mb-4">
-          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span className="text-sm text-gray-400">{conversation.duration}</span>
-        </div>
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-2">
-          {conversation.tags.map((tag) => (
-            <span 
-              key={tag}
-              className="px-2 py-1 bg-white/10 rounded text-xs text-gray-300 border border-white/20"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        {/* Hover Effect */}
-        {conversation.isLive && (
-          <div className={`
-            absolute bottom-4 right-4 transition-all duration-300
-            ${isHovered ? 'opacity-100 transform translate-x-0' : 'opacity-0 transform translate-x-2'}
-          `}>
-            <div className="flex items-center gap-2 text-sm text-white font-medium">
-              <span>Start Journey</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </div>
-          </div>
-        )}
       </div>
     </div>
-  );
+  )
 }

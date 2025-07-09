@@ -97,7 +97,7 @@ export default function HomePage() {
             <div className="flex items-center justify-center gap-4 mb-6">
               <span className="text-6xl">🔥</span>
               <h1 className="text-5xl md:text-7xl font-bold text-white">
-                Chat by the Fire
+                Campfire Guides
               </h1>
             </div>
             <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
@@ -177,7 +177,7 @@ export default function HomePage() {
           <div className="text-center">
             <div className="flex items-center justify-center gap-3 mb-4">
               <span className="text-2xl">🔥</span>
-              <span className="text-xl font-semibold text-white">Chat by the Fire</span>
+              <span className="text-xl font-semibold text-white">Campfire Guides</span>
             </div>
             <p className="text-gray-400 text-sm">
               Deep conversations for meaningful transformation

@@ -101,8 +101,8 @@ export default function HomePage() {
               </h1>
             </div>
             <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              Deep conversations that spark insight, clarity, and transformation. 
-              Choose your journey and discover what's possible when you take time to reflect.
+              At Campfire, we empower every employee with the direction, support, and skills they need to thrive. 
+              Transform your workplace culture and elevate your team's success today.
             </p>
           </div>
         </div>
@@ -180,7 +180,7 @@ export default function HomePage() {
               <span className="text-xl font-semibold text-white">Campfire Guides</span>
             </div>
             <p className="text-gray-400 text-sm">
-              Deep conversations for meaningful transformation
+              Empowering teams to thrive and succeed
             </p>
           </div>
         </div>

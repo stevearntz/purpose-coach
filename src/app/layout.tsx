@@ -6,12 +6,12 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Campfire Guides - Deep Conversations for Transformation',
-  description: 'Deep conversations that spark insight, clarity, and transformation. Choose your journey and discover what\'s possible when you take time to reflect.',
+  description: 'At Campfire, we empower every employee with the direction, support, and skills they need to thrive. Transform your workplace culture and elevate your team\'s success today.',
   keywords: 'purpose, coaching, self-discovery, personal development, values, strengths, clarity, relationships, career',
   authors: [{ name: 'Campfire Guides' }],
   openGraph: {
     title: 'Campfire Guides',
-    description: 'Deep conversations that spark insight, clarity, and transformation.',
+    description: 'At Campfire, we empower every employee with the direction, support, and skills they need to thrive.',
     url: 'https://chatbythefire.com',
     siteName: 'Campfire Guides',
     images: [
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Campfire Guides',
-    description: 'Deep conversations that spark insight, clarity, and transformation.',
+    description: 'At Campfire, we empower every employee with the direction, support, and skills they need to thrive.',
     images: ['/og-image.jpg'],
   },
   robots: {

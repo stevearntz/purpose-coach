@@ -112,10 +112,10 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-white mb-4">
-            Choose Your Conversation
+            Choose Your Tool
           </h2>
           <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-            Each conversation is designed to help you go deeper, think clearer, and move forward with confidence.
+            Each tool is designed to help your team develop essential skills and build a thriving workplace culture.
           </p>
         </div>
 
@@ -152,10 +152,10 @@ export default function HomePage() {
         <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
           <div className="text-center">
             <h3 className="text-2xl font-bold text-white mb-4">
-              More Conversations Coming Soon
+              More Tools Coming Soon
             </h3>
             <p className="text-gray-400 mb-6">
-              We're crafting more transformative conversations to help you navigate life's biggest questions and opportunities.
+              We're developing more powerful tools to help your organization build stronger teams and achieve lasting success.
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               {['Leadership', 'Creativity', 'Mindfulness', 'Innovation', 'Legacy'].map((topic) => (

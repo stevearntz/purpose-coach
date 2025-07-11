@@ -1,273 +1,310 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { Flame, ArrowRight, BookOpen, Users, Calendar, Trophy, Star, Target } from 'lucide-react';
 
-interface Conversation {
-  id: string;
-  title: string;
+interface Recommendation {
+  tool: string;
   description: string;
-  emoji: string;
-  gradient: string;
-  duration: string;
-  tags: string[];
-  href: string;
-  isLive: boolean;
+  timeRequired: string;
+  reason: string;
 }
 
-export default function HomePage() {
-  const [hoveredTile, setHoveredTile] = useState<string | null>(null);
+export default function ToolsPage() {
+  const [challenge, setChallenge] = useState('');
+  const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showCustomInput, setShowCustomInput] = useState(false);
+  const [userResults, setUserResults] = useState([
+    { tool: 'Purpose Discovery', completed: true, score: 85 },
+    { tool: 'Values Alignment', completed: false, score: 0 }
+  ]);
 
-  const conversations: Conversation[] = [
-    {
-      id: 'purpose',
-      title: 'Purpose Coach',
-      description: 'Discover your purpose, define your mission, and envision your future through deep reflection.',
-      emoji: '🔥',
-      gradient: 'from-orange-500 via-red-500 to-pink-500',
-      duration: '15-20 min',
-      tags: ['Self-Discovery', 'Mission', 'Vision'],
-      href: '/purpose',
-      isLive: true
-    },
-    {
-      id: 'values',
-      title: 'Values Explorer',
-      description: 'Uncover your core values and learn how to live in alignment with what matters most.',
-      emoji: '💎',
-      gradient: 'from-blue-500 via-purple-500 to-indigo-500',
-      duration: '12-15 min',
-      tags: ['Values', 'Alignment', 'Authenticity'],
-      href: '/values',
-      isLive: false
-    },
-    {
-      id: 'strengths',
-      title: 'Strengths Finder',
-      description: 'Identify your unique talents and discover how to leverage them for maximum impact.',
-      emoji: '💪',
-      gradient: 'from-green-500 via-emerald-500 to-teal-500',
-      duration: '10-12 min',
-      tags: ['Talents', 'Growth', 'Performance'],
-      href: '/strengths',
-      isLive: false
-    },
-    {
-      id: 'clarity',
-      title: 'Decision Clarity',
-      description: 'Work through complex decisions with a structured framework for confident choices.',
-      emoji: '🎯',
-      gradient: 'from-yellow-500 via-orange-500 to-red-500',
-      duration: '8-10 min',
-      tags: ['Decisions', 'Clarity', 'Strategy'],
-      href: '/clarity',
-      isLive: false
-    },
-    {
-      id: 'relationships',
-      title: 'Relationship Compass',
-      description: 'Navigate challenging relationships and build deeper connections with others.',
-      emoji: '🧭',
-      gradient: 'from-pink-500 via-rose-500 to-red-500',
-      duration: '15-18 min',
-      tags: ['Relationships', 'Communication', 'Connection'],
-      href: '/relationships',
-      isLive: false
-    },
-    {
-      id: 'career',
-      title: 'Career Catalyst',
-      description: 'Explore career paths, overcome obstacles, and design your professional future.',
-      emoji: '🚀',
-      gradient: 'from-indigo-500 via-blue-500 to-cyan-500',
-      duration: '20-25 min',
-      tags: ['Career', 'Growth', 'Strategy'],
-      href: '/career',
-      isLive: false
-    }
+  const predefinedChallenges = [
+    'Navigate change',
+    'Better communication', 
+    'Employee well-being',
+    'Alignment on goals',
+    'Manager conversations',
+    'Consistent expectations'
   ];
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 via-red-500/20 to-pink-500/20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <span className="text-6xl">🔥</span>
-              <h1 className="text-5xl md:text-7xl font-bold text-white">
-                Campfire Guides
-              </h1>
-            </div>
-            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              At Campfire, we empower every employee with the direction, support, and skills they need to thrive. 
-              Transform your workplace culture and elevate your team's success today.
-            </p>
-          </div>
-        </div>
-      </div>
+  const availableTools = [
+    { name: 'Purpose Discovery', path: '/tools/purpose', icon: Target, description: 'Find your core purpose and direction' },
+    { name: 'Values Clarification', path: '/tools/values', icon: Star, description: 'Identify your fundamental values' },
+    { name: 'Strengths Assessment', path: '/tools/strengths', icon: Trophy, description: 'Discover your natural talents' },
+  ];
 
-      {/* Conversations Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-white mb-4">
-            Choose Your Tool
-          </h2>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-            Each tool is designed to help your team develop essential skills and build a thriving workplace culture.
+  const handleChallengeSelect = (selectedChallenge: string) => {
+    setChallenge(selectedChallenge);
+    handleGetRecommendation(selectedChallenge);
+  };
+
+  const handleGetRecommendation = async (selectedChallenge?: string) => {
+    const challengeText = selectedChallenge || challenge;
+    if (!challengeText.trim()) return;
+    
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [{
+            role: 'user',
+            content: `Based on this challenge: "${challengeText}", recommend ONE of these coaching tools and explain why: Purpose Discovery (helps find life direction and meaning), Values Clarification (identifies core values and principles), Strengths Assessment (discovers natural talents and abilities). Respond in JSON format: {"tool": "Tool Name", "description": "Brief description of what this tool will help with", "timeRequired": "estimated time", "reason": "why this tool is best for their challenge"}`
+          }]
+        })
+      });
+
+      const data = await response.json();
+      const content = data.choices[0].message.content;
+      
+      try {
+        const parsedRecommendation = JSON.parse(content);
+        setRecommendation(parsedRecommendation);
+      } catch {
+        // Fallback if AI doesn't return proper JSON
+        setRecommendation({
+          tool: 'Purpose Discovery',
+          description: 'Find clarity on your life direction and core purpose',
+          timeRequired: '15-20 minutes',
+          reason: 'This challenge suggests you need foundational clarity on your direction.'
+        });
+      }
+    } catch (error) {
+      console.error('Error getting recommendation:', error);
+      // Fallback recommendation
+      setRecommendation({
+        tool: 'Purpose Discovery',
+        description: 'Find clarity on your life direction and core purpose',
+        timeRequired: '15-20 minutes',
+        reason: 'A great starting point for most personal development journeys.'
+      });
+    }
+    
+    setIsLoading(false);
+  };
+
+  const handleGetStarted = () => {
+    const tool = availableTools.find(t => t.name === recommendation?.tool);
+    if (tool) {
+      window.location.href = tool.path;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-100 via-red-50 to-pink-100">
+      <div className="container mx-auto px-4 py-8">
+        
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Flame className="w-8 h-8 text-orange-500" />
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+              Find Your Way Forward
+            </h1>
+          </div>
+          <p className="text-xl text-gray-700 max-w-2xl mx-auto">
+            Get tailored guidance and tools to navigate life's challenges
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {conversations.map((conversation) => (
-            <div
-              key={conversation.id}
-              className="group relative"
-              onMouseEnter={() => setHoveredTile(conversation.id)}
-              onMouseLeave={() => setHoveredTile(null)}
-            >
-              {conversation.isLive ? (
-                <Link href={conversation.href}>
-                  <ConversationTile 
-                    conversation={conversation} 
-                    isHovered={hoveredTile === conversation.id}
-                  />
-                </Link>
+        <div className="grid lg:grid-cols-3 gap-8">
+          
+          {/* Main Content - Steps 1-3 */}
+          <div className="lg:col-span-2 space-y-8">
+            
+            {/* Step 1: Find Your Challenge */}
+            <div className="backdrop-blur-md bg-white/20 rounded-2xl border border-white/30 p-8 shadow-xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-red-500 text-white flex items-center justify-center font-bold">
+                  1
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800">Find Your Challenge</h2>
+              </div>
+              
+              <p className="text-gray-700 mb-6">
+                What are you trying to navigate through right now?
+              </p>
+              
+              {!showCustomInput ? (
+                <div className="space-y-3">
+                  {predefinedChallenges.map((challengeOption, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleChallengeSelect(challengeOption)}
+                      className="w-full p-4 text-left rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all text-gray-800 hover:border-orange-300"
+                    >
+                      {challengeOption}
+                    </button>
+                  ))}
+                  
+                  <button
+                    onClick={() => setShowCustomInput(true)}
+                    className="w-full p-4 text-left rounded-xl border-2 border-dashed border-orange-300 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all text-orange-600 hover:border-orange-400"
+                  >
+                    Something else? Tell us more...
+                  </button>
+                </div>
               ) : (
-                <div className="cursor-not-allowed">
-                  <ConversationTile 
-                    conversation={conversation} 
-                    isHovered={hoveredTile === conversation.id}
+                <div className="space-y-4">
+                  <textarea
+                    value={challenge}
+                    onChange={(e) => setChallenge(e.target.value)}
+                    placeholder="Describe your challenge..."
+                    className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm placeholder-gray-500 text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-orange-400"
+                    rows={4}
+                    autoFocus
                   />
+                  
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleGetRecommendation}
+                      disabled={!challenge.trim() || isLoading}
+                      className="flex-1 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {isLoading ? 'Getting Recommendation...' : 'Get My Recommendation'}
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        setShowCustomInput(false);
+                        setChallenge('');
+                      }}
+                      className="px-4 py-3 bg-white/20 text-gray-700 rounded-xl font-semibold hover:bg-white/30 transition-all"
+                    >
+                      Back
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Coming Soon Section */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
-          <div className="text-center">
-            <h3 className="text-2xl font-bold text-white mb-4">
-              More Tools Coming Soon
-            </h3>
-            <p className="text-gray-400 mb-6">
-              We're developing more powerful tools to help your organization build stronger teams and achieve lasting success.
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              {['Leadership', 'Creativity', 'Mindfulness', 'Innovation', 'Legacy'].map((topic) => (
-                <span 
-                  key={topic}
-                  className="px-4 py-2 bg-white/10 rounded-full text-sm text-gray-300 border border-white/20"
-                >
-                  {topic}
-                </span>
-              ))}
+            {/* Step 2: Recommendation */}
+            {recommendation && (
+              <div className="backdrop-blur-md bg-white/20 rounded-2xl border border-white/30 p-8 shadow-xl">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-red-500 text-white flex items-center justify-center font-bold">
+                    2
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-800">Recommendation</h2>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-2">Use this tool when:</p>
+                    <p className="text-gray-700">{recommendation.reason}</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-gray-600 mb-2">Time required:</p>
+                    <p className="text-gray-700">{recommendation.timeRequired}</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-gray-600 mb-2">What it will help with:</p>
+                    <p className="text-gray-700">{recommendation.description}</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-4 mt-6">
+                  <div className="flex-1 p-4 bg-white/30 rounded-xl">
+                    <h3 className="font-semibold text-gray-800 mb-2">{recommendation.tool}</h3>
+                    <p className="text-sm text-gray-600">Recommended for your challenge</p>
+                  </div>
+                  <button
+                    onClick={handleGetStarted}
+                    className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-semibold hover:from-green-600 hover:to-emerald-600 transition-all flex items-center gap-2"
+                  >
+                    Get Started
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Your Personalized System */}
+            <div className="backdrop-blur-md bg-white/20 rounded-2xl border border-white/30 p-8 shadow-xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-red-500 text-white flex items-center justify-center font-bold">
+                  3
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800">Your Personalized System</h2>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 p-3 bg-white/20 rounded-lg">
+                  <BookOpen className="w-5 h-5 text-orange-500" />
+                  <span className="text-gray-700">Use the tools to...</span>
+                </div>
+                
+                <div className="flex items-center gap-3 p-3 bg-white/20 rounded-lg">
+                  <Users className="w-5 h-5 text-orange-500" />
+                  <span className="text-gray-700">Live sessions on...</span>
+                </div>
+                
+                <div className="flex items-center gap-3 p-3 bg-white/20 rounded-lg">
+                  <Calendar className="w-5 h-5 text-orange-500" />
+                  <span className="text-gray-700">Monthly workshops on...</span>
+                </div>
+              </div>
+              
+              <div className="mt-6">
+                <p className="text-sm text-gray-600 mb-2">Other sessions to explore:</p>
+                <p className="text-gray-700">Additional coaching opportunities will appear here as you complete tools and build your personalized development plan.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar: Your Results */}
+          <div className="lg:col-span-1">
+            <div className="backdrop-blur-md bg-white/20 rounded-2xl border border-white/30 p-6 shadow-xl sticky top-8">
+              <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-orange-500" />
+                Your Results
+              </h3>
+              
+              <div className="space-y-4">
+                {userResults.map((result, index) => (
+                  <div key={index} className="p-4 bg-white/30 rounded-xl">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-semibold text-gray-800 text-sm">{result.tool}</h4>
+                      {result.completed && <Star className="w-4 h-4 text-yellow-500 fill-current" />}
+                    </div>
+                    
+                    {result.completed ? (
+                      <div>
+                        <div className="flex justify-between text-xs text-gray-600 mb-1">
+                          <span>Completion Score</span>
+                          <span>{result.score}%</span>
+                        </div>
+                        <div className="w-full bg-white/20 rounded-full h-2">
+                          <div 
+                            className="bg-gradient-to-r from-green-400 to-emerald-500 h-2 rounded-full transition-all"
+                            style={{ width: `${result.score}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-gray-600">Not started</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6 p-4 bg-gradient-to-r from-orange-400/20 to-red-400/20 rounded-xl border border-orange-200">
+                <h4 className="font-semibold text-gray-800 mb-2">Level 2 - Beacon</h4>
+                <p className="text-xs text-gray-600 mb-2">Complete 3 tools to unlock advanced coaching features</p>
+                <div className="w-full bg-white/30 rounded-full h-2">
+                  <div className="bg-gradient-to-r from-orange-400 to-red-400 h-2 rounded-full w-1/3"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="bg-black/20 backdrop-blur-lg border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <span className="text-2xl">🔥</span>
-              <span className="text-xl font-semibold text-white">Campfire Guides</span>
-            </div>
-            <p className="text-gray-400 text-sm">
-              Empowering teams to thrive and succeed
-            </p>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-}
-
-interface ConversationTileProps {
-  conversation: Conversation;
-  isHovered: boolean;
-}
-
-function ConversationTile({ conversation, isHovered }: ConversationTileProps) {
-  return (
-    <div className={`
-      relative overflow-hidden rounded-2xl border border-white/20 backdrop-blur-lg
-      transition-all duration-500 ease-out
-      ${isHovered ? 'transform scale-105 shadow-2xl' : 'transform scale-100'}
-      ${conversation.isLive ? 'bg-white/10 hover:bg-white/15' : 'bg-white/5'}
-      ${conversation.isLive ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'}
-    `}>
-      {/* Gradient Background */}
-      <div className={`
-        absolute inset-0 bg-gradient-to-br ${conversation.gradient} opacity-20
-        transition-opacity duration-500
-        ${isHovered ? 'opacity-30' : 'opacity-20'}
-      `}></div>
-      
-      {/* Content */}
-      <div className="relative p-8">
-        {/* Status Badge */}
-        <div className="flex items-center justify-between mb-4">
-          <span className={`
-            px-3 py-1 rounded-full text-xs font-semibold
-            ${conversation.isLive 
-              ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
-              : 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
-            }
-          `}>
-            {conversation.isLive ? 'Live' : 'Coming Soon'}
-          </span>
-          <span className="text-3xl">{conversation.emoji}</span>
-        </div>
-
-        {/* Title & Description */}
-        <h3 className="text-2xl font-bold text-white mb-3">
-          {conversation.title}
-        </h3>
-        <p className="text-gray-300 text-sm leading-relaxed mb-6">
-          {conversation.description}
-        </p>
-
-        {/* Duration */}
-        <div className="flex items-center gap-2 mb-4">
-          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span className="text-sm text-gray-400">{conversation.duration}</span>
-        </div>
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-2">
-          {conversation.tags.map((tag) => (
-            <span 
-              key={tag}
-              className="px-2 py-1 bg-white/10 rounded text-xs text-gray-300 border border-white/20"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        {/* Hover Effect */}
-        {conversation.isLive && (
-          <div className={`
-            absolute bottom-4 right-4 transition-all duration-300
-            ${isHovered ? 'opacity-100 transform translate-x-0' : 'opacity-0 transform translate-x-2'}
-          `}>
-            <div className="flex items-center gap-2 text-sm text-white font-medium">
-              <span>Start Journey</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Flame, ArrowRight, ArrowLeft, Users, Target, BookOpen, Brain, MessageCircle, Heart, Download } from 'lucide-react';
+import { Flame, ArrowRight, ArrowLeft, Users, Target, BookOpen, Brain, MessageCircle, Heart, Download, Settings, TrendingUp, Calendar, Globe } from 'lucide-react';
 
 interface UserProfile {
   name: string;
@@ -134,113 +134,216 @@ export default function ToolsPage() {
   };
 
   const renderScreen1 = () => (
-    <div className="max-w-2xl mx-auto text-center">
-      {/* Hero Section */}
-      <div className="mb-12">
-        <div className="flex items-center justify-center gap-3 mb-6">
-          <Flame className="w-12 h-12 text-orange-500" />
-          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-            Campfire Guides
-          </h1>
+    <div className="relative">
+      {/* Navigation */}
+      <nav className="flex items-center justify-between p-6 bg-white/90 backdrop-blur-sm border-b border-gray-100">
+        <div className="flex items-center gap-2">
+          <Flame className="w-8 h-8 text-purple-600" />
+          <span className="text-2xl font-bold text-gray-900">Campfire</span>
         </div>
-        <p className="text-2xl text-gray-700 mb-8">
-          Tools For Companies and Teams
-        </p>
-        <p className="text-lg text-gray-600 max-w-xl mx-auto">
-          Find the right tool for you or your team to help you thrive and get great results
-        </p>
-      </div>
+        <div className="flex items-center gap-8">
+          <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">Packages & Pricing</a>
+          <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">Help</a>
+          <button className="px-6 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+            Sign Up
+          </button>
+          <button className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:border-gray-400 transition-colors">
+            Log In
+          </button>
+        </div>
+      </nav>
 
-      {/* Lead Form */}
-      <div className="backdrop-blur-md bg-white/20 rounded-2xl border border-white/30 p-8 shadow-xl">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Get Started</h2>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
-            <input
-              type="text"
-              value={userProfile.name}
-              onChange={(e) => setUserProfile(prev => ({ ...prev, name: e.target.value }))}
-              className="w-full p-3 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm placeholder-gray-500 text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400"
-              placeholder="Your name"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-            <input
-              type="email"
-              value={userProfile.email}
-              onChange={(e) => setUserProfile(prev => ({ ...prev, email: e.target.value }))}
-              className="w-full p-3 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm placeholder-gray-500 text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400"
-              placeholder="your@email.com"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
-            <select
-              value={userProfile.role}
-              onChange={(e) => setUserProfile(prev => ({ ...prev, role: e.target.value }))}
-              className="w-full p-3 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400"
-            >
-              <option value="">Select your role</option>
-              {roles.map(role => (
-                <option key={role} value={role} className="bg-white text-gray-800">{role}</option>
-              ))}
-            </select>
-          </div>
+      {/* Hero Section with Purple Gradient */}
+      <div className="relative min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-20 right-20 w-64 h-64 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 left-20 w-96 h-96 bg-white rounded-full blur-3xl"></div>
         </div>
         
-        <button
-          onClick={handleNext}
-          disabled={!userProfile.name || !userProfile.email || !userProfile.role}
-          className="w-full mt-6 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          Next
-          <ArrowRight className="w-4 h-4" />
-        </button>
+        <div className="relative z-10 container mx-auto px-6 py-24">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left side - Hero Content */}
+            <div className="text-white">
+              <h1 className="text-6xl font-bold leading-tight mb-8">
+                Campfire Guides
+              </h1>
+              <p className="text-xl text-purple-100 mb-12 leading-relaxed">
+                Tools For Companies and Teams
+              </p>
+              
+              {/* Platform Illustration */}
+              <div className="mt-16 relative">
+                {/* Main Content Library Card */}
+                <div className="bg-white/15 backdrop-blur-sm rounded-xl p-6 border border-white/20 max-w-lg">
+                  <div className="flex items-center gap-2 mb-4 text-white font-semibold">
+                    <Flame className="w-5 h-5 text-orange-300" />
+                    Content Library
+                  </div>
+                  
+                  {/* Grid of colorful content cards */}
+                  <div className="grid grid-cols-4 gap-3 mb-6">
+                    <div className="h-8 bg-purple-400 rounded"></div>
+                    <div className="h-8 bg-blue-400 rounded"></div>
+                    <div className="h-8 bg-green-400 rounded"></div>
+                    <div className="h-8 bg-yellow-400 rounded"></div>
+                    <div className="h-8 bg-green-400 rounded"></div>
+                    <div className="h-8 bg-orange-400 rounded"></div>
+                    <div className="h-8 bg-purple-400 rounded"></div>
+                    <div className="h-8 bg-blue-400 rounded"></div>
+                  </div>
+                  
+                  {/* Workshop Preview */}
+                  <div className="bg-purple-500/50 rounded-lg p-4 relative">
+                    <div className="text-sm text-white font-medium mb-2">Leading Through Change</div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="aspect-square bg-purple-300 rounded flex items-center justify-center">
+                        <div className="w-4 h-4 bg-white/70 rounded-full"></div>
+                      </div>
+                      <div className="aspect-square bg-pink-300 rounded flex items-center justify-center">
+                        <div className="w-6 h-4 bg-white/70 rounded"></div>
+                      </div>
+                      <div className="aspect-square bg-blue-300 rounded flex items-center justify-center">
+                        <div className="w-4 h-6 bg-white/70 rounded"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Floating Insights Card */}
+                <div className="absolute -bottom-4 -right-8 bg-white/15 backdrop-blur-sm rounded-lg p-4 border border-white/20 w-48">
+                  <div className="flex items-center gap-2 mb-3 text-white text-sm font-semibold">
+                    <TrendingUp className="w-4 h-4 text-orange-300" />
+                    Insights & Reporting
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-2 bg-purple-400 rounded w-3/4"></div>
+                    <div className="h-2 bg-green-400 rounded w-1/2"></div>
+                    <div className="h-2 bg-blue-400 rounded w-5/6"></div>
+                  </div>
+                </div>
+                
+                {/* Floating annotation */}
+                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-orange-300 text-orange-900 px-3 py-1 rounded-full text-xs font-medium">
+                  Library of turnkey, customizable content
+                </div>
+              </div>
+            </div>
+
+            {/* Right side - Lead Form */}
+            <div className="bg-white rounded-2xl p-8 shadow-2xl">
+              <div className="text-center mb-8">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <Flame className="w-8 h-8 text-purple-600" />
+                  <span className="text-2xl font-bold text-gray-900">Campfire</span>
+                </div>
+                <p className="text-gray-600">Find the right tool for you or your team to help you thrive and get great results</p>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                  <input
+                    type="text"
+                    value={userProfile.name}
+                    onChange={(e) => setUserProfile(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Your name"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                  <input
+                    type="email"
+                    value={userProfile.email}
+                    onChange={(e) => setUserProfile(prev => ({ ...prev, email: e.target.value }))}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="your@email.com"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                  <select
+                    value={userProfile.role}
+                    onChange={(e) => setUserProfile(prev => ({ ...prev, role: e.target.value }))}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="">Select your role</option>
+                    {roles.map(role => (
+                      <option key={role} value={role}>{role}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <button
+                  onClick={handleNext}
+                  disabled={!userProfile.name || !userProfile.email || !userProfile.role}
+                  className="w-full py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  NEXT
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 
   const renderScreen2 = () => (
-    <div className="max-w-4xl mx-auto">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">
-          What's the main challenge you'd like to help your people overcome?
-        </h2>
-        <p className="text-lg text-gray-600">
-          Choose the area where your team needs the most support
-        </p>
-      </div>
-
-      <div className="grid md:grid-cols-3 gap-4 mb-8">
-        {challenges.map((challenge) => (
-          <button
-            key={challenge.id}
-            onClick={() => handleChallengeSelect(challenge)}
-            className="p-6 text-left rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all text-gray-800 hover:border-orange-300 group"
-          >
-            <h3 className="font-semibold mb-2 group-hover:text-orange-600 transition-colors">
-              {challenge.title}
-            </h3>
-            <p className="text-sm text-gray-600">
-              {challenge.description}
-            </p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Navigation */}
+      <nav className="flex items-center justify-between p-6 bg-white border-b border-gray-100">
+        <div className="flex items-center gap-2">
+          <Flame className="w-8 h-8 text-purple-600" />
+          <span className="text-2xl font-bold text-gray-900">Campfire</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <button className="px-4 py-2 text-gray-600 hover:text-gray-900">Contact Us</button>
+          <button className="px-6 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+            Demo Platform
           </button>
-        ))}
-      </div>
+        </div>
+      </nav>
 
-      <div className="flex justify-center">
-        <button
-          onClick={handleBack}
-          className="px-6 py-3 bg-white/20 text-gray-700 rounded-xl font-semibold hover:bg-white/30 transition-all flex items-center gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </button>
+      <div className="container mx-auto px-6 py-16">
+        <div className="max-w-4xl mx-auto text-center mb-12">
+          <h2 className="text-4xl font-bold text-gray-900 mb-6">
+            What's the main challenge you'd like to help your people overcome?
+          </h2>
+          <p className="text-xl text-gray-600">
+            Choose the area where your team needs the most support
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
+          {challenges.map((challenge) => (
+            <button
+              key={challenge.id}
+              onClick={() => handleChallengeSelect(challenge)}
+              className="p-6 text-left bg-white rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all group"
+            >
+              <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
+                {challenge.title}
+              </h3>
+              <p className="text-sm text-gray-600">
+                {challenge.description}
+              </p>
+            </button>
+          ))}
+        </div>
+
+        <div className="flex justify-center">
+          <button
+            onClick={handleBack}
+            className="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-semibold hover:border-gray-400 transition-all flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -251,87 +354,101 @@ export default function ToolsPage() {
     const recommendations = getRecommendations(selectedChallenge.id);
 
     return (
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <button
-              onClick={handleBack}
-              className="px-4 py-2 bg-white/20 text-gray-700 rounded-lg hover:bg-white/30 transition-all flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </button>
-            <div className="flex gap-4">
-              <button className="px-4 py-2 bg-white/20 text-gray-700 rounded-lg hover:bg-white/30 transition-all">
-                Contact Us
-              </button>
-              <button className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all flex items-center gap-2">
-                <Download className="w-4 h-4" />
-                Download
-              </button>
-            </div>
+      <div className="min-h-screen bg-gray-50">
+        {/* Navigation */}
+        <nav className="flex items-center justify-between p-6 bg-white border-b border-gray-100">
+          <div className="flex items-center gap-2">
+            <Flame className="w-8 h-8 text-purple-600" />
+            <span className="text-2xl font-bold text-gray-900">Campfire</span>
           </div>
-          
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">
-            We'd recommend...
-          </h2>
-          <p className="text-lg text-gray-600">
-            Based on "{selectedChallenge.title}", here are your personalized recommendations
-          </p>
-        </div>
+          <div className="flex items-center gap-4">
+            <button className="px-4 py-2 text-gray-600 hover:text-gray-900">Contact Us</button>
+            <button className="px-6 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center gap-2">
+              <Download className="w-4 h-4" />
+              Download
+            </button>
+          </div>
+        </nav>
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Tools Section */}
-          <div className="backdrop-blur-md bg-white/20 rounded-2xl border border-white/30 p-6 shadow-xl">
-            <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-              <Target className="w-5 h-5 text-orange-500" />
-              Tools
-            </h3>
-            
-            <div className="space-y-4">
-              {recommendations.tools.map((tool) => (
-                <div key={tool.id} className="p-4 bg-white/20 rounded-xl hover:bg-white/30 transition-all group cursor-pointer" onClick={handleToolLaunch}>
-                  <div className="flex items-start gap-3">
-                    <tool.icon className="w-5 h-5 text-orange-500 mt-1" />
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-800 group-hover:text-orange-600 transition-colors">
-                        {tool.name}
+        <div className="container mx-auto px-6 py-16">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <button
+                onClick={handleBack}
+                className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 mb-8"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </button>
+              
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                We'd recommend...
+              </h2>
+              <p className="text-xl text-gray-600">
+                Based on "{selectedChallenge.title}", here are your personalized recommendations
+              </p>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Tools Section */}
+              <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+                <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Target className="w-5 h-5 text-purple-600" />
+                  </div>
+                  Tools
+                </h3>
+                
+                <div className="space-y-4">
+                  {recommendations.tools.map((tool) => (
+                    <div key={tool.id} className="p-4 border border-gray-100 rounded-xl hover:border-purple-200 hover:bg-purple-50/50 transition-all group cursor-pointer" onClick={handleToolLaunch}>
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mt-1 group-hover:bg-purple-200 transition-colors">
+                          <tool.icon className="w-4 h-4 text-purple-600" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">
+                            {tool.name}
+                          </h4>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {tool.description}
+                          </p>
+                          <span className="inline-block mt-2 px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                            {tool.type}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Programs/Courses Section */}
+              <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+                <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <BookOpen className="w-5 h-5 text-purple-600" />
+                  </div>
+                  Programs/Sessions/Live Workshops
+                </h3>
+                
+                <div className="space-y-4">
+                  {recommendations.courses.map((course) => (
+                    <div key={course.id} className="p-4 border border-gray-100 rounded-xl hover:border-purple-200 hover:bg-purple-50/50 transition-all group cursor-pointer">
+                      <h4 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">
+                        {course.title}
                       </h4>
                       <p className="text-sm text-gray-600 mt-1">
-                        {tool.description}
+                        {course.description}
                       </p>
-                      <span className="inline-block mt-2 px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">
-                        {tool.type}
-                      </span>
+                      <div className="flex justify-between items-center mt-3">
+                        <span className="text-xs font-medium text-purple-600 bg-purple-100 px-2 py-1 rounded">{course.duration}</span>
+                        <ArrowRight className="w-4 h-4 text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Programs/Courses Section */}
-          <div className="backdrop-blur-md bg-white/20 rounded-2xl border border-white/30 p-6 shadow-xl">
-            <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-orange-500" />
-              Programs/Sessions/Live Workshops
-            </h3>
-            
-            <div className="space-y-4">
-              {recommendations.courses.map((course) => (
-                <div key={course.id} className="p-4 bg-white/20 rounded-xl hover:bg-white/30 transition-all group cursor-pointer">
-                  <h4 className="font-semibold text-gray-800 group-hover:text-orange-600 transition-colors">
-                    {course.title}
-                  </h4>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {course.description}
-                  </p>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="text-xs text-gray-500">{course.duration}</span>
-                    <ArrowRight className="w-4 h-4 text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                </div>
-              ))}
+              </div>
             </div>
           </div>
         </div>
@@ -340,61 +457,71 @@ export default function ToolsPage() {
   };
 
   const renderScreen4 = () => (
-    <div className="max-w-4xl mx-auto">
-      <div className="backdrop-blur-md bg-white/20 rounded-2xl border border-white/30 p-8 shadow-xl">
-        <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={handleBack}
-            className="px-4 py-2 bg-white/20 text-gray-700 rounded-lg hover:bg-white/30 transition-all flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Full Recommendations
-          </button>
-          <div className="flex gap-4">
-            <button className="px-4 py-2 bg-white/20 text-gray-700 rounded-lg hover:bg-white/30 transition-all">
-              Contact Us
-            </button>
-            <button className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all">
-              Share
-            </button>
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Navigation */}
+      <nav className="flex items-center justify-between p-6 bg-white border-b border-gray-100">
+        <div className="flex items-center gap-2">
+          <Flame className="w-8 h-8 text-purple-600" />
+          <span className="text-2xl font-bold text-gray-900">Campfire</span>
         </div>
+        <div className="flex items-center gap-4">
+          <button className="px-4 py-2 text-gray-600 hover:text-gray-900">Contact Us</button>
+          <button className="px-6 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+            Share
+          </button>
+        </div>
+      </nav>
 
-        <h2 className="text-3xl font-bold text-gray-800 mb-8">Decision Audit</h2>
-        
-        <div className="space-y-6">
-          <p className="text-lg text-gray-700 mb-6">
-            Rate each statement on how true it feels for your team (1 = Never, 5 = Always)
-          </p>
-          
-          {[
-            "We have clear criteria for making important decisions",
-            "Team members understand their decision-making authority", 
-            "We consistently follow up on the outcomes of our decisions",
-            "Different perspectives are genuinely considered before deciding",
-            "We learn from our decision-making mistakes",
-            "Decisions are communicated clearly to all stakeholders",
-            "We make decisions at an appropriate speed for our context"
-          ].map((statement, index) => (
-            <div key={index} className="flex items-center justify-between p-4 bg-white/10 rounded-xl">
-              <span className="text-gray-800 flex-1 mr-4">{index + 1}. {statement}</span>
-              <div className="flex gap-2">
-                {[1, 2, 3, 4, 5].map((rating) => (
-                  <button
-                    key={rating}
-                    className="w-8 h-8 rounded-full border-2 border-orange-300 hover:bg-orange-200 transition-all"
-                  >
-                    {rating}
-                  </button>
-                ))}
+      <div className="container mx-auto px-6 py-16">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+            <div className="flex items-center justify-between mb-8">
+              <button
+                onClick={handleBack}
+                className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Full Recommendations
+              </button>
+            </div>
+
+            <h2 className="text-3xl font-bold text-gray-900 mb-8">Decision Audit</h2>
+            
+            <div className="space-y-6">
+              <p className="text-lg text-gray-700 mb-8">
+                Rate each statement on how true it feels for your team (1 = Never, 5 = Always)
+              </p>
+              
+              {[
+                "We have clear criteria for making important decisions",
+                "Team members understand their decision-making authority", 
+                "We consistently follow up on the outcomes of our decisions",
+                "Different perspectives are genuinely considered before deciding",
+                "We learn from our decision-making mistakes",
+                "Decisions are communicated clearly to all stakeholders",
+                "We make decisions at an appropriate speed for our context"
+              ].map((statement, index) => (
+                <div key={index} className="flex items-center justify-between p-6 bg-gray-50 rounded-xl border border-gray-100">
+                  <span className="text-gray-900 flex-1 mr-6 font-medium">{index + 1}. {statement}</span>
+                  <div className="flex gap-3">
+                    {[1, 2, 3, 4, 5].map((rating) => (
+                      <button
+                        key={rating}
+                        className="w-10 h-10 rounded-full border-2 border-purple-200 hover:border-purple-400 hover:bg-purple-50 transition-all font-medium text-gray-700 hover:text-purple-700"
+                      >
+                        {rating}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              
+              <div className="flex justify-center pt-8">
+                <button className="px-8 py-4 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors text-lg">
+                  Complete Assessment
+                </button>
               </div>
             </div>
-          ))}
-          
-          <div className="flex justify-center pt-6">
-            <button className="px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-red-600 transition-all">
-              Complete Assessment
-            </button>
           </div>
         </div>
       </div>
@@ -402,14 +529,12 @@ export default function ToolsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-100 via-red-50 to-pink-100">
-      <div className="container mx-auto px-4 py-8">
-        <div className={`transition-all duration-300 ${isTransitioning ? 'opacity-0 transform translate-x-4' : 'opacity-100 transform translate-x-0'}`}>
-          {currentScreen === 1 && renderScreen1()}
-          {currentScreen === 2 && renderScreen2()}
-          {currentScreen === 3 && renderScreen3()}
-          {currentScreen === 4 && renderScreen4()}
-        </div>
+    <div className="min-h-screen">
+      <div className={`transition-all duration-300 ${isTransitioning ? 'opacity-0 transform translate-x-4' : 'opacity-100 transform translate-x-0'}`}>
+        {currentScreen === 1 && renderScreen1()}
+        {currentScreen === 2 && renderScreen2()}
+        {currentScreen === 3 && renderScreen3()}
+        {currentScreen === 4 && renderScreen4()}
       </div>
     </div>
   );

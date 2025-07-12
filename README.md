@@ -1,32 +1,40 @@
-# Purpose Coach - Chat by the Fire
+# Campfire Guides
 
-An AI-powered personal development and coaching platform that helps individuals discover their purpose, values, and strengths through guided conversations.
+An AI-powered platform designed to empower employees and transform workplace culture through personalized coaching tools and development resources.
 
 ## Overview
 
-Purpose Coach (branded as "Chat by the Fire") provides interactive AI-driven coaching tools designed to help users explore and understand their personal and professional development goals. The platform features a warm, inviting campfire theme with glassmorphism design elements.
+Campfire Guides (formerly Purpose Coach) is a comprehensive coaching platform that helps companies and teams address workplace challenges through AI-driven conversations, assessments, and personalized recommendations. The platform features a modern purple-themed design with an intuitive multi-step workflow.
 
 ## Features
 
-- **AI-Powered Conversations**: Leverages OpenAI's API for intelligent, context-aware coaching dialogues
-- **Purpose Discovery Tool**: Guided journey to uncover personal purpose and life direction
-- **Downloadable Results**: Export coaching session insights as PDF documents
-- **Beautiful UI**: Modern glassmorphism design with animated backgrounds and intuitive interface
-- **Demo Mode**: Try the platform without API keys for testing
+### Current Features
 
-### Planned Features
+- **AI-Powered Challenge Discovery**: Intelligent conversational interface to identify team and culture challenges
+- **Personalized Tool Recommendations**: Smart matching of tools and courses based on specific workplace challenges
+- **Multi-Screen Workflow**: Seamless user journey from lead capture to tool selection
+- **Purpose Discovery Tool**: Complete 3-stage assessment for finding personal and professional purpose
+- **PDF Export**: Download assessment results and insights
+- **Responsive Design**: Modern UI with purple gradients and glassmorphism effects
+- **Demo Mode**: Try tools without API credentials
+
+### In Development
 - Values Explorer
 - Strengths Assessment
-- Career Path Guidance
-- Personal Growth Tracking
+- Decision Audit Tool
+- Trust Assessment
+- Feedback Conversation Guides
+- Change Leadership Resources
 
 ## Tech Stack
 
 - **Framework**: Next.js 15.3.4 with App Router
 - **Language**: TypeScript (strict mode)
 - **Styling**: Tailwind CSS v4 with PostCSS
-- **AI Integration**: OpenAI API
+- **AI Integration**: OpenAI API (GPT-4)
 - **PDF Generation**: jsPDF
+- **Icons**: Lucide React
+- **Fonts**: Inter (Google Fonts)
 - **Authentication**: Google OAuth (implemented but currently disabled)
 
 ## Getting Started
@@ -68,21 +76,45 @@ npm run dev
 ```
 /src
   /app
-    /api/chat       # OpenAI chat endpoint
+    /api/chat       # OpenAI GPT-4 chat endpoint
     /tools          # Coaching tool modules
-      /purpose      # Purpose discovery tool
-      /values       # Values explorer (planned)
-      /strengths    # Strengths assessment (planned)
-    layout.tsx      # Root layout with glassmorphism theme
-    page.tsx        # Homepage with main chat interface
+      /purpose      # Purpose discovery tool (fully implemented)
+      /values       # Values explorer (coming soon)
+      /strengths    # Strengths assessment (coming soon)
+      /career       # Career guidance (coming soon)
+      /clarity      # Clarity tool (coming soon)
+      /relationships # Relationships tool (coming soon)
+    layout.tsx      # Root layout with app metadata
+    page.tsx        # Homepage with AI challenge discovery chat
 ```
 
-## Usage
+## Application Flow
 
-1. **Main Chat**: Start a conversation on the homepage for general coaching
-2. **Purpose Tool**: Navigate to `/tools/purpose` for a structured purpose discovery journey
-3. **Demo Mode**: Click "Try Demo" to explore without API credentials
-4. **Export Results**: Download your coaching insights as a PDF at any time
+### 1. **Homepage - Challenge Discovery** (`/`)
+- AI-powered chat interface to identify workplace challenges
+- 5-stage conversation flow
+- Automatically suggests scheduling a demo based on responses
+
+### 2. **Tools Selection** (`/tools`)
+- **Screen 1**: Lead capture form with animated platform preview
+- **Screen 2**: Choose from 9 workplace challenges:
+  - Connect teams to goals
+  - Support managers in change
+  - Build culture of feedback, care, and trust
+  - Strengthen decision making
+  - Build confidence and capability
+  - Improve communication
+  - Increase emotional well-being
+  - Align expectations
+  - Scale without burning out
+- **Screen 3**: Receive personalized tool and course recommendations
+- **Screen 4**: Launch tools (currently shows Decision Audit preview)
+
+### 3. **Purpose Discovery Tool** (`/tools/purpose`)
+- 3-stage assessment: Purpose, Mission, and Vision
+- Interactive questionnaire with progress tracking
+- PDF export of results
+- Share functionality for team collaboration
 
 ## Development
 
@@ -92,6 +124,42 @@ npm run build  # Build for production
 npm run start  # Start production server
 npm run lint   # Run ESLint
 ```
+
+## Design System
+
+### Color Palette
+- **Primary**: Purple-600, Purple-500
+- **Secondary**: Pink-500, Orange-500
+- **Backgrounds**: Purple gradients, Gray-50
+- **Text**: Gray-900 (primary), Gray-600 (secondary)
+
+### UI Components
+- **Cards**: White backgrounds with subtle borders and shadows
+- **Buttons**: Purple-600 primary buttons, white secondary buttons
+- **Forms**: Clean inputs with purple focus states
+- **Navigation**: Sticky header with Campfire branding
+
+## Roadmap
+
+### Phase 1 (Current)
+- ✅ Challenge discovery chat interface
+- ✅ Tools recommendation engine
+- ✅ Purpose discovery tool
+- ✅ Lead capture and workflow
+
+### Phase 2 (Next)
+- [ ] Complete Decision Audit tool
+- [ ] Implement Values Explorer
+- [ ] Add Strengths Assessment
+- [ ] User authentication and profiles
+- [ ] Results dashboard
+
+### Phase 3 (Future)
+- [ ] Team collaboration features
+- [ ] Progress tracking
+- [ ] Custom assessments
+- [ ] Integration with HR systems
+- [ ] Analytics and reporting
 
 ## Contributing
 
@@ -104,5 +172,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Acknowledgments
 
 - Built with Next.js and Tailwind CSS
-- AI capabilities powered by OpenAI
-- Campfire theme inspired by the warmth of meaningful conversations
+- AI capabilities powered by OpenAI GPT-4
+- Modern UI design with purple gradients and glassmorphism
+- Focused on empowering workplace culture transformation

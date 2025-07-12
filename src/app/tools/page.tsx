@@ -87,6 +87,10 @@ export default function ToolsPage() {
     setIsLoading(false);
   };
 
+  const handleCustomRecommendation = () => {
+    handleGetRecommendation();
+  };
+
   const handleGetStarted = () => {
     const tool = availableTools.find(t => t.name === recommendation?.tool);
     if (tool) {
@@ -161,7 +165,7 @@ export default function ToolsPage() {
                   
                   <div className="flex gap-3">
                     <button
-                      onClick={handleGetRecommendation}
+                      onClick={handleCustomRecommendation}
                       disabled={!challenge.trim() || isLoading}
                       className="flex-1 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >

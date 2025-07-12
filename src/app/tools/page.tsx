@@ -1,313 +1,414 @@
 'use client';
 
 import { useState } from 'react';
-import { Flame, ArrowRight, BookOpen, Users, Calendar, Trophy, Star, Target } from 'lucide-react';
+import { Flame, ArrowRight, ArrowLeft, Users, Target, BookOpen, Brain, MessageCircle, Heart, Download } from 'lucide-react';
 
-interface Recommendation {
-  tool: string;
+interface UserProfile {
+  name: string;
+  email: string;
+  role: string;
+}
+
+interface Challenge {
+  id: string;
+  title: string;
   description: string;
-  timeRequired: string;
-  reason: string;
+}
+
+interface Tool {
+  id: string;
+  name: string;
+  type: 'assessment' | 'guide' | 'reflection';
+  icon: any;
+  description: string;
+}
+
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  duration: string;
 }
 
 export default function ToolsPage() {
-  const [challenge, setChallenge] = useState('');
-  const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showCustomInput, setShowCustomInput] = useState(false);
-  const [userResults, setUserResults] = useState([
-    { tool: 'Purpose Discovery', completed: true, score: 85 },
-    { tool: 'Values Alignment', completed: false, score: 0 }
-  ]);
+  const [currentScreen, setCurrentScreen] = useState(1);
+  const [userProfile, setUserProfile] = useState<UserProfile>({
+    name: '',
+    email: '',
+    role: ''
+  });
+  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const predefinedChallenges = [
-    'Navigate change',
-    'Better communication', 
-    'Employee well-being',
-    'Alignment on goals',
-    'Manager conversations',
-    'Consistent expectations'
+  const roles = [
+    'Talent Leader',
+    'People Leader', 
+    'IC',
+    'CEO/Other'
   ];
 
-  const availableTools = [
-    { name: 'Purpose Discovery', path: '/tools/purpose', icon: Target, description: 'Find your core purpose and direction' },
-    { name: 'Values Clarification', path: '/tools/values', icon: Star, description: 'Identify your fundamental values' },
-    { name: 'Strengths Assessment', path: '/tools/strengths', icon: Trophy, description: 'Discover your natural talents' },
+  const challenges: Challenge[] = [
+    { id: '1', title: 'Connect teams to goals', description: 'Align team efforts with organizational objectives' },
+    { id: '2', title: 'Support managers in change', description: 'Help leaders navigate organizational transitions' },
+    { id: '3', title: 'Build a culture of feedback, care, and trust', description: 'Foster psychological safety and open communication' },
+    { id: '4', title: 'Strengthen decision making', description: 'Improve clarity and speed in critical decisions' },
+    { id: '5', title: 'Help build confidence and capability', description: 'Develop skills and self-assurance in team members' },
+    { id: '6', title: 'Improve communication', description: 'Enhance clarity and effectiveness in all interactions' },
+    { id: '7', title: 'Increase emotional well-being', description: 'Support mental health and resilience' },
+    { id: '8', title: 'Align expectations', description: 'Create clarity around roles and responsibilities' },
+    { id: '9', title: 'Scale without burning out', description: 'Grow sustainably while maintaining team health' }
   ];
 
-  const handleChallengeSelect = (selectedChallenge: string) => {
-    setChallenge(selectedChallenge);
-    handleGetRecommendation(selectedChallenge);
+  // Map challenges to tools and courses
+  const getRecommendations = (challengeId: string) => {
+    const toolMappings: { [key: string]: Tool[] } = {
+      '1': [
+        { id: 't1', name: 'Goal Alignment Assessment', type: 'assessment', icon: Target, description: 'Evaluate current goal clarity and connection' },
+        { id: 't2', name: 'Strategy Conversation Guide', type: 'guide', icon: MessageCircle, description: 'Facilitate meaningful strategy discussions' },
+        { id: 't3', name: 'Purpose Reflection Tool', type: 'reflection', icon: Brain, description: 'Reflect on individual and team purpose' }
+      ],
+      '2': [
+        { id: 't4', name: 'Change Readiness Assessment', type: 'assessment', icon: Target, description: 'Assess readiness for organizational change' },
+        { id: 't5', name: 'Change Leadership Guide', type: 'guide', icon: MessageCircle, description: 'Navigate change conversations effectively' },
+        { id: 't6', name: 'Resilience Reflection', type: 'reflection', icon: Brain, description: 'Build personal resilience during change' }
+      ],
+      '3': [
+        { id: 't7', name: 'Trust Assessment', type: 'assessment', icon: Target, description: 'Measure trust levels within teams' },
+        { id: 't8', name: 'Feedback Conversation Guide', type: 'guide', icon: MessageCircle, description: 'Give and receive feedback effectively' },
+        { id: 't9', name: 'Emotional Intelligence Reflection', type: 'reflection', icon: Brain, description: 'Develop emotional awareness and regulation' }
+      ]
+      // Add more mappings as needed
+    };
+
+    const courseMappings: { [key: string]: Course[] } = {
+      '1': [
+        { id: 'c1', title: 'Strategic Goal Setting', description: 'Learn to set and cascade meaningful goals', duration: '2 weeks' },
+        { id: 'c2', title: 'Purpose-Driven Leadership', description: 'Connect individual purpose to organizational mission', duration: '3 weeks' },
+        { id: 'c3', title: 'Vision Alignment Workshop', description: 'Create shared understanding of organizational direction', duration: '1 week' }
+      ],
+      '2': [
+        { id: 'c4', title: 'Leading Through Change', description: 'Master the art of change management', duration: '4 weeks' },
+        { id: 'c5', title: 'Building Resilience', description: 'Develop personal and team resilience', duration: '2 weeks' },
+        { id: 'c6', title: 'Adaptive Leadership', description: 'Lead effectively in uncertain times', duration: '3 weeks' }
+      ],
+      '3': [
+        { id: 'c7', title: 'Building Trust at Scale', description: 'Create psychological safety across teams', duration: '3 weeks' },
+        { id: 'c8', title: 'Effective Feedback Systems', description: 'Design feedback loops that work', duration: '2 weeks' },
+        { id: 'c9', title: 'Emotional Intelligence Mastery', description: 'Develop emotional intelligence skills', duration: '4 weeks' }
+      ]
+    };
+
+    return {
+      tools: toolMappings[challengeId] || toolMappings['1'],
+      courses: courseMappings[challengeId] || courseMappings['1']
+    };
   };
 
-  const handleGetRecommendation = async (selectedChallenge?: string) => {
-    const challengeText = selectedChallenge || challenge;
-    if (!challengeText.trim()) return;
-    
-    setIsLoading(true);
-    
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [{
-            role: 'user',
-            content: `Based on this challenge: "${challengeText}", recommend ONE of these coaching tools and explain why: Purpose Discovery (helps find life direction and meaning), Values Clarification (identifies core values and principles), Strengths Assessment (discovers natural talents and abilities). Respond in JSON format: {"tool": "Tool Name", "description": "Brief description of what this tool will help with", "timeRequired": "estimated time", "reason": "why this tool is best for their challenge"}`
-          }]
-        })
-      });
-
-      const data = await response.json();
-      const content = data.choices[0].message.content;
-      
-      try {
-        const parsedRecommendation = JSON.parse(content);
-        setRecommendation(parsedRecommendation);
-      } catch {
-        // Fallback if AI doesn't return proper JSON
-        setRecommendation({
-          tool: 'Purpose Discovery',
-          description: 'Find clarity on your life direction and core purpose',
-          timeRequired: '15-20 minutes',
-          reason: 'This challenge suggests you need foundational clarity on your direction.'
-        });
-      }
-    } catch (error) {
-      console.error('Error getting recommendation:', error);
-      // Fallback recommendation
-      setRecommendation({
-        tool: 'Purpose Discovery',
-        description: 'Find clarity on your life direction and core purpose',
-        timeRequired: '15-20 minutes',
-        reason: 'A great starting point for most personal development journeys.'
-      });
+  const handleNext = () => {
+    if (currentScreen === 1 && (!userProfile.name || !userProfile.email || !userProfile.role)) {
+      return;
     }
     
-    setIsLoading(false);
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentScreen(prev => prev + 1);
+      setIsTransitioning(false);
+    }, 300);
   };
 
-  const handleCustomRecommendation = () => {
-    handleGetRecommendation();
+  const handleBack = () => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentScreen(prev => prev - 1);
+      setIsTransitioning(false);
+    }, 300);
   };
 
-  const handleGetStarted = () => {
-    const tool = availableTools.find(t => t.name === recommendation?.tool);
-    if (tool) {
-      window.location.href = tool.path;
-    }
+  const handleChallengeSelect = (challenge: Challenge) => {
+    setSelectedChallenge(challenge);
+    handleNext();
   };
+
+  const handleToolLaunch = () => {
+    setCurrentScreen(4);
+  };
+
+  const renderScreen1 = () => (
+    <div className="max-w-2xl mx-auto text-center">
+      {/* Hero Section */}
+      <div className="mb-12">
+        <div className="flex items-center justify-center gap-3 mb-6">
+          <Flame className="w-12 h-12 text-orange-500" />
+          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+            Campfire Guides
+          </h1>
+        </div>
+        <p className="text-2xl text-gray-700 mb-8">
+          Tools For Companies and Teams
+        </p>
+        <p className="text-lg text-gray-600 max-w-xl mx-auto">
+          Find the right tool for you or your team to help you thrive and get great results
+        </p>
+      </div>
+
+      {/* Lead Form */}
+      <div className="backdrop-blur-md bg-white/20 rounded-2xl border border-white/30 p-8 shadow-xl">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Get Started</h2>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+            <input
+              type="text"
+              value={userProfile.name}
+              onChange={(e) => setUserProfile(prev => ({ ...prev, name: e.target.value }))}
+              className="w-full p-3 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm placeholder-gray-500 text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400"
+              placeholder="Your name"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <input
+              type="email"
+              value={userProfile.email}
+              onChange={(e) => setUserProfile(prev => ({ ...prev, email: e.target.value }))}
+              className="w-full p-3 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm placeholder-gray-500 text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400"
+              placeholder="your@email.com"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+            <select
+              value={userProfile.role}
+              onChange={(e) => setUserProfile(prev => ({ ...prev, role: e.target.value }))}
+              className="w-full p-3 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400"
+            >
+              <option value="">Select your role</option>
+              {roles.map(role => (
+                <option key={role} value={role} className="bg-white text-gray-800">{role}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        
+        <button
+          onClick={handleNext}
+          disabled={!userProfile.name || !userProfile.email || !userProfile.role}
+          className="w-full mt-6 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          Next
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderScreen2 = () => (
+    <div className="max-w-4xl mx-auto">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-gray-800 mb-4">
+          What's the main challenge you'd like to help your people overcome?
+        </h2>
+        <p className="text-lg text-gray-600">
+          Choose the area where your team needs the most support
+        </p>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-4 mb-8">
+        {challenges.map((challenge) => (
+          <button
+            key={challenge.id}
+            onClick={() => handleChallengeSelect(challenge)}
+            className="p-6 text-left rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all text-gray-800 hover:border-orange-300 group"
+          >
+            <h3 className="font-semibold mb-2 group-hover:text-orange-600 transition-colors">
+              {challenge.title}
+            </h3>
+            <p className="text-sm text-gray-600">
+              {challenge.description}
+            </p>
+          </button>
+        ))}
+      </div>
+
+      <div className="flex justify-center">
+        <button
+          onClick={handleBack}
+          className="px-6 py-3 bg-white/20 text-gray-700 rounded-xl font-semibold hover:bg-white/30 transition-all flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderScreen3 = () => {
+    if (!selectedChallenge) return null;
+    
+    const recommendations = getRecommendations(selectedChallenge.id);
+
+    return (
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={handleBack}
+              className="px-4 py-2 bg-white/20 text-gray-700 rounded-lg hover:bg-white/30 transition-all flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </button>
+            <div className="flex gap-4">
+              <button className="px-4 py-2 bg-white/20 text-gray-700 rounded-lg hover:bg-white/30 transition-all">
+                Contact Us
+              </button>
+              <button className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                Download
+              </button>
+            </div>
+          </div>
+          
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">
+            We'd recommend...
+          </h2>
+          <p className="text-lg text-gray-600">
+            Based on "{selectedChallenge.title}", here are your personalized recommendations
+          </p>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Tools Section */}
+          <div className="backdrop-blur-md bg-white/20 rounded-2xl border border-white/30 p-6 shadow-xl">
+            <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+              <Target className="w-5 h-5 text-orange-500" />
+              Tools
+            </h3>
+            
+            <div className="space-y-4">
+              {recommendations.tools.map((tool) => (
+                <div key={tool.id} className="p-4 bg-white/20 rounded-xl hover:bg-white/30 transition-all group cursor-pointer" onClick={handleToolLaunch}>
+                  <div className="flex items-start gap-3">
+                    <tool.icon className="w-5 h-5 text-orange-500 mt-1" />
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-800 group-hover:text-orange-600 transition-colors">
+                        {tool.name}
+                      </h4>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {tool.description}
+                      </p>
+                      <span className="inline-block mt-2 px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">
+                        {tool.type}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Programs/Courses Section */}
+          <div className="backdrop-blur-md bg-white/20 rounded-2xl border border-white/30 p-6 shadow-xl">
+            <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-orange-500" />
+              Programs/Sessions/Live Workshops
+            </h3>
+            
+            <div className="space-y-4">
+              {recommendations.courses.map((course) => (
+                <div key={course.id} className="p-4 bg-white/20 rounded-xl hover:bg-white/30 transition-all group cursor-pointer">
+                  <h4 className="font-semibold text-gray-800 group-hover:text-orange-600 transition-colors">
+                    {course.title}
+                  </h4>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {course.description}
+                  </p>
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-xs text-gray-500">{course.duration}</span>
+                    <ArrowRight className="w-4 h-4 text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderScreen4 = () => (
+    <div className="max-w-4xl mx-auto">
+      <div className="backdrop-blur-md bg-white/20 rounded-2xl border border-white/30 p-8 shadow-xl">
+        <div className="flex items-center justify-between mb-6">
+          <button
+            onClick={handleBack}
+            className="px-4 py-2 bg-white/20 text-gray-700 rounded-lg hover:bg-white/30 transition-all flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Full Recommendations
+          </button>
+          <div className="flex gap-4">
+            <button className="px-4 py-2 bg-white/20 text-gray-700 rounded-lg hover:bg-white/30 transition-all">
+              Contact Us
+            </button>
+            <button className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all">
+              Share
+            </button>
+          </div>
+        </div>
+
+        <h2 className="text-3xl font-bold text-gray-800 mb-8">Decision Audit</h2>
+        
+        <div className="space-y-6">
+          <p className="text-lg text-gray-700 mb-6">
+            Rate each statement on how true it feels for your team (1 = Never, 5 = Always)
+          </p>
+          
+          {[
+            "We have clear criteria for making important decisions",
+            "Team members understand their decision-making authority", 
+            "We consistently follow up on the outcomes of our decisions",
+            "Different perspectives are genuinely considered before deciding",
+            "We learn from our decision-making mistakes",
+            "Decisions are communicated clearly to all stakeholders",
+            "We make decisions at an appropriate speed for our context"
+          ].map((statement, index) => (
+            <div key={index} className="flex items-center justify-between p-4 bg-white/10 rounded-xl">
+              <span className="text-gray-800 flex-1 mr-4">{index + 1}. {statement}</span>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map((rating) => (
+                  <button
+                    key={rating}
+                    className="w-8 h-8 rounded-full border-2 border-orange-300 hover:bg-orange-200 transition-all"
+                  >
+                    {rating}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+          
+          <div className="flex justify-center pt-6">
+            <button className="px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-red-600 transition-all">
+              Complete Assessment
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-100 via-red-50 to-pink-100">
       <div className="container mx-auto px-4 py-8">
-        
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Flame className="w-8 h-8 text-orange-500" />
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-              Find Your Way Forward
-            </h1>
-          </div>
-          <p className="text-xl text-gray-700 max-w-2xl mx-auto">
-            Get tailored guidance and tools to navigate life's challenges
-          </p>
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-8">
-          
-          {/* Main Content - Steps 1-3 */}
-          <div className="lg:col-span-2 space-y-8">
-            
-            {/* Step 1: Find Your Challenge */}
-            <div className="backdrop-blur-md bg-white/20 rounded-2xl border border-white/30 p-8 shadow-xl">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-red-500 text-white flex items-center justify-center font-bold">
-                  1
-                </div>
-                <h2 className="text-2xl font-bold text-gray-800">Find Your Challenge</h2>
-              </div>
-              
-              <p className="text-gray-700 mb-6">
-                What are you trying to navigate through right now?
-              </p>
-              
-              {!showCustomInput ? (
-                <div className="space-y-3">
-                  {predefinedChallenges.map((challengeOption, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleChallengeSelect(challengeOption)}
-                      className="w-full p-4 text-left rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all text-gray-800 hover:border-orange-300"
-                    >
-                      {challengeOption}
-                    </button>
-                  ))}
-                  
-                  <button
-                    onClick={() => setShowCustomInput(true)}
-                    className="w-full p-4 text-left rounded-xl border-2 border-dashed border-orange-300 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all text-orange-600 hover:border-orange-400"
-                  >
-                    Something else? Tell us more...
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <textarea
-                    value={challenge}
-                    onChange={(e) => setChallenge(e.target.value)}
-                    placeholder="Describe your challenge..."
-                    className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm placeholder-gray-500 text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-orange-400"
-                    rows={4}
-                    autoFocus
-                  />
-                  
-                  <div className="flex gap-3">
-                    <button
-                      onClick={handleCustomRecommendation}
-                      disabled={!challenge.trim() || isLoading}
-                      className="flex-1 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                      {isLoading ? 'Getting Recommendation...' : 'Get My Recommendation'}
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                    
-                    <button
-                      onClick={() => {
-                        setShowCustomInput(false);
-                        setChallenge('');
-                      }}
-                      className="px-4 py-3 bg-white/20 text-gray-700 rounded-xl font-semibold hover:bg-white/30 transition-all"
-                    >
-                      Back
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Step 2: Recommendation */}
-            {recommendation && (
-              <div className="backdrop-blur-md bg-white/20 rounded-2xl border border-white/30 p-8 shadow-xl">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-red-500 text-white flex items-center justify-center font-bold">
-                    2
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-800">Recommendation</h2>
-                </div>
-                
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-2">Use this tool when:</p>
-                    <p className="text-gray-700">{recommendation.reason}</p>
-                  </div>
-                  
-                  <div>
-                    <p className="text-sm text-gray-600 mb-2">Time required:</p>
-                    <p className="text-gray-700">{recommendation.timeRequired}</p>
-                  </div>
-                  
-                  <div>
-                    <p className="text-sm text-gray-600 mb-2">What it will help with:</p>
-                    <p className="text-gray-700">{recommendation.description}</p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-4 mt-6">
-                  <div className="flex-1 p-4 bg-white/30 rounded-xl">
-                    <h3 className="font-semibold text-gray-800 mb-2">{recommendation.tool}</h3>
-                    <p className="text-sm text-gray-600">Recommended for your challenge</p>
-                  </div>
-                  <button
-                    onClick={handleGetStarted}
-                    className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-semibold hover:from-green-600 hover:to-emerald-600 transition-all flex items-center gap-2"
-                  >
-                    Get Started
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 3: Your Personalized System */}
-            <div className="backdrop-blur-md bg-white/20 rounded-2xl border border-white/30 p-8 shadow-xl">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-red-500 text-white flex items-center justify-center font-bold">
-                  3
-                </div>
-                <h2 className="text-2xl font-bold text-gray-800">Your Personalized System</h2>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 p-3 bg-white/20 rounded-lg">
-                  <BookOpen className="w-5 h-5 text-orange-500" />
-                  <span className="text-gray-700">Use the tools to...</span>
-                </div>
-                
-                <div className="flex items-center gap-3 p-3 bg-white/20 rounded-lg">
-                  <Users className="w-5 h-5 text-orange-500" />
-                  <span className="text-gray-700">Live sessions on...</span>
-                </div>
-                
-                <div className="flex items-center gap-3 p-3 bg-white/20 rounded-lg">
-                  <Calendar className="w-5 h-5 text-orange-500" />
-                  <span className="text-gray-700">Monthly workshops on...</span>
-                </div>
-              </div>
-              
-              <div className="mt-6">
-                <p className="text-sm text-gray-600 mb-2">Other sessions to explore:</p>
-                <p className="text-gray-700">Additional coaching opportunities will appear here as you complete tools and build your personalized development plan.</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Sidebar: Your Results */}
-          <div className="lg:col-span-1">
-            <div className="backdrop-blur-md bg-white/20 rounded-2xl border border-white/30 p-6 shadow-xl sticky top-8">
-              <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-orange-500" />
-                Your Results
-              </h3>
-              
-              <div className="space-y-4">
-                {userResults.map((result, index) => (
-                  <div key={index} className="p-4 bg-white/30 rounded-xl">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-semibold text-gray-800 text-sm">{result.tool}</h4>
-                      {result.completed && <Star className="w-4 h-4 text-yellow-500 fill-current" />}
-                    </div>
-                    
-                    {result.completed ? (
-                      <div>
-                        <div className="flex justify-between text-xs text-gray-600 mb-1">
-                          <span>Completion Score</span>
-                          <span>{result.score}%</span>
-                        </div>
-                        <div className="w-full bg-white/20 rounded-full h-2">
-                          <div 
-                            className="bg-gradient-to-r from-green-400 to-emerald-500 h-2 rounded-full transition-all"
-                            style={{ width: `${result.score}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-xs text-gray-600">Not started</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-              
-              <div className="mt-6 p-4 bg-gradient-to-r from-orange-400/20 to-red-400/20 rounded-xl border border-orange-200">
-                <h4 className="font-semibold text-gray-800 mb-2">Level 2 - Beacon</h4>
-                <p className="text-xs text-gray-600 mb-2">Complete 3 tools to unlock advanced coaching features</p>
-                <div className="w-full bg-white/30 rounded-full h-2">
-                  <div className="bg-gradient-to-r from-orange-400 to-red-400 h-2 rounded-full w-1/3"></div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className={`transition-all duration-300 ${isTransitioning ? 'opacity-0 transform translate-x-4' : 'opacity-100 transform translate-x-0'}`}>
+          {currentScreen === 1 && renderScreen1()}
+          {currentScreen === 2 && renderScreen2()}
+          {currentScreen === 3 && renderScreen3()}
+          {currentScreen === 4 && renderScreen4()}
         </div>
       </div>
     </div>

@@ -152,7 +152,7 @@ export default function CampfireAgent() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-white">Campfire Guides</h1>
-                <p className="text-blue-200 text-sm">AI-powered culture operating system</p>
+                <p className="text-blue-200 text-sm">Tools For Companies and Teams</p>
               </div>
             </div>
             <a href="/tools" className="text-blue-200 hover:text-white transition-colors text-sm">
@@ -167,8 +167,8 @@ export default function CampfireAgent() {
         <div className="bg-white/10 backdrop-blur-sm rounded-xl shadow-2xl border border-white/20 overflow-hidden">
           {/* Chat Header */}
           <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 px-6 py-4 border-b border-white/20">
-            <h2 className="text-lg font-semibold text-white">Culture Check-in</h2>
-            <p className="text-blue-200 text-sm mt-1">Let's explore what's happening with your team</p>
+            <h2 className="text-lg font-semibold text-white">Find Your Perfect Tool</h2>
+            <p className="text-blue-200 text-sm mt-1">Find the right tool for you or your team to help you thrive and get great results</p>
           </div>
 
           {/* Messages */}

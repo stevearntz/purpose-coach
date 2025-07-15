@@ -11,6 +11,7 @@ interface UserProfile {
 
 interface Challenge {
   id: string;
+  persona: string;
   title: string;
   description: string;
 }
@@ -41,66 +42,160 @@ export default function ToolsPage() {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const roles = [
+    'People Leader',
     'Talent Leader',
-    'People Leader', 
-    'IC',
-    'CEO/Other'
+    'Individual Contributor',
+    'CEO/Executive',
+    'Other'
   ];
 
-  const challenges: Challenge[] = [
-    { id: '1', title: 'Connect teams to goals', description: 'Align team efforts with organizational objectives' },
-    { id: '2', title: 'Support managers in change', description: 'Help leaders navigate organizational transitions' },
-    { id: '3', title: 'Build a culture of feedback, care, and trust', description: 'Foster psychological safety and open communication' },
-    { id: '4', title: 'Strengthen decision making', description: 'Improve clarity and speed in critical decisions' },
-    { id: '5', title: 'Help build confidence and capability', description: 'Develop skills and self-assurance in team members' },
-    { id: '6', title: 'Improve communication', description: 'Enhance clarity and effectiveness in all interactions' },
-    { id: '7', title: 'Increase emotional well-being', description: 'Support mental health and resilience' },
-    { id: '8', title: 'Align expectations', description: 'Create clarity around roles and responsibilities' },
-    { id: '9', title: 'Scale without burning out', description: 'Grow sustainably while maintaining team health' }
+  // Define all challenges with persona mappings
+  const allChallenges = [
+    // People Leader (Manager) challenges
+    { id: 'p1-c1', persona: 'People Leader', title: 'Purpose + Direction', description: 'Align my team on purpose and direction' },
+    { id: 'p1-c2', persona: 'People Leader', title: 'Navigating Change', description: 'Help my team adapt to change' },
+    { id: 'p1-c3', persona: 'People Leader', title: 'Trust + Psychological Safety', description: 'Build trust and psychological safety' },
+    { id: 'p1-c4', persona: 'People Leader', title: 'Empowering Others', description: 'Empower others through coaching and support' },
+    { id: 'p1-c5', persona: 'People Leader', title: 'Effective Decision Making', description: 'Improve decision making on my team' },
+    { id: 'p1-c6', persona: 'People Leader', title: 'Well-Being + Resilience', description: 'Support well-being and prevent burnout' },
+    { id: 'p1-c7', persona: 'People Leader', title: 'Communication and Collaboration', description: 'Communicate and collaborate more effectively' },
+    { id: 'p1-c8', persona: 'People Leader', title: 'Role Clarity + Expectations', description: 'Create clarity around roles and expectations' },
+    { id: 'p1-c9', persona: 'People Leader', title: 'Growth + Development', description: 'Develop my team\'s skills and confidence' },
+    
+    // Talent Leader challenges
+    { id: 'p2-c1', persona: 'Talent Leader', title: 'Alignment + Direction', description: 'Align the organization on purpose and direction' },
+    { id: 'p2-c2', persona: 'Talent Leader', title: 'Navigating Change', description: 'Support teams through change and uncertainty' },
+    { id: 'p2-c3', persona: 'Talent Leader', title: 'Feedback + Trust', description: 'Foster a culture of trust and psychological safety' },
+    { id: 'p2-c4', persona: 'Talent Leader', title: 'Leadership Effectiveness', description: 'Enable managers to coach and empower others' },
+    { id: 'p2-c5', persona: 'Talent Leader', title: 'Decision Making', description: 'Improve decision making across the organization' },
+    { id: 'p2-c6', persona: 'Talent Leader', title: 'Well-Being', description: 'Promote well-being and resilience at scale' },
+    { id: 'p2-c7', persona: 'Talent Leader', title: 'Communication and Collaboration', description: 'Strengthen communication and collaboration across teams' },
+    { id: 'p2-c8', persona: 'Talent Leader', title: 'Clarity + Expectations', description: 'Clarify roles, responsibilities, and expectations' },
+    { id: 'p2-c9', persona: 'Talent Leader', title: 'Skill Building', description: 'Drive skill development and continuous learning' },
+    
+    // Individual Contributor challenges
+    { id: 'p3-c1', persona: 'Individual Contributor', title: 'Alignment + Direction', description: 'Understand the purpose behind my work' },
+    { id: 'p3-c2', persona: 'Individual Contributor', title: 'Navigating Change', description: 'Adapt to change with confidence' },
+    { id: 'p3-c3', persona: 'Individual Contributor', title: 'Feedback + Trust', description: 'Build trust with my team' },
+    { id: 'p3-c4', persona: 'Individual Contributor', title: 'Leadership Effectiveness', description: 'Take ownership and contribute meaningfully' },
+    { id: 'p3-c5', persona: 'Individual Contributor', title: 'Decision Making', description: 'Make better decisions in my day-to-day' },
+    { id: 'p3-c6', persona: 'Individual Contributor', title: 'Well-Being', description: 'Care for my well-being and avoid burnout' },
+    { id: 'p3-c7', persona: 'Individual Contributor', title: 'Communication and Collaboration', description: 'Communicate and collaborate more effectively' },
+    { id: 'p3-c8', persona: 'Individual Contributor', title: 'Clarity + Expectations', description: 'Get clear on what\'s expected of me' },
+    { id: 'p3-c9', persona: 'Individual Contributor', title: 'Skill Building', description: 'Grow my skills and develop in my role' },
+    
+    // CEO/Executive challenges
+    { id: 'p4-c1', persona: 'CEO/Executive', title: 'Alignment + Direction', description: 'Align the company around purpose and direction' },
+    { id: 'p4-c2', persona: 'CEO/Executive', title: 'Navigating Change', description: 'Lead the organization through change' },
+    { id: 'p4-c3', persona: 'CEO/Executive', title: 'Feedback + Trust', description: 'Build a culture of trust and psychological safety' },
+    { id: 'p4-c4', persona: 'CEO/Executive', title: 'Leadership Effectiveness', description: 'Empower leaders to grow and develop their teams' },
+    { id: 'p4-c5', persona: 'CEO/Executive', title: 'Decision Making', description: 'Improve decision making at every level' },
+    { id: 'p4-c6', persona: 'CEO/Executive', title: 'Well-Being', description: 'Support well-being and resilience across the company' },
+    { id: 'p4-c7', persona: 'CEO/Executive', title: 'Communication and Collaboration', description: 'Strengthen communication and collaboration company-wide' },
+    { id: 'p4-c8', persona: 'CEO/Executive', title: 'Clarity + Expectations', description: 'Ensure clarity of roles, accountability, and expectations' },
+    { id: 'p4-c9', persona: 'CEO/Executive', title: 'Skill Building', description: 'Invest in skill development to drive performance and growth' },
+    
+    // Other challenges
+    { id: 'p5-c1', persona: 'Other', title: 'Alignment + Direction', description: 'Connect my work to the organization\'s purpose and direction' },
+    { id: 'p5-c2', persona: 'Other', title: 'Navigating Change', description: 'Support others through change and transition' },
+    { id: 'p5-c3', persona: 'Other', title: 'Feedback + Trust', description: 'Create spaces of trust and psychological safety' },
+    { id: 'p5-c4', persona: 'Other', title: 'Leadership Effectiveness', description: 'Help others grow through support and encouragement' },
+    { id: 'p5-c5', persona: 'Other', title: 'Decision Making', description: 'Contribute to better decisions across the team' },
+    { id: 'p5-c6', persona: 'Other', title: 'Well-Being', description: 'Promote well-being and emotional resilience' },
+    { id: 'p5-c7', persona: 'Other', title: 'Communication and Collaboration', description: 'Facilitate clear and respectful communication' },
+    { id: 'p5-c8', persona: 'Other', title: 'Clarity + Expectations', description: 'Bring clarity to roles and shared expectations' },
+    { id: 'p5-c9', persona: 'Other', title: 'Skill Building', description: 'Support learning and skill development for those around me' }
   ];
+
+  // Filter challenges based on selected role
+  const challenges = allChallenges.filter(challenge => challenge.persona === userProfile.role);
 
   // Map challenges to tools and courses
   const getRecommendations = (challengeId: string) => {
+    // Extract challenge type from ID (e.g., 'p1-c1' -> 'c1')
+    const challengeType = challengeId.split('-')[1];
+    
     const toolMappings: { [key: string]: Tool[] } = {
-      '1': [
-        { id: 't1', name: 'Goal Alignment Assessment', type: 'assessment', icon: Target, description: 'Evaluate current goal clarity and connection' },
-        { id: 't2', name: 'Strategy Conversation Guide', type: 'guide', icon: MessageCircle, description: 'Facilitate meaningful strategy discussions' },
-        { id: 't3', name: 'Purpose Reflection Tool', type: 'reflection', icon: Brain, description: 'Reflect on individual and team purpose' }
+      'c1': [ // Purpose + Direction / Alignment + Direction
+        { id: 't1', name: 'Purpose and Alignment Map', type: 'guide', icon: Target, description: 'Create clarity around purpose and strategic alignment' }
       ],
-      '2': [
-        { id: 't4', name: 'Change Readiness Assessment', type: 'assessment', icon: Target, description: 'Assess readiness for organizational change' },
-        { id: 't5', name: 'Change Leadership Guide', type: 'guide', icon: MessageCircle, description: 'Navigate change conversations effectively' },
-        { id: 't6', name: 'Resilience Reflection', type: 'reflection', icon: Brain, description: 'Build personal resilience during change' }
+      'c2': [ // Navigating Change
+        { id: 't2', name: 'Change Readiness Reflection', type: 'reflection', icon: Brain, description: 'Assess and build readiness for navigating change' }
       ],
-      '3': [
-        { id: 't7', name: 'Trust Assessment', type: 'assessment', icon: Target, description: 'Measure trust levels within teams' },
-        { id: 't8', name: 'Feedback Conversation Guide', type: 'guide', icon: MessageCircle, description: 'Give and receive feedback effectively' },
-        { id: 't9', name: 'Emotional Intelligence Reflection', type: 'reflection', icon: Brain, description: 'Develop emotional awareness and regulation' }
+      'c3': [ // Trust + Psychological Safety / Feedback + Trust
+        { id: 't3', name: 'Team Trust Audit', type: 'assessment', icon: Target, description: 'Evaluate and strengthen trust within your team' }
+      ],
+      'c4': [ // Empowering Others / Leadership Effectiveness
+        { id: 't4', name: 'Coaching Questions Card Deck', type: 'guide', icon: MessageCircle, description: 'Powerful questions to empower and develop others' }
+      ],
+      'c5': [ // Decision Making
+        { id: 't5', name: 'Decision Filter Framework', type: 'guide', icon: Target, description: 'Make better decisions with a structured approach' }
+      ],
+      'c6': [ // Well-Being + Resilience
+        { id: 't6', name: 'Burnout Assessment', type: 'assessment', icon: Heart, description: 'Identify and address signs of burnout' }
+      ],
+      'c7': [ // Communication and Collaboration
+        { id: 't7', name: 'Working with Me Guide', type: 'guide', icon: Users, description: 'Share your work style and improve collaboration' }
+      ],
+      'c8': [ // Role Clarity + Expectations
+        { id: 't8', name: 'Hopes, Fears, Expectations Template', type: 'guide', icon: MessageCircle, description: 'Create clarity through open dialogue about expectations' }
+      ],
+      'c9': [ // Growth + Development / Skill Building
+        { id: 't9', name: 'Career Drivers Exercise', type: 'reflection', icon: TrendingUp, description: 'Discover what motivates and drives your career growth' }
       ]
-      // Add more mappings as needed
     };
 
     const courseMappings: { [key: string]: Course[] } = {
-      '1': [
-        { id: 'c1', title: 'Strategic Goal Setting', description: 'Learn to set and cascade meaningful goals', duration: '2 weeks' },
-        { id: 'c2', title: 'Purpose-Driven Leadership', description: 'Connect individual purpose to organizational mission', duration: '3 weeks' },
-        { id: 'c3', title: 'Vision Alignment Workshop', description: 'Create shared understanding of organizational direction', duration: '1 week' }
+      'c1': [ // Purpose + Direction / Alignment + Direction
+        { id: 'course1', title: 'Strategic Goal Setting', description: 'Learn to set and cascade meaningful goals', duration: '2 weeks' },
+        { id: 'course2', title: 'Purpose-Driven Leadership', description: 'Connect individual purpose to organizational mission', duration: '3 weeks' },
+        { id: 'course3', title: 'Vision Alignment Workshop', description: 'Create shared understanding of organizational direction', duration: '1 week' }
       ],
-      '2': [
-        { id: 'c4', title: 'Leading Through Change', description: 'Master the art of change management', duration: '4 weeks' },
-        { id: 'c5', title: 'Building Resilience', description: 'Develop personal and team resilience', duration: '2 weeks' },
-        { id: 'c6', title: 'Adaptive Leadership', description: 'Lead effectively in uncertain times', duration: '3 weeks' }
+      'c2': [ // Navigating Change
+        { id: 'course4', title: 'Leading Through Change', description: 'Master the art of change management', duration: '4 weeks' },
+        { id: 'course5', title: 'Building Resilience', description: 'Develop personal and team resilience', duration: '2 weeks' },
+        { id: 'course6', title: 'Adaptive Leadership', description: 'Lead effectively in uncertain times', duration: '3 weeks' }
       ],
-      '3': [
-        { id: 'c7', title: 'Building Trust at Scale', description: 'Create psychological safety across teams', duration: '3 weeks' },
-        { id: 'c8', title: 'Effective Feedback Systems', description: 'Design feedback loops that work', duration: '2 weeks' },
-        { id: 'c9', title: 'Emotional Intelligence Mastery', description: 'Develop emotional intelligence skills', duration: '4 weeks' }
+      'c3': [ // Trust + Psychological Safety / Feedback + Trust
+        { id: 'course7', title: 'Building Trust at Scale', description: 'Create psychological safety across teams', duration: '3 weeks' },
+        { id: 'course8', title: 'Effective Feedback Systems', description: 'Design feedback loops that work', duration: '2 weeks' },
+        { id: 'course9', title: 'Emotional Intelligence Mastery', description: 'Develop emotional intelligence skills', duration: '4 weeks' }
+      ],
+      'c4': [ // Empowering Others / Leadership Effectiveness
+        { id: 'course10', title: 'Coaching for Impact', description: 'Develop coaching skills that empower others', duration: '3 weeks' },
+        { id: 'course11', title: 'Delegation Mastery', description: 'Learn to delegate effectively and build capability', duration: '2 weeks' },
+        { id: 'course12', title: 'Servant Leadership', description: 'Lead by serving and empowering your team', duration: '3 weeks' }
+      ],
+      'c5': [ // Decision Making
+        { id: 'course13', title: 'Strategic Decision Making', description: 'Make better decisions under pressure', duration: '2 weeks' },
+        { id: 'course14', title: 'Data-Driven Decisions', description: 'Use data and analytics to guide choices', duration: '3 weeks' },
+        { id: 'course15', title: 'Collaborative Decision Making', description: 'Include diverse perspectives in decisions', duration: '2 weeks' }
+      ],
+      'c6': [ // Well-Being + Resilience
+        { id: 'course16', title: 'Well-Being at Work', description: 'Create sustainable work practices', duration: '3 weeks' },
+        { id: 'course17', title: 'Burnout Prevention', description: 'Identify and prevent team burnout', duration: '2 weeks' },
+        { id: 'course18', title: 'Building Mental Fitness', description: 'Develop resilience and mental strength', duration: '4 weeks' }
+      ],
+      'c7': [ // Communication and Collaboration
+        { id: 'course19', title: 'Effective Communication', description: 'Master clear and impactful communication', duration: '3 weeks' },
+        { id: 'course20', title: 'Cross-Functional Collaboration', description: 'Work effectively across teams and silos', duration: '2 weeks' },
+        { id: 'course21', title: 'Virtual Team Success', description: 'Collaborate effectively in remote settings', duration: '2 weeks' }
+      ],
+      'c8': [ // Role Clarity + Expectations
+        { id: 'course22', title: 'Role Design Workshop', description: 'Create clear and meaningful roles', duration: '2 weeks' },
+        { id: 'course23', title: 'Performance Expectations', description: 'Set and communicate clear expectations', duration: '2 weeks' },
+        { id: 'course24', title: 'Accountability Systems', description: 'Build accountability into your culture', duration: '3 weeks' }
+      ],
+      'c9': [ // Growth + Development / Skill Building
+        { id: 'course25', title: 'Learning Culture', description: 'Build a culture of continuous learning', duration: '3 weeks' },
+        { id: 'course26', title: 'Career Development Planning', description: 'Create meaningful development paths', duration: '2 weeks' },
+        { id: 'course27', title: 'Skills for the Future', description: 'Develop tomorrow\'s critical capabilities', duration: '4 weeks' }
       ]
     };
 
     return {
-      tools: toolMappings[challengeId] || toolMappings['1'],
-      courses: courseMappings[challengeId] || courseMappings['1']
+      tools: toolMappings[challengeType] || toolMappings['c1'],
+      courses: courseMappings[challengeType] || courseMappings['c1']
     };
   };
 

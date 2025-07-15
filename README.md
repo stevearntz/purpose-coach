@@ -97,17 +97,26 @@ npm run dev
 
 ### 2. **Tools Selection** (`/tools`)
 - **Screen 1**: Lead capture form with animated platform preview
-- **Screen 2**: Choose from 9 workplace challenges:
-  - Connect teams to goals
-  - Support managers in change
-  - Build culture of feedback, care, and trust
-  - Strengthen decision making
-  - Build confidence and capability
-  - Improve communication
-  - Increase emotional well-being
-  - Align expectations
-  - Scale without burning out
-- **Screen 3**: Receive personalized tool and course recommendations
+- **Screen 2**: Choose from 9 workplace challenges based on persona:
+  - Purpose + Direction / Alignment + Direction
+  - Navigating Change
+  - Trust + Psychological Safety / Feedback + Trust
+  - Empowering Others / Leadership Effectiveness
+  - Effective Decision Making
+  - Well-Being + Resilience
+  - Communication and Collaboration
+  - Role Clarity + Expectations
+  - Growth + Development / Skill Building
+- **Screen 3**: Receive personalized tool and course recommendations:
+  - **Tool 1**: Purpose and Alignment Map
+  - **Tool 2**: Change Readiness Reflection
+  - **Tool 3**: Team Trust Audit
+  - **Tool 4**: Coaching Questions Card Deck
+  - **Tool 5**: Decision Filter Framework
+  - **Tool 6**: Burnout Assessment
+  - **Tool 7**: Working with Me Guide
+  - **Tool 8**: Hopes, Fears, Expectations Template
+  - **Tool 9**: Career Drivers Exercise
 - **Screen 4**: Launch tools (currently shows Decision Audit preview)
 
 ### 3. **Purpose Discovery Tool** (`/tools/purpose`)

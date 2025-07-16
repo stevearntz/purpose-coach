@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Download, Share2, Loader2 } from 'lucide-react';
 import jsPDF from 'jspdf';
+import Footer from '@/components/Footer';
 
 interface SharedData {
   type: string;
@@ -218,6 +219,8 @@ export default function SharePage() {
           )}
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { ArrowLeft, Flame } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getCourseIdsForChallenges } from '@/app/lib/courseMappings';
 import { allCourses } from '@/app/lib/coursesData';
+import Footer from '@/components/Footer';
 
 interface Course {
   id: string;
@@ -120,9 +121,9 @@ export default function CoursesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-br from-iris via-purple-500 to-pink-500 text-white">
+      <div className="gradient-main-horizontal text-white">
         <div className="container mx-auto px-6 pt-12 pb-8">
-          <div className="flex items-center justify-between mb-8">
+          <div className="mb-8">
             <button
               onClick={() => router.push('/tools?screen=4')}
               className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
@@ -130,12 +131,6 @@ export default function CoursesPage() {
               <ArrowLeft className="w-5 h-5" />
               BACK TO TOOLS
             </button>
-            
-            <img 
-              src="/campfire_logo_white.svg"
-              alt="Campfire Logo"
-              className="h-8"
-            />
           </div>
           
           <div className="text-center">
@@ -233,7 +228,7 @@ export default function CoursesPage() {
         )}
       </div>
 
-      {/* Footer */}
+      {/* CTA Section */}
       <div className="container mx-auto px-6 py-12 text-center">
         <p className="text-gray-600 mb-6">Need help choosing the right courses for your team?</p>
         <button 
@@ -243,6 +238,8 @@ export default function CoursesPage() {
           BOOK A DEMO
         </button>
       </div>
+
+      <Footer />
     </div>
   );
 }

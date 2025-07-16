@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
 import { Share2, Loader2 } from 'lucide-react';
+import Footer from '@/components/Footer';
 
 interface UserData {
   id: string;
@@ -487,6 +488,8 @@ export default function PurposeCoach() {
           </div>
         </div>
       </div>
+      
+      <Footer />
     );
   }
 

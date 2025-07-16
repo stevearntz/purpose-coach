@@ -10,6 +10,10 @@
   --iris-100: #CFC0ED; /* purple-100 replacement */
   --iris-light: #E8DEFF; /* light variant for backgrounds */
   --iris-lighter: #F5EFFF; /* lighter variant for subtle backgrounds */
+  --gradient-1: #6E3FCC; /* gradient color 0% */
+  --gradient-2: #A14ED0; /* gradient color 33% */
+  --gradient-3: #EB6593; /* gradient color 66% */
+  --gradient-4: #FCA376; /* gradient color 100% */
 }
 
 @theme inline {
@@ -22,6 +26,10 @@
   --color-iris-100: var(--iris-100);
   --color-iris-light: var(--iris-light);
   --color-iris-lighter: var(--iris-lighter);
+  --color-gradient-1: var(--gradient-1);
+  --color-gradient-2: var(--gradient-2);
+  --color-gradient-3: var(--gradient-3);
+  --color-gradient-4: var(--gradient-4);
   --font-sans: var(--font-league-spartan);
 }
 
@@ -131,4 +139,27 @@ body {
     break-inside: avoid-page !important;
     overflow: visible !important;
   }
+}
+
+/* Custom gradient classes */
+.gradient-main {
+  background: linear-gradient(to bottom right, 
+    var(--gradient-1) 0%, 
+    var(--gradient-2) 33%, 
+    var(--gradient-3) 66%, 
+    var(--gradient-4) 100%);
+}
+
+.gradient-main-horizontal {
+  background: linear-gradient(to right, 
+    var(--gradient-1) 0%, 
+    var(--gradient-2) 33%, 
+    var(--gradient-3) 66%, 
+    var(--gradient-4) 100%);
+}
+
+.gradient-divider {
+  background: linear-gradient(to right, 
+    var(--gradient-2) 0%, 
+    var(--gradient-3) 100%);
 }

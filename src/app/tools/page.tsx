@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Flame, ArrowLeft, ArrowRight, Target, Printer, BookOpen } from 'lucide-react';
 import { challengeCourseMappings } from '@/app/lib/courseMappings';
+import Footer from '@/components/Footer';
 
 interface UserProfile {
   role: string;
@@ -658,7 +659,7 @@ function ToolsPage() {
           .divider {
             width: 120px;
             height: 4px;
-            background: linear-gradient(to right, #a855f7, #ec4899);
+            background: linear-gradient(to right, #A14ED0, #EB6593);
             margin: 40px auto;
             border-radius: 2px;
             box-shadow: 0 2px 4px rgba(168, 85, 247, 0.2);
@@ -866,7 +867,7 @@ function ToolsPage() {
   // Screen 1: Role Selection (with nice dropdown)
   if (currentScreen === 1) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-iris via-purple-500 to-pink-500 flex items-center justify-center px-4 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-2xl mx-auto text-center text-white">
           <div className="flex items-center justify-center gap-3 mb-6">
             <img 
@@ -876,7 +877,7 @@ function ToolsPage() {
             />
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">Fuel a culture that performs.</h2>
-          <p className="text-base sm:text-lg md:text-xl text-iris-100 mb-8 sm:mb-12 md:mb-16 px-2">
+          <p className="text-base sm:text-lg md:text-xl text-purple-100 mb-8 sm:mb-12 md:mb-16 px-2">
             Discover the right tools, assessments, and courses to help you—and your teams—grow stronger, move faster, and build real momentum.
             Answer a few quick questions and we'll match you with the most impactful solutions for your role and challenges.
           </p>
@@ -908,7 +909,7 @@ function ToolsPage() {
               <button
                 onClick={handleNext}
                 disabled={!userProfile.role}
-                className="w-full py-3 sm:py-4 bg-white text-iris rounded-xl font-semibold hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base sm:text-lg"
+                className="w-full py-3 sm:py-4 bg-white text-indigo-600 rounded-xl font-semibold hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base sm:text-lg"
               >
                 NEXT
               </button>
@@ -922,7 +923,8 @@ function ToolsPage() {
   // Screen 2: Challenge Selection (9 role-specific challenges)
   if (currentScreen === 2) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-iris-100 via-pink-50 to-purple-50 py-16">
+      <>
+        <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-purple-50 py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-4xl font-bold text-nightfall mb-6">
@@ -949,23 +951,23 @@ function ToolsPage() {
                 >
                   {/* Selection number badge */}
                   {isSelected && (
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-iris rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
                       {selectionIndex + 1}
                     </div>
                   )}
                   
                   <div className="flex items-start gap-4">
                     <div className="flex-1">
-                      <h3 className={`font-semibold mb-2 ${isSelected ? 'text-iris-dark' : 'text-nightfall'}`}>
+                      <h3 className={`font-semibold mb-2 ${isSelected ? 'text-indigo-700' : 'text-nightfall'}`}>
                         {challenge.title}
                       </h3>
-                      <p className={`text-sm ${isSelected ? 'text-iris' : 'text-gray-600'}`}>
+                      <p className={`text-sm ${isSelected ? 'text-indigo-600' : 'text-gray-600'}`}>
                         {challenge.description}
                       </p>
                     </div>
                     
                     {/* Small illustration on the right */}
-                    <div className={`w-16 h-12 rounded-lg flex-shrink-0 overflow-hidden ${isSelected ? 'bg-iris-100' : 'bg-gray-50'}`}>
+                    <div className={`w-16 h-12 rounded-lg flex-shrink-0 overflow-hidden ${isSelected ? 'bg-purple-100' : 'bg-gray-50'}`}>
                       {getChallengeVisual(challenge.id)}
                     </div>
                   </div>
@@ -986,7 +988,7 @@ function ToolsPage() {
             <button
               onClick={handleChallengesNext}
               disabled={selectedChallenges.length === 0}
-              className="px-8 py-3 bg-iris text-white rounded-lg font-semibold hover:bg-iris-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-8 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               NEXT
               <ArrowRight className="w-4 h-4" />
@@ -994,6 +996,8 @@ function ToolsPage() {
           </div>
         </div>
       </div>
+      <Footer />
+      </>
     );
   }
 
@@ -1017,7 +1021,7 @@ function ToolsPage() {
             
             <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
               <div 
-                className={`bg-iris h-3 rounded-full ${loadingProgress > 0 ? 'transition-all duration-300 ease-out' : ''}`}
+                className={`bg-gradient-to-r from-purple-600 to-pink-600 h-3 rounded-full ${loadingProgress > 0 ? 'transition-all duration-300 ease-out' : ''}`}
                 style={{ width: `${loadingProgress}%` }}
               ></div>
             </div>
@@ -1034,14 +1038,15 @@ function ToolsPage() {
     const recommendations = getRecommendations();
     
     return (
-      <div className="min-h-screen bg-gradient-to-br from-iris-100 via-pink-50 to-purple-50 py-16">
+      <>
+        <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-purple-50 py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <div className="flex justify-between items-center mb-8 print:hidden">
                 <button
                   onClick={handleBackToChallenge}
-                  className="text-iris hover:text-iris-dark flex items-center gap-2"
+                  className="text-indigo-600 hover:text-indigo-700 flex items-center gap-2"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   BACK
@@ -1049,14 +1054,14 @@ function ToolsPage() {
                 <div className="flex gap-4">
                   <button 
                     onClick={handlePrint}
-                    className="px-4 py-2 border border-gray-300 text-iris rounded-lg hover:border-purple-400 transition-colors flex items-center gap-2"
+                    className="px-4 py-2 border border-gray-300 text-indigo-600 rounded-lg hover:border-purple-400 transition-colors flex items-center gap-2"
                   >
-                    <Printer className="w-4 h-4 text-iris" />
+                    <Printer className="w-4 h-4 text-indigo-600" />
                     PRINT
                   </button>
                   <button 
                     onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}
-                    className="px-4 py-2 bg-iris text-white rounded-lg hover:bg-iris-dark transition-colors"
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                   >
                     BOOK A DEMO
                   </button>
@@ -1086,9 +1091,9 @@ function ToolsPage() {
                     return (
                       <div 
                         key={challengeId} 
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-iris-100 text-iris-dark rounded-full"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-indigo-700 rounded-full"
                       >
-                        <span className="flex items-center justify-center w-5 h-5 bg-iris text-white text-xs rounded-full font-bold">
+                        <span className="flex items-center justify-center w-5 h-5 bg-indigo-600 text-white text-xs rounded-full font-bold">
                           {index + 1}
                         </span>
                         <span className="text-sm font-medium">{challenge.title}</span>
@@ -1107,8 +1112,8 @@ function ToolsPage() {
 
             <div className="mb-12 print:keep-with-next">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 bg-iris-100 rounded-full flex items-center justify-center">
-                  <Target className="w-5 h-5 text-iris" />
+                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                  <Target className="w-5 h-5 text-indigo-600" />
                 </div>
                 <h3 className="text-2xl font-bold text-nightfall">Recommended Tools</h3>
               </div>
@@ -1122,7 +1127,7 @@ function ToolsPage() {
                   const toolContent = (
                     <>
                       {/* Priority number badge */}
-                      <div className="absolute -top-2 -left-2 w-8 h-8 bg-iris rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
+                      <div className="absolute -top-2 -left-2 w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
                         {index + 1}
                       </div>
                       
@@ -1166,8 +1171,8 @@ function ToolsPage() {
 
             <div className="mb-12 print:keep-with-next print:mt-12">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 bg-iris-100 rounded-full flex items-center justify-center">
-                  <BookOpen className="w-5 h-5 text-iris" />
+                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                  <BookOpen className="w-5 h-5 text-indigo-600" />
                 </div>
                 <h3 className="text-2xl font-bold text-nightfall">Development Programs</h3>
               </div>
@@ -1197,20 +1202,22 @@ function ToolsPage() {
             <div className="flex gap-4 justify-center print:hidden">
               <button 
                 onClick={() => router.push('/courses')}
-                className="px-8 py-3 border border-iris text-iris rounded-lg font-semibold hover:bg-purple-50 transition-colors"
+                className="px-8 py-3 border border-indigo-600 text-indigo-600 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
               >
                 EXPLORE CATALOG
               </button>
               <button 
                 onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}
-                className="px-8 py-3 bg-iris text-white rounded-lg font-semibold hover:bg-iris-dark transition-colors"
+                className="px-8 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
               >
-                Book a Demo
+                BOOK A DEMO
               </button>
             </div>
           </div>
         </div>
       </div>
+      <Footer />
+      </>
     );
   }
 

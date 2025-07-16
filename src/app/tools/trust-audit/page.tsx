@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { jsPDF } from 'jspdf'
+import Footer from '@/components/Footer'
 
 interface Question {
   id: string
@@ -344,6 +345,8 @@ export default function TrustAuditPage() {
           </div>
         </div>
       </div>
+      
+      <Footer />
     )
   }
 

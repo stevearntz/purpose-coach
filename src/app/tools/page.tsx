@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Flame, ArrowLeft, ArrowRight, Target, Printer, BookOpen } from 'lucide-react';
 import { challengeCourseMappings } from '@/app/lib/courseMappings';
@@ -540,7 +540,7 @@ function ToolsPage() {
   };
 
   const getSvgString = (element: React.ReactElement): string => {
-    const svgElement = element.props;
+    const svgElement = element.props as Record<string, any>;
     const attributes = Object.entries(svgElement)
       .filter(([key]) => key !== 'children')
       .map(([key, value]) => `${key}="${value}"`)
@@ -552,8 +552,8 @@ function ToolsPage() {
       if (Array.isArray(children)) {
         return children.map(child => renderChildren(child)).join('');
       }
-      if (children.props) {
-        const childAttrs = Object.entries(children.props)
+      if (children && typeof children === 'object' && 'props' in children) {
+        const childAttrs = Object.entries(children.props as Record<string, any>)
           .filter(([key]) => key !== 'children')
           .map(([key, value]) => `${key}="${value}"`)
           .join(' ');
@@ -1200,4 +1200,17 @@ function ToolsPage() {
   );
 }
 
-export default ToolsPage;
+// Wrapper component to handle Suspense
+export default function Page() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900">Loading...</h1>
+        </div>
+      </div>
+    }>
+      <ToolsPage />
+    </Suspense>
+  );
+}

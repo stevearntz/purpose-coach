@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Flame, ArrowRight, ArrowLeft, Users, Target, BookOpen, Brain, MessageCircle, Heart, Download, TrendingUp } from 'lucide-react';
+import { Flame, ArrowLeft, ArrowRight, Target, Download, BookOpen } from 'lucide-react';
 
 interface UserProfile {
   role: string;
@@ -39,7 +39,6 @@ const getToolVisual = (toolId: string) => {
         <circle cx="64" cy="48" r="16" fill="#f87171" opacity="0.4"/>
         <circle cx="64" cy="48" r="8" fill="#ef4444"/>
         <path d="M64 16 L64 80 M32 48 L96 48" stroke="#7c3aed" strokeWidth="2" strokeDasharray="4 2"/>
-        <text x="64" y="52" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">WHY</text>
       </svg>
     ),
     't2': ( // Change Readiness Reflection
@@ -70,7 +69,7 @@ const getToolVisual = (toolId: string) => {
         <rect x="24" y="24" width="40" height="56" fill="#60a5fa" opacity="0.3" rx="4" transform="rotate(-10 44 52)"/>
         <rect x="44" y="20" width="40" height="56" fill="#3b82f6" opacity="0.5" rx="4" transform="rotate(-5 64 48)"/>
         <rect x="64" y="16" width="40" height="56" fill="#1e40af" rx="4"/>
-        <text x="84" y="36" textAnchor="middle" fill="white" fontSize="20" fontWeight="bold">?</text>
+        <circle cx="84" cy="36" r="4" fill="white"/>
         <rect x="72" y="48" width="24" height="2" fill="white" rx="1"/>
         <rect x="72" y="54" width="24" height="2" fill="white" rx="1"/>
         <rect x="72" y="60" width="16" height="2" fill="white" rx="1"/>
@@ -118,9 +117,6 @@ const getToolVisual = (toolId: string) => {
         <circle cx="32" cy="32" r="6" fill="#fbbf24"/>
         <circle cx="64" cy="48" r="6" fill="#f59e0b"/>
         <circle cx="96" cy="64" r="6" fill="#f87171"/>
-        <text x="32" y="20" textAnchor="middle" fill="#f59e0b" fontSize="10" fontWeight="bold">HOPES</text>
-        <text x="64" y="36" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">FEARS</text>
-        <text x="96" y="52" textAnchor="middle" fill="#10b981" fontSize="10" fontWeight="bold">EXPECT</text>
       </svg>
     ),
     't9': ( // Career Drivers Exercise
@@ -142,6 +138,105 @@ const getToolVisual = (toolId: string) => {
   };
   
   return visuals[toolId] || visuals['t1'];
+};
+
+const getChallengeVisual = (challengeId: string) => {
+  const visuals: { [key: string]: JSX.Element } = {
+    // Purpose + Direction
+    'c1': (
+      <svg viewBox="0 0 96 72" className="w-full h-full">
+        <circle cx="48" cy="36" r="24" fill="#fbbf24" opacity="0.2"/>
+        <circle cx="48" cy="36" r="16" fill="#f59e0b" opacity="0.3"/>
+        <circle cx="48" cy="36" r="8" fill="#f87171"/>
+        <path d="M48 12 L48 60 M24 36 L72 36" stroke="#7c3aed" strokeWidth="2" strokeDasharray="3 2"/>
+      </svg>
+    ),
+    // Navigating Change
+    'c2': (
+      <svg viewBox="0 0 96 72" className="w-full h-full">
+        <path d="M24 36 Q48 12 72 36 T48 60" fill="none" stroke="#34d399" strokeWidth="3" opacity="0.5"/>
+        <circle cx="24" cy="36" r="6" fill="#10b981"/>
+        <circle cx="48" cy="24" r="6" fill="#34d399"/>
+        <circle cx="72" cy="36" r="6" fill="#6ee7b7"/>
+        <path d="M30 36 L42 24 M54 24 L66 36" stroke="#10b981" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+    ),
+    // Trust + Psychological Safety / Feedback + Trust
+    'c3': (
+      <svg viewBox="0 0 96 72" className="w-full h-full">
+        <circle cx="30" cy="24" r="10" fill="#c084fc" opacity="0.3"/>
+        <circle cx="66" cy="24" r="10" fill="#c084fc" opacity="0.3"/>
+        <circle cx="48" cy="48" r="10" fill="#c084fc" opacity="0.3"/>
+        <path d="M30 24 L66 24 L48 48 Z" fill="none" stroke="#9333ea" strokeWidth="2"/>
+        <path d="M36 30 Q48 36 60 30" fill="none" stroke="#9333ea" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+    ),
+    // Empowering Others / Leadership Effectiveness
+    'c4': (
+      <svg viewBox="0 0 96 72" className="w-full h-full">
+        <rect x="20" y="12" width="24" height="20" fill="#60a5fa" opacity="0.3" rx="2"/>
+        <rect x="52" y="40" width="24" height="20" fill="#3b82f6" opacity="0.3" rx="2"/>
+        <path d="M44 22 L52 50" stroke="#1e40af" strokeWidth="2"/>
+        <circle cx="32" cy="22" r="4" fill="#3b82f6"/>
+        <circle cx="64" cy="50" r="4" fill="#1e40af"/>
+      </svg>
+    ),
+    // Effective Decision Making
+    'c5': (
+      <svg viewBox="0 0 96 72" className="w-full h-full">
+        <path d="M24 18 L72 18 L60 36 L72 54 L24 54 L36 36 Z" fill="#f472b6" opacity="0.3"/>
+        <circle cx="48" cy="36" r="6" fill="#ec4899"/>
+        <path d="M48 30 L48 42 M42 36 L54 36" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+    ),
+    // Well-Being + Resilience / Well-Being
+    'c6': (
+      <svg viewBox="0 0 96 72" className="w-full h-full">
+        <rect x="18" y="30" width="60" height="12" fill="#f87171" opacity="0.2" rx="6"/>
+        <rect x="18" y="30" width="45" height="12" fill="#ef4444" opacity="0.4" rx="6"/>
+        <rect x="18" y="30" width="30" height="12" fill="#dc2626" opacity="0.6" rx="6"/>
+        <rect x="18" y="30" width="15" height="12" fill="#b91c1c" rx="6"/>
+        <path d="M30 18 Q36 24 42 18" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M48 18 Q54 24 60 18" fill="none" stroke="#34d399" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+    ),
+    // Communication and Collaboration
+    'c7': (
+      <svg viewBox="0 0 96 72" className="w-full h-full">
+        <circle cx="30" cy="36" r="8" fill="#60a5fa" opacity="0.3"/>
+        <circle cx="66" cy="36" r="8" fill="#3b82f6" opacity="0.3"/>
+        <path d="M38 36 L58 36" stroke="#1e40af" strokeWidth="2"/>
+        <path d="M30 28 Q48 20 66 28" fill="none" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M30 44 Q48 52 66 44" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+    ),
+    // Role Clarity + Expectations / Clarity + Expectations
+    'c8': (
+      <svg viewBox="0 0 96 72" className="w-full h-full">
+        <rect x="24" y="12" width="48" height="48" fill="none" stroke="#34d399" strokeWidth="2" rx="4" strokeDasharray="4 2"/>
+        <rect x="30" y="24" width="8" height="2" fill="#10b981" rx="1"/>
+        <rect x="30" y="30" width="16" height="2" fill="#10b981" rx="1"/>
+        <rect x="30" y="36" width="12" height="2" fill="#10b981" rx="1"/>
+        <rect x="54" y="24" width="12" height="2" fill="#10b981" rx="1"/>
+        <rect x="54" y="30" width="8" height="2" fill="#10b981" rx="1"/>
+        <rect x="54" y="36" width="10" height="2" fill="#10b981" rx="1"/>
+      </svg>
+    ),
+    // Growth + Development / Skill Building
+    'c9': (
+      <svg viewBox="0 0 96 72" className="w-full h-full">
+        <path d="M24 54 L24 18" stroke="#c084fc" strokeWidth="2"/>
+        <path d="M24 54 L72 54" stroke="#c084fc" strokeWidth="2"/>
+        <path d="M30 48 L36 36 L42 42 L48 30 L54 33 L60 21 L66 24" fill="none" stroke="#9333ea" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="60" cy="21" r="3" fill="#7c3aed"/>
+        <path d="M60 21 L72 9" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+    )
+  };
+  
+  // Extract the challenge type (c1-c9) from the full challenge ID
+  const challengeType = challengeId.split('-')[1];
+  return visuals[challengeType] || visuals['c1'];
 };
 
 const getCourseVisual = (courseId: string) => {
@@ -201,14 +296,14 @@ function ToolsPage() {
     role: '',
     challenge: ''
   });
-  const [customChallenge, setCustomChallenge] = useState('');
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [selectedChallenges, setSelectedChallenges] = useState<string[]>([]);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const roles = [
     'People Leader',
-    'Talent Leader',
+    'Talent Leader', 
     'Individual Contributor',
     'CEO/Executive',
     'Other'
@@ -273,8 +368,10 @@ function ToolsPage() {
 
   const challenges = allChallenges.filter(challenge => challenge.persona === userProfile.role);
 
-  const getRecommendations = (challengeId: string) => {
-    const challengeType = challengeId.split('-')[1];
+  const getRecommendations = () => {
+    if (selectedChallenges.length === 0) {
+      return { tools: [], courses: [] };
+    }
     
     const toolMappings: { [key: string]: Tool } = {
       'c1': { id: 't1', name: 'Purpose and Alignment Map', type: 'guide', description: 'Create clarity around purpose and strategic alignment' },
@@ -354,12 +451,48 @@ function ToolsPage() {
       ]
     };
 
-    const tool = toolMappings[challengeType] || toolMappings['c1'];
-    const courses = courseMappings[challengeType] || courseMappings['c1'];
+    // Get tools based on selected challenges in priority order
+    const tools: Tool[] = [];
+    const toolsAdded = new Set<string>();
+    
+    selectedChallenges.forEach(challengeId => {
+      const challengeType = challengeId.split('-')[1];
+      const tool = toolMappings[challengeType];
+      if (tool && !toolsAdded.has(tool.id)) {
+        tools.push(tool);
+        toolsAdded.add(tool.id);
+      }
+    });
 
-    return { tools: [tool], courses };
+    // Get courses using round-robin from each challenge's priority list
+    const courses: Course[] = [];
+    const coursesAdded = new Set<string>();
+    const maxCourses = 5;
+    let courseIndex = 0;
+    
+    // Keep looping until we have 5 courses or run out of options
+    while (courses.length < maxCourses && courseIndex < 5) {
+      for (const challengeId of selectedChallenges) {
+        if (courses.length >= maxCourses) break;
+        
+        const challengeType = challengeId.split('-')[1];
+        const challengeCourses = courseMappings[challengeType] || [];
+        
+        if (courseIndex < challengeCourses.length) {
+          const course = challengeCourses[courseIndex];
+          if (!coursesAdded.has(course.id)) {
+            courses.push(course);
+            coursesAdded.add(course.id);
+          }
+        }
+      }
+      courseIndex++;
+    }
+
+    return { tools, courses };
   };
 
+  // Loading effect (3 seconds)
   useEffect(() => {
     if (currentScreen === 3) {
       const interval = setInterval(() => {
@@ -393,35 +526,36 @@ function ToolsPage() {
   };
 
   const handleChallengeSelect = (challenge: Challenge) => {
-    setSelectedChallenge(challenge);
-    setUserProfile(prev => ({ ...prev, challenge: challenge.title }));
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrentScreen(3); // Jump to loading screen
-      setIsTransitioning(false);
-    }, 300);
-  };
-
-  const handleCustomChallenge = () => {
-    if (!customChallenge.trim()) return;
-    setUserProfile(prev => ({ ...prev, challenge: customChallenge }));
-    setSelectedChallenge({
-      id: 'custom',
-      persona: userProfile.role,
-      title: customChallenge,
-      description: 'Custom challenge'
+    setSelectedChallenges(prev => {
+      const isSelected = prev.includes(challenge.id);
+      if (isSelected) {
+        return prev.filter(id => id !== challenge.id);
+      } else if (prev.length < 5) {
+        return [...prev, challenge.id];
+      }
+      return prev;
     });
+  };
+
+  const handleChallengesNext = () => {
+    if (selectedChallenges.length === 0) return;
+    // For now, just use the first selected challenge for the flow
+    const firstChallengeId = selectedChallenges[0];
+    const firstChallenge = challenges.find(c => c.id === firstChallengeId);
+    if (firstChallenge) {
+      setSelectedChallenge(firstChallenge);
+      setUserProfile(prev => ({ ...prev, challenge: firstChallenge.title }));
+    }
     setIsTransitioning(true);
     setTimeout(() => {
-      setCurrentScreen(3); // Jump to loading screen
+      setCurrentScreen(3); // Skip directly to loading screen
       setIsTransitioning(false);
     }, 300);
   };
 
-  const skipToTools = () => {
-    setCurrentScreen(4);
-  };
 
+
+  // Screen 1: Role Selection (with nice dropdown)
   if (currentScreen === 1) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 flex items-center justify-center">
@@ -436,22 +570,24 @@ function ToolsPage() {
             <h2 className="text-3xl font-bold mb-8">Let's get started!</h2>
             <p className="text-xl mb-8">What is your role?</p>
             
-            <select
-              value={userProfile.role}
-              onChange={(e) => setUserProfile(prev => ({ ...prev, role: e.target.value }))}
-              className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-orange-400 mb-6 appearance-none"
-              style={{
-                backgroundImage: `url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23ffffff' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>")`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 1rem center',
-                backgroundSize: '12px'
-              }}
-            >
-              <option value="" className="text-gray-800">Select your role</option>
-              {roles.map(role => (
-                <option key={role} value={role} className="text-gray-800">{role}</option>
-              ))}
-            </select>
+            <div className="relative mb-6">
+              <select
+                value={userProfile.role}
+                onChange={(e) => setUserProfile(prev => ({ ...prev, role: e.target.value }))}
+                className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-orange-400 appearance-none pr-12"
+              >
+                <option value="" className="text-gray-800">Select your role</option>
+                {roles.map(role => (
+                  <option key={role} value={role} className="text-gray-800">{role}</option>
+                ))}
+              </select>
+              {/* Custom dropdown arrow */}
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+                </svg>
+              </div>
+            </div>
             
             <div className="flex flex-col gap-4">
               <button
@@ -461,13 +597,6 @@ function ToolsPage() {
               >
                 NEXT
               </button>
-              
-              <button
-                onClick={skipToTools}
-                className="text-white/80 hover:text-white text-sm underline"
-              >
-                Skip to tools
-              </button>
             </div>
           </div>
         </div>
@@ -475,49 +604,59 @@ function ToolsPage() {
     );
   }
 
+  // Screen 2: Challenge Selection (9 role-specific challenges)
   if (currentScreen === 2) {
     return (
       <div className="min-h-screen bg-gray-50 py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-6">
-              What's your biggest challenge as a {userProfile.role}?
+              What are your biggest challenges as a {userProfile.role}?
             </h2>
+            <p className="text-lg text-gray-600">
+              Select up to 5 challenges ({selectedChallenges.length}/5 selected)
+            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 mb-8">
-            {challenges.map((challenge) => (
-              <button
-                key={challenge.id}
-                onClick={() => handleChallengeSelect(challenge)}
-                className="p-6 text-left bg-white rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all group"
-              >
-                <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
-                  {challenge.title}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {challenge.description}
-                </p>
-              </button>
-            ))}
-          </div>
-
-          <div className="max-w-2xl mx-auto bg-white rounded-xl border border-gray-200 p-6 mb-8">
-            <h3 className="font-semibold text-gray-900 mb-4">Something else?</h3>
-            <textarea
-              value={customChallenge}
-              onChange={(e) => setCustomChallenge(e.target.value)}
-              placeholder="Describe your challenge..."
-              className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-              rows={3}
-            />
-            <button
-              onClick={handleCustomChallenge}
-              disabled={!customChallenge.trim()}
-              className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next
-            </button>
+            {challenges.map((challenge) => {
+              const isSelected = selectedChallenges.includes(challenge.id);
+              const selectionIndex = selectedChallenges.indexOf(challenge.id);
+              return (
+                <button
+                  key={challenge.id}
+                  onClick={() => handleChallengeSelect(challenge)}
+                  className={`relative p-6 text-left rounded-xl border-2 transition-all ${
+                    isSelected 
+                      ? 'bg-purple-50 border-purple-500 shadow-lg' 
+                      : 'bg-white border-gray-200 hover:border-purple-300 hover:shadow-lg'
+                  }`}
+                >
+                  {/* Selection number badge */}
+                  {isSelected && (
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
+                      {selectionIndex + 1}
+                    </div>
+                  )}
+                  
+                  <div className="flex items-start gap-4">
+                    <div className="flex-1">
+                      <h3 className={`font-semibold mb-2 ${isSelected ? 'text-purple-700' : 'text-gray-900'}`}>
+                        {challenge.title}
+                      </h3>
+                      <p className={`text-sm ${isSelected ? 'text-purple-600' : 'text-gray-600'}`}>
+                        {challenge.description}
+                      </p>
+                    </div>
+                    
+                    {/* Small illustration on the right */}
+                    <div className={`w-16 h-12 rounded-lg flex-shrink-0 overflow-hidden ${isSelected ? 'bg-purple-100' : 'bg-gray-50'}`}>
+                      {getChallengeVisual(challenge.id)}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
 
           <div className="flex justify-center gap-4">
@@ -530,10 +669,12 @@ function ToolsPage() {
             </button>
             
             <button
-              onClick={skipToTools}
-              className="text-gray-600 hover:text-gray-900 text-sm underline"
+              onClick={handleChallengesNext}
+              disabled={selectedChallenges.length === 0}
+              className="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              Skip to tools
+              Next
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -541,6 +682,7 @@ function ToolsPage() {
     );
   }
 
+  // Screen 3: Loading State (3 seconds)
   if (currentScreen === 3) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -568,8 +710,9 @@ function ToolsPage() {
     );
   }
 
+  // Screen 4: Recommendations
   if (currentScreen === 4) {
-    const recommendations = selectedChallenge ? getRecommendations(selectedChallenge.id) : getRecommendations('c1');
+    const recommendations = getRecommendations();
     
     return (
       <div className="min-h-screen bg-gray-50 py-16">
@@ -582,7 +725,7 @@ function ToolsPage() {
                   className="text-purple-600 hover:text-purple-700 flex items-center gap-2"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  All Recommendations
+                  Back
                 </button>
                 <div className="flex gap-4">
                   <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:border-gray-400 transition-colors">
@@ -595,43 +738,84 @@ function ToolsPage() {
                 </div>
               </div>
               
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Your Recommended Plan...
+              <h2 className="text-4xl font-bold text-gray-900 mb-8">
+                Your Personalized Development Plan
               </h2>
-              {selectedChallenge && (
-                <p className="text-lg text-gray-600">
-                  Based on {selectedChallenge.title}
+              
+              {/* Selected challenges display */}
+              <div className="max-w-3xl mx-auto">
+                <p className="text-sm text-gray-500 uppercase tracking-wider mb-4">Based on your top challenges</p>
+                <div className="flex flex-wrap justify-center gap-3 mb-2">
+                  {selectedChallenges.map((challengeId, index) => {
+                    const challenge = challenges.find(c => c.id === challengeId);
+                    if (!challenge) return null;
+                    return (
+                      <div 
+                        key={challengeId} 
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-full"
+                      >
+                        <span className="flex items-center justify-center w-5 h-5 bg-purple-600 text-white text-xs rounded-full font-bold">
+                          {index + 1}
+                        </span>
+                        <span className="text-sm font-medium">{challenge.title}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="text-gray-600 text-sm mt-4">
+                  We've crafted a targeted plan with {recommendations.tools.length} tools and {recommendations.courses.length} programs to help you overcome these challenges
                 </p>
-              )}
+              </div>
             </div>
 
+            {/* Visual separator */}
+            <div className="w-24 h-1 bg-gradient-to-r from-purple-400 to-pink-400 mx-auto mb-12 rounded-full"></div>
+
             <div className="mb-12">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Tools:</h3>
-              <p className="text-gray-600 mb-6">Start here:</p>
-              
-              <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
-                <div className="flex items-start gap-6">
-                  <div className="w-32 h-24 bg-white rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
-                    {getToolVisual(recommendations.tools[0].id)}
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h4 className="text-xl font-semibold text-gray-900 mb-2">
-                      {recommendations.tools[0].name}
-                    </h4>
-                    <p className="text-gray-600 mb-4">
-                      {recommendations.tools[0].description}
-                    </p>
-                    <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">
-                      {recommendations.tools[0].type}
-                    </span>
-                  </div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                  <Target className="w-5 h-5 text-purple-600" />
                 </div>
+                <h3 className="text-2xl font-bold text-gray-900">Recommended Tools</h3>
+              </div>
+              <p className="text-gray-600 mb-6 ml-13">Quick wins to address your immediate needs</p>
+              
+              <div className="grid gap-4">
+                {recommendations.tools.map((tool, index) => (
+                  <div key={tool.id} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                    <div className="flex items-start gap-4">
+                      <div className="w-24 h-20 bg-white rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
+                        {getToolVisual(tool.id)}
+                      </div>
+                      
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-sm text-purple-600 font-medium">Priority {index + 1}</span>
+                          <h4 className="text-lg font-semibold text-gray-900">
+                            {tool.name}
+                          </h4>
+                        </div>
+                        <p className="text-gray-600 mb-3">
+                          {tool.description}
+                        </p>
+                        <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">
+                          {tool.type}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
             <div className="mb-12">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Programs:</h3>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                  <BookOpen className="w-5 h-5 text-purple-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900">Development Programs</h3>
+              </div>
+              <p className="text-gray-600 mb-6 ml-13">In-depth learning to build lasting capabilities</p>
               
               <div className="grid gap-6">
                 {recommendations.courses.slice(0, 5).map((course) => (
@@ -641,12 +825,9 @@ function ToolsPage() {
                         <h4 className="text-lg font-semibold text-gray-900 mb-2">
                           {course.title}
                         </h4>
-                        <p className="text-gray-600 mb-2">
+                        <p className="text-gray-600">
                           {course.description}
                         </p>
-                        <span className="text-sm text-purple-600 font-medium">
-                          {course.duration}
-                        </span>
                       </div>
                       <div className="w-16 h-12 bg-white rounded-lg flex items-center justify-center ml-6 overflow-hidden">
                         {getCourseVisual(course.id)}

@@ -362,10 +362,11 @@ export default function PurposeCoach() {
 
   if (isComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-6 border border-white/20">
+      <>
+        <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4">
+          <div className="max-w-4xl mx-auto">
+            {/* Header */}
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-6 border border-white/20">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <img 
@@ -490,6 +491,7 @@ export default function PurposeCoach() {
       </div>
       
       <Footer />
+      </>
     );
   }
 

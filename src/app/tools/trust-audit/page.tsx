@@ -265,9 +265,10 @@ export default function TrustAuditPage() {
     const trustLevel = total >= 15 ? 'Strong' : total >= 9 ? 'Moderate' : 'Needs Attention'
     
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-        <div className="max-w-4xl mx-auto">
-          <Link href="/" className="inline-flex items-center text-white/70 hover:text-white mb-8 transition-colors">
+      <>
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+          <div className="max-w-4xl mx-auto">
+            <Link href="/" className="inline-flex items-center text-white/70 hover:text-white mb-8 transition-colors">
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Home
           </Link>
@@ -347,6 +348,7 @@ export default function TrustAuditPage() {
       </div>
       
       <Footer />
+      </>
     )
   }
 

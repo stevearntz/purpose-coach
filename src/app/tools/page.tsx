@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Flame, ArrowLeft, ArrowRight, Target, Download, BookOpen } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Flame, ArrowLeft, ArrowRight, Target, Printer, BookOpen } from 'lucide-react';
+import { challengeCourseMappings } from '@/app/lib/courseMappings';
 
 interface UserProfile {
   role: string;
@@ -291,6 +292,8 @@ const getCourseVisual = (courseId: string): React.ReactElement => {
 
 function ToolsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
   const [currentScreen, setCurrentScreen] = useState(1);
   const [userProfile, setUserProfile] = useState<UserProfile>({
     role: '',
@@ -300,6 +303,22 @@ function ToolsPage() {
   const [selectedChallenges, setSelectedChallenges] = useState<string[]>([]);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Handle returning from courses page
+  useEffect(() => {
+    const screenParam = searchParams.get('screen');
+    if (screenParam === '4') {
+      // Try to restore saved state
+      const savedProfile = localStorage.getItem('toolsUserProfile');
+      const savedChallenges = localStorage.getItem('toolsSelectedChallenges');
+      
+      if (savedProfile && savedChallenges) {
+        setUserProfile(JSON.parse(savedProfile));
+        setSelectedChallenges(JSON.parse(savedChallenges));
+        setCurrentScreen(4);
+      }
+    }
+  }, [searchParams]);
 
   const roles = [
     'People Leader',
@@ -385,71 +404,8 @@ function ToolsPage() {
       'c9': { id: 't9', name: 'Career Drivers Exercise', type: 'reflection', description: 'Discover what motivates and drives your career growth' }
     };
 
-    const courseMappings: { [key: string]: Course[] } = {
-      'c1': [
-        { id: 's6', title: 'Inspire with Vision', description: 'Create shared understanding of organizational direction', duration: '2 weeks' },
-        { id: 's15', title: 'Define Your Leadership Brand', description: 'Establish your unique leadership identity', duration: '3 weeks' },
-        { id: 's25', title: 'Setting and Achieving Goals', description: 'Learn to set and cascade meaningful goals', duration: '2 weeks' },
-        { id: 's37', title: 'Alignment & Momentum', description: 'Build alignment and maintain momentum', duration: '3 weeks' },
-        { id: 's24', title: 'Strategic Thinking', description: 'Develop strategic thinking capabilities', duration: '3 weeks' }
-      ],
-      'c2': [
-        { id: 's12', title: 'Lead Through Change', description: 'Master the art of change management', duration: '4 weeks' },
-        { id: 's5', title: 'Habits for Resilience', description: 'Develop personal and team resilience', duration: '2 weeks' },
-        { id: 's41', title: 'Leading with Compassion', description: 'Lead with empathy and compassion', duration: '3 weeks' },
-        { id: 's39', title: 'Connected Leadership', description: 'Build connections that matter', duration: '3 weeks' },
-        { id: 's18', title: 'Curiosity in Conversations', description: 'Foster curiosity in your interactions', duration: '2 weeks' }
-      ],
-      'c3': [
-        { id: 's14', title: 'Build Trust on Your Team', description: 'Create psychological safety across teams', duration: '3 weeks' },
-        { id: 's20', title: 'Foster Belonging', description: 'Create an inclusive environment', duration: '3 weeks' },
-        { id: 's4', title: 'Deliberate Listening', description: 'Master the art of active listening', duration: '2 weeks' },
-        { id: 's36', title: 'Candid Communication', description: 'Have honest, productive conversations', duration: '2 weeks' },
-        { id: 's34', title: 'Hopes Fears and Expectations', description: 'Navigate team dynamics effectively', duration: '2 weeks' }
-      ],
-      'c4': [
-        { id: 's10', title: 'Successful Delegation', description: 'Learn to delegate effectively and build capability', duration: '2 weeks' },
-        { id: 's16', title: 'Activate Autonomy', description: 'Empower others to take ownership', duration: '3 weeks' },
-        { id: 's17', title: 'Coaching Essentials', description: 'Develop coaching skills that empower others', duration: '3 weeks' },
-        { id: 's21', title: 'Magnify Strengths', description: 'Identify and develop team strengths', duration: '3 weeks' },
-        { id: 's19', title: 'Develop Your Team', description: 'Build capability across your team', duration: '3 weeks' }
-      ],
-      'c5': [
-        { id: 's32', title: 'Decision Making', description: 'Make better decisions under pressure', duration: '2 weeks' },
-        { id: 's24', title: 'Strategic Thinking', description: 'Think strategically about challenges', duration: '3 weeks' },
-        { id: 's9', title: 'Self-Awareness', description: 'Develop deeper self-awareness', duration: '2 weeks' },
-        { id: 's26', title: 'Lead Effective Meetings', description: 'Run meetings that drive decisions', duration: '2 weeks' },
-        { id: 's31', title: 'Conscious Communication', description: 'Communicate with intention and clarity', duration: '2 weeks' }
-      ],
-      'c6': [
-        { id: 's7', title: 'Manage Burnout', description: 'Prevent and address burnout', duration: '3 weeks' },
-        { id: 's5', title: 'Habits for Resilience', description: 'Build sustainable resilience habits', duration: '2 weeks' },
-        { id: 's2', title: 'Beat Imposter Syndrome', description: 'Overcome self-doubt and build confidence', duration: '2 weeks' },
-        { id: 's8', title: 'Manage Your Time', description: 'Master time management strategies', duration: '2 weeks' },
-        { id: 's1', title: 'Cultivating Gratitude', description: 'Practice gratitude for well-being', duration: '2 weeks' }
-      ],
-      'c7': [
-        { id: 's31', title: 'Conscious Communication', description: 'Master clear and impactful communication', duration: '2 weeks' },
-        { id: 's35', title: 'Collaborate Intentionally', description: 'Build effective collaboration practices', duration: '3 weeks' },
-        { id: 's18', title: 'Curiosity in Conversations', description: 'Bring curiosity to every interaction', duration: '2 weeks' },
-        { id: 's3', title: 'Constructive Conflict', description: 'Navigate conflict productively', duration: '2 weeks' },
-        { id: 's4', title: 'Deliberate Listening', description: 'Listen with intention and presence', duration: '2 weeks' }
-      ],
-      'c8': [
-        { id: 's13', title: 'Making the Most of 1:1\'s', description: 'Have impactful one-on-one conversations', duration: '2 weeks' },
-        { id: 's34', title: 'Hopes Fears and Expectations', description: 'Create clarity through open dialogue', duration: '2 weeks' },
-        { id: 's22', title: 'Performance Discussions', description: 'Navigate performance conversations effectively', duration: '2 weeks' },
-        { id: 's23', title: 'Set The Tone', description: 'Establish clear team culture and norms', duration: '2 weeks' },
-        { id: 's28', title: 'Deliver Feedback', description: 'Give feedback that drives growth', duration: '2 weeks' }
-      ],
-      'c9': [
-        { id: 's30', title: 'Career Mapping', description: 'Create meaningful career development paths', duration: '3 weeks' },
-        { id: 's19', title: 'Develop Your Team', description: 'Build skills and capabilities', duration: '3 weeks' },
-        { id: 's17', title: 'Coaching Essentials', description: 'Coach others for growth', duration: '3 weeks' },
-        { id: 's43', title: 'Live Group Coaching', description: 'Experience the power of group coaching', duration: '4 weeks' },
-        { id: 's21', title: 'Magnify Strengths', description: 'Develop and leverage strengths', duration: '3 weeks' }
-      ]
-    };
+    // Use the shared course mappings
+    const courseMappings = challengeCourseMappings;
 
     // Get tools based on selected challenges in priority order
     const tools: Tool[] = [];
@@ -495,19 +451,35 @@ function ToolsPage() {
   // Loading effect (3 seconds)
   useEffect(() => {
     if (currentScreen === 3) {
-      const interval = setInterval(() => {
-        setLoadingProgress(prev => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            setTimeout(() => setCurrentScreen(4), 500);
-            return 100;
-          }
-          return prev + 3.33; // 100% / 30 intervals = 3.33% per interval
-        });
-      }, 100); // 100ms * 30 intervals = 3000ms = 3 seconds
-      return () => clearInterval(interval);
+      setLoadingProgress(0); // Reset progress when entering screen 3
+      
+      // Start the animation after a brief delay to ensure smooth start
+      const startDelay = setTimeout(() => {
+        const totalDuration = 3000; // 3 seconds
+        const intervalDuration = 20; // Update every 20ms for smoother animation
+        const increment = 100 / (totalDuration / intervalDuration);
+        
+        const interval = setInterval(() => {
+          setLoadingProgress(prev => {
+            const newProgress = prev + increment;
+            if (newProgress >= 100) {
+              clearInterval(interval);
+              // Save state before moving to screen 4
+              localStorage.setItem('toolsUserProfile', JSON.stringify(userProfile));
+              localStorage.setItem('toolsSelectedChallenges', JSON.stringify(selectedChallenges));
+              setTimeout(() => setCurrentScreen(4), 300);
+              return 100;
+            }
+            return newProgress;
+          });
+        }, intervalDuration);
+        
+        return () => clearInterval(interval);
+      }, 100); // Small delay to ensure smooth start
+      
+      return () => clearTimeout(startDelay);
     }
-  }, [currentScreen]);
+  }, [currentScreen, userProfile, selectedChallenges]);
 
   const handleNext = () => {
     setIsTransitioning(true);
@@ -520,7 +492,20 @@ function ToolsPage() {
   const handleBack = () => {
     setIsTransitioning(true);
     setTimeout(() => {
+      // Clear challenge selections when going back from challenge screen
+      if (currentScreen === 2) {
+        setSelectedChallenges([]);
+      }
       setCurrentScreen(prev => prev - 1);
+      setIsTransitioning(false);
+    }, 300);
+  };
+
+  const handleBackToChallenge = () => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setSelectedChallenges([]); // Clear previous selections
+      setCurrentScreen(2); // Go directly to challenge selection
       setIsTransitioning(false);
     }, 300);
   };
@@ -546,6 +531,7 @@ function ToolsPage() {
       setSelectedChallenge(firstChallenge);
       setUserProfile(prev => ({ ...prev, challenge: firstChallenge.title }));
     }
+    setLoadingProgress(0); // Reset progress before transitioning
     setIsTransitioning(true);
     setTimeout(() => {
       setCurrentScreen(3); // Skip directly to loading screen
@@ -553,18 +539,347 @@ function ToolsPage() {
     }, 300);
   };
 
+  const getSvgString = (element: React.ReactElement): string => {
+    const svgElement = element.props;
+    const attributes = Object.entries(svgElement)
+      .filter(([key]) => key !== 'children')
+      .map(([key, value]) => `${key}="${value}"`)
+      .join(' ');
+    
+    const renderChildren = (children: any): string => {
+      if (!children) return '';
+      if (typeof children === 'string') return children;
+      if (Array.isArray(children)) {
+        return children.map(child => renderChildren(child)).join('');
+      }
+      if (children.props) {
+        const childAttrs = Object.entries(children.props)
+          .filter(([key]) => key !== 'children')
+          .map(([key, value]) => `${key}="${value}"`)
+          .join(' ');
+        return `<${children.type} ${childAttrs}>${renderChildren(children.props.children)}</${children.type}>`;
+      }
+      return '';
+    };
+    
+    return `<svg ${attributes}>${renderChildren(svgElement.children)}</svg>`;
+  };
 
+  const handlePrint = () => {
+    // Create a print-friendly version
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const recommendations = getRecommendations();
+    
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Your Personalized Development Plan</title>
+        <style>
+          @page {
+            size: A4;
+            margin: 20mm;
+          }
+          
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          
+          .page-background {
+            background: linear-gradient(to bottom right, #faf5ff, #fdf4ff, #faf5ff);
+            min-height: 100vh;
+            padding: 20px;
+          }
+          
+          .header {
+            text-align: center;
+            margin-bottom: 40px;
+          }
+          
+          .logo {
+            height: 50px;
+            margin-bottom: 20px;
+          }
+          
+          h1 {
+            font-size: 28px;
+            margin: 10px 0;
+          }
+          
+          .role {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+          }
+          
+          .challenges-header {
+            text-transform: uppercase;
+            font-size: 12px;
+            color: #999;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+          }
+          
+          .challenges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+          }
+          
+          .challenge-badge {
+            background: #8b5cf6;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+          }
+          
+          .challenge-number {
+            font-weight: bold;
+            margin-right: 5px;
+          }
+          
+          .summary {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+          }
+          
+          .divider {
+            width: 120px;
+            height: 4px;
+            background: linear-gradient(to right, #a855f7, #ec4899);
+            margin: 40px auto;
+            border-radius: 2px;
+            box-shadow: 0 2px 4px rgba(168, 85, 247, 0.2);
+          }
+          
+          .section {
+            margin-bottom: 40px;
+            page-break-inside: avoid;
+          }
+          
+          .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+          }
+          
+          .section-icon {
+            width: 40px;
+            height: 40px;
+            background: #e9d5ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8b5cf6;
+          }
+          
+          h2 {
+            font-size: 22px;
+            margin: 0;
+          }
+          
+          .section-subtitle {
+            color: #666;
+            margin-left: 55px;
+            margin-bottom: 20px;
+          }
+          
+          .card {
+            background: #fefefe;
+            border: 1px solid #e9d5ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            page-break-inside: avoid;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(139, 92, 246, 0.1);
+          }
+          
+          .priority-badge {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 30px;
+            height: 30px;
+            background: #8b5cf6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          
+          .card-content {
+            display: flex;
+            gap: 20px;
+          }
+          
+          .card-icon {
+            width: 80px;
+            height: 60px;
+            background: white;
+            border-radius: 8px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+          }
+          
+          .card-icon svg {
+            width: 100%;
+            height: 100%;
+          }
+          
+          .card-text h3 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+          }
+          
+          .card-text p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+          }
+          
+          .programs-section {
+            page-break-before: always;
+          }
+          
+          .footer {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            margin-top: 60px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="page-background">
+          <div class="header">
+          <img src="/campfire-logo.svg" alt="Campfire" class="logo" />
+          <h1>Your Personalized Development Plan</h1>
+          <div class="role">${userProfile.role}</div>
+        </div>
+        
+        <div class="challenges-header">BASED ON YOUR TOP CHALLENGES</div>
+        <div class="challenges">
+          ${selectedChallenges.map((id, index) => {
+            const challenge = challenges.find(c => c.id === id);
+            return `<div class="challenge-badge"><span class="challenge-number">${index + 1}</span> ${challenge?.title || ''}</div>`;
+          }).join('')}
+        </div>
+        
+        <div class="summary">
+          We've crafted a targeted plan with ${recommendations.tools.length} tools and ${recommendations.courses.length} programs to help you overcome these challenges
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="section">
+          <div class="section-header">
+            <div class="section-icon">📌</div>
+            <h2>Recommended Tools</h2>
+          </div>
+          <div class="section-subtitle">Quick wins to address your immediate needs</div>
+          
+          ${recommendations.tools.map((tool, index) => {
+            const visual = getToolVisual(tool.id);
+            const svgString = getSvgString(visual);
+            return `
+              <div class="card">
+                <div class="priority-badge">${index + 1}</div>
+                <div class="card-content">
+                  <div class="card-icon">${svgString}</div>
+                  <div class="card-text">
+                    <h3>${tool.name}</h3>
+                    <p>${tool.description}</p>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+        
+        <div class="section programs-section">
+          <div class="section-header">
+            <div class="section-icon">📚</div>
+            <h2>Development Programs</h2>
+          </div>
+          <div class="section-subtitle">In-depth learning to build lasting capabilities</div>
+          
+          ${recommendations.courses.slice(0, 5).map(course => {
+            const visual = getCourseVisual(course.id);
+            const svgString = getSvgString(visual);
+            return `
+              <div class="card">
+                <div class="card-content">
+                  <div class="card-text" style="flex: 1;">
+                    <h3>${course.title}</h3>
+                    <p>${course.description}</p>
+                  </div>
+                  <div class="card-icon">${svgString}</div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+        
+          <div class="footer">
+            Generated by Campfire
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    
+    // Wait for content to load then print
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.onafterprint = () => {
+          printWindow.close();
+        };
+      }, 250);
+    };
+  };
 
   // Screen 1: Role Selection (with nice dropdown)
   if (currentScreen === 1) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 flex items-center justify-center">
         <div className="max-w-2xl mx-auto text-center text-white px-6">
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <Flame className="w-12 h-12 text-orange-300" />
-            <h1 className="text-6xl font-bold">Campfire Guides</h1>
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <img 
+              src="/campfire_logo_white.svg"
+              alt="Campfire Logo"
+              className="h-16"
+            />
           </div>
-          <p className="text-2xl text-purple-100 mb-16">Tools For Companies and Teams</p>
+          <h2 className="text-4xl font-bold mb-4">Fuel a culture that performs.</h2>
+          <p className="text-xl text-purple-100 mb-16 max-w-2xl mx-auto">
+            Discover the right tools, assessments, and courses to help you—and your teams—grow stronger, move faster, and build real momentum.
+            Answer a few quick questions and we'll match you with the most impactful solutions for your role and challenges.
+          </p>
           
           <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
             <h2 className="text-3xl font-bold mb-8">Let's get started!</h2>
@@ -607,7 +922,7 @@ function ToolsPage() {
   // Screen 2: Challenge Selection (9 role-specific challenges)
   if (currentScreen === 2) {
     return (
-      <div className="min-h-screen bg-gray-50 py-16">
+      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-purple-50 py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-6">
@@ -688,22 +1003,26 @@ function ToolsPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="max-w-lg mx-auto text-center px-6">
           <div className="bg-white rounded-2xl p-12 shadow-lg">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">
-              Great! We're generating your personalized rec...
-            </h2>
-            
-            <div className="relative mb-8">
-              <div className="w-16 h-16 mx-auto">
-                <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200 border-t-purple-600"></div>
-              </div>
+            <div className="mb-6">
+              <img 
+                src="/campfire-logo.svg"
+                alt="Campfire Logo"
+                className="h-12 mx-auto mb-6 opacity-80"
+              />
             </div>
             
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <h2 className="text-3xl font-bold text-gray-900 mb-12">
+              Building Your Personalized Development Plan
+            </h2>
+            
+            <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
               <div 
-                className="bg-purple-600 h-2 rounded-full transition-all duration-100"
+                className={`bg-purple-600 h-3 rounded-full ${loadingProgress > 0 ? 'transition-all duration-300 ease-out' : ''}`}
                 style={{ width: `${loadingProgress}%` }}
               ></div>
             </div>
+            
+            <p className="text-sm text-gray-500">Creating your custom recommendations...</p>
           </div>
         </div>
       </div>
@@ -715,27 +1034,42 @@ function ToolsPage() {
     const recommendations = getRecommendations();
     
     return (
-      <div className="min-h-screen bg-gray-50 py-16">
+      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-purple-50 py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <div className="flex justify-between items-center mb-8">
+              <div className="flex justify-between items-center mb-8 print:hidden">
                 <button
-                  onClick={handleBack}
+                  onClick={handleBackToChallenge}
                   className="text-purple-600 hover:text-purple-700 flex items-center gap-2"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Back
                 </button>
                 <div className="flex gap-4">
-                  <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:border-gray-400 transition-colors">
-                    Contact
+                  <button 
+                    onClick={handlePrint}
+                    className="px-4 py-2 border border-gray-300 text-purple-600 rounded-lg hover:border-purple-400 transition-colors flex items-center gap-2"
+                  >
+                    <Printer className="w-4 h-4 text-purple-600" />
+                    Print
                   </button>
-                  <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2">
-                    <Download className="w-4 h-4" />
-                    Download
+                  <button 
+                    onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                  >
+                    Book a Demo
                   </button>
                 </div>
+              </div>
+              
+              {/* Print-only header with logo */}
+              <div className="hidden print:block mb-8">
+                <img 
+                  src="/campfire-logo.svg"
+                  alt="Campfire Logo"
+                  className="h-12 mx-auto mb-6"
+                />
               </div>
               
               <h2 className="text-4xl font-bold text-gray-900 mb-8">
@@ -771,7 +1105,7 @@ function ToolsPage() {
             {/* Visual separator */}
             <div className="w-24 h-1 bg-gradient-to-r from-purple-400 to-pink-400 mx-auto mb-12 rounded-full"></div>
 
-            <div className="mb-12">
+            <div className="mb-12 print:keep-with-next">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                   <Target className="w-5 h-5 text-purple-600" />
@@ -782,25 +1116,24 @@ function ToolsPage() {
               
               <div className="grid gap-4">
                 {recommendations.tools.map((tool, index) => (
-                  <div key={tool.id} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                  <div key={tool.id} className="relative bg-white rounded-xl border border-gray-200 p-6 shadow-sm print:avoid-break">
+                    {/* Priority number badge */}
+                    <div className="absolute -top-2 -left-2 w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
+                      {index + 1}
+                    </div>
+                    
                     <div className="flex items-start gap-4">
                       <div className="w-24 h-20 bg-white rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
                         {getToolVisual(tool.id)}
                       </div>
                       
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className="text-sm text-purple-600 font-medium">Priority {index + 1}</span>
-                          <h4 className="text-lg font-semibold text-gray-900">
-                            {tool.name}
-                          </h4>
-                        </div>
-                        <p className="text-gray-600 mb-3">
+                        <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                          {tool.name}
+                        </h4>
+                        <p className="text-gray-600">
                           {tool.description}
                         </p>
-                        <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">
-                          {tool.type}
-                        </span>
                       </div>
                     </div>
                   </div>
@@ -808,7 +1141,7 @@ function ToolsPage() {
               </div>
             </div>
 
-            <div className="mb-12">
+            <div className="mb-12 print:keep-with-next print:mt-12">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                   <BookOpen className="w-5 h-5 text-purple-600" />
@@ -819,7 +1152,7 @@ function ToolsPage() {
               
               <div className="grid gap-6">
                 {recommendations.courses.slice(0, 5).map((course) => (
-                  <div key={course.id} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                  <div key={course.id} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm print:avoid-break">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <h4 className="text-lg font-semibold text-gray-900 mb-2">
@@ -838,15 +1171,18 @@ function ToolsPage() {
               </div>
             </div>
 
-            <div className="flex gap-4 justify-center">
+            <div className="flex gap-4 justify-center print:hidden">
               <button 
                 onClick={() => router.push('/courses')}
                 className="px-8 py-3 border border-purple-600 text-purple-600 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
               >
                 Explore Catalog
               </button>
-              <button className="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors">
-                Learn More
+              <button 
+                onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}
+                className="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+              >
+                Book a Demo
               </button>
             </div>
           </div>

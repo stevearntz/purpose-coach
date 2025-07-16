@@ -1,12 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ArrowLeft, Flame } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { getCourseIdsForChallenges } from '@/app/lib/courseMappings';
+import { allCourses } from '@/app/lib/coursesData';
 
 interface Course {
   id: string;
   title: string;
+}
+
+interface Challenge {
+  id: string;
+  title: string;
+  description: string;
 }
 
 const getCourseVisual = (courseId: string): React.ReactElement => {
@@ -59,116 +67,180 @@ const getCourseVisual = (courseId: string): React.ReactElement => {
   return visuals[courseId] || visuals['s1'];
 };
 
-const courses: Course[] = [
-  { id: 's1', title: 'Cultivating Gratitude' },
-  { id: 's2', title: 'Beat Imposter Syndrome' },
-  { id: 's3', title: 'Constructive Conflict' },
-  { id: 's4', title: 'Deliberate Listening' },
-  { id: 's5', title: 'Habits for Resilience' },
-  { id: 's6', title: 'Inspire with Vision' },
-  { id: 's7', title: 'Manage Burnout' },
-  { id: 's8', title: 'Manage Your Time' },
-  { id: 's9', title: 'Self-Awareness' },
-  { id: 's10', title: 'Successful Delegation' },
-  { id: 's11', title: 'The Art of Recognition' },
-  { id: 's12', title: 'Lead Through Change' },
-  { id: 's13', title: 'Making the Most of 1:1\'s' },
-  { id: 's14', title: 'Build Trust on Your Team' },
-  { id: 's15', title: 'Define Your Leadership Brand' },
-  { id: 's16', title: 'Activate Autonomy' },
-  { id: 's17', title: 'Coaching Essentials' },
-  { id: 's18', title: 'Curiosity in Conversations' },
-  { id: 's19', title: 'Develop Your Team' },
-  { id: 's20', title: 'Foster Belonging' },
-  { id: 's21', title: 'Magnify Strengths' },
-  { id: 's22', title: 'Performance Discussions' },
-  { id: 's23', title: 'Set The Tone' },
-  { id: 's24', title: 'Strategic Thinking' },
-  { id: 's25', title: 'Setting and Achieving Goals' },
-  { id: 's26', title: 'Lead Effective Meetings' },
-  { id: 's27', title: 'Campfire Kickoff' },
-  { id: 's28', title: 'Deliver Feedback' },
-  { id: 's29', title: 'Campfire Storytelling' },
-  { id: 's30', title: 'Career Mapping' },
-  { id: 's31', title: 'Conscious Communication' },
-  { id: 's32', title: 'Decision Making' },
-  { id: 's33', title: 'Inclusive Leadership' },
-  { id: 's34', title: 'Hopes Fears and Expectations' },
-  { id: 's35', title: 'Collaborate Intentionally' },
-  { id: 's36', title: 'Candid Communication' },
-  { id: 's37', title: 'Alignment & Momentum' },
-  { id: 's38', title: 'Improving Together' },
-  { id: 's39', title: 'Connected Leadership' },
-  { id: 's40', title: 'Curiosity in Sales' },
-  { id: 's41', title: 'Leading with Compassion' },
-  { id: 's42', title: 'Manager Essentials Kickoff' },
-  { id: 's43', title: 'Live Group Coaching' }
+// Use the shared courses data
+const courses = allCourses as Course[];
+
+const challenges: Challenge[] = [
+  { id: 'c1', title: 'Purpose + Direction', description: 'Clarify purpose and set clear direction' },
+  { id: 'c2', title: 'Navigating Change', description: 'Lead through transitions and uncertainty' },
+  { id: 'c3', title: 'Feedback + Trust', description: 'Build trust and psychological safety' },
+  { id: 'c4', title: 'Empowering Others', description: 'Develop and empower your team' },
+  { id: 'c5', title: 'Decision Making', description: 'Make better decisions under pressure' },
+  { id: 'c6', title: 'Well-Being', description: 'Maintain balance and prevent burnout' },
+  { id: 'c7', title: 'Communication and Collaboration', description: 'Improve team communication' },
+  { id: 'c8', title: 'Skill Building', description: 'Develop key leadership skills' },
+  { id: 'c9', title: 'Alignment + Direction', description: 'Align teams around shared goals' }
 ];
+
+// Remove the old mapping - we'll use the shared one from courseMappings.ts
 
 export default function CoursesPage() {
   const router = useRouter();
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
+  const [selectedChallenges, setSelectedChallenges] = useState<string[]>([]);
 
   const handleCourseClick = (courseId: string) => {
     setSelectedCourse(courseId);
     // Here you could navigate to a course detail page or show more info
   };
 
+  const handleChallengeToggle = (challengeId: string) => {
+    setSelectedChallenges(prev => 
+      prev.includes(challengeId) 
+        ? prev.filter(id => id !== challengeId)
+        : [...prev, challengeId]
+    );
+  };
+
+  // Get filtered courses based on selected challenges
+  const filteredCourses = useMemo(() => {
+    if (selectedChallenges.length === 0) {
+      return courses;
+    }
+
+    // Get course IDs in priority order using the shared mapping
+    const orderedCourseIds = getCourseIdsForChallenges(selectedChallenges);
+
+    // Return courses in the priority order
+    return orderedCourseIds
+      .map(id => allCourses.find(course => course.id === id))
+      .filter(course => course !== undefined) as Course[];
+  }, [selectedChallenges]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 text-white">
-        <div className="container mx-auto px-6 py-8">
+        <div className="container mx-auto px-6 pt-12 pb-8">
           <div className="flex items-center justify-between mb-8">
             <button
-              onClick={() => router.push('/tools')}
+              onClick={() => router.push('/tools?screen=4')}
               className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               Back to Tools
             </button>
             
-            <div className="flex items-center gap-2">
-              <Flame className="w-8 h-8 text-orange-300" />
-              <span className="text-xl font-bold">Campfire Guides</span>
-            </div>
+            <img 
+              src="/campfire_logo_white.svg"
+              alt="Campfire Logo"
+              className="h-8"
+            />
           </div>
           
           <div className="text-center">
-            <h1 className="text-4xl font-bold mb-4">Course Catalog</h1>
-            <p className="text-xl text-purple-100">Explore all available programs</p>
+            <h1 className="text-4xl font-bold mb-4">Programs That Scale With You</h1>
+            <p className="text-2xl text-purple-100 mb-2">Built for growing teams, designed for real impact.</p>
+            <p className="text-xl text-purple-200">Every session here helps you build alignment, capability, and culture—at scale.</p>
           </div>
+        </div>
+      </div>
+
+      {/* Challenge Filter Pills */}
+      <div className="bg-white shadow-sm">
+        <div className="container mx-auto px-6 py-4">
+          <div className="mb-3">
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Filter by Challenge</h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {challenges.map((challenge, index) => {
+              const isSelected = selectedChallenges.includes(challenge.id);
+              return (
+                <button
+                  key={challenge.id}
+                  onClick={() => handleChallengeToggle(challenge.id)}
+                  className={`
+                    relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
+                    ${isSelected 
+                      ? 'bg-purple-100 text-purple-700 shadow-sm' 
+                      : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-700'
+                    }
+                  `}
+                >
+                  {challenge.title}
+                </button>
+              );
+            })}
+          </div>
+          {selectedChallenges.length > 0 && (
+            <div className="mt-3 flex items-center justify-between">
+              <p className="text-xs text-gray-500">
+                Showing {filteredCourses.length} of {courses.length} courses
+              </p>
+              <button
+                onClick={() => setSelectedChallenges([])}
+                className="text-xs text-purple-600 hover:text-purple-700 font-medium"
+              >
+                Clear filters
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Course Grid */}
       <div className="container mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {courses.map((course) => (
+        {filteredCourses.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg mb-4">No courses match your selected challenges.</p>
             <button
-              key={course.id}
-              onClick={() => handleCourseClick(course.id)}
-              className={`group bg-white rounded-xl border-2 p-6 transition-all hover:shadow-lg hover:border-purple-300 hover:scale-105 ${
-                selectedCourse === course.id ? 'border-purple-500 shadow-lg' : 'border-gray-200'
-              }`}
+              onClick={() => setSelectedChallenges([])}
+              className="text-purple-600 hover:text-purple-700 font-medium"
             >
-              <div className="w-full h-24 bg-gray-50 rounded-lg mb-4 overflow-hidden group-hover:bg-purple-50 transition-colors">
-                {getCourseVisual(course.id)}
-              </div>
-              
-              <h3 className="text-sm font-semibold text-gray-900 text-center leading-tight group-hover:text-purple-600 transition-colors">
-                {course.title}
-              </h3>
+              Clear filters to see all courses
             </button>
-          ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          {filteredCourses.map((course) => {
+            const isVisible = selectedChallenges.length === 0 || filteredCourses.includes(course);
+            return (
+              <button
+                key={course.id}
+                onClick={() => handleCourseClick(course.id)}
+                className={`
+                  group bg-white rounded-xl border-2 p-6 
+                  transition-all duration-300 ease-in-out
+                  hover:shadow-lg hover:border-purple-300 hover:scale-105 
+                  ${selectedCourse === course.id ? 'border-purple-500 shadow-lg' : 'border-gray-200'}
+                  ${isVisible ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-4'}
+                `}
+                style={{
+                  transitionDelay: isVisible ? '0ms' : '0ms'
+                }}
+              >
+                <div className="w-full h-24 bg-gray-50 rounded-lg mb-4 overflow-hidden group-hover:bg-purple-50 transition-colors">
+                  {getCourseVisual(course.id)}
+                </div>
+                
+                <h3 className="text-sm font-semibold text-gray-900 text-center leading-tight group-hover:text-purple-600 transition-colors">
+                  {course.title}
+                </h3>
+              </button>
+            );
+          })}
         </div>
+        )}
       </div>
 
       {/* Footer */}
       <div className="container mx-auto px-6 py-12 text-center">
         <p className="text-gray-600 mb-6">Need help choosing the right courses for your team?</p>
-        <button className="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors">
-          Contact Us
+        <button 
+          onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}
+          className="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+        >
+          Book a Demo
         </button>
       </div>
     </div>

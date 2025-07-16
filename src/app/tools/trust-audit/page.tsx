@@ -250,7 +250,7 @@ export default function TrustAuditPage() {
                 onClick={() => setShowIntro(false)}
                 className="w-full bg-gradient-to-r from-iris to-pink-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-iris-dark hover:to-pink-700 transition-all duration-200 shadow-lg"
               >
-                Start Trust Audit
+                START TRUST AUDIT
               </button>
             </div>
           </div>
@@ -332,13 +332,13 @@ export default function TrustAuditPage() {
                 }}
                 className="flex-1 bg-white/10 backdrop-blur-sm text-white font-semibold py-3 px-6 rounded-lg hover:bg-white/20 transition-all duration-200"
               >
-                Retake Audit
+                RETAKE AUDIT
               </button>
               <button
                 onClick={generatePDF}
                 className="flex-1 bg-gradient-to-r from-iris to-pink-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-iris-dark hover:to-pink-700 transition-all duration-200 shadow-lg"
               >
-                Download PDF Report
+                DOWNLOAD PDF REPORT
               </button>
             </div>
           </div>
@@ -423,7 +423,7 @@ export default function TrustAuditPage() {
               }`}
             >
               <ArrowLeft className="w-5 h-5" />
-              <span>Previous</span>
+              <span>PREVIOUS</span>
             </button>
             
             <button
@@ -435,7 +435,7 @@ export default function TrustAuditPage() {
                   : 'bg-gradient-to-r from-iris to-pink-600 text-white hover:from-iris-dark hover:to-pink-700 shadow-lg'
               }`}
             >
-              <span>{currentQuestionIndex === questions.length - 1 ? 'See Results' : 'Next'}</span>
+              <span>{currentQuestionIndex === questions.length - 1 ? 'SEE RESULTS' : 'NEXT'}</span>
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>

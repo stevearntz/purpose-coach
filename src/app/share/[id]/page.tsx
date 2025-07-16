@@ -121,7 +121,7 @@ export default function SharePage() {
             className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600/90 hover:bg-indigo-600 text-white rounded-lg transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Go to Homepage
+            GO TO HOMEPAGE
           </Link>
         </div>
       </div>
@@ -148,14 +148,14 @@ export default function SharePage() {
               className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors backdrop-blur-sm border border-white/10"
             >
               <Share2 className="w-4 h-4" />
-              {copied ? 'Copied!' : 'Share'}
+              {copied ? 'COPIED!' : 'SHARE'}
             </button>
             <button
               onClick={handleDownloadPDF}
               className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors backdrop-blur-sm border border-white/10"
             >
               <Download className="w-4 h-4" />
-              Download PDF
+              DOWNLOAD PDF
             </button>
           </div>
         </div>

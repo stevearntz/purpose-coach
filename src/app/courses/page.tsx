@@ -128,7 +128,7 @@ export default function CoursesPage() {
               className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
-              Back to Tools
+              BACK TO TOOLS
             </button>
             
             <img 
@@ -140,7 +140,7 @@ export default function CoursesPage() {
           
           <div className="text-center">
             <h1 className="text-4xl font-bold mb-4">Programs That Scale With You</h1>
-            <p className="text-2xl text-purple-100 mb-2">Built for growing teams, designed for real impact.</p>
+            <p className="text-2xl text-iris-100 mb-2">Built for growing teams, designed for real impact.</p>
             <p className="text-xl text-purple-200">Every session here helps you build alignment, capability, and culture—at scale.</p>
           </div>
         </div>
@@ -162,7 +162,7 @@ export default function CoursesPage() {
                   className={`
                     relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
                     ${isSelected 
-                      ? 'bg-purple-100 text-iris-dark shadow-sm' 
+                      ? 'bg-iris-100 text-iris-dark shadow-sm' 
                       : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-700'
                     }
                   `}
@@ -181,7 +181,7 @@ export default function CoursesPage() {
                 onClick={() => setSelectedChallenges([])}
                 className="text-xs text-iris hover:text-iris-dark font-medium"
               >
-                Clear filters
+                CLEAR FILTERS
               </button>
             </div>
           )}
@@ -197,7 +197,7 @@ export default function CoursesPage() {
               onClick={() => setSelectedChallenges([])}
               className="text-iris hover:text-iris-dark font-medium"
             >
-              Clear filters to see all courses
+              CLEAR FILTERS TO SEE ALL COURSES
             </button>
           </div>
         ) : (
@@ -240,7 +240,7 @@ export default function CoursesPage() {
           onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}
           className="px-8 py-3 bg-iris text-white rounded-lg font-semibold hover:bg-iris-dark transition-colors"
         >
-          Book a Demo
+          BOOK A DEMO
         </button>
       </div>
     </div>

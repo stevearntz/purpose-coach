@@ -347,7 +347,7 @@ export default function PurposeCoach() {
               onClick={handleDemoLogin}
               className="w-full bg-white/20 hover:bg-white/30 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 border border-white/30"
             >
-              Continue with Demo
+              CONTINUE WITH DEMO
             </button>
           </div>
           
@@ -381,7 +381,7 @@ export default function PurposeCoach() {
                 onClick={handleSignOut}
                 className="text-purple-200 hover:text-white text-sm"
               >
-                Sign Out
+                SIGN OUT
               </button>
             </div>
           </div>
@@ -436,7 +436,7 @@ export default function PurposeCoach() {
                   }}
                   className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-colors"
                 >
-                  {copied ? 'Copied!' : 'Copy'}
+                  {copied ? 'COPIED!' : 'COPY'}
                 </button>
               </div>
               <p className="text-purple-300 text-sm mt-2">Anyone with this link can view your results</p>
@@ -453,7 +453,7 @@ export default function PurposeCoach() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span>Download PDF</span>
+                <span>DOWNLOAD PDF</span>
               </button>
               
               <button
@@ -464,12 +464,12 @@ export default function PurposeCoach() {
                 {isSharing ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Creating Link...</span>
+                    <span>CREATING LINK...</span>
                   </>
                 ) : (
                   <>
                     <Share2 className="w-5 h-5" />
-                    <span>{copied ? 'Link Copied!' : 'Share Results'}</span>
+                    <span>{copied ? 'LINK COPIED!' : 'SHARE RESULTS'}</span>
                   </>
                 )}
               </button>
@@ -481,7 +481,7 @@ export default function PurposeCoach() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                <span>Start Over</span>
+                <span>START OVER</span>
               </button>
             </div>
           </div>
@@ -556,7 +556,7 @@ export default function PurposeCoach() {
                 disabled={currentQuestion === 0}
                 className="bg-white/20 hover:bg-white/30 disabled:bg-white/10 disabled:text-purple-400 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 disabled:cursor-not-allowed"
               >
-                Previous
+                PREVIOUS
               </button>
               
               <button
@@ -564,7 +564,7 @@ export default function PurposeCoach() {
                 disabled={!currentResponse.trim()}
                 className="bg-iris hover:bg-iris-dark disabled:bg-iris-darker disabled:text-purple-400 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 disabled:cursor-not-allowed"
               >
-                {currentQuestion === questions.length - 1 ? 'Complete Journey' : 'Next Question'}
+                {currentQuestion === questions.length - 1 ? 'COMPLETE JOURNEY' : 'NEXT QUESTION'}
               </button>
             </div>
           </div>

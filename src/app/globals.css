@@ -7,6 +7,7 @@
   --iris: #6E3FCC;
   --iris-dark: #522F99; /* darker variant for hover states - previously purple-700 */
   --iris-darker: #462580; /* even darker for disabled states */
+  --iris-100: #CFC0ED; /* purple-100 replacement */
   --iris-light: #E8DEFF; /* light variant for backgrounds */
   --iris-lighter: #F5EFFF; /* lighter variant for subtle backgrounds */
 }
@@ -18,6 +19,7 @@
   --color-iris: var(--iris);
   --color-iris-dark: var(--iris-dark);
   --color-iris-darker: var(--iris-darker);
+  --color-iris-100: var(--iris-100);
   --color-iris-light: var(--iris-light);
   --color-iris-lighter: var(--iris-lighter);
   --font-sans: var(--font-league-spartan);

@@ -958,9 +958,9 @@ function ToolsPage() {
                   
                   <div className="flex items-start gap-4">
                     <div className="flex-1">
-                      <h3 className={`font-semibold mb-2 ${isSelected ? 'text-iris-700' : 'text-nightfall'}`}>
+                      <h4 className={`text-lg font-semibold mb-2 ${isSelected ? 'text-iris-700' : 'text-nightfall'}`}>
                         {challenge.title}
-                      </h3>
+                      </h4>
                       <p className={`text-sm ${isSelected ? 'text-iris-500' : 'text-gray-600'}`}>
                         {challenge.description}
                       </p>

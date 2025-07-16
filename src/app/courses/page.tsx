@@ -135,7 +135,7 @@ export default function CoursesPage() {
           
           <div className="text-center">
             <h1 className="text-4xl font-bold mb-4">Programs That Scale With You</h1>
-            <p className="text-2xl text-purple-200 mb-2">Built for growing teams, designed for real impact.</p>
+            <p className="text-2xl text-iris-100 mb-2">Built for growing teams, designed for real impact.</p>
             <p className="text-xl text-purple-200">Every session here helps you build alignment, capability, and culture—at scale.</p>
           </div>
         </div>
@@ -157,7 +157,7 @@ export default function CoursesPage() {
                   className={`
                     relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
                     ${isSelected 
-                      ? 'bg-purple-200 text-purple-800 shadow-sm' 
+                      ? 'bg-iris-100 text-iris-dark shadow-sm' 
                       : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-700'
                     }
                   `}
@@ -174,7 +174,7 @@ export default function CoursesPage() {
               </p>
               <button
                 onClick={() => setSelectedChallenges([])}
-                className="text-xs text-purple-600 hover:text-purple-800 font-medium"
+                className="text-xs text-iris hover:text-iris-dark font-medium"
               >
                 CLEAR FILTERS
               </button>
@@ -190,7 +190,7 @@ export default function CoursesPage() {
             <p className="text-gray-500 text-lg mb-4">No courses match your selected challenges.</p>
             <button
               onClick={() => setSelectedChallenges([])}
-              className="text-purple-600 hover:text-purple-800 font-medium"
+              className="text-iris hover:text-iris-dark font-medium"
             >
               CLEAR FILTERS TO SEE ALL COURSES
             </button>
@@ -218,7 +218,7 @@ export default function CoursesPage() {
                   {getCourseVisual(course.id)}
                 </div>
                 
-                <h3 className="text-sm font-semibold text-nightfall text-center leading-tight group-hover:text-purple-600 transition-colors">
+                <h3 className="text-sm font-semibold text-nightfall text-center leading-tight group-hover:text-iris transition-colors">
                   {course.title}
                 </h3>
               </button>
@@ -233,7 +233,7 @@ export default function CoursesPage() {
         <p className="text-gray-600 mb-6">Need help choosing the right courses for your team?</p>
         <button 
           onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}
-          className="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-800 transition-colors"
+          className="px-8 py-3 bg-iris text-white rounded-lg font-semibold hover:bg-iris-dark transition-colors"
         >
           BOOK A DEMO
         </button>

@@ -166,7 +166,7 @@ export default function CampfireAgent() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="bg-white/10 backdrop-blur-sm rounded-xl shadow-2xl border border-white/20 overflow-hidden">
           {/* Chat Header */}
-          <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 px-6 py-4 border-b border-white/20">
+          <div className="bg-gradient-to-r from-blue-600/20 to-iris/20 px-6 py-4 border-b border-white/20">
             <h2 className="text-lg font-semibold text-white">Find Your Perfect Tool</h2>
             <p className="text-blue-200 text-sm mt-1">Find the right tool for you or your team to help you thrive and get great results</p>
           </div>

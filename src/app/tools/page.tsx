@@ -867,7 +867,7 @@ function ToolsPage() {
   // Screen 1: Role Selection (with nice dropdown)
   if (currentScreen === 1) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 flex items-center justify-center px-4 py-8">
+      <div className="min-h-screen bg-custom-gradient-diagonal flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-2xl mx-auto text-center text-white">
           <div className="flex items-center justify-center gap-3 mb-6">
             <img 
@@ -1021,7 +1021,7 @@ function ToolsPage() {
             
             <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
               <div 
-                className={`bg-gradient-to-r from-purple-600 to-pink-600 h-3 rounded-full ${loadingProgress > 0 ? 'transition-all duration-300 ease-out' : ''}`}
+                className={`bg-custom-gradient h-3 rounded-full ${loadingProgress > 0 ? 'transition-all duration-300 ease-out' : ''}`}
                 style={{ width: `${loadingProgress}%` }}
               ></div>
             </div>
@@ -1108,7 +1108,7 @@ function ToolsPage() {
             </div>
 
             {/* Visual separator */}
-            <div className="w-24 h-1 bg-gradient-to-r from-purple-400 to-pink-400 mx-auto mb-12 rounded-full"></div>
+            <div className="w-24 h-1 bg-custom-gradient-horizontal mx-auto mb-12 rounded-full"></div>
 
             <div className="mb-12 print:keep-with-next">
               <div className="flex items-center gap-3 mb-2">

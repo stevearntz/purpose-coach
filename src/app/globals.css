@@ -20,17 +20,104 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-nightfall: var(--nightfall);
+  
+  /* Custom iris color palette */
   --color-iris: var(--iris);
   --color-iris-dark: var(--iris-dark);
   --color-iris-darker: var(--iris-darker);
   --color-iris-100: var(--iris-100);
   --color-iris-light: var(--iris-light);
   --color-iris-lighter: var(--iris-lighter);
+  
+  /* Gradient colors */
   --color-gradient-1: var(--gradient-1);
   --color-gradient-2: var(--gradient-2);
   --color-gradient-3: var(--gradient-3);
   --color-gradient-4: var(--gradient-4);
+  
   --font-sans: var(--font-league-spartan);
+}
+
+/* Register custom color utilities */
+@layer utilities {
+  .text-iris { color: var(--iris); }
+  .text-iris-dark { color: var(--iris-dark); }
+  .text-iris-darker { color: var(--iris-darker); }
+  .text-iris-100 { color: var(--iris-100); }
+  .text-iris-light { color: var(--iris-light); }
+  .text-iris-lighter { color: var(--iris-lighter); }
+  
+  .bg-iris { background-color: var(--iris); }
+  .bg-iris-dark { background-color: var(--iris-dark); }
+  .bg-iris-darker { background-color: var(--iris-darker); }
+  .bg-iris-100 { background-color: var(--iris-100); }
+  .bg-iris-light { background-color: var(--iris-light); }
+  .bg-iris-lighter { background-color: var(--iris-lighter); }
+  
+  .border-iris { border-color: var(--iris); }
+  .border-iris-dark { border-color: var(--iris-dark); }
+  .border-iris-100 { border-color: var(--iris-100); }
+  
+  .ring-iris { --tw-ring-color: var(--iris); }
+  .ring-iris-dark { --tw-ring-color: var(--iris-dark); }
+  
+  .from-iris { --tw-gradient-from: var(--iris) var(--tw-gradient-from-position); }
+  .to-iris { --tw-gradient-to: var(--iris) var(--tw-gradient-to-position); }
+  .via-iris { --tw-gradient-via: var(--iris) var(--tw-gradient-via-position); }
+  
+  /* Hover variants */
+  .hover\:text-iris:hover { color: var(--iris); }
+  .hover\:text-iris-dark:hover { color: var(--iris-dark); }
+  .hover\:text-iris-darker:hover { color: var(--iris-darker); }
+  
+  .hover\:bg-iris:hover { background-color: var(--iris); }
+  .hover\:bg-iris-dark:hover { background-color: var(--iris-dark); }
+  .hover\:bg-iris-darker:hover { background-color: var(--iris-darker); }
+  
+  .hover\:border-iris:hover { border-color: var(--iris); }
+  .hover\:border-iris-dark:hover { border-color: var(--iris-dark); }
+  
+  /* Focus variants */
+  .focus\:ring-iris:focus { --tw-ring-color: var(--iris); }
+  .focus\:ring-iris-dark:focus { --tw-ring-color: var(--iris-dark); }
+  .focus\:border-iris:focus { border-color: var(--iris); }
+  
+  /* Group hover variants */
+  .group-hover\:text-iris:group-hover { color: var(--iris); }
+  
+  /* Custom gradients */
+  .bg-custom-gradient {
+    background: linear-gradient(to right, var(--gradient-1) 0%, var(--gradient-2) 33%, var(--gradient-3) 66%, var(--gradient-4) 100%);
+  }
+  
+  .bg-custom-gradient-horizontal {
+    background: linear-gradient(to right, var(--gradient-1) 0%, var(--gradient-2) 33%, var(--gradient-3) 66%, var(--gradient-4) 100%);
+  }
+  
+  .bg-custom-gradient-diagonal {
+    background: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-2) 33%, var(--gradient-3) 66%, var(--gradient-4) 100%);
+  }
+  
+  /* Main gradient classes */
+  .gradient-main {
+    background: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-2) 33%, var(--gradient-3) 66%, var(--gradient-4) 100%);
+  }
+  
+  .gradient-main-horizontal {
+    background: linear-gradient(to right, var(--gradient-1) 0%, var(--gradient-2) 33%, var(--gradient-3) 66%, var(--gradient-4) 100%);
+  }
+  
+  /* Opacity variants for iris colors */
+  .bg-iris\/20 { background-color: rgb(110 63 204 / 0.2); }
+  .bg-iris\/10 { background-color: rgb(110 63 204 / 0.1); }
+  .text-iris\/80 { color: rgb(110 63 204 / 0.8); }
+  .text-iris\/60 { color: rgb(110 63 204 / 0.6); }
+  .from-iris\/20 { --tw-gradient-from: rgb(110 63 204 / 0.2) var(--tw-gradient-from-position); }
+  .to-iris\/20 { --tw-gradient-to: rgb(110 63 204 / 0.2) var(--tw-gradient-to-position); }
+  
+  /* iris-100 opacity variants */
+  .bg-iris-100\/20 { background-color: rgb(207 192 237 / 0.2); }
+  .bg-iris-100\/10 { background-color: rgb(207 192 237 / 0.1); }
 }
 
 @media (prefers-color-scheme: dark) {

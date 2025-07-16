@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Flame, ArrowRight, ArrowLeft, Users, Target, BookOpen, Brain, MessageCircle, Heart, Download, TrendingUp } from 'lucide-react';
+import { Flame, ArrowLeft, Target, Download } from 'lucide-react';
 
 interface UserProfile {
   role: string;

@@ -14,7 +14,7 @@ export default function Footer() {
               className="inline-block mb-4"
             >
               <img 
-                src="/campfire-logo.svg"
+                src="/campfire-logo-new.png"
                 alt="Campfire Logo"
                 className="h-10"
               />

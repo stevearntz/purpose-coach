@@ -774,7 +774,7 @@ function ToolsPage() {
       <body>
         <div class="page-background">
           <div class="header">
-          <img src="/campfire-logo.svg" alt="Campfire" class="logo" />
+          <img src="/campfire-logo-new.png" alt="Campfire" class="logo" />
           <h1>Your Personalized Development Plan</h1>
           <div class="role">${userProfile.role}</div>
         </div>
@@ -871,7 +871,7 @@ function ToolsPage() {
         <div className="w-full max-w-2xl mx-auto text-center text-white">
           <div className="flex items-center justify-center gap-3 mb-6">
             <img 
-              src="/campfire_logo_white.svg"
+              src="/campfire-logo-white.png"
               alt="Campfire Logo"
               className="h-12 sm:h-14 md:h-16"
             />
@@ -1009,7 +1009,7 @@ function ToolsPage() {
           <div className="bg-white rounded-2xl p-12 shadow-lg">
             <div className="mb-6">
               <img 
-                src="/campfire-logo.svg"
+                src="/campfire-logo-new.png"
                 alt="Campfire Logo"
                 className="h-12 mx-auto mb-6 opacity-80"
               />
@@ -1071,7 +1071,7 @@ function ToolsPage() {
               {/* Print-only header with logo */}
               <div className="hidden print:block mb-8">
                 <img 
-                  src="/campfire-logo.svg"
+                  src="/campfire-logo-new.png"
                   alt="Campfire Logo"
                   className="h-12 mx-auto mb-6"
                 />

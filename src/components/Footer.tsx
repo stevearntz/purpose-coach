@@ -50,8 +50,8 @@ export default function Footer() {
           <div className="md:col-span-1">
             <h3 className="font-semibold text-nightfall mb-4">Company</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-600 hover:text-iris transition-colors">Blog</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-iris transition-colors">Contact Us</a></li>
+              <li><a href="#" className="text-gray-600 hover:text-purple-600 transition-colors">Blog</a></li>
+              <li><a href="#" className="text-gray-600 hover:text-purple-600 transition-colors">Contact Us</a></li>
             </ul>
           </div>
 
@@ -62,11 +62,11 @@ export default function Footer() {
               <input
                 type="email"
                 placeholder="Your Email..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-iris focus:border-transparent"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
               />
               <button
                 type="submit"
-                className="px-6 py-2 bg-iris text-white rounded-lg font-semibold hover:bg-iris-dark transition-colors"
+                className="px-6 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-800 transition-colors"
               >
                 SUBSCRIBE
               </button>
@@ -77,8 +77,8 @@ export default function Footer() {
         {/* Bottom Footer */}
         <div className="mt-8 pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
           <div className="flex gap-6 mb-4 md:mb-0">
-            <a href="#" className="hover:text-iris transition-colors">TERMS</a>
-            <a href="#" className="hover:text-iris transition-colors">PRIVACY</a>
+            <a href="#" className="hover:text-purple-600 transition-colors">TERMS</a>
+            <a href="#" className="hover:text-purple-600 transition-colors">PRIVACY</a>
           </div>
           <p>Campfire 2024. All rights reserved</p>
         </div>

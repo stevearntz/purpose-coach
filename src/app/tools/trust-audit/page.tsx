@@ -249,7 +249,7 @@ export default function TrustAuditPage() {
               
               <button
                 onClick={() => setShowIntro(false)}
-                className="w-full bg-gradient-to-r from-iris to-pink-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-iris-dark hover:to-pink-700 transition-all duration-200 shadow-lg"
+                className="w-full bg-gradient-to-r from-indigo-600 to-pink-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-indigo-700 hover:to-pink-700 transition-all duration-200 shadow-lg"
               >
                 START TRUST AUDIT
               </button>
@@ -337,7 +337,7 @@ export default function TrustAuditPage() {
               </button>
               <button
                 onClick={generatePDF}
-                className="flex-1 bg-gradient-to-r from-iris to-pink-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-iris-dark hover:to-pink-700 transition-all duration-200 shadow-lg"
+                className="flex-1 bg-gradient-to-r from-indigo-600 to-pink-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-indigo-700 hover:to-pink-700 transition-all duration-200 shadow-lg"
               >
                 DOWNLOAD PDF REPORT
               </button>
@@ -394,7 +394,7 @@ export default function TrustAuditPage() {
                   onClick={() => handleAnswer(option.value)}
                   className={`w-full p-4 rounded-lg text-left transition-all duration-200 ${
                     getCurrentAnswer() === option.value
-                      ? 'bg-gradient-to-r from-iris to-pink-600 text-white shadow-lg'
+                      ? 'bg-gradient-to-r from-indigo-600 to-pink-600 text-white shadow-lg'
                       : 'bg-white/10 backdrop-blur-sm text-white/90 hover:bg-white/20'
                   }`}
                 >
@@ -406,7 +406,7 @@ export default function TrustAuditPage() {
                         : 'border-white/50'
                     }`}>
                       {getCurrentAnswer() === option.value && (
-                        <div className="w-full h-full rounded-full bg-gradient-to-r from-iris to-pink-600 scale-75" />
+                        <div className="w-full h-full rounded-full bg-gradient-to-r from-indigo-600 to-pink-600 scale-75" />
                       )}
                     </div>
                   </div>
@@ -435,7 +435,7 @@ export default function TrustAuditPage() {
               className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
                 !getCurrentAnswer()
                   ? 'bg-white/5 text-white/30 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-iris to-pink-600 text-white hover:from-iris-dark hover:to-pink-700 shadow-lg'
+                  : 'bg-gradient-to-r from-indigo-600 to-pink-600 text-white hover:from-indigo-700 hover:to-pink-700 shadow-lg'
               }`}
             >
               <span>{currentQuestionIndex === questions.length - 1 ? 'SEE RESULTS' : 'NEXT'}</span>

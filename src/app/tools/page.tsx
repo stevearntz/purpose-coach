@@ -30,8 +30,8 @@ interface Course {
   duration: string;
 }
 
-const getToolVisual = (toolId: string) => {
-  const visuals: { [key: string]: JSX.Element } = {
+const getToolVisual = (toolId: string): React.ReactElement => {
+  const visuals: { [key: string]: React.ReactElement } = {
     't1': ( // Purpose and Alignment Map
       <svg viewBox="0 0 128 96" className="w-full h-full">
         <circle cx="64" cy="48" r="32" fill="#fbbf24" opacity="0.2"/>
@@ -140,8 +140,8 @@ const getToolVisual = (toolId: string) => {
   return visuals[toolId] || visuals['t1'];
 };
 
-const getChallengeVisual = (challengeId: string) => {
-  const visuals: { [key: string]: JSX.Element } = {
+const getChallengeVisual = (challengeId: string): React.ReactElement => {
+  const visuals: { [key: string]: React.ReactElement } = {
     // Purpose + Direction
     'c1': (
       <svg viewBox="0 0 96 72" className="w-full h-full">
@@ -239,8 +239,8 @@ const getChallengeVisual = (challengeId: string) => {
   return visuals[challengeType] || visuals['c1'];
 };
 
-const getCourseVisual = (courseId: string) => {
-  const visuals: { [key: string]: JSX.Element } = {
+const getCourseVisual = (courseId: string): React.ReactElement => {
+  const visuals: { [key: string]: React.ReactElement } = {
     's1': <svg viewBox="0 0 64 48" className="w-full h-full"><circle cx="32" cy="24" r="16" fill="#fbbf24" opacity="0.3"/><circle cx="32" cy="24" r="8" fill="#f59e0b"/></svg>,
     's2': <svg viewBox="0 0 64 48" className="w-full h-full"><rect x="16" y="12" width="32" height="24" fill="#c084fc" opacity="0.3" rx="4"/><rect x="24" y="18" width="16" height="12" fill="#9333ea" rx="2"/></svg>,
     's3': <svg viewBox="0 0 64 48" className="w-full h-full"><path d="M20 24 L32 12 L44 24 L32 36 Z" fill="#f472b6" opacity="0.3"/><path d="M26 24 L32 18 L38 24 L32 30 Z" fill="#ec4899"/></svg>,

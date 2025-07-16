@@ -119,7 +119,7 @@ export default function SharePage() {
           <p className="text-gray-300 mb-6">{error || 'This shared content could not be found or may have expired.'}</p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600/90 hover:bg-indigo-600 text-white rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-iris-500/90 hover:bg-iris-500 text-white rounded-lg transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             GO TO HOMEPAGE
@@ -180,7 +180,7 @@ export default function SharePage() {
                   <ul className="space-y-3">
                     {data.results.insights.map((insight: string, index: number) => (
                       <li key={index} className="flex items-start gap-3">
-                        <span className="flex-shrink-0 w-6 h-6 bg-indigo-600/30 text-indigo-300 rounded-full flex items-center justify-center text-sm">
+                        <span className="flex-shrink-0 w-6 h-6 bg-iris-500/30 text-indigo-300 rounded-full flex items-center justify-center text-sm">
                           {index + 1}
                         </span>
                         <span className="text-gray-200">{insight}</span>

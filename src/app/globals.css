@@ -8,6 +8,8 @@
   --iris-dark: #522F99; /* darker variant for hover states - previously purple-700 */
   --iris-darker: #462580; /* even darker for disabled states */
   --iris-100: #CFC0ED; /* purple-100 replacement */
+  --iris-500: #6E3FCC; /* indigo-600 replacement */
+  --iris-700: #522F99; /* indigo-700 replacement */
   --iris-light: #E8DEFF; /* light variant for backgrounds */
   --iris-lighter: #F5EFFF; /* lighter variant for subtle backgrounds */
   --gradient-1: #6E3FCC; /* gradient color 0% */
@@ -26,6 +28,8 @@
   --color-iris-dark: var(--iris-dark);
   --color-iris-darker: var(--iris-darker);
   --color-iris-100: var(--iris-100);
+  --color-iris-500: var(--iris-500);
+  --color-iris-700: var(--iris-700);
   --color-iris-light: var(--iris-light);
   --color-iris-lighter: var(--iris-lighter);
   
@@ -44,6 +48,8 @@
   .text-iris-dark { color: var(--iris-dark); }
   .text-iris-darker { color: var(--iris-darker); }
   .text-iris-100 { color: var(--iris-100); }
+  .text-iris-500 { color: var(--iris-500); }
+  .text-iris-700 { color: var(--iris-700); }
   .text-iris-light { color: var(--iris-light); }
   .text-iris-lighter { color: var(--iris-lighter); }
   
@@ -51,12 +57,16 @@
   .bg-iris-dark { background-color: var(--iris-dark); }
   .bg-iris-darker { background-color: var(--iris-darker); }
   .bg-iris-100 { background-color: var(--iris-100); }
+  .bg-iris-500 { background-color: var(--iris-500); }
+  .bg-iris-700 { background-color: var(--iris-700); }
   .bg-iris-light { background-color: var(--iris-light); }
   .bg-iris-lighter { background-color: var(--iris-lighter); }
   
   .border-iris { border-color: var(--iris); }
   .border-iris-dark { border-color: var(--iris-dark); }
   .border-iris-100 { border-color: var(--iris-100); }
+  .border-iris-500 { border-color: var(--iris-500); }
+  .border-iris-700 { border-color: var(--iris-700); }
   
   .ring-iris { --tw-ring-color: var(--iris); }
   .ring-iris-dark { --tw-ring-color: var(--iris-dark); }
@@ -64,15 +74,21 @@
   .from-iris { --tw-gradient-from: var(--iris) var(--tw-gradient-from-position); }
   .to-iris { --tw-gradient-to: var(--iris) var(--tw-gradient-to-position); }
   .via-iris { --tw-gradient-via: var(--iris) var(--tw-gradient-via-position); }
+  .from-iris-500 { --tw-gradient-from: var(--iris-500) var(--tw-gradient-from-position); }
+  .from-iris-700 { --tw-gradient-from: var(--iris-700) var(--tw-gradient-from-position); }
   
   /* Hover variants */
   .hover\:text-iris:hover { color: var(--iris); }
   .hover\:text-iris-dark:hover { color: var(--iris-dark); }
   .hover\:text-iris-darker:hover { color: var(--iris-darker); }
+  .hover\:text-iris-500:hover { color: var(--iris-500); }
+  .hover\:text-iris-700:hover { color: var(--iris-700); }
   
   .hover\:bg-iris:hover { background-color: var(--iris); }
   .hover\:bg-iris-dark:hover { background-color: var(--iris-dark); }
   .hover\:bg-iris-darker:hover { background-color: var(--iris-darker); }
+  .hover\:bg-iris-500:hover { background-color: var(--iris-500); }
+  .hover\:bg-iris-700:hover { background-color: var(--iris-700); }
   
   .hover\:border-iris:hover { border-color: var(--iris); }
   .hover\:border-iris-dark:hover { border-color: var(--iris-dark); }
@@ -84,6 +100,10 @@
   
   /* Group hover variants */
   .group-hover\:text-iris:group-hover { color: var(--iris); }
+  
+  /* Hover gradient variants */
+  .hover\:from-iris-500:hover { --tw-gradient-from: var(--iris-500) var(--tw-gradient-from-position); }
+  .hover\:from-iris-700:hover { --tw-gradient-from: var(--iris-700) var(--tw-gradient-from-position); }
   
   /* Custom gradients */
   .bg-custom-gradient {
@@ -118,6 +138,10 @@
   /* iris-100 opacity variants */
   .bg-iris-100\/20 { background-color: rgb(207 192 237 / 0.2); }
   .bg-iris-100\/10 { background-color: rgb(207 192 237 / 0.1); }
+  
+  /* iris-500 opacity variants */
+  .bg-iris-500\/90 { background-color: rgb(110 63 204 / 0.9); }
+  .bg-iris-500\/30 { background-color: rgb(110 63 204 / 0.3); }
 }
 
 @media (prefers-color-scheme: dark) {

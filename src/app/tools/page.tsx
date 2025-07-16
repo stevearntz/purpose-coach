@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Flame, ArrowRight, ArrowLeft, Users, Target, BookOpen, Brain, MessageCircle, Heart, Download, TrendingUp } from 'lucide-react';
 
 interface UserProfile {
@@ -29,7 +30,172 @@ interface Course {
   duration: string;
 }
 
+const getToolVisual = (toolId: string) => {
+  const visuals: { [key: string]: JSX.Element } = {
+    't1': ( // Purpose and Alignment Map
+      <svg viewBox="0 0 128 96" className="w-full h-full">
+        <circle cx="64" cy="48" r="32" fill="#fbbf24" opacity="0.2"/>
+        <circle cx="64" cy="48" r="24" fill="#f59e0b" opacity="0.3"/>
+        <circle cx="64" cy="48" r="16" fill="#f87171" opacity="0.4"/>
+        <circle cx="64" cy="48" r="8" fill="#ef4444"/>
+        <path d="M64 16 L64 80 M32 48 L96 48" stroke="#7c3aed" strokeWidth="2" strokeDasharray="4 2"/>
+        <text x="64" y="52" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">WHY</text>
+      </svg>
+    ),
+    't2': ( // Change Readiness Reflection
+      <svg viewBox="0 0 128 96" className="w-full h-full">
+        <path d="M32 48 Q64 16 96 48 T64 80" fill="none" stroke="#34d399" strokeWidth="4" opacity="0.5"/>
+        <circle cx="32" cy="48" r="8" fill="#10b981"/>
+        <circle cx="64" cy="32" r="8" fill="#34d399"/>
+        <circle cx="96" cy="48" r="8" fill="#6ee7b7"/>
+        <path d="M40 48 L56 32 M72 32 L88 48" stroke="#10b981" strokeWidth="2" strokeLinecap="round"/>
+        <rect x="52" y="60" width="24" height="4" fill="#10b981" rx="2"/>
+        <rect x="48" y="68" width="32" height="4" fill="#34d399" opacity="0.6" rx="2"/>
+      </svg>
+    ),
+    't3': ( // Team Trust Audit
+      <svg viewBox="0 0 128 96" className="w-full h-full">
+        <circle cx="40" cy="32" r="12" fill="#c084fc" opacity="0.4"/>
+        <circle cx="88" cy="32" r="12" fill="#c084fc" opacity="0.4"/>
+        <circle cx="64" cy="64" r="12" fill="#c084fc" opacity="0.4"/>
+        <path d="M40 32 L88 32 L64 64 Z" fill="none" stroke="#9333ea" strokeWidth="2"/>
+        <circle cx="40" cy="32" r="4" fill="#7c3aed"/>
+        <circle cx="88" cy="32" r="4" fill="#7c3aed"/>
+        <circle cx="64" cy="64" r="4" fill="#7c3aed"/>
+        <path d="M52 40 Q64 48 76 40" fill="none" stroke="#9333ea" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+    ),
+    't4': ( // Coaching Questions Card Deck
+      <svg viewBox="0 0 128 96" className="w-full h-full">
+        <rect x="24" y="24" width="40" height="56" fill="#60a5fa" opacity="0.3" rx="4" transform="rotate(-10 44 52)"/>
+        <rect x="44" y="20" width="40" height="56" fill="#3b82f6" opacity="0.5" rx="4" transform="rotate(-5 64 48)"/>
+        <rect x="64" y="16" width="40" height="56" fill="#1e40af" rx="4"/>
+        <text x="84" y="36" textAnchor="middle" fill="white" fontSize="20" fontWeight="bold">?</text>
+        <rect x="72" y="48" width="24" height="2" fill="white" rx="1"/>
+        <rect x="72" y="54" width="24" height="2" fill="white" rx="1"/>
+        <rect x="72" y="60" width="16" height="2" fill="white" rx="1"/>
+      </svg>
+    ),
+    't5': ( // Decision Filter Framework
+      <svg viewBox="0 0 128 96" className="w-full h-full">
+        <path d="M32 24 L96 24 L80 48 L96 72 L32 72 L48 48 Z" fill="#f472b6" opacity="0.3"/>
+        <path d="M48 24 L80 24 L72 48 L80 72 L48 72 L56 48 Z" fill="#ec4899" opacity="0.5"/>
+        <circle cx="64" cy="48" r="8" fill="#be185d"/>
+        <path d="M24 16 L24 80 M104 16 L104 80" stroke="#ec4899" strokeWidth="2" strokeDasharray="2 4"/>
+        <path d="M64 40 L64 56 M56 48 L72 48" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+    ),
+    't6': ( // Burnout Assessment
+      <svg viewBox="0 0 128 96" className="w-full h-full">
+        <rect x="24" y="40" width="80" height="16" fill="#f87171" opacity="0.2" rx="8"/>
+        <rect x="24" y="40" width="60" height="16" fill="#ef4444" opacity="0.4" rx="8"/>
+        <rect x="24" y="40" width="40" height="16" fill="#dc2626" opacity="0.6" rx="8"/>
+        <rect x="24" y="40" width="20" height="16" fill="#b91c1c" rx="8"/>
+        <circle cx="44" cy="48" r="4" fill="white"/>
+        <path d="M32 20 Q40 32 48 20" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M56 20 Q64 32 72 20" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M80 20 Q88 32 96 20" fill="none" stroke="#fca5a5" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+    ),
+    't7': ( // Working with Me Guide
+      <svg viewBox="0 0 128 96" className="w-full h-full">
+        <rect x="32" y="16" width="64" height="64" fill="#34d399" opacity="0.2" rx="8"/>
+        <circle cx="64" cy="40" r="16" fill="#10b981" opacity="0.5"/>
+        <circle cx="64" cy="40" r="8" fill="#059669"/>
+        <rect x="44" y="56" width="8" height="2" fill="#10b981" rx="1"/>
+        <rect x="44" y="62" width="16" height="2" fill="#10b981" rx="1"/>
+        <rect x="44" y="68" width="12" height="2" fill="#10b981" rx="1"/>
+        <rect x="68" y="56" width="12" height="2" fill="#10b981" rx="1"/>
+        <rect x="68" y="62" width="16" height="2" fill="#10b981" rx="1"/>
+        <rect x="68" y="68" width="8" height="2" fill="#10b981" rx="1"/>
+      </svg>
+    ),
+    't8': ( // Hopes, Fears, Expectations Template
+      <svg viewBox="0 0 128 96" className="w-full h-full">
+        <path d="M32 32 Q64 16 96 32" fill="none" stroke="#fbbf24" strokeWidth="4" strokeLinecap="round"/>
+        <path d="M32 48 Q64 64 96 48" fill="none" stroke="#f59e0b" strokeWidth="4" strokeLinecap="round"/>
+        <path d="M32 64 Q64 48 96 64" fill="none" stroke="#f87171" strokeWidth="4" strokeLinecap="round"/>
+        <circle cx="32" cy="32" r="6" fill="#fbbf24"/>
+        <circle cx="64" cy="48" r="6" fill="#f59e0b"/>
+        <circle cx="96" cy="64" r="6" fill="#f87171"/>
+        <text x="32" y="20" textAnchor="middle" fill="#f59e0b" fontSize="10" fontWeight="bold">HOPES</text>
+        <text x="64" y="36" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">FEARS</text>
+        <text x="96" y="52" textAnchor="middle" fill="#10b981" fontSize="10" fontWeight="bold">EXPECT</text>
+      </svg>
+    ),
+    't9': ( // Career Drivers Exercise
+      <svg viewBox="0 0 128 96" className="w-full h-full">
+        <path d="M24 72 L24 24 M24 72 L104 72" stroke="#c084fc" strokeWidth="2"/>
+        <path d="M32 64 L40 48 L48 56 L56 40 L64 44 L72 32 L80 36 L88 24 L96 28" fill="none" stroke="#9333ea" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="40" cy="48" r="4" fill="#7c3aed"/>
+        <circle cx="56" cy="40" r="4" fill="#7c3aed"/>
+        <circle cx="72" cy="32" r="4" fill="#7c3aed"/>
+        <circle cx="88" cy="24" r="4" fill="#7c3aed"/>
+        <path d="M88 24 L104 8" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" markerEnd="url(#arrowhead)"/>
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#7c3aed"/>
+          </marker>
+        </defs>
+      </svg>
+    )
+  };
+  
+  return visuals[toolId] || visuals['t1'];
+};
+
+const getCourseVisual = (courseId: string) => {
+  const visuals: { [key: string]: JSX.Element } = {
+    's1': <svg viewBox="0 0 64 48" className="w-full h-full"><circle cx="32" cy="24" r="16" fill="#fbbf24" opacity="0.3"/><circle cx="32" cy="24" r="8" fill="#f59e0b"/></svg>,
+    's2': <svg viewBox="0 0 64 48" className="w-full h-full"><rect x="16" y="12" width="32" height="24" fill="#c084fc" opacity="0.3" rx="4"/><rect x="24" y="18" width="16" height="12" fill="#9333ea" rx="2"/></svg>,
+    's3': <svg viewBox="0 0 64 48" className="w-full h-full"><path d="M20 24 L32 12 L44 24 L32 36 Z" fill="#f472b6" opacity="0.3"/><path d="M26 24 L32 18 L38 24 L32 30 Z" fill="#ec4899"/></svg>,
+    's4': <svg viewBox="0 0 64 48" className="w-full h-full"><circle cx="20" cy="24" r="8" fill="#60a5fa" opacity="0.3"/><circle cx="44" cy="24" r="8" fill="#3b82f6" opacity="0.3"/><line x1="28" y1="24" x2="36" y2="24" stroke="#1e40af" strokeWidth="2"/></svg>,
+    's5': <svg viewBox="0 0 64 48" className="w-full h-full"><path d="M32 8 L40 16 L40 32 L32 40 L24 32 L24 16 Z" fill="#34d399" opacity="0.3"/><circle cx="32" cy="24" r="6" fill="#10b981"/></svg>,
+    's6': <svg viewBox="0 0 64 48" className="w-full h-full"><polygon points="32,8 48,24 32,40 16,24" fill="#fbbf24" opacity="0.3"/><polygon points="32,16 40,24 32,32 24,24" fill="#f59e0b"/></svg>,
+    's7': <svg viewBox="0 0 64 48" className="w-full h-full"><rect x="12" y="16" width="40" height="16" fill="#f87171" opacity="0.3" rx="8"/><rect x="20" y="20" width="24" height="8" fill="#ef4444" rx="4"/></svg>,
+    's8': <svg viewBox="0 0 64 48" className="w-full h-full"><circle cx="32" cy="24" r="20" fill="none" stroke="#8b5cf6" strokeWidth="2" opacity="0.3"/><path d="M32 12 L32 24 L44 24" stroke="#7c3aed" strokeWidth="3" strokeLinecap="round"/></svg>,
+    's9': <svg viewBox="0 0 64 48" className="w-full h-full"><circle cx="32" cy="24" r="12" fill="#c084fc" opacity="0.3"/><circle cx="32" cy="24" r="6" fill="#9333ea"/><circle cx="32" cy="24" r="3" fill="#7c3aed"/></svg>,
+    's10': <svg viewBox="0 0 64 48" className="w-full h-full"><rect x="16" y="8" width="16" height="16" fill="#60a5fa" opacity="0.3" rx="2"/><rect x="32" y="24" width="16" height="16" fill="#3b82f6" opacity="0.3" rx="2"/><path d="M32 16 L32 32" stroke="#1e40af" strokeWidth="2"/></svg>,
+    's11': <svg viewBox="0 0 64 48" className="w-full h-full"><polygon points="32,8 40,20 52,20 42,32 48,44 32,32 16,44 22,32 12,20 24,20" fill="#fbbf24" opacity="0.3"/><polygon points="32,16 36,22 42,22 37,28 40,34 32,28 24,34 27,28 22,22 28,22" fill="#f59e0b"/></svg>,
+    's12': <svg viewBox="0 0 64 48" className="w-full h-full"><path d="M16 24 Q32 8 48 24 T32 40" fill="none" stroke="#34d399" strokeWidth="3" opacity="0.5"/><circle cx="32" cy="24" r="4" fill="#10b981"/></svg>,
+    's13': <svg viewBox="0 0 64 48" className="w-full h-full"><circle cx="24" cy="24" r="8" fill="#60a5fa" opacity="0.3"/><circle cx="40" cy="24" r="8" fill="#3b82f6" opacity="0.3"/></svg>,
+    's14': <svg viewBox="0 0 64 48" className="w-full h-full"><path d="M20 32 Q32 20 44 32" fill="none" stroke="#c084fc" strokeWidth="4" strokeLinecap="round"/><circle cx="20" cy="32" r="3" fill="#9333ea"/><circle cx="32" cy="24" r="3" fill="#9333ea"/><circle cx="44" cy="32" r="3" fill="#9333ea"/></svg>,
+    's15': <svg viewBox="0 0 64 48" className="w-full h-full"><rect x="24" y="12" width="16" height="24" fill="#f472b6" opacity="0.3" rx="2"/><circle cx="32" cy="24" r="6" fill="#ec4899"/></svg>,
+    's16': <svg viewBox="0 0 64 48" className="w-full h-full"><path d="M32 12 L44 24 L32 36 L20 24 Z" fill="none" stroke="#60a5fa" strokeWidth="2"/><circle cx="32" cy="24" r="4" fill="#3b82f6"/></svg>,
+    's17': <svg viewBox="0 0 64 48" className="w-full h-full"><rect x="16" y="16" width="32" height="16" fill="#34d399" opacity="0.3" rx="2"/><circle cx="24" cy="24" r="3" fill="#10b981"/><circle cx="32" cy="24" r="3" fill="#10b981"/><circle cx="40" cy="24" r="3" fill="#10b981"/></svg>,
+    's18': <svg viewBox="0 0 64 48" className="w-full h-full"><path d="M32 36 Q32 24 32 12" stroke="#fbbf24" strokeWidth="3" strokeLinecap="round"/><circle cx="32" cy="36" r="3" fill="#f59e0b"/><text x="26" y="18" fill="#f59e0b" fontSize="16" fontWeight="bold">?</text></svg>,
+    's19': <svg viewBox="0 0 64 48" className="w-full h-full"><circle cx="32" cy="16" r="4" fill="#c084fc"/><circle cx="24" cy="28" r="4" fill="#9333ea" opacity="0.7"/><circle cx="40" cy="28" r="4" fill="#9333ea" opacity="0.7"/><circle cx="32" cy="36" r="4" fill="#7c3aed" opacity="0.5"/></svg>,
+    's20': <svg viewBox="0 0 64 48" className="w-full h-full"><circle cx="32" cy="24" r="16" fill="#f472b6" opacity="0.3"/><path d="M24 24 Q32 16 40 24 T32 32" fill="#ec4899"/></svg>,
+    's21': <svg viewBox="0 0 64 48" className="w-full h-full"><path d="M32 8 L38 20 L52 22 L42 32 L44 46 L32 40 L20 46 L22 32 L12 22 L26 20 Z" fill="#fbbf24" opacity="0.3"/><path d="M32 12 L36 20 L44 21 L38 27 L39 35 L32 31 L25 35 L26 27 L20 21 L28 20 Z" fill="#f59e0b"/></svg>,
+    's22': <svg viewBox="0 0 64 48" className="w-full h-full"><rect x="16" y="12" width="32" height="4" fill="#60a5fa" opacity="0.3" rx="2"/><rect x="16" y="22" width="32" height="4" fill="#3b82f6" opacity="0.5" rx="2"/><rect x="16" y="32" width="32" height="4" fill="#1e40af" rx="2"/></svg>,
+    's23': <svg viewBox="0 0 64 48" className="w-full h-full"><circle cx="32" cy="24" r="16" fill="none" stroke="#34d399" strokeWidth="3" strokeDasharray="4 2"/><circle cx="32" cy="24" r="8" fill="#10b981" opacity="0.3"/><circle cx="32" cy="24" r="4" fill="#10b981"/></svg>,
+    's24': <svg viewBox="0 0 64 48" className="w-full h-full"><rect x="12" y="20" width="12" height="8" fill="#c084fc" opacity="0.3"/><rect x="26" y="16" width="12" height="16" fill="#9333ea" opacity="0.5"/><rect x="40" y="12" width="12" height="24" fill="#7c3aed"/></svg>,
+    's25': <svg viewBox="0 0 64 48" className="w-full h-full"><path d="M16 32 L24 24 L32 28 L40 16 L48 20" fill="none" stroke="#f472b6" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/><circle cx="48" cy="20" r="3" fill="#ec4899"/></svg>,
+    's26': <svg viewBox="0 0 64 48" className="w-full h-full"><rect x="16" y="16" width="32" height="16" fill="#60a5fa" opacity="0.3" rx="2"/><rect x="20" y="20" width="8" height="8" fill="#3b82f6" rx="1"/><rect x="28" y="20" width="8" height="8" fill="#3b82f6" rx="1"/><rect x="36" y="20" width="8" height="8" fill="#3b82f6" rx="1"/></svg>,
+    's27': <svg viewBox="0 0 64 48" className="w-full h-full"><circle cx="32" cy="24" r="12" fill="#f87171" opacity="0.3"/><path d="M28 20 L28 28 M32 16 L32 28 M36 20 L36 28" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"/></svg>,
+    's28': <svg viewBox="0 0 64 48" className="w-full h-full"><path d="M20 16 L32 24 L20 32" fill="#34d399" opacity="0.3"/><path d="M32 24 L44 16" stroke="#10b981" strokeWidth="2" strokeLinecap="round"/><path d="M32 24 L44 32" stroke="#10b981" strokeWidth="2" strokeLinecap="round"/></svg>,
+    's29': <svg viewBox="0 0 64 48" className="w-full h-full"><circle cx="32" cy="24" r="16" fill="#fbbf24" opacity="0.3"/><path d="M24 20 Q32 28 40 20" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round"/></svg>,
+    's30': <svg viewBox="0 0 64 48" className="w-full h-full"><path d="M16 12 L16 36 M32 12 L32 36 M48 12 L48 36" stroke="#c084fc" strokeWidth="2" opacity="0.3"/><circle cx="16" cy="20" r="3" fill="#9333ea"/><circle cx="32" cy="28" r="3" fill="#9333ea"/><circle cx="48" cy="24" r="3" fill="#9333ea"/></svg>,
+    's31': <svg viewBox="0 0 64 48" className="w-full h-full"><circle cx="20" cy="24" r="6" fill="#60a5fa" opacity="0.5"/><circle cx="32" cy="24" r="6" fill="#3b82f6" opacity="0.7"/><circle cx="44" cy="24" r="6" fill="#1e40af"/></svg>,
+    's32': <svg viewBox="0 0 64 48" className="w-full h-full"><path d="M32 12 L44 24 L32 36 L20 24 Z" fill="#f472b6" opacity="0.3"/><path d="M32 18 L38 24 L32 30 L26 24 Z" fill="#ec4899"/></svg>,
+    's33': <svg viewBox="0 0 64 48" className="w-full h-full"><circle cx="32" cy="24" r="12" fill="#34d399" opacity="0.3"/><circle cx="26" cy="24" r="4" fill="#10b981"/><circle cx="38" cy="24" r="4" fill="#10b981"/><circle cx="32" cy="30" r="4" fill="#10b981"/></svg>,
+    's34': <svg viewBox="0 0 64 48" className="w-full h-full"><path d="M20 20 Q32 12 44 20" fill="none" stroke="#fbbf24" strokeWidth="2"/><path d="M20 24 Q32 32 44 24" fill="none" stroke="#f59e0b" strokeWidth="2"/><path d="M20 28 Q32 20 44 28" fill="none" stroke="#f87171" strokeWidth="2"/></svg>,
+    's35': <svg viewBox="0 0 64 48" className="w-full h-full"><rect x="16" y="20" width="12" height="8" fill="#c084fc" opacity="0.5" rx="2"/><rect x="36" y="20" width="12" height="8" fill="#9333ea" opacity="0.5" rx="2"/><path d="M28 24 L36 24" stroke="#7c3aed" strokeWidth="2"/></svg>,
+    's36': <svg viewBox="0 0 64 48" className="w-full h-full"><path d="M20 24 L44 24" stroke="#60a5fa" strokeWidth="3" strokeLinecap="round"/><path d="M24 20 L20 24 L24 28 M40 20 L44 24 L40 28" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+    's37': <svg viewBox="0 0 64 48" className="w-full h-full"><circle cx="32" cy="24" r="8" fill="#f472b6" opacity="0.3"/><path d="M32 16 L40 24 L32 32 L24 24 Z" fill="#ec4899"/></svg>,
+    's38': <svg viewBox="0 0 64 48" className="w-full h-full"><path d="M24 16 L32 24 L24 32 M40 16 L32 24 L40 32" stroke="#34d399" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>,
+    's39': <svg viewBox="0 0 64 48" className="w-full h-full"><circle cx="32" cy="24" r="4" fill="#fbbf24"/><circle cx="24" cy="16" r="3" fill="#f59e0b" opacity="0.7"/><circle cx="40" cy="16" r="3" fill="#f59e0b" opacity="0.7"/><circle cx="24" cy="32" r="3" fill="#f59e0b" opacity="0.7"/><circle cx="40" cy="32" r="3" fill="#f59e0b" opacity="0.7"/><path d="M32 24 L24 16 M32 24 L40 16 M32 24 L24 32 M32 24 L40 32" stroke="#f87171" strokeWidth="1" opacity="0.5"/></svg>,
+    's40': <svg viewBox="0 0 64 48" className="w-full h-full"><text x="20" y="28" fill="#c084fc" fontSize="20" fontWeight="bold">?</text><text x="36" y="28" fill="#9333ea" fontSize="20" fontWeight="bold">$</text></svg>,
+    's41': <svg viewBox="0 0 64 48" className="w-full h-full"><path d="M32 12 Q24 24 32 36 Q40 24 32 12" fill="#f472b6" opacity="0.3"/><circle cx="32" cy="24" r="4" fill="#ec4899"/></svg>,
+    's42': <svg viewBox="0 0 64 48" className="w-full h-full"><rect x="16" y="16" width="32" height="16" fill="#60a5fa" opacity="0.3" rx="8"/><circle cx="24" cy="24" r="2" fill="#3b82f6"/><circle cx="32" cy="24" r="2" fill="#3b82f6"/><circle cx="40" cy="24" r="2" fill="#3b82f6"/></svg>,
+    's43': <svg viewBox="0 0 64 48" className="w-full h-full"><circle cx="24" cy="20" r="6" fill="#34d399" opacity="0.5"/><circle cx="40" cy="20" r="6" fill="#34d399" opacity="0.5"/><circle cx="32" cy="32" r="6" fill="#10b981"/></svg>
+  };
+  
+  return visuals[courseId] || visuals['s1'];
+};
+
 function ToolsPage() {
+  const router = useRouter();
   const [currentScreen, setCurrentScreen] = useState(1);
   const [userProfile, setUserProfile] = useState<UserProfile>({
     role: '',
@@ -195,12 +361,12 @@ function ToolsPage() {
   };
 
   useEffect(() => {
-    if (currentScreen === 4) {
+    if (currentScreen === 3) {
       const interval = setInterval(() => {
         setLoadingProgress(prev => {
           if (prev >= 100) {
             clearInterval(interval);
-            setTimeout(() => setCurrentScreen(5), 500);
+            setTimeout(() => setCurrentScreen(4), 500);
             return 100;
           }
           return prev + 3.33; // 100% / 30 intervals = 3.33% per interval
@@ -231,7 +397,7 @@ function ToolsPage() {
     setUserProfile(prev => ({ ...prev, challenge: challenge.title }));
     setIsTransitioning(true);
     setTimeout(() => {
-      setCurrentScreen(4); // Skip directly to loading screen
+      setCurrentScreen(3); // Jump to loading screen
       setIsTransitioning(false);
     }, 300);
   };
@@ -247,13 +413,13 @@ function ToolsPage() {
     });
     setIsTransitioning(true);
     setTimeout(() => {
-      setCurrentScreen(4); // Skip directly to loading screen
+      setCurrentScreen(3); // Jump to loading screen
       setIsTransitioning(false);
     }, 300);
   };
 
   const skipToTools = () => {
-    setCurrentScreen(5);
+    setCurrentScreen(4);
   };
 
   if (currentScreen === 1) {
@@ -273,7 +439,13 @@ function ToolsPage() {
             <select
               value={userProfile.role}
               onChange={(e) => setUserProfile(prev => ({ ...prev, role: e.target.value }))}
-              className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-orange-400 mb-6"
+              className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-orange-400 mb-6 appearance-none"
+              style={{
+                backgroundImage: `url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23ffffff' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 1rem center',
+                backgroundSize: '12px'
+              }}
             >
               <option value="" className="text-gray-800">Select your role</option>
               {roles.map(role => (
@@ -369,8 +541,7 @@ function ToolsPage() {
     );
   }
 
-
-  if (currentScreen === 4) {
+  if (currentScreen === 3) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="max-w-lg mx-auto text-center px-6">
@@ -397,7 +568,7 @@ function ToolsPage() {
     );
   }
 
-  if (currentScreen === 5) {
+  if (currentScreen === 4) {
     const recommendations = selectedChallenge ? getRecommendations(selectedChallenge.id) : getRecommendations('c1');
     
     return (
@@ -440,8 +611,8 @@ function ToolsPage() {
               
               <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
                 <div className="flex items-start gap-6">
-                  <div className="w-32 h-24 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Target className="w-8 h-8 text-purple-600" />
+                  <div className="w-32 h-24 bg-white rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
+                    {getToolVisual(recommendations.tools[0].id)}
                   </div>
                   
                   <div className="flex-1">
@@ -477,8 +648,8 @@ function ToolsPage() {
                           {course.duration}
                         </span>
                       </div>
-                      <div className="w-16 h-12 bg-gray-100 rounded border-2 border-dashed border-gray-300 flex items-center justify-center ml-6">
-                        <div className="text-xs text-gray-400">IMG</div>
+                      <div className="w-16 h-12 bg-white rounded-lg flex items-center justify-center ml-6 overflow-hidden">
+                        {getCourseVisual(course.id)}
                       </div>
                     </div>
                   </div>
@@ -487,7 +658,10 @@ function ToolsPage() {
             </div>
 
             <div className="flex gap-4 justify-center">
-              <button className="px-8 py-3 border border-purple-600 text-purple-600 rounded-lg font-semibold hover:bg-purple-50 transition-colors">
+              <button 
+                onClick={() => router.push('/courses')}
+                className="px-8 py-3 border border-purple-600 text-purple-600 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
+              >
                 Explore Catalog
               </button>
               <button className="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors">

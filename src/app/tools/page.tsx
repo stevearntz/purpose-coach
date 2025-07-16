@@ -866,30 +866,30 @@ function ToolsPage() {
   // Screen 1: Role Selection (with nice dropdown)
   if (currentScreen === 1) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 flex items-center justify-center">
-        <div className="max-w-2xl mx-auto text-center text-white px-6">
+      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 flex items-center justify-center px-4 py-8">
+        <div className="w-full max-w-2xl mx-auto text-center text-white">
           <div className="flex items-center justify-center gap-3 mb-6">
             <img 
               src="/campfire_logo_white.svg"
               alt="Campfire Logo"
-              className="h-16"
+              className="h-12 sm:h-14 md:h-16"
             />
           </div>
-          <h2 className="text-4xl font-bold mb-4">Fuel a culture that performs.</h2>
-          <p className="text-xl text-purple-100 mb-16 max-w-2xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">Fuel a culture that performs.</h2>
+          <p className="text-base sm:text-lg md:text-xl text-purple-100 mb-8 sm:mb-12 md:mb-16 px-2">
             Discover the right tools, assessments, and courses to help you—and your teams—grow stronger, move faster, and build real momentum.
             Answer a few quick questions and we'll match you with the most impactful solutions for your role and challenges.
           </p>
           
-          <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-            <h2 className="text-3xl font-bold mb-8">Let's get started!</h2>
-            <p className="text-xl mb-8">What is your role?</p>
+          <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/20">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8">Let's get started!</h2>
+            <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8">What is your role?</p>
             
             <div className="relative mb-6">
               <select
                 value={userProfile.role}
                 onChange={(e) => setUserProfile(prev => ({ ...prev, role: e.target.value }))}
-                className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-orange-400 appearance-none pr-12"
+                className="w-full p-3 sm:p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-orange-400 appearance-none pr-12 text-base"
               >
                 <option value="" className="text-gray-800">Select your role</option>
                 {roles.map(role => (
@@ -908,7 +908,7 @@ function ToolsPage() {
               <button
                 onClick={handleNext}
                 disabled={!userProfile.role}
-                className="w-full py-4 bg-white text-purple-600 rounded-xl font-semibold hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3 sm:py-4 bg-white text-purple-600 rounded-xl font-semibold hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base sm:text-lg"
               >
                 NEXT
               </button>

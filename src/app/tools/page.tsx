@@ -866,7 +866,7 @@ function ToolsPage() {
   // Screen 1: Role Selection (with nice dropdown)
   if (currentScreen === 1) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 flex items-center justify-center px-4 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-iris via-purple-500 to-pink-500 flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-2xl mx-auto text-center text-white">
           <div className="flex items-center justify-center gap-3 mb-6">
             <img 
@@ -908,7 +908,7 @@ function ToolsPage() {
               <button
                 onClick={handleNext}
                 disabled={!userProfile.role}
-                className="w-full py-3 sm:py-4 bg-white text-purple-600 rounded-xl font-semibold hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base sm:text-lg"
+                className="w-full py-3 sm:py-4 bg-white text-iris rounded-xl font-semibold hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base sm:text-lg"
               >
                 NEXT
               </button>
@@ -925,7 +925,7 @@ function ToolsPage() {
       <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-purple-50 py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
+            <h2 className="text-4xl font-bold text-nightfall mb-6">
               What are your biggest challenges as a {userProfile.role}?
             </h2>
             <p className="text-lg text-gray-600">
@@ -949,17 +949,17 @@ function ToolsPage() {
                 >
                   {/* Selection number badge */}
                   {isSelected && (
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-iris rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
                       {selectionIndex + 1}
                     </div>
                   )}
                   
                   <div className="flex items-start gap-4">
                     <div className="flex-1">
-                      <h3 className={`font-semibold mb-2 ${isSelected ? 'text-purple-700' : 'text-gray-900'}`}>
+                      <h3 className={`font-semibold mb-2 ${isSelected ? 'text-iris-dark' : 'text-nightfall'}`}>
                         {challenge.title}
                       </h3>
-                      <p className={`text-sm ${isSelected ? 'text-purple-600' : 'text-gray-600'}`}>
+                      <p className={`text-sm ${isSelected ? 'text-iris' : 'text-gray-600'}`}>
                         {challenge.description}
                       </p>
                     </div>
@@ -986,7 +986,7 @@ function ToolsPage() {
             <button
               onClick={handleChallengesNext}
               disabled={selectedChallenges.length === 0}
-              className="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-8 py-3 bg-iris text-white rounded-lg font-semibold hover:bg-iris-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               Next
               <ArrowRight className="w-4 h-4" />
@@ -1011,13 +1011,13 @@ function ToolsPage() {
               />
             </div>
             
-            <h2 className="text-3xl font-bold text-gray-900 mb-12">
+            <h2 className="text-3xl font-bold text-nightfall mb-12">
               Building Your Personalized Development Plan
             </h2>
             
             <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
               <div 
-                className={`bg-purple-600 h-3 rounded-full ${loadingProgress > 0 ? 'transition-all duration-300 ease-out' : ''}`}
+                className={`bg-iris h-3 rounded-full ${loadingProgress > 0 ? 'transition-all duration-300 ease-out' : ''}`}
                 style={{ width: `${loadingProgress}%` }}
               ></div>
             </div>
@@ -1041,7 +1041,7 @@ function ToolsPage() {
               <div className="flex justify-between items-center mb-8 print:hidden">
                 <button
                   onClick={handleBackToChallenge}
-                  className="text-purple-600 hover:text-purple-700 flex items-center gap-2"
+                  className="text-iris hover:text-iris-dark flex items-center gap-2"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Back
@@ -1049,14 +1049,14 @@ function ToolsPage() {
                 <div className="flex gap-4">
                   <button 
                     onClick={handlePrint}
-                    className="px-4 py-2 border border-gray-300 text-purple-600 rounded-lg hover:border-purple-400 transition-colors flex items-center gap-2"
+                    className="px-4 py-2 border border-gray-300 text-iris rounded-lg hover:border-purple-400 transition-colors flex items-center gap-2"
                   >
-                    <Printer className="w-4 h-4 text-purple-600" />
+                    <Printer className="w-4 h-4 text-iris" />
                     Print
                   </button>
                   <button 
                     onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                    className="px-4 py-2 bg-iris text-white rounded-lg hover:bg-iris-dark transition-colors"
                   >
                     Book a Demo
                   </button>
@@ -1072,7 +1072,7 @@ function ToolsPage() {
                 />
               </div>
               
-              <h2 className="text-4xl font-bold text-gray-900 mb-8">
+              <h2 className="text-4xl font-bold text-nightfall mb-8">
                 Your Personalized Development Plan
               </h2>
               
@@ -1086,9 +1086,9 @@ function ToolsPage() {
                     return (
                       <div 
                         key={challengeId} 
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-full"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-iris-dark rounded-full"
                       >
-                        <span className="flex items-center justify-center w-5 h-5 bg-purple-600 text-white text-xs rounded-full font-bold">
+                        <span className="flex items-center justify-center w-5 h-5 bg-iris text-white text-xs rounded-full font-bold">
                           {index + 1}
                         </span>
                         <span className="text-sm font-medium">{challenge.title}</span>
@@ -1108,45 +1108,68 @@ function ToolsPage() {
             <div className="mb-12 print:keep-with-next">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Target className="w-5 h-5 text-purple-600" />
+                  <Target className="w-5 h-5 text-iris" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900">Recommended Tools</h3>
+                <h3 className="text-2xl font-bold text-nightfall">Recommended Tools</h3>
               </div>
               <p className="text-gray-600 mb-6 ml-13">Quick wins to address your immediate needs</p>
               
               <div className="grid gap-4">
-                {recommendations.tools.map((tool, index) => (
-                  <div key={tool.id} className="relative bg-white rounded-xl border border-gray-200 p-6 shadow-sm print:avoid-break">
-                    {/* Priority number badge */}
-                    <div className="absolute -top-2 -left-2 w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
-                      {index + 1}
-                    </div>
-                    
-                    <div className="flex items-start gap-4">
-                      <div className="w-24 h-20 bg-white rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
-                        {getToolVisual(tool.id)}
+                {recommendations.tools.map((tool, index) => {
+                  const isClickable = tool.id === 't3' || tool.id === 't1'; // Trust Audit and Purpose tools
+                  const toolPath = tool.id === 't3' ? '/tools/trust-audit' : tool.id === 't1' ? '/tools/purpose' : '';
+                  
+                  const toolContent = (
+                    <>
+                      {/* Priority number badge */}
+                      <div className="absolute -top-2 -left-2 w-8 h-8 bg-iris rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
+                        {index + 1}
                       </div>
                       
-                      <div className="flex-1">
-                        <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                          {tool.name}
-                        </h4>
-                        <p className="text-gray-600">
-                          {tool.description}
-                        </p>
+                      <div className="flex items-start gap-4">
+                        <div className="w-24 h-20 bg-white rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
+                          {getToolVisual(tool.id)}
+                        </div>
+                        
+                        <div className="flex-1">
+                          <h4 className="text-lg font-semibold text-nightfall mb-2">
+                            {tool.name}
+                          </h4>
+                          <p className="text-gray-600">
+                            {tool.description}
+                          </p>
+                        </div>
                       </div>
+                    </>
+                  );
+                  
+                  if (isClickable) {
+                    return (
+                      <a
+                        key={tool.id}
+                        href={toolPath}
+                        className="relative bg-white rounded-xl border border-gray-200 p-6 shadow-sm print:avoid-break hover:shadow-lg hover:border-purple-300 transition-all cursor-pointer"
+                      >
+                        {toolContent}
+                      </a>
+                    );
+                  }
+                  
+                  return (
+                    <div key={tool.id} className="relative bg-white rounded-xl border border-gray-200 p-6 shadow-sm print:avoid-break">
+                      {toolContent}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
             <div className="mb-12 print:keep-with-next print:mt-12">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                  <BookOpen className="w-5 h-5 text-purple-600" />
+                  <BookOpen className="w-5 h-5 text-iris" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900">Development Programs</h3>
+                <h3 className="text-2xl font-bold text-nightfall">Development Programs</h3>
               </div>
               <p className="text-gray-600 mb-6 ml-13">In-depth learning to build lasting capabilities</p>
               
@@ -1155,7 +1178,7 @@ function ToolsPage() {
                   <div key={course.id} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm print:avoid-break">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                        <h4 className="text-lg font-semibold text-nightfall mb-2">
                           {course.title}
                         </h4>
                         <p className="text-gray-600">
@@ -1174,13 +1197,13 @@ function ToolsPage() {
             <div className="flex gap-4 justify-center print:hidden">
               <button 
                 onClick={() => router.push('/courses')}
-                className="px-8 py-3 border border-purple-600 text-purple-600 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
+                className="px-8 py-3 border border-iris text-iris rounded-lg font-semibold hover:bg-purple-50 transition-colors"
               >
                 Explore Catalog
               </button>
               <button 
                 onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}
-                className="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+                className="px-8 py-3 bg-iris text-white rounded-lg font-semibold hover:bg-iris-dark transition-colors"
               >
                 Book a Demo
               </button>
@@ -1194,7 +1217,7 @@ function ToolsPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900">Loading...</h1>
+        <h1 className="text-4xl font-bold text-nightfall">Loading...</h1>
       </div>
     </div>
   );
@@ -1206,7 +1229,7 @@ export default function Page() {
     <Suspense fallback={
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900">Loading...</h1>
+          <h1 className="text-4xl font-bold text-nightfall">Loading...</h1>
         </div>
       </div>
     }>

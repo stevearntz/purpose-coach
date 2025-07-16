@@ -3,13 +3,24 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --nightfall: #262F56;
+  --iris: #6E3FCC;
+  --iris-dark: #522F99; /* darker variant for hover states - previously purple-700 */
+  --iris-darker: #462580; /* even darker for disabled states */
+  --iris-light: #E8DEFF; /* light variant for backgrounds */
+  --iris-lighter: #F5EFFF; /* lighter variant for subtle backgrounds */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-nightfall: var(--nightfall);
+  --color-iris: var(--iris);
+  --color-iris-dark: var(--iris-dark);
+  --color-iris-darker: var(--iris-darker);
+  --color-iris-light: var(--iris-light);
+  --color-iris-lighter: var(--iris-lighter);
+  --font-sans: var(--font-league-spartan);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,7 +33,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-league-spartan), 'League Spartan', Futura, 'Century Gothic', sans-serif;
 }
 
 /* Print styles */

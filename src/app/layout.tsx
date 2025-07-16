@@ -1,8 +1,12 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { League_Spartan } from 'next/font/google'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
+const leagueSpartan = League_Spartan({ 
+  subsets: ['latin'],
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-league-spartan'
+})
 
 export const metadata: Metadata = {
   title: 'Campfire Guides - Deep Conversations for Transformation',
@@ -56,7 +60,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content="#7c3aed" />
       </head>
-      <body className={`${inter.className} antialiased`}>
+      <body className={`${leagueSpartan.className} antialiased`}>
         {children}
       </body>
     </html>

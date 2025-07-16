@@ -120,7 +120,7 @@ export default function CoursesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 text-white">
+      <div className="bg-gradient-to-br from-iris via-purple-500 to-pink-500 text-white">
         <div className="container mx-auto px-6 pt-12 pb-8">
           <div className="flex items-center justify-between mb-8">
             <button
@@ -162,7 +162,7 @@ export default function CoursesPage() {
                   className={`
                     relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
                     ${isSelected 
-                      ? 'bg-purple-100 text-purple-700 shadow-sm' 
+                      ? 'bg-purple-100 text-iris-dark shadow-sm' 
                       : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-700'
                     }
                   `}
@@ -179,7 +179,7 @@ export default function CoursesPage() {
               </p>
               <button
                 onClick={() => setSelectedChallenges([])}
-                className="text-xs text-purple-600 hover:text-purple-700 font-medium"
+                className="text-xs text-iris hover:text-iris-dark font-medium"
               >
                 Clear filters
               </button>
@@ -195,7 +195,7 @@ export default function CoursesPage() {
             <p className="text-gray-500 text-lg mb-4">No courses match your selected challenges.</p>
             <button
               onClick={() => setSelectedChallenges([])}
-              className="text-purple-600 hover:text-purple-700 font-medium"
+              className="text-iris hover:text-iris-dark font-medium"
             >
               Clear filters to see all courses
             </button>
@@ -223,7 +223,7 @@ export default function CoursesPage() {
                   {getCourseVisual(course.id)}
                 </div>
                 
-                <h3 className="text-sm font-semibold text-gray-900 text-center leading-tight group-hover:text-purple-600 transition-colors">
+                <h3 className="text-sm font-semibold text-nightfall text-center leading-tight group-hover:text-iris transition-colors">
                   {course.title}
                 </h3>
               </button>
@@ -238,7 +238,7 @@ export default function CoursesPage() {
         <p className="text-gray-600 mb-6">Need help choosing the right courses for your team?</p>
         <button 
           onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}
-          className="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+          className="px-8 py-3 bg-iris text-white rounded-lg font-semibold hover:bg-iris-dark transition-colors"
         >
           Book a Demo
         </button>

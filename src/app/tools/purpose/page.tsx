@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
+import { Share2, Loader2 } from 'lucide-react';
 
 interface UserData {
   id: string;
@@ -33,6 +34,9 @@ export default function PurposeCoach() {
   });
   const [isComplete, setIsComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [isSharing, setIsSharing] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const questions = [
     {
@@ -257,23 +261,48 @@ export default function PurposeCoach() {
     doc.save(`${user?.name?.replace(/\s+/g, '_')}_Purpose_Discovery.pdf`);
   };
 
-  const shareResults = () => {
-    const text = `My Purpose Discovery Results:
+  const shareResults = async () => {
+    setIsSharing(true);
+    try {
+      const shareData = {
+        type: 'purpose',
+        title: 'Purpose Discovery Results',
+        results: {
+          purpose: `I exist to ${responses.purpose}`,
+          mission: `I am on a mission to ${responses.mission}`,
+          vision: `I see a world where ${responses.vision}`,
+          insights: [
+            `Purpose: ${responses.purpose}`,
+            `Mission: ${responses.mission}`,
+            `Vision: ${responses.vision}`
+          ]
+        },
+        userProfile: {
+          name: user?.name
+        }
+      };
 
-Purpose: I exist to ${responses.purpose}
-
-Mission: I am on a mission to ${responses.mission}
-
-Vision: I see a world where ${responses.vision}`;
-    
-    if (navigator.share) {
-      navigator.share({
-        title: 'My Purpose Discovery Results',
-        text: text
+      const response = await fetch('/api/share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(shareData)
       });
-    } else {
-      navigator.clipboard.writeText(text);
-      alert('Results copied to clipboard!');
+
+      if (!response.ok) throw new Error('Failed to create share link');
+      
+      const { url } = await response.json();
+      const fullUrl = `${window.location.origin}${url}`;
+      setShareUrl(fullUrl);
+      
+      // Also copy to clipboard
+      navigator.clipboard.writeText(fullUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Error sharing results:', error);
+      alert('Failed to create shareable link. Please try again.');
+    } finally {
+      setIsSharing(false);
     }
   };
 
@@ -388,6 +417,32 @@ Vision: I see a world where ${responses.vision}`;
             </div>
           </div>
 
+          {/* Share Link Display */}
+          {shareUrl && (
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-6 border border-white/20">
+              <h3 className="text-xl font-bold text-white mb-3">Share Your Results</h3>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={shareUrl}
+                  readOnly
+                  className="flex-1 bg-white/10 border border-white/30 rounded-lg px-4 py-2 text-white text-sm"
+                />
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(shareUrl);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-colors"
+                >
+                  {copied ? 'Copied!' : 'Copy'}
+                </button>
+              </div>
+              <p className="text-purple-300 text-sm mt-2">Anyone with this link can view your results</p>
+            </div>
+          )}
+
           {/* Actions */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -403,17 +458,25 @@ Vision: I see a world where ${responses.vision}`;
               
               <button
                 onClick={shareResults}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2"
+                disabled={isSharing}
+                className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                </svg>
-                <span>Share Results</span>
+                {isSharing ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Creating Link...</span>
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-5 h-5" />
+                    <span>{copied ? 'Link Copied!' : 'Share Results'}</span>
+                  </>
+                )}
               </button>
               
               <button
                 onClick={restartJourney}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2"
+                className="bg-iris hover:bg-iris-dark text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -499,7 +562,7 @@ Vision: I see a world where ${responses.vision}`;
               <button
                 onClick={nextQuestion}
                 disabled={!currentResponse.trim()}
-                className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 disabled:text-purple-400 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 disabled:cursor-not-allowed"
+                className="bg-iris hover:bg-iris-dark disabled:bg-iris-darker disabled:text-purple-400 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 disabled:cursor-not-allowed"
               >
                 {currentQuestion === questions.length - 1 ? 'Complete Journey' : 'Next Question'}
               </button>

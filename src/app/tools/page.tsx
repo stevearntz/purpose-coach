@@ -6,7 +6,6 @@ import { Flame, ArrowRight, ArrowLeft, Users, Target, BookOpen, Brain, MessageCi
 interface UserProfile {
   role: string;
   challenge: string;
-  challengeDetails: string;
 }
 
 interface Challenge {
@@ -30,12 +29,11 @@ interface Course {
   duration: string;
 }
 
-export default function ToolsPage() {
+function ToolsPage() {
   const [currentScreen, setCurrentScreen] = useState(1);
   const [userProfile, setUserProfile] = useState<UserProfile>({
     role: '',
-    challenge: '',
-    challengeDetails: ''
+    challenge: ''
   });
   const [customChallenge, setCustomChallenge] = useState('');
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
@@ -51,21 +49,60 @@ export default function ToolsPage() {
   ];
 
   const allChallenges = [
+    // People Leader challenges
     { id: 'p1-c1', persona: 'People Leader', title: 'Purpose + Direction', description: 'Align my team on purpose and direction' },
     { id: 'p1-c2', persona: 'People Leader', title: 'Navigating Change', description: 'Help my team adapt to change' },
     { id: 'p1-c3', persona: 'People Leader', title: 'Trust + Psychological Safety', description: 'Build trust and psychological safety' },
+    { id: 'p1-c4', persona: 'People Leader', title: 'Empowering Others', description: 'Empower others through coaching and support' },
+    { id: 'p1-c5', persona: 'People Leader', title: 'Effective Decision Making', description: 'Improve decision making on my team' },
+    { id: 'p1-c6', persona: 'People Leader', title: 'Well-Being + Resilience', description: 'Support well-being and prevent burnout' },
+    { id: 'p1-c7', persona: 'People Leader', title: 'Communication and Collaboration', description: 'Communicate and collaborate more effectively' },
+    { id: 'p1-c8', persona: 'People Leader', title: 'Role Clarity + Expectations', description: 'Create clarity around roles and expectations' },
+    { id: 'p1-c9', persona: 'People Leader', title: 'Growth + Development', description: 'Develop my team\'s skills and confidence' },
+    
+    // Talent Leader challenges
     { id: 'p2-c1', persona: 'Talent Leader', title: 'Alignment + Direction', description: 'Align the organization on purpose and direction' },
     { id: 'p2-c2', persona: 'Talent Leader', title: 'Navigating Change', description: 'Support teams through change and uncertainty' },
     { id: 'p2-c3', persona: 'Talent Leader', title: 'Feedback + Trust', description: 'Foster a culture of trust and psychological safety' },
+    { id: 'p2-c4', persona: 'Talent Leader', title: 'Leadership Effectiveness', description: 'Enable managers to coach and empower others' },
+    { id: 'p2-c5', persona: 'Talent Leader', title: 'Decision Making', description: 'Improve decision making across the organization' },
+    { id: 'p2-c6', persona: 'Talent Leader', title: 'Well-Being', description: 'Promote well-being and resilience at scale' },
+    { id: 'p2-c7', persona: 'Talent Leader', title: 'Communication and Collaboration', description: 'Strengthen communication and collaboration across teams' },
+    { id: 'p2-c8', persona: 'Talent Leader', title: 'Clarity + Expectations', description: 'Clarify roles, responsibilities, and expectations' },
+    { id: 'p2-c9', persona: 'Talent Leader', title: 'Skill Building', description: 'Drive skill development and continuous learning' },
+    
+    // Individual Contributor challenges
     { id: 'p3-c1', persona: 'Individual Contributor', title: 'Alignment + Direction', description: 'Understand the purpose behind my work' },
     { id: 'p3-c2', persona: 'Individual Contributor', title: 'Navigating Change', description: 'Adapt to change with confidence' },
     { id: 'p3-c3', persona: 'Individual Contributor', title: 'Feedback + Trust', description: 'Build trust with my team' },
+    { id: 'p3-c4', persona: 'Individual Contributor', title: 'Leadership Effectiveness', description: 'Take ownership and contribute meaningfully' },
+    { id: 'p3-c5', persona: 'Individual Contributor', title: 'Decision Making', description: 'Make better decisions in my day-to-day' },
+    { id: 'p3-c6', persona: 'Individual Contributor', title: 'Well-Being', description: 'Care for my well-being and avoid burnout' },
+    { id: 'p3-c7', persona: 'Individual Contributor', title: 'Communication and Collaboration', description: 'Communicate and collaborate more effectively' },
+    { id: 'p3-c8', persona: 'Individual Contributor', title: 'Clarity + Expectations', description: 'Get clear on what\'s expected of me' },
+    { id: 'p3-c9', persona: 'Individual Contributor', title: 'Skill Building', description: 'Grow my skills and develop in my role' },
+    
+    // CEO/Executive challenges
     { id: 'p4-c1', persona: 'CEO/Executive', title: 'Alignment + Direction', description: 'Align the company around purpose and direction' },
     { id: 'p4-c2', persona: 'CEO/Executive', title: 'Navigating Change', description: 'Lead the organization through change' },
     { id: 'p4-c3', persona: 'CEO/Executive', title: 'Feedback + Trust', description: 'Build a culture of trust and psychological safety' },
-    { id: 'p5-c1', persona: 'Other', title: 'Alignment + Direction', description: 'Connect my work to the organization purpose and direction' },
+    { id: 'p4-c4', persona: 'CEO/Executive', title: 'Leadership Effectiveness', description: 'Empower leaders to grow and develop their teams' },
+    { id: 'p4-c5', persona: 'CEO/Executive', title: 'Decision Making', description: 'Improve decision making at every level' },
+    { id: 'p4-c6', persona: 'CEO/Executive', title: 'Well-Being', description: 'Support well-being and resilience across the company' },
+    { id: 'p4-c7', persona: 'CEO/Executive', title: 'Communication and Collaboration', description: 'Strengthen communication and collaboration company-wide' },
+    { id: 'p4-c8', persona: 'CEO/Executive', title: 'Clarity + Expectations', description: 'Ensure clarity of roles, accountability, and expectations' },
+    { id: 'p4-c9', persona: 'CEO/Executive', title: 'Skill Building', description: 'Invest in skill development to drive performance and growth' },
+    
+    // Other challenges
+    { id: 'p5-c1', persona: 'Other', title: 'Alignment + Direction', description: 'Connect my work to the organization\'s purpose and direction' },
     { id: 'p5-c2', persona: 'Other', title: 'Navigating Change', description: 'Support others through change and transition' },
-    { id: 'p5-c3', persona: 'Other', title: 'Feedback + Trust', description: 'Create spaces of trust and psychological safety' }
+    { id: 'p5-c3', persona: 'Other', title: 'Feedback + Trust', description: 'Create spaces of trust and psychological safety' },
+    { id: 'p5-c4', persona: 'Other', title: 'Leadership Effectiveness', description: 'Help others grow through support and encouragement' },
+    { id: 'p5-c5', persona: 'Other', title: 'Decision Making', description: 'Contribute to better decisions across the team' },
+    { id: 'p5-c6', persona: 'Other', title: 'Well-Being', description: 'Promote well-being and emotional resilience' },
+    { id: 'p5-c7', persona: 'Other', title: 'Communication and Collaboration', description: 'Facilitate clear and respectful communication' },
+    { id: 'p5-c8', persona: 'Other', title: 'Clarity + Expectations', description: 'Bring clarity to roles and shared expectations' },
+    { id: 'p5-c9', persona: 'Other', title: 'Skill Building', description: 'Support learning and skill development for those around me' }
   ];
 
   const challenges = allChallenges.filter(challenge => challenge.persona === userProfile.role);
@@ -73,19 +110,88 @@ export default function ToolsPage() {
   const getRecommendations = (challengeId: string) => {
     const challengeType = challengeId.split('-')[1];
     
-    const tools = [
-      { id: 't1', name: 'Purpose and Alignment Map', type: 'guide', description: 'Create clarity around purpose and strategic alignment' },
-      { id: 't2', name: 'Change Readiness Reflection', type: 'reflection', description: 'Assess and build readiness for navigating change' },
-      { id: 't3', name: 'Team Trust Audit', type: 'assessment', description: 'Evaluate and strengthen trust within your team' }
-    ];
+    const toolMappings: { [key: string]: Tool } = {
+      'c1': { id: 't1', name: 'Purpose and Alignment Map', type: 'guide', description: 'Create clarity around purpose and strategic alignment' },
+      'c2': { id: 't2', name: 'Change Readiness Reflection', type: 'reflection', description: 'Assess and build readiness for navigating change' },
+      'c3': { id: 't3', name: 'Team Trust Audit', type: 'assessment', description: 'Evaluate and strengthen trust within your team' },
+      'c4': { id: 't4', name: 'Coaching Questions Card Deck', type: 'guide', description: 'Powerful questions to empower and develop others' },
+      'c5': { id: 't5', name: 'Decision Filter Framework', type: 'guide', description: 'Make better decisions with a structured approach' },
+      'c6': { id: 't6', name: 'Burnout Assessment', type: 'assessment', description: 'Identify and address signs of burnout' },
+      'c7': { id: 't7', name: 'Working with Me Guide', type: 'guide', description: 'Share your work style and improve collaboration' },
+      'c8': { id: 't8', name: 'Hopes, Fears, Expectations Template', type: 'guide', description: 'Create clarity through open dialogue about expectations' },
+      'c9': { id: 't9', name: 'Career Drivers Exercise', type: 'reflection', description: 'Discover what motivates and drives your career growth' }
+    };
 
-    const courses = [
-      { id: 'c1', title: 'Strategic Goal Setting', description: 'Learn to set and cascade meaningful goals', duration: '2 weeks' },
-      { id: 'c2', title: 'Purpose-Driven Leadership', description: 'Connect individual purpose to organizational mission', duration: '3 weeks' },
-      { id: 'c3', title: 'Vision Alignment Workshop', description: 'Create shared understanding of organizational direction', duration: '1 week' }
-    ];
+    const courseMappings: { [key: string]: Course[] } = {
+      'c1': [
+        { id: 's6', title: 'Inspire with Vision', description: 'Create shared understanding of organizational direction', duration: '2 weeks' },
+        { id: 's15', title: 'Define Your Leadership Brand', description: 'Establish your unique leadership identity', duration: '3 weeks' },
+        { id: 's25', title: 'Setting and Achieving Goals', description: 'Learn to set and cascade meaningful goals', duration: '2 weeks' },
+        { id: 's37', title: 'Alignment & Momentum', description: 'Build alignment and maintain momentum', duration: '3 weeks' },
+        { id: 's24', title: 'Strategic Thinking', description: 'Develop strategic thinking capabilities', duration: '3 weeks' }
+      ],
+      'c2': [
+        { id: 's12', title: 'Lead Through Change', description: 'Master the art of change management', duration: '4 weeks' },
+        { id: 's5', title: 'Habits for Resilience', description: 'Develop personal and team resilience', duration: '2 weeks' },
+        { id: 's41', title: 'Leading with Compassion', description: 'Lead with empathy and compassion', duration: '3 weeks' },
+        { id: 's39', title: 'Connected Leadership', description: 'Build connections that matter', duration: '3 weeks' },
+        { id: 's18', title: 'Curiosity in Conversations', description: 'Foster curiosity in your interactions', duration: '2 weeks' }
+      ],
+      'c3': [
+        { id: 's14', title: 'Build Trust on Your Team', description: 'Create psychological safety across teams', duration: '3 weeks' },
+        { id: 's20', title: 'Foster Belonging', description: 'Create an inclusive environment', duration: '3 weeks' },
+        { id: 's4', title: 'Deliberate Listening', description: 'Master the art of active listening', duration: '2 weeks' },
+        { id: 's36', title: 'Candid Communication', description: 'Have honest, productive conversations', duration: '2 weeks' },
+        { id: 's34', title: 'Hopes Fears and Expectations', description: 'Navigate team dynamics effectively', duration: '2 weeks' }
+      ],
+      'c4': [
+        { id: 's10', title: 'Successful Delegation', description: 'Learn to delegate effectively and build capability', duration: '2 weeks' },
+        { id: 's16', title: 'Activate Autonomy', description: 'Empower others to take ownership', duration: '3 weeks' },
+        { id: 's17', title: 'Coaching Essentials', description: 'Develop coaching skills that empower others', duration: '3 weeks' },
+        { id: 's21', title: 'Magnify Strengths', description: 'Identify and develop team strengths', duration: '3 weeks' },
+        { id: 's19', title: 'Develop Your Team', description: 'Build capability across your team', duration: '3 weeks' }
+      ],
+      'c5': [
+        { id: 's32', title: 'Decision Making', description: 'Make better decisions under pressure', duration: '2 weeks' },
+        { id: 's24', title: 'Strategic Thinking', description: 'Think strategically about challenges', duration: '3 weeks' },
+        { id: 's9', title: 'Self-Awareness', description: 'Develop deeper self-awareness', duration: '2 weeks' },
+        { id: 's26', title: 'Lead Effective Meetings', description: 'Run meetings that drive decisions', duration: '2 weeks' },
+        { id: 's31', title: 'Conscious Communication', description: 'Communicate with intention and clarity', duration: '2 weeks' }
+      ],
+      'c6': [
+        { id: 's7', title: 'Manage Burnout', description: 'Prevent and address burnout', duration: '3 weeks' },
+        { id: 's5', title: 'Habits for Resilience', description: 'Build sustainable resilience habits', duration: '2 weeks' },
+        { id: 's2', title: 'Beat Imposter Syndrome', description: 'Overcome self-doubt and build confidence', duration: '2 weeks' },
+        { id: 's8', title: 'Manage Your Time', description: 'Master time management strategies', duration: '2 weeks' },
+        { id: 's1', title: 'Cultivating Gratitude', description: 'Practice gratitude for well-being', duration: '2 weeks' }
+      ],
+      'c7': [
+        { id: 's31', title: 'Conscious Communication', description: 'Master clear and impactful communication', duration: '2 weeks' },
+        { id: 's35', title: 'Collaborate Intentionally', description: 'Build effective collaboration practices', duration: '3 weeks' },
+        { id: 's18', title: 'Curiosity in Conversations', description: 'Bring curiosity to every interaction', duration: '2 weeks' },
+        { id: 's3', title: 'Constructive Conflict', description: 'Navigate conflict productively', duration: '2 weeks' },
+        { id: 's4', title: 'Deliberate Listening', description: 'Listen with intention and presence', duration: '2 weeks' }
+      ],
+      'c8': [
+        { id: 's13', title: 'Making the Most of 1:1\'s', description: 'Have impactful one-on-one conversations', duration: '2 weeks' },
+        { id: 's34', title: 'Hopes Fears and Expectations', description: 'Create clarity through open dialogue', duration: '2 weeks' },
+        { id: 's22', title: 'Performance Discussions', description: 'Navigate performance conversations effectively', duration: '2 weeks' },
+        { id: 's23', title: 'Set The Tone', description: 'Establish clear team culture and norms', duration: '2 weeks' },
+        { id: 's28', title: 'Deliver Feedback', description: 'Give feedback that drives growth', duration: '2 weeks' }
+      ],
+      'c9': [
+        { id: 's30', title: 'Career Mapping', description: 'Create meaningful career development paths', duration: '3 weeks' },
+        { id: 's19', title: 'Develop Your Team', description: 'Build skills and capabilities', duration: '3 weeks' },
+        { id: 's17', title: 'Coaching Essentials', description: 'Coach others for growth', duration: '3 weeks' },
+        { id: 's43', title: 'Live Group Coaching', description: 'Experience the power of group coaching', duration: '4 weeks' },
+        { id: 's21', title: 'Magnify Strengths', description: 'Develop and leverage strengths', duration: '3 weeks' }
+      ]
+    };
 
-    return { tools: [tools[0]], courses };
+    const tool = toolMappings[challengeType] || toolMappings['c1'];
+    const courses = courseMappings[challengeType] || courseMappings['c1'];
+
+    return { tools: [tool], courses };
   };
 
   useEffect(() => {
@@ -97,9 +203,9 @@ export default function ToolsPage() {
             setTimeout(() => setCurrentScreen(5), 500);
             return 100;
           }
-          return prev + (100 / 150);
+          return prev + 3.33; // 100% / 30 intervals = 3.33% per interval
         });
-      }, 100);
+      }, 100); // 100ms * 30 intervals = 3000ms = 3 seconds
       return () => clearInterval(interval);
     }
   }, [currentScreen]);
@@ -123,7 +229,11 @@ export default function ToolsPage() {
   const handleChallengeSelect = (challenge: Challenge) => {
     setSelectedChallenge(challenge);
     setUserProfile(prev => ({ ...prev, challenge: challenge.title }));
-    handleNext();
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentScreen(4); // Skip directly to loading screen
+      setIsTransitioning(false);
+    }, 300);
   };
 
   const handleCustomChallenge = () => {
@@ -135,7 +245,11 @@ export default function ToolsPage() {
       title: customChallenge,
       description: 'Custom challenge'
     });
-    handleNext();
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentScreen(4); // Skip directly to loading screen
+      setIsTransitioning(false);
+    }, 300);
   };
 
   const skipToTools = () => {
@@ -255,53 +369,6 @@ export default function ToolsPage() {
     );
   }
 
-  if (currentScreen === 3) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-16">
-        <div className="container mx-auto px-6">
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-4xl font-bold text-gray-900 mb-12">
-              Tell us more about your challenge...
-            </h2>
-            
-            <div className="bg-white rounded-xl border border-gray-200 p-8 mb-8">
-              <textarea
-                value={userProfile.challengeDetails}
-                onChange={(e) => setUserProfile(prev => ({ ...prev, challengeDetails: e.target.value }))}
-                placeholder="What makes it hard?"
-                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-lg"
-                rows={6}
-              />
-            </div>
-
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={handleBack}
-                className="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-semibold hover:border-gray-400 transition-all flex items-center gap-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back
-              </button>
-              
-              <button
-                onClick={handleNext}
-                className="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
-              >
-                Next
-              </button>
-            </div>
-            
-            <button
-              onClick={skipToTools}
-              className="mt-6 text-gray-600 hover:text-gray-900 text-sm underline"
-            >
-              Skip to tools
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (currentScreen === 4) {
     return (
@@ -396,7 +463,7 @@ export default function ToolsPage() {
               <h3 className="text-2xl font-bold text-gray-900 mb-6">Programs:</h3>
               
               <div className="grid gap-6">
-                {recommendations.courses.map((course) => (
+                {recommendations.courses.slice(0, 5).map((course) => (
                   <div key={course.id} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
@@ -441,3 +508,5 @@ export default function ToolsPage() {
     </div>
   );
 }
+
+export default ToolsPage;

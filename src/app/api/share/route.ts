@@ -115,7 +115,11 @@ class VercelKVStorage implements StorageAdapter {
 
   async set(key: string, value: unknown, options?: { ex?: number }): Promise<void> {
     await this.ensureKV();
-    await this.kv!.set(key, value, options);
+    if (options?.ex) {
+      await this.kv!.set(key, value, { ex: options.ex });
+    } else {
+      await this.kv!.set(key, value);
+    }
   }
 }
 

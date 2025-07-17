@@ -246,7 +246,7 @@ export default function SharePage() {
         yPosition += 7;
       });
 
-      if (data.results.insights?.length > 0) {
+      if (data.results.insights && data.results.insights.length > 0) {
         yPosition += 10;
         doc.setFontSize(14);
         doc.text('Key Insights', 20, yPosition);
@@ -654,7 +654,7 @@ export default function SharePage() {
                 <p className="text-gray-200 text-lg leading-relaxed">{data.results.purpose}</p>
               </div>
 
-              {data.results.insights?.length > 0 && (
+              {data.results.insights && data.results.insights.length > 0 && (
                 <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6">
                   <h2 className="text-xl font-semibold text-white mb-4">Key Insights</h2>
                   <ul className="space-y-3">
@@ -674,24 +674,24 @@ export default function SharePage() {
                 <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6">
                   <h2 className="text-xl font-semibold text-white mb-4">Profile Summary</h2>
                   <div className="grid gap-4">
-                    {data.userProfile.background && (
+                    {data.userProfile.background ? (
                       <div>
                         <h3 className="text-sm font-medium text-gray-400 mb-1">Background</h3>
-                        <p className="text-gray-200">{data.userProfile.background}</p>
+                        <p className="text-gray-200">{String(data.userProfile.background)}</p>
                       </div>
-                    )}
-                    {data.userProfile.strengths && (
+                    ) : null}
+                    {data.userProfile.strengths ? (
                       <div>
                         <h3 className="text-sm font-medium text-gray-400 mb-1">Strengths</h3>
-                        <p className="text-gray-200">{data.userProfile.strengths}</p>
+                        <p className="text-gray-200">{String(data.userProfile.strengths)}</p>
                       </div>
-                    )}
-                    {data.userProfile.values && (
+                    ) : null}
+                    {data.userProfile.values ? (
                       <div>
                         <h3 className="text-sm font-medium text-gray-400 mb-1">Values</h3>
-                        <p className="text-gray-200">{data.userProfile.values}</p>
+                        <p className="text-gray-200">{String(data.userProfile.values)}</p>
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 </div>
               )}
@@ -739,14 +739,14 @@ export default function SharePage() {
                 <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6">
                   <h2 className="text-xl font-semibold text-white mb-4">Conversation Insights</h2>
                   <div className="grid gap-4">
-                    {data.userProfile.primaryChallenge && (
+                    {data.userProfile.primaryChallenge ? (
                       <div>
                         <h3 className="text-sm font-medium text-gray-400 mb-1">Primary Challenge</h3>
                         <p className="text-gray-200 capitalize">
-                          {data.userProfile.primaryChallenge.replace('-', ' ')}
+                          {String(data.userProfile.primaryChallenge).replace('-', ' ')}
                         </p>
                       </div>
-                    )}
+                    ) : null}
                     {data.conversationStage !== undefined && (
                       <div>
                         <h3 className="text-sm font-medium text-gray-400 mb-1">Conversation Progress</h3>

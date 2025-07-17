@@ -27,6 +27,8 @@ export default function CampfireAgent() {
   const [conversationStage, setConversationStage] = useState(0)
   const [userProfile, setUserProfile] = useState<UserProfile>({})
   const [showDemo, setShowDemo] = useState(false)
+  const [shareUrl, setShareUrl] = useState('')
+  const [isSharing, setIsSharing] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -140,6 +142,54 @@ export default function CampfireAgent() {
     window.open('https://calendly.com/campfire-demo', '_blank')
   }
 
+  const shareConversation = async () => {
+    if (isSharing) return
+    
+    setIsSharing(true)
+    try {
+      const shareData = {
+        type: 'campfire-conversation',
+        messages: messages.map(msg => ({
+          text: msg.text,
+          isUser: msg.isUser,
+          timestamp: msg.timestamp.toISOString()
+        })),
+        userProfile,
+        conversationStage,
+        title: 'Campfire Conversation',
+        description: `A conversation about ${userProfile.primaryChallenge || 'team and culture challenges'}`,
+        createdAt: new Date().toISOString()
+      }
+
+      const response = await fetch('/api/share', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(shareData)
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create share link')
+      }
+
+      const { url } = await response.json()
+      const fullUrl = `${window.location.origin}${url}`
+      setShareUrl(fullUrl)
+      
+      // Copy to clipboard
+      await navigator.clipboard.writeText(fullUrl)
+      
+      // Show success message
+      addMessage('✨ Share link copied to clipboard! Your conversation has been saved and can be accessed for 30 days.', false)
+    } catch (error) {
+      console.error('Error sharing conversation:', error)
+      addMessage('Sorry, I couldn\'t create a share link. Please try again.', false)
+    } finally {
+      setIsSharing(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
       {/* Header */}
@@ -212,15 +262,29 @@ export default function CampfireAgent() {
             <div className="px-6 py-4 bg-gradient-to-r from-orange-500/20 to-red-500/20 border-t border-white/20">
               <div className="text-center">
                 <p className="text-white mb-3">
-                  Based on our conversation, I think you'd benefit from seeing how Campfire can help. 
+                  Based on our conversation, I think you&apos;d benefit from seeing how Campfire can help. 
                   Would you like to schedule a quick demo?
                 </p>
-                <button
-                  onClick={handleDemoRequest}
-                  className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-lg font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-200 transform hover:scale-105"
-                >
-                  SCHEDULE DEMO 🔥
-                </button>
+                <div className="flex justify-center gap-3">
+                  <button
+                    onClick={handleDemoRequest}
+                    className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-lg font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-200 transform hover:scale-105"
+                  >
+                    SCHEDULE DEMO 🔥
+                  </button>
+                  <button
+                    onClick={shareConversation}
+                    disabled={isSharing}
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSharing ? 'SHARING...' : 'SHARE CONVERSATION'}
+                  </button>
+                </div>
+                {shareUrl && (
+                  <p className="text-blue-200 text-sm mt-3">
+                    Share link: <span className="text-white">{shareUrl}</span>
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -244,6 +308,18 @@ export default function CampfireAgent() {
               >
                 SEND
               </button>
+              {messages.length > 2 && (
+                <button
+                  onClick={shareConversation}
+                  disabled={isSharing}
+                  className="bg-gradient-to-r from-iris to-iris text-white px-4 py-3 rounded-lg font-semibold hover:from-iris hover:to-iris/80 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Share this conversation"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a9.001 9.001 0 01-7.432 0m9.032-4.026A9.001 9.001 0 0112 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9a9.001 9.001 0 00-1.684-5.316m-9.032 4.026a3 3 0 002.684 0" />
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
         </div>

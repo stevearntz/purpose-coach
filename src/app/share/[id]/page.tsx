@@ -513,7 +513,7 @@ export default function SharePage() {
                         </div>
                         
                         <div className="flex items-start gap-4">
-                          <div className="w-24 h-20 bg-white rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
+                          <div className="w-24 h-20 bg-gray-50 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
                             {getToolVisual(tool.id)}
                           </div>
                           
@@ -571,7 +571,7 @@ export default function SharePage() {
                             {course.description}
                           </p>
                         </div>
-                        <div className="w-16 h-12 bg-white rounded-lg flex items-center justify-center ml-6 overflow-hidden">
+                        <div className="w-16 h-12 bg-gray-50 rounded-lg flex items-center justify-center ml-6 overflow-hidden">
                           {getCourseVisual(course.id)}
                         </div>
                       </div>

@@ -32,7 +32,7 @@ npm run lint   # Run ESLint
 ### Project Structure
 - `/src/app/` - Next.js App Router pages and components
 - `/src/app/api/chat/` - OpenAI chat API endpoint
-- `/src/app/tools/` - Individual coaching tool modules (purpose, values, strengths, etc.)
+- `/src/app/purpose/`, `/src/app/values/`, `/src/app/strengths/`, etc. - Individual coaching tool modules
 - Each tool is self-contained with its own page.tsx
 
 ### Key Patterns
@@ -43,8 +43,8 @@ npm run lint   # Run ESLint
 5. **Type Safety**: TypeScript with path aliases (@/* maps to src/*)
 
 ### Current Implementation Notes
-- The main chat interface (Campfire) is on the homepage
-- Purpose Coach tool is fully implemented at `/tools/purpose`
+- The tools selection page is on the homepage
+- Purpose Coach tool is fully implemented at `/purpose`
 - Other tools (values, strengths, etc.) are planned but not yet implemented
 - Google Auth is implemented but commented out in the code
 - Demo mode available for testing without API calls

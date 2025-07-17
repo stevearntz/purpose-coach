@@ -125,7 +125,7 @@ export default function CoursesPage() {
         <div className="container mx-auto px-6 pt-12 pb-8">
           <div className="mb-8">
             <button
-              onClick={() => router.push('/tools?screen=4')}
+              onClick={() => router.push('/?screen=4')}
               className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />

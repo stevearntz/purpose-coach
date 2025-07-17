@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Campfire Guides',
     description: 'At Campfire, we empower every employee with the direction, support, and skills they need to thrive.',
-    url: 'https://chatbythefire.com',
+    url: 'https://tools.getcampfire.com',
     siteName: 'Campfire Guides',
     images: [
       {

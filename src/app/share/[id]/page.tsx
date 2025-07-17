@@ -518,7 +518,7 @@ export default function SharePage() {
                 <div className="grid gap-4">
                   {data.recommendations.tools.map((tool, index) => {
                     const isClickable = tool.id === 't3' || tool.id === 't1';
-                    const toolPath = tool.id === 't3' ? '/tools/trust-audit' : tool.id === 't1' ? '/tools/purpose' : '';
+                    const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/purpose' : '';
                     
                     const toolContent = (
                       <>
@@ -596,7 +596,7 @@ export default function SharePage() {
 
               <div className="flex gap-4 justify-center">
                 <button 
-                  onClick={() => window.location.href = '/tools'}
+                  onClick={() => window.location.href = '/'}
                   className="px-8 py-3 bg-iris-500 text-white rounded-lg font-semibold hover:bg-iris-700 transition-colors"
                 >
                   BUILD MY PLAN

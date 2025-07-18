@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Footer from '@/components/Footer'
 import { notFound } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
 import ShareButtons from './ShareButtons'
 
 interface ToolShareData {

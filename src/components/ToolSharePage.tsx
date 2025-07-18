@@ -50,29 +50,6 @@ export default async function ToolSharePage({ shareId, toolPath, toolConfig, ren
 
   return (
     <>
-      <style jsx>{`
-        @media print {
-          body * {
-            visibility: hidden;
-          }
-          .print-section, .print-section * {
-            visibility: visible;
-          }
-          .print-section {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-          }
-          .no-print {
-            display: none !important;
-          }
-          @page {
-            margin: 0.5in;
-            size: letter;
-          }
-        }
-      `}</style>
       <div className={`min-h-screen bg-gradient-to-br ${toolConfig.gradient}/10 py-16 print-section`}>
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">

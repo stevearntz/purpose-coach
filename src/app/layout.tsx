@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { League_Spartan } from 'next/font/google'
 import './globals.css'
+import '../styles/print.css'
 
 const leagueSpartan = League_Spartan({ 
   subsets: ['latin'],

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowRight, ArrowLeft, Download, Share2, X, TrendingUp, Sparkles, Target, Heart, Shield, Globe, Lightbulb, Users, Zap, Palette, Trophy, Brain, Briefcase, Star, Gift, MessageCircle } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Download, Share2, X, TrendingUp, Sparkles, Target, Heart, Shield, Globe, Lightbulb, Users, Zap, Palette, Trophy, Brain, Briefcase, Star, Gift, MessageCircle, GripVertical } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import jsPDF from 'jspdf'
@@ -148,6 +148,8 @@ export default function CareerDriversTool() {
     why: ''
   })
   const [isSharing, setIsSharing] = useState(false)
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
   const handleNext = () => {
     if (currentStage < stages.length - 1) {
@@ -223,6 +225,66 @@ export default function CareerDriversTool() {
       ;[newRanked[index], newRanked[index + 1]] = [newRanked[index + 1], newRanked[index]]
       return newRanked
     })
+  }
+
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', index.toString())
+  }
+  
+  const handleDragEnd = () => {
+    setDraggedIndex(null)
+    setDragOverIndex(null)
+  }
+  
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }
+  
+  const handleDragEnter = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    setDragOverIndex(index)
+  }
+  
+  const handleDragLeave = (e: React.DragEvent) => {
+    const target = e.currentTarget as HTMLElement
+    const relatedTarget = e.relatedTarget as HTMLElement
+    
+    // Only clear dragOverIndex if we're leaving the entire item
+    if (!target.contains(relatedTarget)) {
+      setDragOverIndex(null)
+    }
+  }
+  
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault()
+    
+    const dragIndex = parseInt(e.dataTransfer.getData('text/plain'))
+    
+    if (isNaN(dragIndex) || dragIndex === dropIndex) {
+      setDraggedIndex(null)
+      setDragOverIndex(null)
+      return
+    }
+    
+    const newRankedDrivers = [...rankedDrivers]
+    const draggedDriver = newRankedDrivers[dragIndex]
+    
+    // Remove from old position
+    newRankedDrivers.splice(dragIndex, 1)
+    
+    // Calculate new index after removal
+    const newDropIndex = dragIndex < dropIndex ? dropIndex - 1 : dropIndex
+    
+    // Insert at new position
+    newRankedDrivers.splice(newDropIndex, 0, draggedDriver)
+    
+    setRankedDrivers(newRankedDrivers)
+    setDraggedIndex(null)
+    setDragOverIndex(null)
   }
 
   const handleShare = async () => {
@@ -494,18 +556,41 @@ export default function CareerDriversTool() {
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <div className="mb-8">
                   <p className="text-gray-600 text-center">
-                    Arrange these in order of importance to you, with your most important driver at the top
+                    Drag and drop to arrange these in order of importance to you, with your most important driver at the top
+                  </p>
+                  <p className="text-sm text-gray-500 text-center mt-2">
+                    (You can also use the arrow buttons if you prefer)
                   </p>
                 </div>
 
                 <div className="space-y-3">
                   {rankedDrivers.map((driver, index) => (
-                    <div key={driver} className="flex items-center gap-3">
+                    <div 
+                      key={`ranked-${driver}-${index}`} 
+                      className={`relative flex items-center gap-3 group transition-all ${
+                        draggedIndex === index ? 'opacity-50' : 'opacity-100'
+                      } ${
+                        dragOverIndex === index && draggedIndex !== index ? 'transform translate-y-2' : ''
+                      }`}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      onDragEnd={handleDragEnd}
+                      onDragOver={handleDragOver}
+                      onDragEnter={(e) => handleDragEnter(e, index)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, index)}
+                    >
+                      {dragOverIndex === index && draggedIndex !== index && (
+                        <div className="absolute -top-1 left-0 right-0 h-1 bg-[#30B859] rounded-full" />
+                      )}
                       <div className="w-10 h-10 bg-[#30B859] text-white rounded-full flex items-center justify-center font-bold">
                         {index + 1}
                       </div>
-                      <div className="flex-1 bg-gray-50 rounded-lg px-4 py-3 font-medium text-gray-900">
-                        {driver}
+                      <div className={`flex items-center gap-2 flex-1 bg-gray-50 rounded-lg px-4 py-3 cursor-move transition-all ${
+                        dragOverIndex === index && draggedIndex !== index ? 'border-2 border-[#30B859]' : ''
+                      } hover:bg-gray-100`}>
+                        <GripVertical className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
+                        <span className="font-medium text-gray-900">{driver}</span>
                       </div>
                       <div className="flex flex-col gap-1">
                         <button
@@ -708,7 +793,7 @@ export default function CareerDriversTool() {
                       
                       return (
                         <div
-                          key={driver}
+                          key={`result-${driver}-${index}`}
                           className={`flex items-center gap-3 p-4 rounded-lg ${
                             index === 0 ? 'bg-gradient-to-r from-[#BADA54]/20 to-[#30B859]/20 border-2 border-[#30B859]' : 'bg-gray-50'
                           }`}

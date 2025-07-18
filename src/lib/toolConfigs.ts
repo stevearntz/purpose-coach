@@ -30,6 +30,12 @@ export const toolConfigs = {
     subtitle: "Navigate change with confidence.",
     description: "Assess your readiness for change across three key dimensions—People, Purpose, and Principles—to identify where you feel confident and where you need support."
   },
+  workingWithMe: {
+    gradient: "from-[#30C7C7] to-[#2A74B9]",
+    title: "Working with Me",
+    subtitle: "Create your personal user guide.",
+    description: "Build a shareable guide that helps others understand your work style, communication preferences, and how to collaborate effectively with you."
+  },
   // Add more tools here as you create them
 }
 

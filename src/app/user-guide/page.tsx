@@ -1,0 +1,614 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { ArrowLeft, ArrowRight, Printer, Download, Share2, Clock, MessageSquare, Heart, User, Target, Lightbulb } from 'lucide-react'
+import Link from 'next/link'
+import Footer from '@/components/Footer'
+import { toolConfigs } from '@/lib/toolConfigs'
+
+interface UserGuideData {
+  name: string
+  workingConditions: string
+  hoursOfOperation: {
+    early: boolean
+    morning: boolean
+    afternoon: boolean
+    evening: boolean
+    late: boolean
+    weekends: boolean
+  }
+  shareHours: string
+  communicationMethods: {
+    inPerson: boolean
+    call: boolean
+    text: boolean
+    zoom: boolean
+    slack: boolean
+  }
+  responseExpectations: string
+  meetingPreferences: string
+  feedbackPreferences: string
+  biggestNeeds: string
+  personalStruggles: string
+  thingsILove: string[]
+  thingsAboutMe: string
+}
+
+const sections = [
+  { id: 'working-conditions', title: 'Working Conditions', icon: Clock },
+  { id: 'hours', title: 'Hours of Operation', icon: Clock },
+  { id: 'communication', title: 'Communication', icon: MessageSquare },
+  { id: 'feedback', title: 'Feedback', icon: Target },
+  { id: 'needs', title: 'My Biggest Needs', icon: Heart },
+  { id: 'struggles', title: 'Personal Struggles', icon: Lightbulb },
+  { id: 'love', title: 'Things I Love', icon: Heart },
+  { id: 'about', title: 'Other Things About Me', icon: User },
+]
+
+export default function UserGuidePage() {
+  const [showIntro, setShowIntro] = useState(true)
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
+  const [showResults, setShowResults] = useState(false)
+  const [userData, setUserData] = useState<UserGuideData>({
+    name: '',
+    workingConditions: '',
+    hoursOfOperation: {
+      early: false,
+      morning: false,
+      afternoon: false,
+      evening: false,
+      late: false,
+      weekends: false,
+    },
+    shareHours: '',
+    communicationMethods: {
+      inPerson: false,
+      call: false,
+      text: false,
+      zoom: false,
+      slack: false,
+    },
+    responseExpectations: '',
+    meetingPreferences: '',
+    feedbackPreferences: '',
+    biggestNeeds: '',
+    personalStruggles: '',
+    thingsILove: ['', '', '', '', ''],
+    thingsAboutMe: '',
+  })
+  
+  const config = toolConfigs.workingWithMe
+  const currentSection = sections[currentSectionIndex]
+  const progress = ((currentSectionIndex + 1) / sections.length) * 100
+  
+  const handleNext = () => {
+    if (currentSectionIndex < sections.length - 1) {
+      setCurrentSectionIndex(currentSectionIndex + 1)
+    } else {
+      setShowResults(true)
+    }
+  }
+  
+  const handlePrevious = () => {
+    if (currentSectionIndex > 0) {
+      setCurrentSectionIndex(currentSectionIndex - 1)
+    }
+  }
+  
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Enter key for starting on intro
+      if (e.key === 'Enter' && showIntro && userData.name.trim()) {
+        setShowIntro(false)
+      }
+      
+      // Arrow keys for navigation
+      if (e.key === 'ArrowLeft' && !showIntro && !showResults && currentSectionIndex > 0) {
+        handlePrevious()
+      }
+      
+      if (e.key === 'ArrowRight' && !showIntro && !showResults) {
+        handleNext()
+      }
+    }
+    
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [showIntro, showResults, currentSectionIndex, userData.name])
+  
+  const generateShareableGuide = () => {
+    const timeSlots = []
+    if (userData.hoursOfOperation.early) timeSlots.push('Early morning (before 8am)')
+    if (userData.hoursOfOperation.morning) timeSlots.push('Morning (8am-12pm)')
+    if (userData.hoursOfOperation.afternoon) timeSlots.push('Afternoon (12pm-5pm)')
+    if (userData.hoursOfOperation.evening) timeSlots.push('Evening (5pm-8pm)')
+    if (userData.hoursOfOperation.late) timeSlots.push('Late night (after 8pm)')
+    if (userData.hoursOfOperation.weekends) timeSlots.push('Weekends')
+    
+    const commMethods = []
+    if (userData.communicationMethods.inPerson) commMethods.push('In-person')
+    if (userData.communicationMethods.call) commMethods.push('Phone call')
+    if (userData.communicationMethods.text) commMethods.push('Text message')
+    if (userData.communicationMethods.zoom) commMethods.push('Video call')
+    if (userData.communicationMethods.slack) commMethods.push('Slack/Chat')
+    
+    return {
+      title: `Working with ${userData.name}`,
+      sections: [
+        { title: 'Working Conditions', content: userData.workingConditions },
+        { title: 'Hours of Operation', content: `I work best during: ${timeSlots.join(', ')}.\n\n${userData.shareHours}` },
+        { title: 'Communication Preferences', content: `Preferred methods: ${commMethods.join(', ')}.\n\nResponse times: ${userData.responseExpectations}\n\nMeetings: ${userData.meetingPreferences}` },
+        { title: 'Feedback', content: userData.feedbackPreferences },
+        { title: 'My Biggest Needs', content: userData.biggestNeeds },
+        { title: 'Personal Struggles', content: userData.personalStruggles },
+        { title: 'Things I Love', content: userData.thingsILove.filter(item => item).map((item, i) => `${i + 1}. ${item}`).join('\n') },
+        { title: 'Other Things About Me', content: userData.thingsAboutMe },
+      ]
+    }
+  }
+
+  // Intro Screen
+  if (showIntro) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#30C7C7] to-[#2A74B9] flex flex-col items-center justify-center p-4">
+        <Link 
+          href="/?screen=4" 
+          className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back to Plan
+        </Link>
+        
+        <div className="text-center text-white mb-12 max-w-3xl">
+          <h1 className="text-5xl font-bold mb-6">{config.title}</h1>
+          <h2 className="text-3xl mb-8">{config.subtitle}</h2>
+          <p className="text-xl text-white/90 leading-relaxed">
+            Help your colleagues understand how to work with you best. Share your preferences, 
+            communication style, and what makes you tick. Because great collaboration starts 
+            with understanding each other.
+          </p>
+        </div>
+        
+        <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20 max-w-2xl w-full">
+          <h3 className="text-3xl font-bold text-white text-center mb-6">Let's start with your name</h3>
+          
+          <div className="space-y-6">
+            <p className="text-xl text-white/90 text-center">
+              What should people call you?
+            </p>
+            
+            <input
+              type="text"
+              value={userData.name}
+              onChange={(e) => setUserData({...userData, name: e.target.value})}
+              placeholder="Your name"
+              className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-2xl font-normal text-center"
+              required
+            />
+            
+            <button
+              onClick={() => setShowIntro(false)}
+              disabled={!userData.name.trim()}
+              className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
+                userData.name.trim()
+                  ? 'bg-white text-[#2A74B9] hover:bg-white/90'
+                  : 'bg-white/50 text-[#2A74B9]/50 cursor-not-allowed'
+              }`}
+            >
+              Build My User Guide
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Results Screen
+  if (showResults) {
+    const guide = generateShareableGuide()
+    
+    return (
+      <>
+        <style jsx>{`
+          @media print {
+            body * {
+              visibility: hidden;
+            }
+            .print-section, .print-section * {
+              visibility: visible;
+            }
+            .print-section {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+            }
+            .no-print {
+              display: none !important;
+            }
+            @page {
+              margin: 0.5in;
+              size: letter;
+            }
+          }
+        `}</style>
+        <div className="min-h-screen bg-gradient-to-br from-[#30C7C7]/10 via-[#5D9DD9]/10 to-[#2A74B9]/10 py-16 print-section">
+          <div className="container mx-auto px-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex justify-between items-center mb-8 no-print">
+                <button
+                  onClick={() => {
+                    setShowResults(false)
+                    setCurrentSectionIndex(sections.length - 1)
+                  }}
+                  className="text-[#2A74B9] hover:text-[#215A91] flex items-center gap-2 font-medium"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  BACK
+                </button>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => window.print()}
+                    className="p-3 border-2 border-[#2A74B9]/50 text-[#2A74B9] rounded-lg hover:border-[#2A74B9] hover:bg-[#2A74B9]/10 transition-all"
+                    title="Print guide"
+                  >
+                    <Printer className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      const shareUrl = `${window.location.origin}/user-guide/share/${Date.now()}`
+                      navigator.clipboard.writeText(shareUrl)
+                      alert('Share link copied to clipboard!')
+                    }}
+                    className="px-6 py-3 bg-[#2A74B9] text-white rounded-lg hover:bg-[#215A91] transition-colors shadow-lg font-medium"
+                  >
+                    SHARE
+                  </button>
+                  <button
+                    onClick={() => {
+                      // Generate downloadable text file
+                      const content = guide.sections
+                        .map(section => `${section.title}\n${'='.repeat(section.title.length)}\n${section.content}\n`)
+                        .join('\n')
+                      const blob = new Blob([`${guide.title}\n${'='.repeat(guide.title.length)}\n\n${content}`], { type: 'text/plain' })
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `working-with-${userData.name.toLowerCase().replace(/\s+/g, '-')}.txt`
+                      a.click()
+                      URL.revokeObjectURL(url)
+                    }}
+                    className="px-6 py-3 border-2 border-[#2A74B9] text-[#2A74B9] rounded-lg hover:bg-[#2A74B9]/10 transition-all font-medium flex items-center gap-2"
+                  >
+                    <Download className="w-5 h-5" />
+                    DOWNLOAD
+                  </button>
+                </div>
+              </div>
+              
+              <h1 className="text-4xl font-bold text-nightfall mb-8 text-center">{guide.title}</h1>
+              
+              <div className="space-y-6">
+                {guide.sections.map((section, index) => (
+                  <div key={index} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                    <h3 className="text-xl font-semibold text-nightfall mb-3">{section.title}</h3>
+                    <p className="text-gray-700 whitespace-pre-line">{section.content}</p>
+                  </div>
+                ))}
+              </div>
+            
+            <div className="flex justify-center mt-8 no-print">
+              <button
+                onClick={() => {
+                  setShowResults(false)
+                  setCurrentSectionIndex(0)
+                  setShowIntro(true)
+                  // Reset data if needed
+                }}
+                className="px-8 py-3 bg-[#2A74B9] text-white rounded-lg font-semibold hover:bg-[#215A91] transition-colors shadow-lg"
+              >
+                CREATE ANOTHER GUIDE
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <Footer />
+      </>
+    )
+  }
+
+  // Section Screens
+  const renderSection = () => {
+    switch (currentSection.id) {
+      case 'working-conditions':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-nightfall text-center mb-2">Working Conditions</h2>
+            <p className="text-gray-600 text-center mb-6">Help others understand your ideal work environment</p>
+            
+            <textarea
+              value={userData.workingConditions}
+              onChange={(e) => setUserData({...userData, workingConditions: e.target.value})}
+              placeholder="Explain your ideal working conditions. For example: 'I do my best work in a quiet environment with minimal interruptions' or 'I thrive in collaborative spaces with background energy'"
+              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y"
+            />
+          </div>
+        )
+        
+      case 'hours':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-nightfall text-center mb-2">Hours of Operation</h2>
+            <p className="text-gray-600 text-center mb-6">When are you at your best?</p>
+            
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { key: 'early', label: 'Early bird (before 8am)' },
+                { key: 'morning', label: 'Morning (8am-12pm)' },
+                { key: 'afternoon', label: 'Afternoon (12pm-5pm)' },
+                { key: 'evening', label: 'Evening (5pm-8pm)' },
+                { key: 'late', label: 'Night owl (after 8pm)' },
+                { key: 'weekends', label: 'Weekends' },
+              ].map(({ key, label }) => (
+                <button
+                  key={key}
+                  onClick={() => setUserData({
+                    ...userData,
+                    hoursOfOperation: {
+                      ...userData.hoursOfOperation,
+                      [key]: !userData.hoursOfOperation[key as keyof typeof userData.hoursOfOperation]
+                    }
+                  })}
+                  className={`p-3 rounded-lg border-2 transition-all ${
+                    userData.hoursOfOperation[key as keyof typeof userData.hoursOfOperation]
+                      ? 'border-[#2A74B9] bg-[#2A74B9]/10 text-[#2A74B9]'
+                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            
+            <textarea
+              value={userData.shareHours}
+              onChange={(e) => setUserData({...userData, shareHours: e.target.value})}
+              placeholder="Share more about your hours. For example: 'My hours vary but I protect my mornings for deep work'"
+              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[100px] resize-y"
+            />
+          </div>
+        )
+        
+      case 'communication':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-nightfall text-center mb-2">Communication</h2>
+            <p className="text-gray-600 text-center mb-6">How do you prefer to communicate?</p>
+            
+            <div>
+              <p className="text-sm text-gray-600 mb-3">Methods I prefer:</p>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { key: 'inPerson', label: 'In-person' },
+                  { key: 'call', label: 'Phone call' },
+                  { key: 'text', label: 'Text' },
+                  { key: 'zoom', label: 'Video call' },
+                  { key: 'slack', label: 'Slack/Chat' },
+                ].map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => setUserData({
+                      ...userData,
+                      communicationMethods: {
+                        ...userData.communicationMethods,
+                        [key]: !userData.communicationMethods[key as keyof typeof userData.communicationMethods]
+                      }
+                    })}
+                    className={`p-3 rounded-lg border-2 transition-all ${
+                      userData.communicationMethods[key as keyof typeof userData.communicationMethods]
+                        ? 'border-[#2A74B9] bg-[#2A74B9]/10 text-[#2A74B9]'
+                        : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <label className="text-sm text-gray-600">Response times I can commit to:</label>
+              <input
+                type="text"
+                value={userData.responseExpectations}
+                onChange={(e) => setUserData({...userData, responseExpectations: e.target.value})}
+                placeholder="e.g., Within 24 hours for emails, 2 hours for urgent Slack messages"
+                className="w-full mt-2 p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9]"
+              />
+            </div>
+            
+            <div>
+              <label className="text-sm text-gray-600">Meetings:</label>
+              <input
+                type="text"
+                value={userData.meetingPreferences}
+                onChange={(e) => setUserData({...userData, meetingPreferences: e.target.value})}
+                placeholder="e.g., I prefer agendas sent 24 hours in advance"
+                className="w-full mt-2 p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9]"
+              />
+            </div>
+          </div>
+        )
+        
+      case 'feedback':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-nightfall text-center mb-2">Feedback</h2>
+            <p className="text-gray-600 text-center mb-6">How do you like to be recognized and receive feedback?</p>
+            
+            <textarea
+              value={userData.feedbackPreferences}
+              onChange={(e) => setUserData({...userData, feedbackPreferences: e.target.value})}
+              placeholder="Share how you prefer to receive recognition and constructive feedback. For example: 'I appreciate specific examples in feedback' or 'I prefer private recognition over public praise'"
+              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y"
+            />
+            
+            <p className="text-sm text-gray-500 text-center">
+              How do you know when you're not meeting expectations?
+            </p>
+          </div>
+        )
+        
+      case 'needs':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-nightfall text-center mb-2">My Biggest Needs</h2>
+            <p className="text-gray-600 text-center mb-6">What do you need to do your best work?</p>
+            
+            <textarea
+              value={userData.biggestNeeds}
+              onChange={(e) => setUserData({...userData, biggestNeeds: e.target.value})}
+              placeholder="Share what you need most to thrive. For example: 'Clear expectations and autonomy to execute' or 'Regular check-ins and collaborative brainstorming'"
+              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y"
+            />
+            
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <p className="text-sm text-blue-800">
+                Examples: Clear priorities • Regular feedback • Quiet time to focus • Team collaboration
+              </p>
+            </div>
+          </div>
+        )
+        
+      case 'struggles':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-nightfall text-center mb-2">Personal Struggles</h2>
+            <p className="text-gray-600 text-center mb-6">What challenges do you face? (Sharing helps others support you)</p>
+            
+            <textarea
+              value={userData.personalStruggles}
+              onChange={(e) => setUserData({...userData, personalStruggles: e.target.value})}
+              placeholder="Share what you find challenging. For example: 'I can be a perfectionist which sometimes slows me down' or 'I tend to take on too much and need help prioritizing'"
+              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y"
+            />
+            
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <p className="text-sm text-purple-800">
+                Examples: Saying no • Asking for help • Time management • Public speaking
+              </p>
+            </div>
+          </div>
+        )
+        
+      case 'love':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-nightfall text-center mb-2">Things I Love</h2>
+            <p className="text-gray-600 text-center mb-6">Top 5 things you're passionate about (work or personal)</p>
+            
+            {userData.thingsILove.map((item, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <span className="flex-shrink-0 w-8 h-8 bg-[#2A74B9] text-white rounded-full flex items-center justify-center font-bold">
+                  {index + 1}
+                </span>
+                <input
+                  type="text"
+                  value={item}
+                  onChange={(e) => {
+                    const newThings = [...userData.thingsILove]
+                    newThings[index] = e.target.value
+                    setUserData({...userData, thingsILove: newThings})
+                  }}
+                  placeholder={`Thing #${index + 1} I love...`}
+                  className="flex-1 p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9]"
+                />
+              </div>
+            ))}
+          </div>
+        )
+        
+      case 'about':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-nightfall text-center mb-2">Other Things About Me</h2>
+            <p className="text-gray-600 text-center mb-6">Anything else your colleagues should know?</p>
+            
+            <textarea
+              value={userData.thingsAboutMe}
+              onChange={(e) => setUserData({...userData, thingsAboutMe: e.target.value})}
+              placeholder="Share anything else that helps people understand you better. Hobbies, fun facts, pet peeves, superpowers..."
+              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y"
+            />
+            
+            <div className="bg-green-50 p-4 rounded-lg">
+              <p className="text-sm text-green-800">
+                💡 Optional ideas: Favorite coffee order • Hidden talents • Weekend activities • Bucket list items
+              </p>
+            </div>
+          </div>
+        )
+        
+      default:
+        return null
+    }
+  }
+
+  // Main Form Screen
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#30C7C7]/10 via-[#5D9DD9]/10 to-[#2A74B9]/10 flex items-center justify-center p-4">
+      <div className="max-w-2xl w-full">
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <button
+              onClick={() => setShowIntro(true)}
+              className="inline-flex items-center text-[#2A74B9] hover:text-[#215A91] transition-colors font-medium"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back
+            </button>
+            <span className="text-gray-600 text-sm">
+              Section {currentSectionIndex + 1} of {sections.length}
+            </span>
+          </div>
+          
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="h-2 rounded-full bg-gradient-to-r from-[#30C7C7] to-[#2A74B9] transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+        
+        <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-white/80 shadow-lg">
+          {renderSection()}
+          
+          <div className="flex justify-between mt-8">
+            <button
+              onClick={handlePrevious}
+              disabled={currentSectionIndex === 0}
+              className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 border-2 ${
+                currentSectionIndex === 0
+                  ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
+                  : 'border-[#2A74B9] text-[#2A74B9] hover:bg-[#2A74B9]/10'
+              }`}
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span>PREVIOUS</span>
+            </button>
+            
+            <button
+              onClick={handleNext}
+              className="flex items-center space-x-2 px-6 py-3 bg-[#2A74B9] text-white rounded-xl font-medium transition-all duration-200 hover:bg-[#215A91] shadow-lg"
+            >
+              <span>{currentSectionIndex === sections.length - 1 ? 'FINISH' : 'NEXT'}</span>
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

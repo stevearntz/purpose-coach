@@ -34,13 +34,19 @@ interface Course {
 
 const getToolVisual = (toolId: string): React.ReactElement => {
   const visuals: { [key: string]: React.ReactElement } = {
-    't1': ( // Purpose and Alignment Map
+    't1': ( // Team Canvas
       <svg viewBox="0 0 128 96" className="w-full h-full">
-        <circle cx="64" cy="48" r="32" fill="#fbbf24" opacity="0.2"/>
-        <circle cx="64" cy="48" r="24" fill="#f59e0b" opacity="0.3"/>
-        <circle cx="64" cy="48" r="16" fill="#f87171" opacity="0.4"/>
-        <circle cx="64" cy="48" r="8" fill="#ef4444"/>
-        <path d="M64 16 L64 80 M32 48 L96 48" stroke="#7c3aed" strokeWidth="2" strokeDasharray="4 2"/>
+        <circle cx="32" cy="32" r="12" fill="#FFA851" opacity="0.4"/>
+        <circle cx="64" cy="32" r="12" fill="#FFA851" opacity="0.4"/>
+        <circle cx="96" cy="32" r="12" fill="#FFA851" opacity="0.4"/>
+        <circle cx="48" cy="64" r="12" fill="#EB6593" opacity="0.4"/>
+        <circle cx="80" cy="64" r="12" fill="#EB6593" opacity="0.4"/>
+        <path d="M32 32 L48 64 M64 32 L48 64 L80 64 M96 32 L80 64 M64 32 L80 64" stroke="#FFA851" strokeWidth="2" opacity="0.6"/>
+        <circle cx="32" cy="32" r="4" fill="#FFA851"/>
+        <circle cx="64" cy="32" r="4" fill="#FFA851"/>
+        <circle cx="96" cy="32" r="4" fill="#FFA851"/>
+        <circle cx="48" cy="64" r="4" fill="#EB6593"/>
+        <circle cx="80" cy="64" r="4" fill="#EB6593"/>
       </svg>
     ),
     't2': ( // Change Readiness Reflection
@@ -396,7 +402,7 @@ function ToolsPage() {
     }
     
     const toolMappings: { [key: string]: Tool } = {
-      'c1': { id: 't1', name: 'Purpose and Alignment Map', type: 'guide', description: 'Create clarity around purpose and strategic alignment' },
+      'c1': { id: 't1', name: 'Team Canvas', type: 'guide', description: 'Map your team\'s purpose, composition, and growth opportunities' },
       'c2': { id: 't2', name: 'Change Readiness Assessment', type: 'assessment', description: 'Assess and build readiness for navigating change' },
       'c3': { id: 't3', name: 'Team Trust Audit', type: 'assessment', description: 'Evaluate and strengthen trust within your team' },
       'c4': { id: 't4', name: 'Coaching Questions Card Deck', type: 'guide', description: 'Powerful questions to empower and develop others' },
@@ -1180,8 +1186,8 @@ function ToolsPage() {
               
               <div className="grid gap-4">
                 {recommendations.tools.map((tool, index) => {
-                  const isClickable = tool.id === 't3' || tool.id === 't1' || tool.id === 't6' || tool.id === 't5' || tool.id === 't2' || tool.id === 't7'; // Trust Audit, Purpose, Burnout Assessment, Decision Making Audit, Change Readiness, and Working with Me tools
-                  const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/purpose' : tool.id === 't6' ? '/burnout-assessment' : tool.id === 't5' ? '/decision-making-audit' : tool.id === 't2' ? '/change-readiness' : tool.id === 't7' ? '/user-guide' : '';
+                  const isClickable = tool.id === 't3' || tool.id === 't1' || tool.id === 't6' || tool.id === 't5' || tool.id === 't2' || tool.id === 't7'; // Trust Audit, Team Canvas, Burnout Assessment, Decision Making Audit, Change Readiness, and Working with Me tools
+                  const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/team-canvas' : tool.id === 't6' ? '/burnout-assessment' : tool.id === 't5' ? '/decision-making-audit' : tool.id === 't2' ? '/change-readiness' : tool.id === 't7' ? '/user-guide' : '';
                   
                   const toolContent = (
                     <>

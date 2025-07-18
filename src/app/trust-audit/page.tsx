@@ -88,15 +88,17 @@ export default function TrustAuditPage() {
   const currentSection = currentQuestion?.section
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100
 
-  const handleAnswer = (value: number) => {
+  const handleAnswer = (value: number, autoAdvance: boolean = false) => {
     const newAnswers = [...answers.filter(a => a.questionId !== currentQuestion.id)]
     newAnswers.push({ questionId: currentQuestion.id, value })
     setAnswers(newAnswers)
     
-    // Auto-advance after a short delay
-    setTimeout(() => {
-      handleNext()
-    }, 200)
+    // Auto-advance only on keyboard selection
+    if (autoAdvance) {
+      setTimeout(() => {
+        handleNext()
+      }, 200)
+    }
   }
 
   const getCurrentAnswer = () => {
@@ -123,7 +125,7 @@ export default function TrustAuditPage() {
       // Number keys 1-5 for selecting options
       if (e.key >= '1' && e.key <= '5' && !showIntro && !showResults) {
         const value = parseInt(e.key)
-        handleAnswer(value)
+        handleAnswer(value, true) // Pass true for auto-advance
       }
       
       // Arrow keys for navigation
@@ -432,7 +434,7 @@ export default function TrustAuditPage() {
               {likertOptions.map((option) => (
                 <button
                   key={option.value}
-                  onClick={() => handleAnswer(option.value)}
+                  onClick={() => handleAnswer(option.value, false)} // No auto-advance on click
                   className={`w-full p-4 rounded-xl text-left transition-all duration-200 border-2 ${
                     getCurrentAnswer() === option.value
                       ? 'bg-gradient-to-r from-[#FFA62A] to-[#DB4839] text-white border-[#DB4839] shadow-lg'

@@ -18,6 +18,12 @@ export const toolConfigs = {
     subtitle: "Check your energy levels.",
     description: "Evaluate your current state across multiple dimensions to identify early signs of burnout and get personalized strategies for maintaining your well-being."
   },
+  decisionMakingAudit: {
+    gradient: "from-[#6DC7FF] to-[#3C36FF]",
+    title: "Decision Making Audit",
+    subtitle: "Assess your decision approach.",
+    description: "Evaluate how you make decisions across four key dimensions—People, Purpose, Principles, and Outcomes—to identify your strengths and areas for growth."
+  },
   // Add more tools here as you create them
 }
 

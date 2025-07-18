@@ -30,6 +30,20 @@
    - Add your state variables and interfaces
    - Implement your tool's logic
 
+5. **Add page metadata** by creating a `layout.tsx` file in your tool directory:
+   ```typescript
+   import { Metadata } from 'next'
+   
+   export const metadata: Metadata = {
+     title: 'Campfire [Your Tool Name]',
+     description: 'Your tool description',
+   }
+   
+   export default function Layout({ children }: { children: React.ReactNode }) {
+     return children
+   }
+   ```
+
 ## 2. Design System
 
 All tools share these consistent elements:

@@ -79,6 +79,12 @@ export default function TrustAuditPage() {
   const [relationshipName, setRelationshipName] = useState('')
   const [showIntro, setShowIntro] = useState(true)
 
+  // Helper function to format name as sentence case
+  const formatName = (name: string) => {
+    if (!name) return ''
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
+  }
+
   const currentQuestion = questions[currentQuestionIndex]
   const currentSection = currentQuestion?.section
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100
@@ -277,7 +283,7 @@ export default function TrustAuditPage() {
               
               <h1 className="text-4xl font-bold text-nightfall mb-2 text-center">Trust Audit Results</h1>
               <p className="text-gray-600 mb-8 text-center">
-                Building trust with {relationshipName.charAt(0).toUpperCase() + relationshipName.slice(1).toLowerCase()}
+                Building trust with {formatName(relationshipName)}
               </p>
               
               <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 mb-8 border border-white/80 shadow-md">
@@ -382,7 +388,7 @@ export default function TrustAuditPage() {
             {relationshipName && (
               <p className="text-center text-gray-600 mb-4">
                 Thinking about your relationship with <span className="font-semibold text-[#DB4839]">
-                  {relationshipName.charAt(0).toUpperCase() + relationshipName.slice(1).toLowerCase()}
+                  {formatName(relationshipName)}
                 </span>
               </p>
             )}

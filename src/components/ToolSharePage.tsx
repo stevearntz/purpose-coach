@@ -3,6 +3,7 @@ import Footer from '@/components/Footer'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import ShareButtons from './ShareButtons'
+import { headers } from 'next/headers'
 
 interface ToolShareData {
   toolName: string
@@ -23,15 +24,20 @@ interface ToolSharePageProps {
 
 async function getShareData(shareId: string): Promise<ToolShareData | null> {
   try {
-    const baseUrl = process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}`
-      : 'http://localhost:3000'
+    // Get the host from headers in server component
+    const headersList = await headers()
+    const host = headersList.get('host') || 'localhost:3000'
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
+    const baseUrl = `${protocol}://${host}`
+    
+    console.log('Fetching share data from:', `${baseUrl}/api/share?id=${shareId}`)
     
     const response = await fetch(`${baseUrl}/api/share?id=${shareId}`, {
       cache: 'no-store'
     })
     
     if (!response.ok) {
+      console.error('Share fetch failed:', response.status, response.statusText)
       return null
     }
     

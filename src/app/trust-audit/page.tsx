@@ -276,7 +276,9 @@ export default function TrustAuditPage() {
               </div>
               
               <h1 className="text-4xl font-bold text-nightfall mb-2 text-center">Trust Audit Results</h1>
-              <p className="text-gray-600 mb-8 text-center">Building trust with {relationshipName}</p>
+              <p className="text-gray-600 mb-8 text-center">
+                Building trust with {relationshipName.charAt(0).toUpperCase() + relationshipName.slice(1).toLowerCase()}
+              </p>
               
               <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 mb-8 border border-white/80 shadow-md">
                 <h2 className="text-2xl font-semibold text-nightfall mb-4 text-center">
@@ -379,7 +381,9 @@ export default function TrustAuditPage() {
           <div className="mb-8">
             {relationshipName && (
               <p className="text-center text-gray-600 mb-4">
-                Thinking about your relationship with <span className="font-semibold text-[#DB4839]">{relationshipName}</span>
+                Thinking about your relationship with <span className="font-semibold text-[#DB4839]">
+                  {relationshipName.charAt(0).toUpperCase() + relationshipName.slice(1).toLowerCase()}
+                </span>
               </p>
             )}
             <h3 className="text-xl font-medium text-nightfall mb-6 text-center">

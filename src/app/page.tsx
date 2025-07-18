@@ -397,7 +397,7 @@ function ToolsPage() {
     
     const toolMappings: { [key: string]: Tool } = {
       'c1': { id: 't1', name: 'Purpose and Alignment Map', type: 'guide', description: 'Create clarity around purpose and strategic alignment' },
-      'c2': { id: 't2', name: 'Change Readiness Reflection', type: 'reflection', description: 'Assess and build readiness for navigating change' },
+      'c2': { id: 't2', name: 'Change Readiness Assessment', type: 'assessment', description: 'Assess and build readiness for navigating change' },
       'c3': { id: 't3', name: 'Team Trust Audit', type: 'assessment', description: 'Evaluate and strengthen trust within your team' },
       'c4': { id: 't4', name: 'Coaching Questions Card Deck', type: 'guide', description: 'Powerful questions to empower and develop others' },
       'c5': { id: 't5', name: 'Decision Filter Framework', type: 'guide', description: 'Make better decisions with a structured approach' },
@@ -1180,8 +1180,8 @@ function ToolsPage() {
               
               <div className="grid gap-4">
                 {recommendations.tools.map((tool, index) => {
-                  const isClickable = tool.id === 't3' || tool.id === 't1' || tool.id === 't6' || tool.id === 't5'; // Trust Audit, Purpose, Burnout Assessment, and Decision Making Audit tools
-                  const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/purpose' : tool.id === 't6' ? '/burnout-assessment' : tool.id === 't5' ? '/decision-making-audit' : '';
+                  const isClickable = tool.id === 't3' || tool.id === 't1' || tool.id === 't6' || tool.id === 't5' || tool.id === 't2'; // Trust Audit, Purpose, Burnout Assessment, Decision Making Audit, and Change Readiness tools
+                  const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/purpose' : tool.id === 't6' ? '/burnout-assessment' : tool.id === 't5' ? '/decision-making-audit' : tool.id === 't2' ? '/change-readiness' : '';
                   
                   const toolContent = (
                     <>

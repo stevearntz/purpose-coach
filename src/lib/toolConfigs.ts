@@ -24,6 +24,12 @@ export const toolConfigs = {
     subtitle: "Assess your decision approach.",
     description: "Evaluate how you make decisions across four key dimensions—People, Purpose, Principles, and Outcomes—to identify your strengths and areas for growth."
   },
+  changeReadiness: {
+    gradient: "from-[#FCA376] to-[#BF4C74]",
+    title: "Change Readiness Assessment",
+    subtitle: "Navigate change with confidence.",
+    description: "Assess your readiness for change across three key dimensions—People, Purpose, and Principles—to identify where you feel confident and where you need support."
+  },
   // Add more tools here as you create them
 }
 

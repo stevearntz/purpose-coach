@@ -45,10 +45,9 @@ const questions: Question[] = [
 const likertOptions = [
   { value: 1, label: 'Strongly Disagree' },
   { value: 2, label: 'Disagree' },
-  { value: 3, label: 'Slightly Disagree' },
-  { value: 4, label: 'Slightly Agree' },
-  { value: 5, label: 'Agree' },
-  { value: 6, label: 'Strongly Agree' },
+  { value: 3, label: 'Neither Agree nor Disagree' },
+  { value: 4, label: 'Agree' },
+  { value: 5, label: 'Strongly Agree' },
 ]
 
 const sectionInfo = {
@@ -151,9 +150,9 @@ export default function TrustAuditPage() {
       ]
     }
 
-    if (score < 3) {
+    if (score < 2.5) {
       return recommendations[section as keyof typeof recommendations] || []
-    } else if (score < 4.5) {
+    } else if (score < 3.8) {
       return recommendations[section as keyof typeof recommendations]?.slice(0, 2) || []
     } else {
       return [recommendations[section as keyof typeof recommendations]?.[0] || 'Keep up the great work!']
@@ -218,7 +217,7 @@ export default function TrustAuditPage() {
 
   if (showResults) {
     const { sections, total } = calculateScores()
-    const trustLevel = total >= 15 ? 'Strong' : total >= 9 ? 'Moderate' : 'Needs Attention'
+    const trustLevel = total >= 12 ? 'Strong' : total >= 7.5 ? 'Moderate' : 'Needs Attention'
     
     return (
       <>
@@ -291,21 +290,21 @@ export default function TrustAuditPage() {
                   Overall Trust Level: {trustLevel}
                 </h2>
                 <div className="text-3xl font-bold text-[#DB4839] text-center">
-                  {total.toFixed(1)} / 18
+                  {total.toFixed(1)} / 15
                 </div>
               </div>
             
             <div className="space-y-6 mb-8">
               {sections.map(({ section, score }) => {
                 const info = sectionInfo[section as keyof typeof sectionInfo]
-                const percentage = (score / 6) * 100
+                const percentage = (score / 5) * 100
                 
                 return (
                   <div key={section} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-xl font-semibold text-nightfall">{info.title}</h3>
                       <div className="text-2xl font-bold text-[#DB4839]">
-                        {score.toFixed(1)} / 6
+                        {score.toFixed(1)} / 5
                       </div>
                     </div>
                     
@@ -420,7 +419,7 @@ export default function TrustAuditPage() {
             </div>
           </div>
           
-          <div className="flex justify-between">
+          <div className="flex justify-between mt-12">
             <button
               onClick={handlePrevious}
               disabled={currentQuestionIndex === 0}

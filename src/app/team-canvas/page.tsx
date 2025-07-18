@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowRight, Users, Target, Heart, Lightning, TrendingUp, Shield, Trophy, Sparkles, ArrowLeft, Download, Share2, X } from 'lucide-react'
+import { ArrowRight, Users, Target, Heart, Zap, TrendingUp, Shield, Trophy, Sparkles, ArrowLeft, Download, Share2, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import jsPDF from 'jspdf'
@@ -29,7 +29,7 @@ const stages = [
   { id: 'people', title: 'People & Roles', icon: Users },
   { id: 'values', title: 'Values', icon: Heart },
   { id: 'impact', title: 'Impact', icon: TrendingUp },
-  { id: 'activities', title: 'Activities', icon: Lightning },
+  { id: 'activities', title: 'Activities', icon: Zap },
   { id: 'strengths', title: 'Strengths & Assets', icon: Sparkles },
   { id: 'weaknesses', title: 'Weaknesses & Risks', icon: Shield },
   { id: 'solo-wins', title: 'Solo Wins', icon: Trophy },
@@ -750,7 +750,7 @@ export default function TeamCanvasTool() {
                 <div className="space-y-6">
                   <div className="flex items-center gap-4">
                     <div className="p-3 bg-[#FFA851]/10 rounded-lg">
-                      <Lightning className="w-8 h-8 text-[#FFA851]" />
+                      <Zap className="w-8 h-8 text-[#FFA851]" />
                     </div>
                     <div>
                       <h3 className="text-xl font-semibold text-gray-900">Key Activities</h3>
@@ -1308,7 +1308,7 @@ export default function TeamCanvasTool() {
                     <div className="space-y-6">
                       <div>
                         <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                          <Lightning className="w-5 h-5 text-[#FFA851]" />
+                          <Zap className="w-5 h-5 text-[#FFA851]" />
                           Key Activities
                         </h4>
                         <ol className="space-y-1 pl-7">

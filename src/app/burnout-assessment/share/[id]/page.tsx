@@ -1,6 +1,3 @@
-'use client'
-
-import { useParams } from 'next/navigation'
 import ToolSharePage from '@/components/ToolSharePage'
 import { toolConfigs } from '@/lib/toolConfigs'
 
@@ -80,8 +77,12 @@ const getRecommendations = (dimension: string, score: number) => {
   }
 }
 
-export default function BurnoutAssessmentSharePage() {
-  const params = useParams()
+interface Props {
+  params: Promise<{ id: string }>
+}
+
+export default async function BurnoutAssessmentSharePage({ params }: Props) {
+  const { id } = await params
   const config = toolConfigs.burnoutAssessment
 
   const renderResults = (results: any) => {
@@ -143,7 +144,7 @@ export default function BurnoutAssessmentSharePage() {
 
   return (
     <ToolSharePage
-      shareId={params.id as string}
+      shareId={id}
       toolPath="/burnout-assessment"
       toolConfig={config}
       renderResults={renderResults}

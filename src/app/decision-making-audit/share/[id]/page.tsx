@@ -3,10 +3,11 @@ import { dimensionInfo, getDecisionRecommendations } from '../../page'
 import { toolConfigs } from '@/lib/toolConfigs'
 
 interface Props {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
-export default function DecisionMakingAuditSharePage({ params }: Props) {
+export default async function DecisionMakingAuditSharePage({ params }: Props) {
+  const { id } = await params
   const config = toolConfigs.decisionMakingAudit
 
   const renderResults = (data: any) => {
@@ -65,7 +66,7 @@ export default function DecisionMakingAuditSharePage({ params }: Props) {
 
   return (
     <ToolSharePage 
-      shareId={params.id}
+      shareId={id}
       toolPath="/decision-making-audit"
       toolConfig={{
         title: config.title,

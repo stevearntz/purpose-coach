@@ -3,10 +3,11 @@ import { dimensionInfo, getChangeRecommendations } from '../../page'
 import { toolConfigs } from '@/lib/toolConfigs'
 
 interface Props {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
-export default function ChangeReadinessSharePage({ params }: Props) {
+export default async function ChangeReadinessSharePage({ params }: Props) {
+  const { id } = await params
   const config = toolConfigs.changeReadiness
 
   const renderResults = (data: any) => {
@@ -90,7 +91,7 @@ export default function ChangeReadinessSharePage({ params }: Props) {
 
   return (
     <ToolSharePage 
-      shareId={params.id}
+      shareId={id}
       toolPath="/change-readiness"
       toolConfig={{
         title: config.title,

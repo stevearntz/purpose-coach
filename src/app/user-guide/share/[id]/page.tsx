@@ -2,10 +2,11 @@ import ToolSharePage from '@/components/ToolSharePage'
 import { toolConfigs } from '@/lib/toolConfigs'
 
 interface Props {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
-export default function UserGuideSharePage({ params }: Props) {
+export default async function UserGuideSharePage({ params }: Props) {
+  const { id } = await params
   const config = toolConfigs.workingWithMe
 
   const renderResults = (data: any) => {
@@ -31,7 +32,7 @@ export default function UserGuideSharePage({ params }: Props) {
 
   return (
     <ToolSharePage 
-      shareId={params.id}
+      shareId={id}
       toolPath="/user-guide"
       toolConfig={{
         title: config.title,

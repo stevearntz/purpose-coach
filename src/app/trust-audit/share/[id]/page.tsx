@@ -1,6 +1,3 @@
-'use client'
-
-import { useParams } from 'next/navigation'
 import ToolSharePage from '@/components/ToolSharePage'
 import { toolConfigs } from '@/lib/toolConfigs'
 
@@ -56,8 +53,12 @@ const getRecommendations = (section: string, score: number) => {
   }
 }
 
-export default function TrustAuditSharePage() {
-  const params = useParams()
+interface Props {
+  params: Promise<{ id: string }>
+}
+
+export default async function TrustAuditSharePage({ params }: Props) {
+  const { id } = await params
   const config = toolConfigs.trustAudit
 
   const renderResults = (results: any) => {
@@ -113,7 +114,7 @@ export default function TrustAuditSharePage() {
 
   return (
     <ToolSharePage
-      shareId={params.id as string}
+      shareId={id}
       toolPath="/trust-audit"
       toolConfig={config}
       renderResults={renderResults}

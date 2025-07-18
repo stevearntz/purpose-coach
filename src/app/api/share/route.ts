@@ -10,6 +10,31 @@ interface StorageAdapter {
   set(key: string, value: unknown, options?: { ex?: number }): Promise<void>;
 }
 
+// In-memory storage implementation (for production fallback)
+class InMemoryStorage implements StorageAdapter {
+  private store: Map<string, { data: unknown; expiresAt?: Date }> = new Map();
+
+  async get(key: string): Promise<unknown> {
+    const item = this.store.get(key);
+    if (!item) return null;
+    
+    if (item.expiresAt && item.expiresAt < new Date()) {
+      this.store.delete(key);
+      return null;
+    }
+    
+    return item.data;
+  }
+
+  async set(key: string, value: unknown, options?: { ex?: number }): Promise<void> {
+    const expiresAt = options?.ex 
+      ? new Date(Date.now() + options.ex * 1000)
+      : undefined;
+    
+    this.store.set(key, { data: value, expiresAt });
+  }
+}
+
 // Local file storage implementation
 class LocalFileStorage implements StorageAdapter {
   private dataDir: string;
@@ -103,22 +128,37 @@ class VercelKVStorage implements StorageAdapter {
 
   private async ensureKV() {
     if (!this.kv) {
-      const { kv } = await import('@vercel/kv');
-      this.kv = kv;
+      try {
+        const { kv } = await import('@vercel/kv');
+        this.kv = kv;
+      } catch (error) {
+        console.error('Failed to import @vercel/kv:', error);
+        throw new Error('Vercel KV is not properly configured');
+      }
     }
   }
 
   async get(key: string): Promise<unknown> {
-    await this.ensureKV();
-    return this.kv!.get(key);
+    try {
+      await this.ensureKV();
+      return this.kv!.get(key);
+    } catch (error) {
+      console.error('KV get error:', error);
+      return null;
+    }
   }
 
   async set(key: string, value: unknown, options?: { ex?: number }): Promise<void> {
-    await this.ensureKV();
-    if (options?.ex) {
-      await this.kv!.set(key, value, { ex: options.ex });
-    } else {
-      await this.kv!.set(key, value);
+    try {
+      await this.ensureKV();
+      if (options?.ex) {
+        await this.kv!.set(key, value, { ex: options.ex });
+      } else {
+        await this.kv!.set(key, value);
+      }
+    } catch (error) {
+      console.error('KV set error:', error);
+      throw error;
     }
   }
 }
@@ -127,6 +167,16 @@ class VercelKVStorage implements StorageAdapter {
 function getStorage(): StorageAdapter {
   const hasKVConfig = process.env.KV_URL && process.env.KV_REST_API_TOKEN;
   const hasRedisUrl = process.env.REDIS_URL;
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  console.log('Storage config check:', {
+    hasKVConfig,
+    hasRedisUrl,
+    isProduction,
+    KV_URL: !!process.env.KV_URL,
+    KV_REST_API_TOKEN: !!process.env.KV_REST_API_TOKEN,
+    REDIS_URL: !!process.env.REDIS_URL
+  });
   
   if (hasKVConfig) {
     console.log('Using Vercel KV storage');
@@ -134,13 +184,24 @@ function getStorage(): StorageAdapter {
   } else if (hasRedisUrl) {
     console.log('Using Redis storage');
     return new RedisStorage();
+  } else if (isProduction) {
+    console.log('Using in-memory storage for production (WARNING: Data will not persist across deployments)');
+    return new InMemoryStorage();
   } else {
     console.log('Using local file storage for development');
     return new LocalFileStorage();
   }
 }
 
-const storage = getStorage();
+// Initialize storage on demand instead of at module level
+let storage: StorageAdapter | null = null;
+
+function ensureStorage(): StorageAdapter {
+  if (!storage) {
+    storage = getStorage();
+  }
+  return storage;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -153,15 +214,27 @@ export async function POST(request: NextRequest) {
     
     const id = nanoid(10);
     
-    await storage.set(`share:${id}`, shareData, {
+    console.log('Attempting to save share data with id:', id);
+    
+    await ensureStorage().set(`share:${id}`, shareData, {
       ex: 60 * 60 * 24 * 30, // 30 days expiry
     });
     
-    return NextResponse.json({ id, url: `/share/${id}` });
+    console.log('Share data saved successfully');
+    
+    // Return the correct URL based on the tool type
+    const toolType = body.type;
+    const urlPath = toolType ? `/${toolType}/share/${id}` : `/share/${id}`;
+    
+    return NextResponse.json({ id, url: urlPath });
   } catch (error) {
     console.error('Error saving share data:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     return NextResponse.json(
-      { error: 'Failed to create shareable link' },
+      { error: 'Failed to create shareable link', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
@@ -172,6 +245,8 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url);
     const id = url.searchParams.get('id');
     
+    console.log('GET request for share id:', id);
+    
     if (!id) {
       return NextResponse.json(
         { error: 'Share ID is required' },
@@ -179,7 +254,9 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    const data = await storage.get(`share:${id}`);
+    const data = await ensureStorage().get(`share:${id}`);
+    
+    console.log('Retrieved data:', data ? 'Found' : 'Not found');
     
     if (!data) {
       return NextResponse.json(
@@ -191,8 +268,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error retrieving share data:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     return NextResponse.json(
-      { error: 'Failed to retrieve shared data' },
+      { error: 'Failed to retrieve shared data', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { initAmplitude, trackPageView } from '@/lib/amplitude'
 
-export default function AmplitudeProvider({ children }: { children: React.ReactNode }) {
+function AmplitudeProviderInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -33,4 +33,12 @@ export default function AmplitudeProvider({ children }: { children: React.ReactN
   }, [pathname, searchParams])
 
   return <>{children}</>
+}
+
+export default function AmplitudeProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<>{children}</>}>
+      <AmplitudeProviderInner>{children}</AmplitudeProviderInner>
+    </Suspense>
+  )
 }

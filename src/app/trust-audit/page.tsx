@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Printer } from 'lucide-react'
 import Link from 'next/link'
-import { jsPDF } from 'jspdf'
 import Footer from '@/components/Footer'
+import ToolLayout from '@/components/ToolLayout'
+import ToolIntroCard from '@/components/ToolIntroCard'
+import { toolConfigs, toolStyles } from '@/lib/toolConfigs'
 
 interface Question {
   id: string
@@ -54,22 +56,19 @@ const sectionInfo = {
     title: 'Integrity',
     color: 'from-amber-500 to-orange-600',
     bgColor: 'bg-gradient-to-br from-amber-500/20 to-orange-600/20',
-    icon: '🧊',
-    description: 'Being consistent, reliable, and honest in your interactions'
+    description: 'Consistency, reliability, and honesty'
   },
   competence: {
     title: 'Competence',
     color: 'from-rose-400 to-pink-500',
     bgColor: 'bg-gradient-to-br from-rose-400/20 to-pink-500/20',
-    icon: '❄️',
-    description: 'Demonstrating capability and supporting growth'
+    description: 'Capability and growth support'
   },
   empathy: {
     title: 'Empathy',
     color: 'from-red-500 to-rose-600',
     bgColor: 'bg-gradient-to-br from-red-500/20 to-rose-600/20',
-    icon: '🧊',
-    description: 'Showing genuine care and understanding'
+    description: 'Care and understanding'
   }
 }
 
@@ -155,105 +154,56 @@ export default function TrustAuditPage() {
     }
   }
 
-  const generatePDF = () => {
-    const pdf = new jsPDF()
-    const { sections, total } = calculateScores()
-    
-    pdf.setFontSize(24)
-    pdf.text('Trust Audit Results', 20, 30)
-    
-    pdf.setFontSize(14)
-    pdf.text(`Relationship: ${relationshipName || 'Team Member'}`, 20, 45)
-    pdf.text(`Date: ${new Date().toLocaleDateString()}`, 20, 55)
-    
-    pdf.setFontSize(18)
-    pdf.text(`Overall Trust Score: ${total.toFixed(1)}/18`, 20, 75)
-    
-    let yPosition = 95
-    
-    sections.forEach(({ section, score }) => {
-      pdf.setFontSize(16)
-      pdf.text(`${sectionInfo[section as keyof typeof sectionInfo].title}: ${score.toFixed(1)}/6`, 20, yPosition)
-      
-      pdf.setFontSize(12)
-      const recommendations = getRecommendations(section, score)
-      yPosition += 15
-      
-      recommendations.forEach((rec, index) => {
-        const lines = pdf.splitTextToSize(`• ${rec}`, 170)
-        lines.forEach((line: string) => {
-          pdf.text(line, 25, yPosition)
-          yPosition += 7
-        })
-        yPosition += 3
-      })
-      
-      yPosition += 10
-    })
-    
-    pdf.save('trust-audit-results.pdf')
-  }
 
   if (showIntro) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full">
-          <Link href="/" className="inline-flex items-center text-white/70 hover:text-white mb-8 transition-colors">
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Back to Home
-          </Link>
+      <div className="min-h-screen bg-gradient-to-br from-[#FFA62A] to-[#DB4839] flex flex-col items-center justify-center p-4">
+        <Link 
+          href="/?screen=4" 
+          className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back to Plan
+        </Link>
+        
+        <div className="text-center text-white mb-12 max-w-3xl">
+          <h1 className="text-5xl font-bold mb-6">{toolConfigs.trustAudit.title}</h1>
+          <h2 className="text-3xl mb-8">{toolConfigs.trustAudit.subtitle}</h2>
+          <p className="text-xl text-white/90 leading-relaxed">
+            {toolConfigs.trustAudit.description}
+          </p>
+        </div>
+        
+        <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20 max-w-2xl w-full">
+          <h3 className="text-3xl font-bold text-white text-center mb-6">Pick a relationship</h3>
           
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-2xl">
-            <div className="text-center mb-8">
-              <div className="text-6xl mb-4">🧊</div>
-              <h1 className="text-4xl font-bold text-white mb-4">Trust Audit</h1>
-              <p className="text-xl text-white/80">
-                Break the ice by conducting a trust audit
-              </p>
+          <div className="space-y-6">
+            <div className="text-xl text-white/90 text-center">
+              <p>This audit focuses on your relationship with one person.</p>
+              <p>Who would you like to build trust with?</p>
             </div>
             
-            <div className="space-y-6 mb-8">
-              <p className="text-white/90">
-                This tool will help you assess the level of trust in a specific work relationship
-                across three key dimensions:
-              </p>
-              
-              <div className="space-y-4">
-                {Object.entries(sectionInfo).map(([key, info]) => (
-                  <div key={key} className={`${info.bgColor} backdrop-blur-sm rounded-lg p-4`}>
-                    <div className="flex items-center space-x-3">
-                      <span className="text-2xl">{info.icon}</span>
-                      <div>
-                        <h3 className="font-semibold text-white">{info.title}</h3>
-                        <p className="text-white/80 text-sm">{info.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <input
+              type="text"
+              value={relationshipName}
+              onChange={(e) => setRelationshipName(e.target.value)}
+              placeholder="FIRST NAME"
+              className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-2xl font-normal uppercase text-center"
+              style={{ letterSpacing: '0.05em' }}
+              required
+            />
             
-            <div className="space-y-4">
-              <label className="block">
-                <span className="text-white/90 text-sm font-medium mb-2 block">
-                  Who would you like to build trust with? (optional)
-                </span>
-                <input
-                  type="text"
-                  value={relationshipName}
-                  onChange={(e) => setRelationshipName(e.target.value)}
-                  placeholder="e.g., My manager, Team member, Direct report"
-                  className="w-full px-4 py-3 rounded-lg bg-white/10 backdrop-blur-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30"
-                />
-              </label>
-              
-              <button
-                onClick={() => setShowIntro(false)}
-                className="w-full bg-gradient-to-r from-iris-500 to-pink-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-iris-700 hover:to-pink-700 transition-all duration-200 shadow-lg"
-              >
-                START TRUST AUDIT
-              </button>
-            </div>
+            <button
+              onClick={() => setShowIntro(false)}
+              disabled={!relationshipName.trim()}
+              className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
+                relationshipName.trim()
+                  ? 'bg-white text-[#DB4839] hover:bg-white/90'
+                  : 'bg-white/50 text-[#DB4839]/50 cursor-not-allowed'
+              }`}
+            >
+              Start Trust Audit
+            </button>
           </div>
         </div>
       </div>
@@ -266,27 +216,76 @@ export default function TrustAuditPage() {
     
     return (
       <>
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-          <div className="max-w-4xl mx-auto">
-            <Link href="/" className="inline-flex items-center text-white/70 hover:text-white mb-8 transition-colors">
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Back to Home
-          </Link>
-          
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-2xl">
-            <h1 className="text-4xl font-bold text-white mb-2">Trust Audit Results</h1>
-            {relationshipName && (
-              <p className="text-white/80 mb-8">Relationship: {relationshipName}</p>
-            )}
-            
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-8">
-              <h2 className="text-2xl font-semibold text-white mb-4">
-                Overall Trust Level: {trustLevel}
-              </h2>
-              <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
-                {total.toFixed(1)} / 18
+        <style jsx>{`
+          @media print {
+            body * {
+              visibility: hidden;
+            }
+            .print-section, .print-section * {
+              visibility: visible;
+            }
+            .print-section {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+            }
+            .no-print {
+              display: none !important;
+            }
+            @page {
+              margin: 0.5in;
+              size: letter;
+            }
+          }
+        `}</style>
+        <div className="min-h-screen bg-gradient-to-br from-[#FFA62A]/10 via-[#FF7B47]/10 to-[#DB4839]/10 py-16 print-section">
+          <div className="container mx-auto px-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex justify-between items-center mb-8 no-print">
+                <button
+                  onClick={() => {
+                    setShowResults(false)
+                    setCurrentQuestionIndex(questions.length - 1)
+                  }}
+                  className="text-[#DB4839] hover:text-[#B93A2F] flex items-center gap-2 font-medium"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  BACK
+                </button>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => window.print()}
+                    className="p-3 border-2 border-[#DB4839]/50 text-[#DB4839] rounded-lg hover:border-[#DB4839] hover:bg-[#DB4839]/10 transition-all"
+                    title="Print results"
+                  >
+                    <Printer className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      // TODO: Implement share functionality
+                      const shareUrl = `${window.location.origin}/trust-audit/share/${Date.now()}`
+                      navigator.clipboard.writeText(shareUrl)
+                      alert('Share link copied to clipboard!')
+                    }}
+                    className="px-6 py-3 bg-[#DB4839] text-white rounded-lg hover:bg-[#C73229] transition-colors shadow-lg font-medium"
+                  >
+                    SHARE
+                  </button>
+                </div>
               </div>
-            </div>
+              
+              <h1 className="text-4xl font-bold text-nightfall mb-2 text-center">Trust Audit Results</h1>
+              <p className="text-gray-600 mb-8 text-center">Building trust with {relationshipName}</p>
+              
+              <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 mb-8 border border-white/80 shadow-md">
+                <h2 className="text-2xl font-semibold text-nightfall mb-4 text-center">
+                  Overall Trust Level: {trustLevel}
+                </h2>
+                <div className="text-3xl font-bold text-[#DB4839] text-center">
+                  {total.toFixed(1)} / 18
+                </div>
+              </div>
             
             <div className="space-y-6 mb-8">
               {sections.map(({ section, score }) => {
@@ -294,28 +293,25 @@ export default function TrustAuditPage() {
                 const percentage = (score / 6) * 100
                 
                 return (
-                  <div key={section} className={`${info.bgColor} backdrop-blur-sm rounded-xl p-6`}>
+                  <div key={section} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center space-x-3">
-                        <span className="text-3xl">{info.icon}</span>
-                        <h3 className="text-xl font-semibold text-white">{info.title}</h3>
-                      </div>
-                      <div className="text-2xl font-bold text-white">
+                      <h3 className="text-xl font-semibold text-nightfall">{info.title}</h3>
+                      <div className="text-2xl font-bold text-[#DB4839]">
                         {score.toFixed(1)} / 6
                       </div>
                     </div>
                     
-                    <div className="w-full bg-white/20 rounded-full h-3 mb-4">
+                    <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
                       <div
-                        className={`h-3 rounded-full bg-gradient-to-r ${info.color} transition-all duration-500`}
+                        className="h-3 rounded-full bg-gradient-to-r from-orange-400 to-red-500 transition-all duration-500"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <h4 className="font-medium text-white/90">Recommendations:</h4>
+                      <h4 className="font-medium text-gray-700">Recommendations:</h4>
                       {getRecommendations(section, score).map((rec, index) => (
-                        <p key={index} className="text-white/80 text-sm pl-4">
+                        <p key={index} className="text-gray-600 text-sm pl-4">
                           • {rec}
                         </p>
                       ))}
@@ -325,67 +321,68 @@ export default function TrustAuditPage() {
               })}
             </div>
             
-            <div className="flex space-x-4">
+            <div className="flex justify-center mt-8 no-print">
               <button
                 onClick={() => {
                   setShowResults(false)
                   setCurrentQuestionIndex(0)
                   setAnswers([])
+                  setShowIntro(true)
                 }}
-                className="flex-1 bg-white/10 backdrop-blur-sm text-white font-semibold py-3 px-6 rounded-lg hover:bg-white/20 transition-all duration-200"
+                className="px-8 py-3 bg-[#DB4839] text-white rounded-lg font-semibold hover:bg-[#C73229] transition-colors shadow-lg"
               >
                 RETAKE AUDIT
-              </button>
-              <button
-                onClick={generatePDF}
-                className="flex-1 bg-gradient-to-r from-iris-500 to-pink-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-iris-700 hover:to-pink-700 transition-all duration-200 shadow-lg"
-              >
-                DOWNLOAD PDF REPORT
               </button>
             </div>
           </div>
         </div>
       </div>
-      
       <Footer />
       </>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#FFA62A]/10 via-[#FF7B47]/10 to-[#DB4839]/10 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
-            <Link href="/" className="inline-flex items-center text-white/70 hover:text-white transition-colors">
+            <button
+              onClick={() => setShowIntro(true)}
+              className="inline-flex items-center text-[#DB4839] hover:text-[#B93A2F] transition-colors font-medium"
+            >
               <ArrowLeft className="w-5 h-5 mr-2" />
-              Exit
-            </Link>
-            <span className="text-white/70 text-sm">
+              Back
+            </button>
+            <span className="text-gray-600 text-sm">
               Question {currentQuestionIndex + 1} of {questions.length}
             </span>
           </div>
           
-          <div className="w-full bg-white/20 rounded-full h-2">
+          <div className="w-full bg-gray-200 rounded-full h-2">
             <div
-              className="h-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
+              className="h-2 rounded-full bg-gradient-to-r from-orange-400 to-red-500 transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
         
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-2xl">
+        <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-white/80 shadow-lg">
           {currentSection && (
             <div className="text-center mb-8">
-              <div className="text-5xl mb-4">{sectionInfo[currentSection].icon}</div>
-              <h2 className={`text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r ${sectionInfo[currentSection].color}`}>
+              <h2 className="text-2xl font-bold text-nightfall">
                 {sectionInfo[currentSection].title}
               </h2>
             </div>
           )}
           
           <div className="mb-8">
-            <h3 className="text-xl font-medium text-white mb-6 text-center">
+            {relationshipName && (
+              <p className="text-center text-gray-600 mb-4">
+                Thinking about your relationship with <span className="font-semibold text-[#DB4839]">{relationshipName}</span>
+              </p>
+            )}
+            <h3 className="text-xl font-medium text-nightfall mb-6 text-center">
               {currentQuestion.text}
             </h3>
             
@@ -394,10 +391,10 @@ export default function TrustAuditPage() {
                 <button
                   key={option.value}
                   onClick={() => handleAnswer(option.value)}
-                  className={`w-full p-4 rounded-lg text-left transition-all duration-200 ${
+                  className={`w-full p-4 rounded-xl text-left transition-all duration-200 border-2 ${
                     getCurrentAnswer() === option.value
-                      ? 'bg-gradient-to-r from-iris-500 to-pink-600 text-white shadow-lg'
-                      : 'bg-white/10 backdrop-blur-sm text-white/90 hover:bg-white/20'
+                      ? 'bg-gradient-to-r from-[#FFA62A] to-[#DB4839] text-white border-[#DB4839] shadow-lg'
+                      : 'bg-white text-nightfall border-gray-200 hover:border-[#FFA62A]/50'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -405,12 +402,8 @@ export default function TrustAuditPage() {
                     <div className={`w-5 h-5 rounded-full border-2 ${
                       getCurrentAnswer() === option.value
                         ? 'border-white bg-white'
-                        : 'border-white/50'
-                    }`}>
-                      {getCurrentAnswer() === option.value && (
-                        <div className="w-full h-full rounded-full bg-gradient-to-r from-iris-500 to-pink-600 scale-75" />
-                      )}
-                    </div>
+                        : 'border-gray-400'
+                    }`} />
                   </div>
                 </button>
               ))}
@@ -421,10 +414,10 @@ export default function TrustAuditPage() {
             <button
               onClick={handlePrevious}
               disabled={currentQuestionIndex === 0}
-              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+              className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 border-2 ${
                 currentQuestionIndex === 0
-                  ? 'bg-white/5 text-white/30 cursor-not-allowed'
-                  : 'bg-white/10 backdrop-blur-sm text-white hover:bg-white/20'
+                  ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
+                  : 'border-[#DB4839] text-[#DB4839] hover:bg-[#DB4839]/10'
               }`}
             >
               <ArrowLeft className="w-5 h-5" />
@@ -434,10 +427,10 @@ export default function TrustAuditPage() {
             <button
               onClick={handleNext}
               disabled={!getCurrentAnswer()}
-              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+              className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
                 !getCurrentAnswer()
-                  ? 'bg-white/5 text-white/30 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-iris-500 to-pink-600 text-white hover:from-iris-700 hover:to-pink-700 shadow-lg'
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-[#DB4839] text-white hover:bg-[#C73229] shadow-lg'
               }`}
             >
               <span>{currentQuestionIndex === questions.length - 1 ? 'SEE RESULTS' : 'NEXT'}</span>

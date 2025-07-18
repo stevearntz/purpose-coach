@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, Flame } from 'lucide-react';
+import { ArrowLeft, Flame, ArrowRight, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getCourseIdsForChallenges } from '@/app/lib/courseMappings';
 import { allCourses } from '@/app/lib/coursesData';
+import { courseDetails } from '@/app/lib/courseDetails';
 import Footer from '@/components/Footer';
+import Modal from '@/components/Modal';
 
 interface Course {
   id: string;
@@ -91,8 +93,8 @@ export default function CoursesPage() {
   const [selectedChallenges, setSelectedChallenges] = useState<string[]>([]);
 
   const handleCourseClick = (courseId: string) => {
+    console.log('Course clicked:', courseId);
     setSelectedCourse(courseId);
-    // Here you could navigate to a course detail page or show more info
   };
 
   const handleChallengeToggle = (challengeId: string) => {
@@ -240,6 +242,120 @@ export default function CoursesPage() {
       </div>
 
       <Footer />
+
+      {/* Course Detail Modal */}
+      <Modal 
+        isOpen={selectedCourse !== null} 
+        onClose={() => setSelectedCourse(null)}
+      >
+        {selectedCourse && (
+          <div className="flex flex-col md:flex-row h-full">
+            {/* Left side - Visual/Image */}
+            <div className="md:w-1/2 bg-gradient-to-br from-purple-600 to-pink-500 p-8 flex items-center justify-center">
+              <div className="relative w-full max-w-md">
+                {/* Slide preview background */}
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 shadow-2xl">
+                  <div className="aspect-video bg-purple-900/50 rounded-lg flex items-center justify-center mb-4 relative overflow-hidden">
+                    {/* Course visual as background */}
+                    <div className="absolute inset-0 opacity-20">
+                      {getCourseVisual(selectedCourse)}
+                    </div>
+                    
+                    {/* Course title overlay */}
+                    <h2 className="text-4xl font-bold text-white text-center px-4 relative z-10">
+                      {courseDetails[selectedCourse]?.title || courses.find(c => c.id === selectedCourse)?.title}
+                    </h2>
+                    
+                    {/* Slide number */}
+                    <div className="absolute top-4 right-4 text-white/70 text-sm">
+                      1 / 17
+                    </div>
+                  </div>
+                  
+                  {/* Navigation dots */}
+                  <div className="flex items-center justify-center gap-2">
+                    <ChevronLeft className="w-5 h-5 text-white/50" />
+                    <div className="flex gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <div 
+                          key={i} 
+                          className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/30'}`} 
+                        />
+                      ))}
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-white/50" />
+                  </div>
+                </div>
+                
+                {/* View in platform link */}
+                <div className="text-center mt-6">
+                  <p className="text-white/80 text-sm mb-4">
+                    See how the slides, script notes, and activities from this template come alive in our custom virtual classroom!
+                  </p>
+                  <a 
+                    href="#" 
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    VIEW IN PLATFORM
+                  </a>
+                </div>
+              </div>
+            </div>
+            
+            {/* Right side - Content */}
+            <div className="md:w-1/2 p-8 overflow-y-auto">
+              <div className="max-w-lg">
+                <h1 className="text-3xl font-bold text-nightfall mb-6">
+                  {courseDetails[selectedCourse]?.title || courses.find(c => c.id === selectedCourse)?.title}
+                </h1>
+                
+                {courseDetails[selectedCourse] && (
+                  <>
+                    <div className="mb-8">
+                      <h3 className="text-lg font-semibold text-nightfall mb-3">This session teaches how to...</h3>
+                      <p className="text-gray-600">
+                        {courseDetails[selectedCourse].tagline}
+                      </p>
+                    </div>
+                    
+                    <div className="mb-8">
+                      <h3 className="text-lg font-semibold text-nightfall mb-3">We'll do this by...</h3>
+                      <ul className="space-y-2">
+                        {courseDetails[selectedCourse].whatYouWillLearn.map((item, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-purple-500 mt-1">•</span>
+                            <span className="text-gray-600">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    
+                    <div className="mb-8">
+                      <h3 className="text-lg font-semibold text-nightfall mb-3">Leave this session ready to...</h3>
+                      <p className="text-gray-600">
+                        {courseDetails[selectedCourse].leaveReadyTo}
+                      </p>
+                    </div>
+                    
+                    {courseDetails[selectedCourse].duration && (
+                      <div className="mb-8">
+                        <p className="text-sm text-gray-500">
+                          Duration: {courseDetails[selectedCourse].duration}
+                        </p>
+                      </div>
+                    )}
+                  </>
+                )}
+                
+                <button className="w-full px-8 py-4 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+                  CREATE MEETING
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

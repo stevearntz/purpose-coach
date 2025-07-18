@@ -4,7 +4,7 @@
 
 1. **Copy the template**:
    ```bash
-   cp src/lib/TOOL_TEMPLATE.tsx src/app/[your-tool-name]/page.tsx
+   cp src/lib/TOOL_TEMPLATE.tsx.template src/app/[your-tool-name]/page.tsx
    ```
 
 2. **Add your tool config** to `src/lib/toolConfigs.ts`:

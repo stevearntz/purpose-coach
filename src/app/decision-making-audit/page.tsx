@@ -6,18 +6,18 @@ import Link from 'next/link'
 import Footer from '@/components/Footer'
 import { toolConfigs } from '@/lib/toolConfigs'
 
-interface Question {
+export interface Question {
   id: string
   text: string
   dimension: 'people' | 'purpose' | 'principles' | 'outcomes'
 }
 
-interface Answer {
+export interface Answer {
   questionId: string
   value: number
 }
 
-const questions: Question[] = [
+export const questions: Question[] = [
   // People
   { id: 'p1', text: 'I have identified all stakeholders who will be affected', dimension: 'people' },
   { id: 'p2', text: 'I understand each stakeholder\'s perspective', dimension: 'people' },
@@ -55,7 +55,7 @@ const likertOptions = [
   { value: 5, label: 'Strongly Agree' },
 ]
 
-const dimensionInfo = {
+export const dimensionInfo = {
   people: {
     title: 'People',
     description: 'Stakeholder consideration and communication'
@@ -71,6 +71,43 @@ const dimensionInfo = {
   outcomes: {
     title: 'Outcomes',
     description: 'Results and measurement planning'
+  }
+}
+
+export const getDecisionRecommendations = (dimension: string, score: number) => {
+  const recommendations = {
+    people: [
+      'Create a stakeholder map to visualize all affected parties',
+      'Schedule 1:1 conversations with key stakeholders',
+      'Develop a clear communication plan',
+      'Consider forming a decision-making committee'
+    ],
+    purpose: [
+      'Revisit your organization\'s mission statement',
+      'Write a clear problem statement',
+      'Connect this decision to strategic objectives',
+      'Articulate the "why" in one compelling sentence'
+    ],
+    principles: [
+      'Choose a decision-making framework (e.g., RAPID, DACI)',
+      'List your evaluation criteria explicitly',
+      'Gather more data in areas of uncertainty',
+      'Facilitate a structured brainstorming session'
+    ],
+    outcomes: [
+      'Define specific, measurable success metrics',
+      'Conduct a risk assessment workshop',
+      'Create a decision scorecard',
+      'Build a monitoring dashboard'
+    ]
+  }
+  
+  if (score < 2.5) {
+    return recommendations[dimension as keyof typeof recommendations] || []
+  } else if (score < 3.8) {
+    return recommendations[dimension as keyof typeof recommendations]?.slice(0, 2) || []
+  } else {
+    return [recommendations[dimension as keyof typeof recommendations]?.[0] || 'Keep refining your approach!']
   }
 }
 
@@ -163,40 +200,7 @@ export default function DecisionMakingAuditPage() {
   }
   
   const getRecommendations = (dimension: string, score: number) => {
-    const recommendations = {
-      people: [
-        'Create a stakeholder map to visualize all affected parties',
-        'Schedule 1:1 conversations with key stakeholders',
-        'Develop a clear communication plan',
-        'Consider forming a decision-making committee'
-      ],
-      purpose: [
-        'Revisit your organization\'s mission statement',
-        'Write a clear problem statement',
-        'Connect this decision to strategic objectives',
-        'Articulate the "why" in one compelling sentence'
-      ],
-      principles: [
-        'Choose a decision-making framework (e.g., RAPID, DACI)',
-        'List your evaluation criteria explicitly',
-        'Gather more data in areas of uncertainty',
-        'Facilitate a structured brainstorming session'
-      ],
-      outcomes: [
-        'Define specific, measurable success metrics',
-        'Conduct a risk assessment workshop',
-        'Create a decision scorecard',
-        'Build a monitoring dashboard'
-      ]
-    }
-    
-    if (score < 2.5) {
-      return recommendations[dimension as keyof typeof recommendations] || []
-    } else if (score < 3.8) {
-      return recommendations[dimension as keyof typeof recommendations]?.slice(0, 2) || []
-    } else {
-      return [recommendations[dimension as keyof typeof recommendations]?.[0] || 'Keep refining your approach!']
-    }
+    return getDecisionRecommendations(dimension, score)
   }
 
   // Intro Screen (Full vibrant gradient)
@@ -305,10 +309,45 @@ export default function DecisionMakingAuditPage() {
                     <Printer className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => {
-                      const shareUrl = `${window.location.origin}/decision-making-audit/share/${Date.now()}`
-                      navigator.clipboard.writeText(shareUrl)
-                      alert('Share link copied to clipboard!')
+                    onClick={async () => {
+                      try {
+                        const { dimensions, total } = calculateScores()
+                        const readinessLevel = total >= 16 ? 'Well Prepared' : total >= 10 ? 'Moderately Prepared' : 'Needs More Work'
+                        
+                        const shareData = {
+                          type: 'decision-making-audit',
+                          toolName: 'Decision Making Audit',
+                          results: {
+                            decisionContext,
+                            dimensions,
+                            total,
+                            readinessLevel,
+                            answers,
+                            questions
+                          }
+                        }
+                        
+                        const response = await fetch('/api/share', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify(shareData)
+                        })
+                        
+                        if (!response.ok) {
+                          throw new Error('Failed to create share link')
+                        }
+                        
+                        const { url } = await response.json()
+                        const fullUrl = `${window.location.origin}${url}`
+                        
+                        await navigator.clipboard.writeText(fullUrl)
+                        alert('✨ Share link copied to clipboard!')
+                      } catch (error) {
+                        console.error('Error sharing results:', error)
+                        alert('Sorry, couldn\'t create a share link. Please try again.')
+                      }
                     }}
                     className="px-6 py-3 bg-[#3C36FF] text-white rounded-lg hover:bg-[#302CC6] transition-colors shadow-lg font-medium"
                   >

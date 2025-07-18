@@ -302,11 +302,37 @@ export default function TrustAuditPage() {
                     <Printer className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => {
-                      // TODO: Implement share functionality
-                      const shareUrl = `${window.location.origin}/trust-audit/share/${Date.now()}`
-                      navigator.clipboard.writeText(shareUrl)
-                      alert('Share link copied to clipboard!')
+                    onClick={async () => {
+                      try {
+                        const shareData = {
+                          type: 'trust-audit',
+                          toolName: 'Trust Audit',
+                          userName: formatName(relationshipName),
+                          results: {
+                            sections,
+                            total,
+                            trustLevel
+                          }
+                        }
+                        
+                        const response = await fetch('/api/share', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(shareData)
+                        })
+                        
+                        if (response.ok) {
+                          const { id } = await response.json()
+                          const shareUrl = `${window.location.origin}/trust-audit/share/${id}`
+                          navigator.clipboard.writeText(shareUrl)
+                          alert('Share link copied to clipboard!')
+                        } else {
+                          alert('Failed to create share link')
+                        }
+                      } catch (error) {
+                        console.error('Share error:', error)
+                        alert('Failed to create share link')
+                      }
                     }}
                     className="px-6 py-3 bg-[#DB4839] text-white rounded-lg hover:bg-[#C73229] transition-colors shadow-lg font-medium"
                   >

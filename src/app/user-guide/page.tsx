@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Footer from '@/components/Footer'
 import { toolConfigs } from '@/lib/toolConfigs'
 
-interface UserGuideData {
+export interface UserGuideData {
   name: string
   workingConditions: string
   hoursOfOperation: {
@@ -34,7 +34,7 @@ interface UserGuideData {
   thingsAboutMe: string
 }
 
-const sections = [
+export const sections = [
   { id: 'working-conditions', title: 'Working Conditions', icon: Clock },
   { id: 'hours', title: 'Hours of Operation', icon: Clock },
   { id: 'communication', title: 'Communication', icon: MessageSquare },
@@ -44,6 +44,37 @@ const sections = [
   { id: 'love', title: 'Things I Love', icon: Heart },
   { id: 'about', title: 'Other Things About Me', icon: User },
 ]
+
+export const generateShareableGuide = (userData: UserGuideData) => {
+  const timeSlots = []
+  if (userData.hoursOfOperation.early) timeSlots.push('Early morning (before 8am)')
+  if (userData.hoursOfOperation.morning) timeSlots.push('Morning (8am-12pm)')
+  if (userData.hoursOfOperation.afternoon) timeSlots.push('Afternoon (12pm-5pm)')
+  if (userData.hoursOfOperation.evening) timeSlots.push('Evening (5pm-8pm)')
+  if (userData.hoursOfOperation.late) timeSlots.push('Late night (after 8pm)')
+  if (userData.hoursOfOperation.weekends) timeSlots.push('Weekends')
+  
+  const commMethods = []
+  if (userData.communicationMethods.inPerson) commMethods.push('In-person')
+  if (userData.communicationMethods.call) commMethods.push('Phone call')
+  if (userData.communicationMethods.text) commMethods.push('Text message')
+  if (userData.communicationMethods.zoom) commMethods.push('Video call')
+  if (userData.communicationMethods.slack) commMethods.push('Slack/Chat')
+  
+  return {
+    title: `Working with ${userData.name}`,
+    sections: [
+      { title: 'Working Conditions', content: userData.workingConditions },
+      { title: 'Hours of Operation', content: `I work best during: ${timeSlots.join(', ')}.\n\n${userData.shareHours}` },
+      { title: 'Communication Preferences', content: `Preferred methods: ${commMethods.join(', ')}.\n\nResponse times: ${userData.responseExpectations}\n\nMeetings: ${userData.meetingPreferences}` },
+      { title: 'Feedback', content: userData.feedbackPreferences },
+      { title: 'My Biggest Needs', content: userData.biggestNeeds },
+      { title: 'Personal Struggles', content: userData.personalStruggles },
+      { title: 'Things I Love', content: userData.thingsILove.filter(item => item).map((item, i) => `${i + 1}. ${item}`).join('\n') },
+      { title: 'Other Things About Me', content: userData.thingsAboutMe },
+    ]
+  }
+}
 
 export default function UserGuidePage() {
   const [showIntro, setShowIntro] = useState(true)
@@ -117,36 +148,6 @@ export default function UserGuidePage() {
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [showIntro, showResults, currentSectionIndex, userData.name])
   
-  const generateShareableGuide = () => {
-    const timeSlots = []
-    if (userData.hoursOfOperation.early) timeSlots.push('Early morning (before 8am)')
-    if (userData.hoursOfOperation.morning) timeSlots.push('Morning (8am-12pm)')
-    if (userData.hoursOfOperation.afternoon) timeSlots.push('Afternoon (12pm-5pm)')
-    if (userData.hoursOfOperation.evening) timeSlots.push('Evening (5pm-8pm)')
-    if (userData.hoursOfOperation.late) timeSlots.push('Late night (after 8pm)')
-    if (userData.hoursOfOperation.weekends) timeSlots.push('Weekends')
-    
-    const commMethods = []
-    if (userData.communicationMethods.inPerson) commMethods.push('In-person')
-    if (userData.communicationMethods.call) commMethods.push('Phone call')
-    if (userData.communicationMethods.text) commMethods.push('Text message')
-    if (userData.communicationMethods.zoom) commMethods.push('Video call')
-    if (userData.communicationMethods.slack) commMethods.push('Slack/Chat')
-    
-    return {
-      title: `Working with ${userData.name}`,
-      sections: [
-        { title: 'Working Conditions', content: userData.workingConditions },
-        { title: 'Hours of Operation', content: `I work best during: ${timeSlots.join(', ')}.\n\n${userData.shareHours}` },
-        { title: 'Communication Preferences', content: `Preferred methods: ${commMethods.join(', ')}.\n\nResponse times: ${userData.responseExpectations}\n\nMeetings: ${userData.meetingPreferences}` },
-        { title: 'Feedback', content: userData.feedbackPreferences },
-        { title: 'My Biggest Needs', content: userData.biggestNeeds },
-        { title: 'Personal Struggles', content: userData.personalStruggles },
-        { title: 'Things I Love', content: userData.thingsILove.filter(item => item).map((item, i) => `${i + 1}. ${item}`).join('\n') },
-        { title: 'Other Things About Me', content: userData.thingsAboutMe },
-      ]
-    }
-  }
 
   // Intro Screen
   if (showIntro) {
@@ -206,7 +207,7 @@ export default function UserGuidePage() {
 
   // Results Screen
   if (showResults) {
-    const guide = generateShareableGuide()
+    const guide = generateShareableGuide(userData)
     
     return (
       <>
@@ -256,10 +257,40 @@ export default function UserGuidePage() {
                     <Printer className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => {
-                      const shareUrl = `${window.location.origin}/user-guide/share/${Date.now()}`
-                      navigator.clipboard.writeText(shareUrl)
-                      alert('Share link copied to clipboard!')
+                    onClick={async () => {
+                      try {
+                        const guide = generateShareableGuide(userData)
+                        
+                        const shareData = {
+                          type: 'user-guide',
+                          toolName: 'Working With Me',
+                          results: {
+                            userData,
+                            guide
+                          }
+                        }
+                        
+                        const response = await fetch('/api/share', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify(shareData)
+                        })
+                        
+                        if (!response.ok) {
+                          throw new Error('Failed to create share link')
+                        }
+                        
+                        const { url } = await response.json()
+                        const fullUrl = `${window.location.origin}${url}`
+                        
+                        await navigator.clipboard.writeText(fullUrl)
+                        alert('✨ Share link copied to clipboard!')
+                      } catch (error) {
+                        console.error('Error sharing guide:', error)
+                        alert('Sorry, couldn\'t create a share link. Please try again.')
+                      }
                     }}
                     className="px-6 py-3 bg-[#2A74B9] text-white rounded-lg hover:bg-[#215A91] transition-colors shadow-lg font-medium"
                   >

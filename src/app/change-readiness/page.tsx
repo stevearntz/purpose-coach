@@ -6,18 +6,18 @@ import Link from 'next/link'
 import Footer from '@/components/Footer'
 import { toolConfigs } from '@/lib/toolConfigs'
 
-interface Question {
+export interface Question {
   id: string
   text: string
   dimension: 'people' | 'purpose' | 'principles'
 }
 
-interface Answer {
+export interface Answer {
   questionId: string
   value: number
 }
 
-const questions: Question[] = [
+export const questions: Question[] = [
   // People
   { id: 'pe1', text: 'I understand how this change will impact the people I work with', dimension: 'people' },
   { id: 'pe2', text: 'I trust the leaders who are guiding us through this change', dimension: 'people' },
@@ -48,7 +48,7 @@ const likertOptions = [
   { value: 5, label: 'Strongly Agree' },
 ]
 
-const dimensionInfo = {
+export const dimensionInfo = {
   people: {
     title: 'People',
     description: 'Trust in relationships, team dynamics, leadership support, and impact on others'
@@ -61,6 +61,36 @@ const dimensionInfo = {
     title: 'Principles',
     description: 'Values alignment, confidence in navigating decisions, adaptability'
   }
+}
+
+export const getChangeReadinessLevel = (score: number) => {
+  if (score >= 21) return { level: 'High', description: 'You feel confident and supported', color: 'text-green-600' }
+  if (score >= 16) return { level: 'Moderate', description: 'You\'re mostly on board, but have questions', color: 'text-yellow-600' }
+  if (score >= 11) return { level: 'Low', description: 'You may feel unsure or disconnected', color: 'text-orange-600' }
+  return { level: 'Very Low', description: 'You may feel anxious or unprepared', color: 'text-red-600' }
+}
+
+export const getChangeRecommendations = (dimension: string, score: number) => {
+  const recommendations = {
+    people: {
+      high: ['Continue building on strong relationships', 'Share your confidence with others who may be struggling'],
+      moderate: ['Schedule 1:1s with key stakeholders', 'Join or create a change support group'],
+      low: ['Identify trusted colleagues to talk with', 'Request clearer communication from leadership', 'Map out who will be affected and how']
+    },
+    purpose: {
+      high: ['Help others connect to the vision', 'Document how the change aligns with your goals'],
+      moderate: ['Ask clarifying questions about the "why"', 'Connect change goals to your role explicitly'],
+      low: ['Request a town hall or Q&A session', 'Write down what\'s unclear and seek answers', 'Find the story behind the change']
+    },
+    principles: {
+      high: ['Model values-based decision making', 'Mentor others in staying grounded'],
+      moderate: ['Create a personal values checklist', 'Practice scenario planning with your principles'],
+      low: ['Define your core values explicitly', 'Seek guidance on decision frameworks', 'Build daily grounding practices']
+    }
+  }
+  
+  const level = score >= 21 ? 'high' : score >= 16 ? 'moderate' : 'low'
+  return recommendations[dimension as keyof typeof recommendations]?.[level] || []
 }
 
 export default function ChangeReadinessPage() {
@@ -151,33 +181,11 @@ export default function ChangeReadinessPage() {
   }
   
   const getReadinessLevel = (score: number) => {
-    if (score >= 21) return { level: 'High', description: 'You feel confident and supported', color: 'text-green-600' }
-    if (score >= 16) return { level: 'Moderate', description: 'You\'re mostly on board, but have questions', color: 'text-yellow-600' }
-    if (score >= 11) return { level: 'Low', description: 'You may feel unsure or disconnected', color: 'text-orange-600' }
-    return { level: 'Very Low', description: 'You may feel anxious or unprepared', color: 'text-red-600' }
+    return getChangeReadinessLevel(score)
   }
   
   const getRecommendations = (dimension: string, score: number) => {
-    const recommendations = {
-      people: {
-        high: ['Continue building on strong relationships', 'Share your confidence with others who may be struggling'],
-        moderate: ['Schedule 1:1s with key stakeholders', 'Join or create a change support group'],
-        low: ['Identify trusted colleagues to talk with', 'Request clearer communication from leadership', 'Map out who will be affected and how']
-      },
-      purpose: {
-        high: ['Help others connect to the vision', 'Document how the change aligns with your goals'],
-        moderate: ['Ask clarifying questions about the "why"', 'Connect change goals to your role explicitly'],
-        low: ['Request a town hall or Q&A session', 'Write down what\'s unclear and seek answers', 'Find the story behind the change']
-      },
-      principles: {
-        high: ['Model values-based decision making', 'Mentor others in staying grounded'],
-        moderate: ['Create a personal values checklist', 'Practice scenario planning with your principles'],
-        low: ['Define your core values explicitly', 'Seek guidance on decision frameworks', 'Build daily grounding practices']
-      }
-    }
-    
-    const level = score >= 21 ? 'high' : score >= 16 ? 'moderate' : 'low'
-    return recommendations[dimension as keyof typeof recommendations]?.[level] || []
+    return getChangeRecommendations(dimension, score)
   }
 
   // Intro Screen (Full vibrant gradient)
@@ -286,10 +294,45 @@ export default function ChangeReadinessPage() {
                     <Printer className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => {
-                      const shareUrl = `${window.location.origin}/change-readiness/share/${Date.now()}`
-                      navigator.clipboard.writeText(shareUrl)
-                      alert('Share link copied to clipboard!')
+                    onClick={async () => {
+                      try {
+                        const { dimensions, total } = calculateScores()
+                        const overallReadiness = getReadinessLevel(total)
+                        
+                        const shareData = {
+                          type: 'change-readiness',
+                          toolName: 'Change Readiness Assessment',
+                          results: {
+                            changeContext,
+                            dimensions,
+                            total,
+                            overallReadiness,
+                            answers,
+                            questions
+                          }
+                        }
+                        
+                        const response = await fetch('/api/share', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify(shareData)
+                        })
+                        
+                        if (!response.ok) {
+                          throw new Error('Failed to create share link')
+                        }
+                        
+                        const { url } = await response.json()
+                        const fullUrl = `${window.location.origin}${url}`
+                        
+                        await navigator.clipboard.writeText(fullUrl)
+                        alert('✨ Share link copied to clipboard!')
+                      } catch (error) {
+                        console.error('Error sharing results:', error)
+                        alert('Sorry, couldn\'t create a share link. Please try again.')
+                      }
                     }}
                     className="px-6 py-3 bg-[#BF4C74] text-white rounded-lg hover:bg-[#A63D5F] transition-colors shadow-lg font-medium"
                   >

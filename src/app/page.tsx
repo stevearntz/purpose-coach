@@ -1186,8 +1186,8 @@ function ToolsPage() {
               
               <div className="grid gap-4">
                 {recommendations.tools.map((tool, index) => {
-                  const isClickable = tool.id === 't3' || tool.id === 't1' || tool.id === 't6' || tool.id === 't5' || tool.id === 't2' || tool.id === 't7' || tool.id === 't4'; // Trust Audit, Team Canvas, Burnout Assessment, Decision Making Audit, Change Readiness, Working with Me, and Coaching Cards tools
-                  const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/team-canvas' : tool.id === 't6' ? '/burnout-assessment' : tool.id === 't5' ? '/decision-making-audit' : tool.id === 't2' ? '/change-readiness' : tool.id === 't7' ? '/user-guide' : tool.id === 't4' ? '/coaching-cards' : '';
+                  const isClickable = tool.id === 't3' || tool.id === 't1' || tool.id === 't6' || tool.id === 't5' || tool.id === 't2' || tool.id === 't7' || tool.id === 't4' || tool.id === 't9'; // Trust Audit, Team Canvas, Burnout Assessment, Decision Making Audit, Change Readiness, Working with Me, Coaching Cards, and Career Drivers tools
+                  const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/team-canvas' : tool.id === 't6' ? '/burnout-assessment' : tool.id === 't5' ? '/decision-making-audit' : tool.id === 't2' ? '/change-readiness' : tool.id === 't7' ? '/user-guide' : tool.id === 't4' ? '/coaching-cards' : tool.id === 't9' ? '/career-drivers' : '';
                   
                   const toolContent = (
                     <>

@@ -92,27 +92,43 @@ class RedisStorage implements StorageAdapter {
 
   private async ensureRedis() {
     if (!this.redis && process.env.REDIS_URL) {
-      this.redis = new Redis(process.env.REDIS_URL);
+      try {
+        this.redis = new Redis(process.env.REDIS_URL);
+        console.log('Redis connection established');
+      } catch (error) {
+        console.error('Failed to connect to Redis:', error);
+        throw error;
+      }
     }
   }
 
   async get(key: string): Promise<unknown> {
-    await this.ensureRedis();
-    if (!this.redis) return null;
-    
-    const data = await this.redis.get(key);
-    return data ? JSON.parse(data) : null;
+    try {
+      await this.ensureRedis();
+      if (!this.redis) return null;
+      
+      const data = await this.redis.get(key);
+      return data ? JSON.parse(data) : null;
+    } catch (error) {
+      console.error('Redis get error:', error);
+      return null;
+    }
   }
 
   async set(key: string, value: unknown, options?: { ex?: number }): Promise<void> {
-    await this.ensureRedis();
-    if (!this.redis) throw new Error('Redis not available');
-    
-    const stringValue = JSON.stringify(value);
-    if (options?.ex) {
-      await this.redis.setex(key, options.ex, stringValue);
-    } else {
-      await this.redis.set(key, stringValue);
+    try {
+      await this.ensureRedis();
+      if (!this.redis) throw new Error('Redis not available');
+      
+      const stringValue = JSON.stringify(value);
+      if (options?.ex) {
+        await this.redis.setex(key, options.ex, stringValue);
+      } else {
+        await this.redis.set(key, stringValue);
+      }
+    } catch (error) {
+      console.error('Redis set error:', error);
+      throw error;
     }
   }
 }
@@ -165,25 +181,26 @@ class VercelKVStorage implements StorageAdapter {
 
 // Get storage adapter based on environment
 function getStorage(): StorageAdapter {
-  const hasKVConfig = process.env.KV_URL && process.env.KV_REST_API_TOKEN;
   const hasRedisUrl = process.env.REDIS_URL;
+  const hasKVConfig = process.env.KV_URL && process.env.KV_REST_API_TOKEN;
   const isProduction = process.env.NODE_ENV === 'production';
   
   console.log('Storage config check:', {
-    hasKVConfig,
     hasRedisUrl,
+    hasKVConfig,
     isProduction,
     KV_URL: !!process.env.KV_URL,
     KV_REST_API_TOKEN: !!process.env.KV_REST_API_TOKEN,
     REDIS_URL: !!process.env.REDIS_URL
   });
   
-  if (hasKVConfig) {
-    console.log('Using Vercel KV storage');
-    return new VercelKVStorage();
-  } else if (hasRedisUrl) {
+  // Prioritize Redis if it's available
+  if (hasRedisUrl) {
     console.log('Using Redis storage');
     return new RedisStorage();
+  } else if (hasKVConfig) {
+    console.log('Using Vercel KV storage');
+    return new VercelKVStorage();
   } else if (isProduction) {
     console.log('Using in-memory storage for production (WARNING: Data will not persist across deployments)');
     return new InMemoryStorage();

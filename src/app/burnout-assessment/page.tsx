@@ -416,7 +416,7 @@ export default function BurnoutAssessmentPage() {
                         }
                       } catch (error) {
                         console.error('Share error:', error)
-                        analytics.trackError('Share Failed', error.message, {
+                        analytics.trackError('Share Failed', error instanceof Error ? error.message : 'Unknown error', {
                           tool: 'Burnout Assessment'
                         })
                         alert('Failed to create share link')

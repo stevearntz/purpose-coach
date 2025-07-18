@@ -378,7 +378,7 @@ export default function TrustAuditPage() {
                         }
                       } catch (error) {
                         console.error('Share error:', error)
-                        analytics.trackError('Share Failed', error.message, {
+                        analytics.trackError('Share Failed', error instanceof Error ? error.message : 'Unknown error', {
                           tool: 'Trust Audit'
                         })
                         alert('Failed to create share link')

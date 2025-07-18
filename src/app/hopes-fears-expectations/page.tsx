@@ -327,7 +327,7 @@ export default function HopesFearsTool() {
       alert('Sorry, couldn\'t create a share link. Please try again.')
       
       // Track error
-      analytics.trackError('Share Error', error.message || 'Unknown error', {
+      analytics.trackError('Share Error', error instanceof Error ? error.message : 'Unknown error', {
         tool: 'Hopes Fears Expectations'
       })
     } finally {

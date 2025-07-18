@@ -51,11 +51,12 @@ export function useAnalytics() {
   }, [])
 
   // Track share events
-  const trackShare = useCallback((contentType: string, method: string = 'link') => {
+  const trackShare = useCallback((contentType: string, method: string = 'link', properties?: Record<string, any>) => {
     trackEvent('Content Shared', {
       content_type: contentType,
       share_method: method,
       timestamp: new Date().toISOString(),
+      ...properties,
     })
   }, [])
 

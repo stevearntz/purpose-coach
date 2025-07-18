@@ -657,7 +657,7 @@ function ToolsPage() {
       alert('✨ Share link copied to clipboard!');
     } catch (error) {
       console.error('Error sharing plan:', error);
-      analytics.trackError('Share Failed', error.message, {
+      analytics.trackError('Share Failed', error instanceof Error ? error.message : 'Unknown error', {
         page: 'homepage',
         type: 'personal-development-plan'
       });

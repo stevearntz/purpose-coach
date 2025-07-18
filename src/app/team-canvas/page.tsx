@@ -321,7 +321,7 @@ export default function TeamCanvasTool() {
       alert('Share link copied to clipboard!')
     } catch (error) {
       console.error('Error sharing:', error)
-      analytics.trackError('Share Failed', error.message, {
+      analytics.trackError('Share Failed', error instanceof Error ? error.message : 'Unknown error', {
         tool: 'Team Canvas'
       })
       alert('Sorry, couldn\'t create a share link. Please try again.')

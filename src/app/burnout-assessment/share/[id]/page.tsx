@@ -143,7 +143,7 @@ export default async function BurnoutAssessmentSharePage({ params }: Props) {
   }
 
   return (
-    <ToolSharePage
+    <ToolSharePage 
       shareId={id}
       toolPath="/burnout-assessment"
       toolConfig={config}

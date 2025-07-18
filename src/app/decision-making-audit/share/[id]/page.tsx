@@ -1,5 +1,5 @@
 import ToolSharePage from '@/components/ToolSharePage'
-import { dimensionInfo, getDecisionRecommendations } from '../../page'
+import { dimensionInfo, getDecisionRecommendations } from '@/lib/decisionMakingHelpers'
 import { toolConfigs } from '@/lib/toolConfigs'
 
 interface Props {

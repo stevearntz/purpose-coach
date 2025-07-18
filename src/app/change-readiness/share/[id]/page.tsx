@@ -1,5 +1,5 @@
 import ToolSharePage from '@/components/ToolSharePage'
-import { dimensionInfo, getChangeRecommendations } from '../../page'
+import { dimensionInfo, getChangeRecommendations } from '@/lib/changeReadinessHelpers'
 import { toolConfigs } from '@/lib/toolConfigs'
 
 interface Props {

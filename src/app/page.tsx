@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Flame, ArrowLeft, ArrowRight, Target, Printer, BookOpen, Share2 } from 'lucide-react';
 import { challengeCourseMappings } from '@/app/lib/courseMappings';
 import Footer from '@/components/Footer';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface UserProfile {
   role: string;
@@ -300,6 +301,7 @@ const getCourseVisual = (courseId: string): React.ReactElement => {
 function ToolsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const analytics = useAnalytics();
   
   const [currentScreen, setCurrentScreen] = useState(1);
   const [userProfile, setUserProfile] = useState<UserProfile>({
@@ -476,6 +478,17 @@ function ToolsPage() {
               // Save state before moving to screen 4
               localStorage.setItem('toolsUserProfile', JSON.stringify(userProfile));
               localStorage.setItem('toolsSelectedChallenges', JSON.stringify(selectedChallenges));
+              
+              // Track recommendations shown
+              const recommendations = getRecommendations();
+              analytics.trackToolRecommendation(
+                recommendations.tools.map(t => t.name),
+                selectedChallenges.map(id => {
+                  const challenge = challenges.find(c => c.id === id);
+                  return challenge?.title || id;
+                })
+              );
+              
               setTimeout(() => setCurrentScreen(4), 300);
               return 100;
             }
@@ -523,8 +536,19 @@ function ToolsPage() {
     setSelectedChallenges(prev => {
       const isSelected = prev.includes(challenge.id);
       if (isSelected) {
+        analytics.trackAction('Challenge Deselected', { 
+          challenge: challenge.title,
+          challenge_id: challenge.id,
+          role: userProfile.role
+        });
         return prev.filter(id => id !== challenge.id);
       } else if (prev.length < 5) {
+        analytics.trackAction('Challenge Selected', { 
+          challenge: challenge.title,
+          challenge_id: challenge.id,
+          role: userProfile.role,
+          selection_count: prev.length + 1
+        });
         return [...prev, challenge.id];
       }
       return prev;
@@ -533,6 +557,15 @@ function ToolsPage() {
 
   const handleChallengesNext = () => {
     if (selectedChallenges.length === 0) return;
+    
+    // Track challenge selection completion
+    const selectedChallengeNames = selectedChallenges.map(id => {
+      const challenge = challenges.find(c => c.id === id);
+      return challenge?.title || id;
+    });
+    
+    analytics.trackChallengeSelection(selectedChallengeNames, userProfile.role);
+    
     // For now, just use the first selected challenge for the flow
     const firstChallengeId = selectedChallenges[0];
     const firstChallenge = challenges.find(c => c.id === firstChallengeId);
@@ -612,10 +645,22 @@ function ToolsPage() {
       // Copy to clipboard
       await navigator.clipboard.writeText(fullUrl);
       
+      // Track share event
+      analytics.trackShare('Personal Development Plan', 'link', {
+        role: userProfile.role,
+        challenges: selectedChallenges,
+        tools_count: recommendations.tools.length,
+        courses_count: recommendations.courses.length
+      });
+      
       // Show success feedback
       alert('✨ Share link copied to clipboard!');
     } catch (error) {
       console.error('Error sharing plan:', error);
+      analytics.trackError('Share Failed', error.message, {
+        page: 'homepage',
+        type: 'personal-development-plan'
+      });
       alert('Sorry, couldn\'t create a share link. Please try again.');
     } finally {
       setIsSharing(false);
@@ -623,6 +668,15 @@ function ToolsPage() {
   };
 
   const handlePrint = () => {
+    // Track print action
+    analytics.trackAction('Print Clicked', {
+      type: 'personal-development-plan',
+      role: userProfile.role,
+      challenges: selectedChallenges,
+      tools_count: getRecommendations().tools.length,
+      courses_count: getRecommendations().courses.length
+    });
+    
     // Create a print-friendly version
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
@@ -945,7 +999,13 @@ function ToolsPage() {
             <div className="relative mb-6">
               <select
                 value={userProfile.role}
-                onChange={(e) => setUserProfile(prev => ({ ...prev, role: e.target.value }))}
+                onChange={(e) => {
+                  const newRole = e.target.value;
+                  setUserProfile(prev => ({ ...prev, role: newRole }));
+                  if (newRole) {
+                    analytics.trackAction('Role Selected', { role: newRole });
+                  }
+                }}
                 className="w-full p-3 sm:p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-orange-400 appearance-none pr-12 text-base"
               >
                 <option value="" className="text-gray-800">Select your role</option>
@@ -1218,6 +1278,12 @@ function ToolsPage() {
                       <a
                         key={tool.id}
                         href={toolPath}
+                        onClick={() => analytics.trackAction('Tool Clicked', { 
+                          tool_name: tool.name,
+                          tool_id: tool.id,
+                          from_challenges: selectedChallenges,
+                          priority: index + 1
+                        })}
                         className="relative bg-white rounded-xl border border-gray-200 p-6 shadow-sm print:avoid-break hover:shadow-lg hover:border-purple-300 transition-all cursor-pointer"
                       >
                         {toolContent}
@@ -1266,13 +1332,25 @@ function ToolsPage() {
 
             <div className="flex gap-4 justify-center print:hidden">
               <button 
-                onClick={() => router.push('/courses')}
+                onClick={() => {
+                  analytics.trackAction('Catalog Clicked', { 
+                    from_challenges: selectedChallenges,
+                    role: userProfile.role
+                  });
+                  router.push('/courses');
+                }}
                 className="px-8 py-3 border border-iris-500 text-iris-500 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
               >
                 EXPLORE CATALOG
               </button>
               <button 
-                onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}
+                onClick={() => {
+                  analytics.trackAction('Demo Booked', { 
+                    from_challenges: selectedChallenges,
+                    role: userProfile.role
+                  });
+                  window.open('https://calendly.com/getcampfire/demo', '_blank');
+                }}
                 className="px-8 py-3 bg-iris-500 text-white rounded-lg font-semibold hover:bg-iris-700 transition-colors"
               >
                 BOOK A DEMO

@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowRight, ArrowLeft, Download, Share2, X, Sparkles, Heart, AlertCircle, Target, Briefcase, Users, Rocket, Calendar, Lightbulb, MessageSquare, CheckCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import jsPDF from 'jspdf'
+import { useAnalytics } from '@/hooks/useAnalytics'
 
 interface HopesFears {
   context: string
@@ -234,16 +235,48 @@ const expectationPrompts = {
 
 export default function HopesFearsTool() {
   const router = useRouter()
+  const analytics = useAnalytics()
   const [currentStage, setCurrentStage] = useState(0)
   const [selectedContext, setSelectedContext] = useState('')
   const [hopes, setHopes] = useState<string[]>(['', '', ''])
   const [fears, setFears] = useState<string[]>(['', '', ''])
   const [expectations, setExpectations] = useState<string[]>(['', '', ''])
   const [isSharing, setIsSharing] = useState(false)
+  const [startTime] = useState(Date.now())
+
+  // Track tool start
+  useEffect(() => {
+    analytics.trackToolStart('Hopes Fears Expectations')
+  }, [])
+
+  // Track stage progress
+  useEffect(() => {
+    const stage = stages[currentStage]
+    const progress = ((currentStage + 1) / stages.length) * 100
+    
+    analytics.trackToolProgress('Hopes Fears Expectations', stage.title, progress)
+    
+    // Track specific stage events
+    if (stage.id === 'context' && selectedContext) {
+      analytics.trackAction('Context Selected', { context: selectedContext })
+    }
+  }, [currentStage, selectedContext])
 
   const handleNext = () => {
     if (currentStage < stages.length - 1) {
       setCurrentStage(currentStage + 1)
+    }
+    
+    // Track completion when reaching results
+    if (currentStage === stages.length - 2) {
+      const timeSpent = Math.round((Date.now() - startTime) / 1000)
+      analytics.trackToolComplete('Hopes Fears Expectations', {
+        context: selectedContext,
+        completionTime: timeSpent,
+        hopes_count: hopes.filter(h => h.trim()).length,
+        fears_count: fears.filter(f => f.trim()).length,
+        expectations_count: expectations.filter(e => e.trim()).length,
+      })
     }
   }
 
@@ -286,15 +319,26 @@ export default function HopesFearsTool() {
       
       await navigator.clipboard.writeText(fullUrl)
       alert('Share link copied to clipboard!')
+      
+      // Track share event
+      analytics.trackShare('Hopes Fears Expectations', 'link')
     } catch (error) {
       console.error('Error sharing:', error)
       alert('Sorry, couldn\'t create a share link. Please try again.')
+      
+      // Track error
+      analytics.trackError('Share Error', error.message || 'Unknown error', {
+        tool: 'Hopes Fears Expectations'
+      })
     } finally {
       setIsSharing(false)
     }
   }
 
   const generatePDF = () => {
+    // Track download event
+    analytics.trackDownload('PDF', 'Hopes Fears Expectations')
+    
     const doc = new jsPDF()
     const context = contexts.find(c => c.id === selectedContext)
     

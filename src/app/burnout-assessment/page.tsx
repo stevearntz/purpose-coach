@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Printer } from 'lucide-react'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
 import { toolConfigs } from '@/lib/toolConfigs'
+import { useAnalytics } from '@/hooks/useAnalytics'
 
 interface Question {
   id: string
@@ -85,13 +86,28 @@ const dimensionInfo = {
 }
 
 export default function BurnoutAssessmentPage() {
+  const analytics = useAnalytics()
   const [showIntro, setShowIntro] = useState(true)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<Answer[]>([])
   const [showResults, setShowResults] = useState(false)
   const [userName, setUserName] = useState('')
+  const [startTime] = useState(Date.now())
   
   const config = toolConfigs.burnoutAssessment
+
+  // Track tool start
+  useEffect(() => {
+    analytics.trackToolStart('Burnout Assessment')
+  }, [])
+
+  // Track progress
+  useEffect(() => {
+    if (!showIntro && !showResults) {
+      const progress = ((currentQuestionIndex + 1) / questions.length) * 100
+      analytics.trackToolProgress('Burnout Assessment', `Question ${currentQuestionIndex + 1}`, progress)
+    }
+  }, [currentQuestionIndex, showIntro, showResults])
   
   // Helper function to format name as sentence case
   const formatName = (name: string) => {
@@ -124,6 +140,16 @@ export default function BurnoutAssessmentPage() {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
     } else {
+      // Track completion
+      const timeSpent = Math.round((Date.now() - startTime) / 1000)
+      const scores = calculateScores()
+      analytics.trackToolComplete('Burnout Assessment', {
+        userName: userName,
+        completionTime: timeSpent,
+        total_score: scores.total,
+        risk_level: scores.riskLevel,
+        highest_risk: scores.dimensions[0]?.dimension || 'none'
+      })
       setShowResults(true)
     }
   }
@@ -181,7 +207,8 @@ export default function BurnoutAssessmentPage() {
     })
     
     const totalScore = scores.reduce((sum, s) => sum + s.score, 0) / scores.length
-    return { dimensions: scores, overall: totalScore }
+    const riskLevel = getBurnoutLevel(totalScore).level
+    return { dimensions: scores.sort((a, b) => b.score - a.score), overall: totalScore, total: totalScore, riskLevel }
   }
   
   const getBurnoutLevel = (score: number) => {
@@ -342,7 +369,10 @@ export default function BurnoutAssessmentPage() {
                 </button>
                 <div className="flex gap-4">
                   <button
-                    onClick={() => window.print()}
+                    onClick={() => {
+                      analytics.trackDownload('Print', 'Burnout Assessment')
+                      window.print()
+                    }}
                     className="p-3 border-2 border-[#30B859]/50 text-[#30B859] rounded-lg hover:border-[#30B859] hover:bg-[#30B859]/10 transition-all"
                     title="Print results"
                   >
@@ -372,12 +402,23 @@ export default function BurnoutAssessmentPage() {
                           const { id } = await response.json()
                           const shareUrl = `${window.location.origin}/burnout-assessment/share/${id}`
                           navigator.clipboard.writeText(shareUrl)
+                          
+                          // Track share event
+                          analytics.trackShare('Burnout Assessment', 'link', {
+                            userName: userName,
+                            risk_level: getBurnoutLevel(overall).level,
+                            total_score: overall
+                          })
+                          
                           alert('Share link copied to clipboard!')
                         } else {
                           alert('Failed to create share link')
                         }
                       } catch (error) {
                         console.error('Share error:', error)
+                        analytics.trackError('Share Failed', error.message, {
+                          tool: 'Burnout Assessment'
+                        })
                         alert('Failed to create share link')
                       }
                     }}

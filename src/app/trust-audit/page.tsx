@@ -7,6 +7,7 @@ import Footer from '@/components/Footer'
 import ToolLayout from '@/components/ToolLayout'
 import ToolIntroCard from '@/components/ToolIntroCard'
 import { toolConfigs, toolStyles } from '@/lib/toolConfigs'
+import { useAnalytics } from '@/hooks/useAnalytics'
 
 interface Question {
   id: string
@@ -72,11 +73,26 @@ const sectionInfo = {
 }
 
 export default function TrustAuditPage() {
+  const analytics = useAnalytics()
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<Answer[]>([])
   const [showResults, setShowResults] = useState(false)
   const [relationshipName, setRelationshipName] = useState('')
   const [showIntro, setShowIntro] = useState(true)
+  const [startTime] = useState(Date.now())
+
+  // Track tool start
+  useEffect(() => {
+    analytics.trackToolStart('Trust Audit')
+  }, [])
+
+  // Track progress
+  useEffect(() => {
+    if (!showIntro && !showResults) {
+      const progress = ((currentQuestionIndex + 1) / questions.length) * 100
+      analytics.trackToolProgress('Trust Audit', `Question ${currentQuestionIndex + 1}`, progress)
+    }
+  }, [currentQuestionIndex, showIntro, showResults])
 
   // Helper function to format name as sentence case
   const formatName = (name: string) => {
@@ -109,6 +125,17 @@ export default function TrustAuditPage() {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
     } else {
+      // Track completion
+      const timeSpent = Math.round((Date.now() - startTime) / 1000)
+      const sectionScores = calculateSectionScores()
+      analytics.trackToolComplete('Trust Audit', {
+        relationshipName: relationshipName,
+        completionTime: timeSpent,
+        integrity_score: sectionScores.integrity.average,
+        competence_score: sectionScores.competence.average,
+        empathy_score: sectionScores.empathy.average,
+        total_score: sectionScores.total
+      })
       setShowResults(true)
     }
   }
@@ -161,6 +188,15 @@ export default function TrustAuditPage() {
     
     const totalScore = scores.reduce((sum, s) => sum + s.score, 0)
     return { sections: scores, total: totalScore }
+  }
+
+  const calculateSectionScores = () => {
+    const result = calculateScores()
+    const sectionMap: any = {}
+    result.sections.forEach(s => {
+      sectionMap[s.section] = { average: s.score }
+    })
+    return { ...sectionMap, total: result.total }
   }
 
   const getRecommendations = (section: string, score: number) => {
@@ -295,7 +331,10 @@ export default function TrustAuditPage() {
                 </button>
                 <div className="flex gap-4">
                   <button
-                    onClick={() => window.print()}
+                    onClick={() => {
+                      analytics.trackDownload('Print', 'Trust Audit')
+                      window.print()
+                    }}
                     className="p-3 border-2 border-[#DB4839]/50 text-[#DB4839] rounded-lg hover:border-[#DB4839] hover:bg-[#DB4839]/10 transition-all"
                     title="Print results"
                   >
@@ -325,12 +364,23 @@ export default function TrustAuditPage() {
                           const { id } = await response.json()
                           const shareUrl = `${window.location.origin}/trust-audit/share/${id}`
                           navigator.clipboard.writeText(shareUrl)
+                          
+                          // Track share event
+                          analytics.trackShare('Trust Audit', 'link', {
+                            relationshipName: relationshipName,
+                            trustLevel: trustLevel,
+                            total_score: total
+                          })
+                          
                           alert('Share link copied to clipboard!')
                         } else {
                           alert('Failed to create share link')
                         }
                       } catch (error) {
                         console.error('Share error:', error)
+                        analytics.trackError('Share Failed', error.message, {
+                          tool: 'Trust Audit'
+                        })
                         alert('Failed to create share link')
                       }
                     }}

@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowRight, Users, Target, Heart, Zap, TrendingUp, Shield, Trophy, Sparkles, ArrowLeft, Download, Share2, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import jsPDF from 'jspdf'
+import { useAnalytics } from '@/hooks/useAnalytics'
 
 interface TeamData {
   teamName: string
@@ -86,9 +87,11 @@ const teamWinOptions = [
 
 export default function TeamCanvasTool() {
   const router = useRouter()
+  const analytics = useAnalytics()
   const [currentStage, setCurrentStage] = useState(0)
   const [isSharing, setIsSharing] = useState(false)
   const [shareUrl, setShareUrl] = useState('')
+  const [startTime] = useState(Date.now())
   const [teamData, setTeamData] = useState<TeamData>({
     teamName: '',
     purpose: { exists: '', outcome: '' },
@@ -103,9 +106,37 @@ export default function TeamCanvasTool() {
     teamWins: []
   })
 
+  // Track tool start
+  useEffect(() => {
+    analytics.trackToolStart('Team Canvas')
+  }, [])
+
+  // Track stage progress
+  useEffect(() => {
+    const stage = stages[currentStage]
+    const progress = ((currentStage + 1) / stages.length) * 100
+    
+    analytics.trackToolProgress('Team Canvas', stage.title, progress)
+  }, [currentStage])
+
   const handleNext = () => {
     if (currentStage < stages.length - 1) {
       setCurrentStage(currentStage + 1)
+    }
+    
+    // Track completion when reaching results
+    if (currentStage === stages.length - 2) {
+      const timeSpent = Math.round((Date.now() - startTime) / 1000)
+      analytics.trackToolComplete('Team Canvas', {
+        teamName: teamData.teamName,
+        completionTime: timeSpent,
+        team_size: teamData.people.filter(p => p.name.trim()).length,
+        values_count: teamData.values.length,
+        impact_area: teamData.impact,
+        activities_count: teamData.activities.filter(a => a.trim()).length,
+        strengths_count: teamData.strengths.length,
+        weaknesses_count: teamData.weaknesses.length
+      })
     }
   }
 
@@ -170,6 +201,9 @@ export default function TeamCanvasTool() {
   }
 
   const generatePDF = () => {
+    // Track download event
+    analytics.trackDownload('PDF', 'Team Canvas')
+    
     const doc = new jsPDF()
     const pageHeight = doc.internal.pageSize.height
     let yPosition = 20
@@ -276,9 +310,20 @@ export default function TeamCanvasTool() {
       setShareUrl(fullUrl)
       
       await navigator.clipboard.writeText(fullUrl)
+      
+      // Track share event
+      analytics.trackShare('Team Canvas', 'link', {
+        teamName: teamData.teamName,
+        team_size: teamData.people.filter(p => p.name.trim()).length,
+        values_count: teamData.values.length
+      })
+      
       alert('Share link copied to clipboard!')
     } catch (error) {
       console.error('Error sharing:', error)
+      analytics.trackError('Share Failed', error.message, {
+        tool: 'Team Canvas'
+      })
       alert('Sorry, couldn\'t create a share link. Please try again.')
     } finally {
       setIsSharing(false)

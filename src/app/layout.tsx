@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { League_Spartan } from 'next/font/google'
 import './globals.css'
 import '../styles/print.css'
+import AmplitudeProvider from '@/components/AmplitudeProvider'
 
 const leagueSpartan = League_Spartan({ 
   subsets: ['latin'],
@@ -62,7 +63,9 @@ export default function RootLayout({
         <meta name="theme-color" content="#7c3aed" />
       </head>
       <body className={`${leagueSpartan.className} antialiased`}>
-        {children}
+        <AmplitudeProvider>
+          {children}
+        </AmplitudeProvider>
       </body>
     </html>
   )

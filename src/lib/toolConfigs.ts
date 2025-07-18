@@ -12,6 +12,12 @@ export const toolConfigs = {
     subtitle: "Find your why.",
     description: "Uncover your core purpose and align your work with what matters most to you."
   },
+  burnoutAssessment: {
+    gradient: "from-[#74DEDE] to-[#30B859]",
+    title: "Burnout Assessment",
+    subtitle: "Check your energy levels.",
+    description: "Evaluate your current state across multiple dimensions to identify early signs of burnout and get personalized strategies for maintaining your well-being."
+  },
   // Add more tools here as you create them
 }
 

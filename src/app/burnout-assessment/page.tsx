@@ -1,0 +1,507 @@
+'use client'
+
+import { useState } from 'react'
+import { ArrowLeft, ArrowRight, Printer } from 'lucide-react'
+import Link from 'next/link'
+import Footer from '@/components/Footer'
+import { toolConfigs } from '@/lib/toolConfigs'
+
+interface Question {
+  id: string
+  text: string
+  dimension: 'exhaustion' | 'cynicism' | 'inefficacy' | 'neglect' | 'workload' | 'values'
+}
+
+interface Answer {
+  questionId: string
+  value: number
+}
+
+const questions: Question[] = [
+  // Exhaustion
+  { id: 'e1', text: 'I feel emotionally drained from my work', dimension: 'exhaustion' },
+  { id: 'e2', text: 'I feel tired when I wake up and have to face another day on the job', dimension: 'exhaustion' },
+  { id: 'e3', text: 'Working all day is really a strain for me', dimension: 'exhaustion' },
+  
+  // Cynicism
+  { id: 'c1', text: 'I have become less interested in my work', dimension: 'cynicism' },
+  { id: 'c2', text: 'I have become less enthusiastic about my work', dimension: 'cynicism' },
+  { id: 'c3', text: 'I have become more cynical about whether my work contributes anything', dimension: 'cynicism' },
+  
+  // Inefficacy (reverse scored)
+  { id: 'i1', text: 'I can effectively solve the problems that arise in my work', dimension: 'inefficacy' },
+  { id: 'i2', text: 'I feel I am making an effective contribution to what this organization does', dimension: 'inefficacy' },
+  { id: 'i3', text: 'In my opinion, I am good at my job', dimension: 'inefficacy' },
+  
+  // Neglect of personal needs
+  { id: 'n1', text: 'I skip meals or eat at irregular times due to work', dimension: 'neglect' },
+  { id: 'n2', text: 'I sacrifice sleep to get more work done', dimension: 'neglect' },
+  { id: 'n3', text: 'I postpone personal activities or hobbies because of work', dimension: 'neglect' },
+  
+  // Workload
+  { id: 'w1', text: 'I have too much work to do', dimension: 'workload' },
+  { id: 'w2', text: 'I have unrealistic deadlines', dimension: 'workload' },
+  { id: 'w3', text: 'I work under time pressure', dimension: 'workload' },
+  
+  // Values conflict (reverse scored)
+  { id: 'v1', text: 'My values and the organization\'s values are aligned', dimension: 'values' },
+  { id: 'v2', text: 'The work I do is meaningful to me', dimension: 'values' },
+  { id: 'v3', text: 'I believe in the mission of my organization', dimension: 'values' },
+]
+
+const likertOptions = [
+  { value: 1, label: 'Never' },
+  { value: 2, label: 'Rarely' },
+  { value: 3, label: 'Sometimes' },
+  { value: 4, label: 'Often' },
+  { value: 5, label: 'Always' },
+]
+
+const dimensionInfo = {
+  exhaustion: {
+    title: 'Emotional Exhaustion',
+    description: 'Feeling emotionally drained and depleted'
+  },
+  cynicism: {
+    title: 'Cynicism',
+    description: 'Detachment and negative attitudes toward work'
+  },
+  inefficacy: {
+    title: 'Professional Efficacy',
+    description: 'Feelings of competence and achievement'
+  },
+  neglect: {
+    title: 'Self-Care Neglect',
+    description: 'Sacrificing personal needs for work'
+  },
+  workload: {
+    title: 'Workload',
+    description: 'Amount and pace of work demands'
+  },
+  values: {
+    title: 'Values Alignment',
+    description: 'Alignment between personal and organizational values'
+  }
+}
+
+export default function BurnoutAssessmentPage() {
+  const [showIntro, setShowIntro] = useState(true)
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+  const [answers, setAnswers] = useState<Answer[]>([])
+  const [showResults, setShowResults] = useState(false)
+  const [userName, setUserName] = useState('')
+  
+  const config = toolConfigs.burnoutAssessment
+  
+  // Helper function to format name as sentence case
+  const formatName = (name: string) => {
+    if (!name) return ''
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
+  }
+  
+  const currentQuestion = questions[currentQuestionIndex]
+  const currentDimension = currentQuestion?.dimension
+  const progress = ((currentQuestionIndex + 1) / questions.length) * 100
+  
+  const handleAnswer = (value: number) => {
+    const newAnswers = [...answers.filter(a => a.questionId !== currentQuestion.id)]
+    newAnswers.push({ questionId: currentQuestion.id, value })
+    setAnswers(newAnswers)
+  }
+  
+  const getCurrentAnswer = () => {
+    return answers.find(a => a.questionId === currentQuestion.id)?.value
+  }
+  
+  const handleNext = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1)
+    } else {
+      setShowResults(true)
+    }
+  }
+  
+  const handlePrevious = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1)
+    }
+  }
+  
+  const calculateScores = () => {
+    const dimensions = ['exhaustion', 'cynicism', 'inefficacy', 'neglect', 'workload', 'values'] as const
+    const scores = dimensions.map(dimension => {
+      const dimensionQuestions = questions.filter(q => q.dimension === dimension)
+      const dimensionAnswers = answers.filter(a => 
+        dimensionQuestions.some(q => q.id === a.questionId)
+      )
+      const total = dimensionAnswers.reduce((sum, a) => sum + a.value, 0)
+      const average = dimensionAnswers.length > 0 ? total / dimensionAnswers.length : 0
+      
+      // Reverse score for positive dimensions (inefficacy and values)
+      const finalScore = (dimension === 'inefficacy' || dimension === 'values') 
+        ? 6 - average 
+        : average
+        
+      return { dimension, score: finalScore, count: dimensionAnswers.length }
+    })
+    
+    const totalScore = scores.reduce((sum, s) => sum + s.score, 0) / scores.length
+    return { dimensions: scores, overall: totalScore }
+  }
+  
+  const getBurnoutLevel = (score: number) => {
+    if (score >= 4) return { level: 'High Risk', color: 'text-red-600' }
+    if (score >= 3) return { level: 'Moderate Risk', color: 'text-orange-600' }
+    if (score >= 2) return { level: 'Low Risk', color: 'text-yellow-600' }
+    return { level: 'Minimal Risk', color: 'text-green-600' }
+  }
+  
+  const getRecommendations = (dimension: string, score: number) => {
+    const recommendations = {
+      exhaustion: [
+        'Schedule regular breaks throughout your workday',
+        'Practice energy management techniques like the Pomodoro method',
+        'Establish clear work-life boundaries',
+        'Prioritize sleep and maintain a consistent sleep schedule'
+      ],
+      cynicism: [
+        'Reconnect with the purpose and impact of your work',
+        'Seek opportunities for meaningful projects',
+        'Build positive relationships with colleagues',
+        'Celebrate small wins and accomplishments'
+      ],
+      inefficacy: [
+        'Set achievable goals and track your progress',
+        'Seek feedback and mentorship',
+        'Invest in skill development and learning',
+        'Document and reflect on your accomplishments'
+      ],
+      neglect: [
+        'Schedule personal activities like you would meetings',
+        'Set non-negotiable self-care routines',
+        'Use calendar blocking for meals and breaks',
+        'Practice saying no to protect personal time'
+      ],
+      workload: [
+        'Communicate workload concerns with your manager',
+        'Prioritize tasks using urgency/importance matrix',
+        'Delegate when possible',
+        'Negotiate realistic deadlines'
+      ],
+      values: [
+        'Identify aspects of work that align with your values',
+        'Seek projects that feel meaningful',
+        'Connect your daily tasks to larger impact',
+        'Consider discussing concerns with leadership'
+      ]
+    }
+    
+    if (score >= 3.5) {
+      return recommendations[dimension as keyof typeof recommendations] || []
+    } else if (score >= 2.5) {
+      return recommendations[dimension as keyof typeof recommendations]?.slice(0, 2) || []
+    } else {
+      return [recommendations[dimension as keyof typeof recommendations]?.[0] || 'Keep up your current practices!']
+    }
+  }
+
+  // Intro Screen (Full vibrant gradient)
+  if (showIntro) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#74DEDE] to-[#30B859] flex flex-col items-center justify-center p-4">
+        <Link 
+          href="/?screen=4" 
+          className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back to Plan
+        </Link>
+        
+        <div className="text-center text-white mb-12 max-w-3xl">
+          <h1 className="text-5xl font-bold mb-6">{config.title}</h1>
+          <h2 className="text-3xl mb-8">{config.subtitle}</h2>
+          <p className="text-xl text-white/90 leading-relaxed">
+            {config.description}
+          </p>
+        </div>
+        
+        <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20 max-w-2xl w-full">
+          <h3 className="text-3xl font-bold text-white text-center mb-6">Ready to check in?</h3>
+          
+          <div className="space-y-6">
+            <div className="text-xl text-white/90 text-center">
+              <p>This assessment is just for you.</p>
+              <p>What should we call you?</p>
+            </div>
+            
+            <input
+              type="text"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              placeholder="FIRST NAME"
+              className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-2xl font-normal uppercase text-center"
+              style={{ letterSpacing: '0.05em' }}
+              required
+            />
+            
+            <button
+              onClick={() => setShowIntro(false)}
+              disabled={!userName.trim()}
+              className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
+                userName.trim()
+                  ? 'bg-white text-[#30B859] hover:bg-white/90'
+                  : 'bg-white/50 text-[#30B859]/50 cursor-not-allowed'
+              }`}
+            >
+              Start Burnout Assessment
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Results Screen
+  if (showResults) {
+    const { dimensions, overall } = calculateScores()
+    const burnoutLevel = getBurnoutLevel(overall)
+    
+    return (
+      <>
+        <style jsx>{`
+          @media print {
+            body * {
+              visibility: hidden;
+            }
+            .print-section, .print-section * {
+              visibility: visible;
+            }
+            .print-section {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+            }
+            .no-print {
+              display: none !important;
+            }
+            @page {
+              margin: 0.5in;
+              size: letter;
+            }
+          }
+        `}</style>
+        <div className="min-h-screen bg-gradient-to-br from-[#74DEDE]/10 via-[#52C696]/10 to-[#30B859]/10 py-16 print-section">
+          <div className="container mx-auto px-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex justify-between items-center mb-8 no-print">
+                <button
+                  onClick={() => {
+                    setShowResults(false)
+                    setCurrentQuestionIndex(questions.length - 1)
+                  }}
+                  className="text-[#30B859] hover:text-[#289A4D] flex items-center gap-2 font-medium"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  BACK
+                </button>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => window.print()}
+                    className="p-3 border-2 border-[#30B859]/50 text-[#30B859] rounded-lg hover:border-[#30B859] hover:bg-[#30B859]/10 transition-all"
+                    title="Print results"
+                  >
+                    <Printer className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      const shareUrl = `${window.location.origin}/burnout-assessment/share/${Date.now()}`
+                      navigator.clipboard.writeText(shareUrl)
+                      alert('Share link copied to clipboard!')
+                    }}
+                    className="px-6 py-3 bg-[#30B859] text-white rounded-lg hover:bg-[#289A4D] transition-colors shadow-lg font-medium"
+                  >
+                    SHARE
+                  </button>
+                </div>
+              </div>
+              
+              <h1 className="text-4xl font-bold text-nightfall mb-2 text-center">Burnout Assessment Results</h1>
+              <p className="text-gray-600 mb-8 text-center">
+                Check-in for {formatName(userName)}
+              </p>
+              
+              <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 mb-8 border border-white/80 shadow-md">
+                <h2 className="text-2xl font-semibold text-nightfall mb-4 text-center">
+                  Overall Burnout Risk: <span className={burnoutLevel.color}>{burnoutLevel.level}</span>
+                </h2>
+                <div className="text-3xl font-bold text-[#30B859] text-center">
+                  {overall.toFixed(1)} / 5.0
+                </div>
+              </div>
+            
+            <div className="space-y-6 mb-8">
+              {dimensions.map(({ dimension, score }) => {
+                const info = dimensionInfo[dimension as keyof typeof dimensionInfo]
+                const percentage = (score / 5) * 100
+                const riskLevel = getBurnoutLevel(score)
+                
+                return (
+                  <div key={dimension} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <h3 className="text-xl font-semibold text-nightfall">{info.title}</h3>
+                        <p className="text-sm text-gray-600">{info.description}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-[#30B859]">
+                          {score.toFixed(1)} / 5.0
+                        </div>
+                        <div className={`text-sm font-medium ${riskLevel.color}`}>
+                          {riskLevel.level}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+                      <div
+                        className="h-3 rounded-full bg-gradient-to-r from-[#74DEDE] to-[#30B859] transition-all duration-500"
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-gray-700">Strategies:</h4>
+                      {getRecommendations(dimension, score).map((rec, index) => (
+                        <p key={index} className="text-gray-600 text-sm pl-4">
+                          • {rec}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            
+            <div className="flex justify-center mt-8 no-print">
+              <button
+                onClick={() => {
+                  setShowResults(false)
+                  setCurrentQuestionIndex(0)
+                  setAnswers([])
+                  setShowIntro(true)
+                }}
+                className="px-8 py-3 bg-[#30B859] text-white rounded-lg font-semibold hover:bg-[#289A4D] transition-colors shadow-lg"
+              >
+                RETAKE ASSESSMENT
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <Footer />
+      </>
+    )
+  }
+
+  // Main Assessment Screen
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#74DEDE]/10 via-[#52C696]/10 to-[#30B859]/10 flex items-center justify-center p-4">
+      <div className="max-w-2xl w-full">
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <button
+              onClick={() => setShowIntro(true)}
+              className="inline-flex items-center text-[#30B859] hover:text-[#289A4D] transition-colors font-medium"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back
+            </button>
+            <span className="text-gray-600 text-sm">
+              Question {currentQuestionIndex + 1} of {questions.length}
+            </span>
+          </div>
+          
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="h-2 rounded-full bg-gradient-to-r from-[#74DEDE] to-[#30B859] transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+        
+        <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-white/80 shadow-lg">
+          {currentDimension && (
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-nightfall">
+                {dimensionInfo[currentDimension].title}
+              </h2>
+            </div>
+          )}
+          
+          <div className="mb-8">
+            {userName && (
+              <p className="text-center text-gray-600 mb-4">
+                How often does this apply to you, <span className="font-semibold text-[#30B859]">{formatName(userName)}</span>?
+              </p>
+            )}
+            <h3 className="text-xl font-medium text-nightfall mb-6 text-center">
+              {currentQuestion.text}
+            </h3>
+            
+            <div className="space-y-3">
+              {likertOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => handleAnswer(option.value)}
+                  className={`w-full p-4 rounded-xl text-left transition-all duration-200 border-2 ${
+                    getCurrentAnswer() === option.value
+                      ? 'bg-gradient-to-r from-[#74DEDE] to-[#30B859] text-white border-[#30B859] shadow-lg'
+                      : 'bg-white text-nightfall border-gray-200 hover:border-[#74DEDE]/50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">{option.label}</span>
+                    <div className={`w-5 h-5 rounded-full border-2 ${
+                      getCurrentAnswer() === option.value
+                        ? 'border-white bg-white'
+                        : 'border-gray-400'
+                    }`} />
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <div className="flex justify-between">
+            <button
+              onClick={handlePrevious}
+              disabled={currentQuestionIndex === 0}
+              className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 border-2 ${
+                currentQuestionIndex === 0
+                  ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
+                  : 'border-[#30B859] text-[#30B859] hover:bg-[#30B859]/10'
+              }`}
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span>PREVIOUS</span>
+            </button>
+            
+            <button
+              onClick={handleNext}
+              disabled={!getCurrentAnswer()}
+              className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+                !getCurrentAnswer()
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-[#30B859] text-white hover:bg-[#289A4D] shadow-lg'
+              }`}
+            >
+              <span>{currentQuestionIndex === questions.length - 1 ? 'SEE RESULTS' : 'NEXT'}</span>
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

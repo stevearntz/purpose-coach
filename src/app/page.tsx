@@ -1180,8 +1180,8 @@ function ToolsPage() {
               
               <div className="grid gap-4">
                 {recommendations.tools.map((tool, index) => {
-                  const isClickable = tool.id === 't3' || tool.id === 't1'; // Trust Audit and Purpose tools
-                  const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/purpose' : '';
+                  const isClickable = tool.id === 't3' || tool.id === 't1' || tool.id === 't6'; // Trust Audit, Purpose, and Burnout Assessment tools
+                  const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/purpose' : tool.id === 't6' ? '/burnout-assessment' : '';
                   
                   const toolContent = (
                     <>

@@ -517,8 +517,8 @@ export default function SharePage() {
                 
                 <div className="grid gap-4">
                   {data.recommendations.tools.map((tool, index) => {
-                    const isClickable = tool.id === 't3' || tool.id === 't1';
-                    const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/purpose' : '';
+                    const isClickable = tool.id === 't3' || tool.id === 't1' || tool.id === 't6';
+                    const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/purpose' : tool.id === 't6' ? '/burnout-assessment' : '';
                     
                     const toolContent = (
                       <>

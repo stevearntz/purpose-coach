@@ -92,6 +92,11 @@ export default function TrustAuditPage() {
     const newAnswers = [...answers.filter(a => a.questionId !== currentQuestion.id)]
     newAnswers.push({ questionId: currentQuestion.id, value })
     setAnswers(newAnswers)
+    
+    // Auto-advance after a short delay
+    setTimeout(() => {
+      handleNext()
+    }, 200)
   }
 
   const getCurrentAnswer = () => {
@@ -111,6 +116,34 @@ export default function TrustAuditPage() {
       setCurrentQuestionIndex(currentQuestionIndex - 1)
     }
   }
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Number keys 1-5 for selecting options
+      if (e.key >= '1' && e.key <= '5' && !showIntro && !showResults) {
+        const value = parseInt(e.key)
+        handleAnswer(value)
+      }
+      
+      // Arrow keys for navigation
+      if (e.key === 'ArrowLeft' && !showIntro && !showResults && currentQuestionIndex > 0) {
+        handlePrevious()
+      }
+      
+      if (e.key === 'ArrowRight' && !showIntro && !showResults && getCurrentAnswer()) {
+        handleNext()
+      }
+      
+      // Enter key for starting the assessment on intro
+      if (e.key === 'Enter' && showIntro && relationshipName.trim()) {
+        setShowIntro(false)
+      }
+    }
+    
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [showIntro, showResults, currentQuestionIndex, relationshipName])
 
   const calculateScores = () => {
     const sections = ['integrity', 'competence', 'empathy'] as const
@@ -407,7 +440,16 @@ export default function TrustAuditPage() {
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-medium">{option.label}</span>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-xs px-2 py-0.5 rounded ${
+                        getCurrentAnswer() === option.value
+                          ? 'bg-white/20 text-white'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        {option.value}
+                      </span>
+                      <span className="font-medium">{option.label}</span>
+                    </div>
                     <div className={`w-5 h-5 rounded-full border-2 ${
                       getCurrentAnswer() === option.value
                         ? 'border-white bg-white'
@@ -446,6 +488,13 @@ export default function TrustAuditPage() {
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
+        </div>
+        
+        <div className="text-center mt-4 text-sm text-gray-600">
+          <span className="inline-block bg-white/60 backdrop-blur-sm px-4 py-2 rounded-lg">
+            Press <kbd className="px-2 py-1 bg-gray-200 rounded text-xs font-mono">1</kbd> - <kbd className="px-2 py-1 bg-gray-200 rounded text-xs font-mono">5</kbd> to select • 
+            <kbd className="px-2 py-1 bg-gray-200 rounded text-xs font-mono">←</kbd> <kbd className="px-2 py-1 bg-gray-200 rounded text-xs font-mono">→</kbd> to navigate
+          </span>
         </div>
       </div>
     </div>

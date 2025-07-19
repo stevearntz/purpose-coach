@@ -11,8 +11,8 @@ const leagueSpartan = League_Spartan({
 })
 
 export const metadata: Metadata = {
-  title: 'Campfire Guides - Deep Conversations for Transformation',
-  description: 'At Campfire, we empower every employee with the direction, support, and skills they need to thrive. Transform your workplace culture and elevate your team\'s success today.',
+  title: 'The Campfire Hub',
+  description: 'Solve your biggest leadership and team challenges—starting now. Get instant access to tools, workshops, and personalized recommendations to help you lead better, align your team, and build a culture that performs.',
   keywords: 'purpose, coaching, self-discovery, personal development, values, strengths, clarity, relationships, career',
   authors: [{ name: 'Campfire Guides' }],
   openGraph: {

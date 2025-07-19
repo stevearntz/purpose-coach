@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Flame, ArrowLeft, ArrowRight, Target, Printer, BookOpen, Share2 } from 'lucide-react';
+import { Flame, ArrowLeft, ArrowRight, Target, Printer, BookOpen, Share2, Users, Briefcase, User, Building } from 'lucide-react';
 import { challengeCourseMappings } from '@/app/lib/courseMappings';
 import Footer from '@/components/Footer';
 import { useAnalytics } from '@/hooks/useAnalytics';
@@ -332,68 +332,56 @@ function ToolsPage() {
   }, [searchParams]);
 
   const roles = [
-    'People Leader',
-    'Talent Leader', 
-    'Individual Contributor',
-    'CEO/Executive',
-    'Other'
+    { id: 'People Leader', name: 'Manager', icon: Users },
+    { id: 'Talent Leader', name: 'Talent/HR Leader', icon: Briefcase },
+    { id: 'Individual Contributor', name: 'Individual Contributor', icon: User },
+    { id: 'CEO/Executive', name: 'Executive', icon: Building }
   ];
 
   const allChallenges = [
     // People Leader challenges
-    { id: 'p1-c1', persona: 'People Leader', title: 'Purpose + Direction', description: 'Align my team on purpose and direction' },
-    { id: 'p1-c2', persona: 'People Leader', title: 'Navigating Change', description: 'Help my team adapt to change' },
-    { id: 'p1-c3', persona: 'People Leader', title: 'Trust + Psychological Safety', description: 'Build trust and psychological safety' },
-    { id: 'p1-c4', persona: 'People Leader', title: 'Empowering Others', description: 'Empower others through coaching and support' },
-    { id: 'p1-c5', persona: 'People Leader', title: 'Effective Decision Making', description: 'Improve decision making on my team' },
-    { id: 'p1-c6', persona: 'People Leader', title: 'Well-Being + Resilience', description: 'Support well-being and prevent burnout' },
-    { id: 'p1-c7', persona: 'People Leader', title: 'Communication and Collaboration', description: 'Communicate and collaborate more effectively' },
-    { id: 'p1-c8', persona: 'People Leader', title: 'Role Clarity + Expectations', description: 'Create clarity around roles and expectations' },
-    { id: 'p1-c9', persona: 'People Leader', title: 'Growth + Development', description: 'Develop my team\'s skills and confidence' },
+    { id: 'p1-c1', persona: 'People Leader', title: 'Purpose + Alignment', description: 'Help your team understand the bigger picture and stay focused on what matters most.' },
+    { id: 'p1-c2', persona: 'People Leader', title: 'Navigating Change', description: 'Support your team through uncertainty, transitions, and shifting priorities.' },
+    { id: 'p1-c3', persona: 'People Leader', title: 'Building Trust', description: 'Build stronger relationships by following through, showing up, and creating a culture of mutual respect.' },
+    { id: 'p1-c4', persona: 'People Leader', title: 'Coaching Others', description: 'Act as a coach by asking better questions, offering support, and guiding (not solving) your team\'s challenges.' },
+    { id: 'p1-c5', persona: 'People Leader', title: 'Decision Making', description: 'Strengthen your team\'s ability to make smart, timely, and aligned decisions.' },
+    { id: 'p1-c6', persona: 'People Leader', title: 'Well-Being + Resilience', description: 'Help your team manage stress, avoid burnout, and stay grounded under pressure.' },
+    { id: 'p1-c7', persona: 'People Leader', title: 'Communication + Collaboration', description: 'Communicate clearly, run better meetings, and foster strong team collaboration.' },
+    { id: 'p1-c8', persona: 'People Leader', title: 'Expectations + Role Clarity', description: 'Set clear goals, define responsibilities, and reduce confusion or overlap.' },
+    { id: 'p1-c9', persona: 'People Leader', title: 'Growth + Development', description: 'Support your team\'s growth with feedback, stretch opportunities, and development plans.' },
     
     // Talent Leader challenges
-    { id: 'p2-c1', persona: 'Talent Leader', title: 'Alignment + Direction', description: 'Align the organization on purpose and direction' },
-    { id: 'p2-c2', persona: 'Talent Leader', title: 'Navigating Change', description: 'Support teams through change and uncertainty' },
-    { id: 'p2-c3', persona: 'Talent Leader', title: 'Feedback + Trust', description: 'Foster a culture of trust and psychological safety' },
-    { id: 'p2-c4', persona: 'Talent Leader', title: 'Leadership Effectiveness', description: 'Enable managers to coach and empower others' },
-    { id: 'p2-c5', persona: 'Talent Leader', title: 'Decision Making', description: 'Improve decision making across the organization' },
-    { id: 'p2-c6', persona: 'Talent Leader', title: 'Well-Being', description: 'Promote well-being and resilience at scale' },
-    { id: 'p2-c7', persona: 'Talent Leader', title: 'Communication and Collaboration', description: 'Strengthen communication and collaboration across teams' },
-    { id: 'p2-c8', persona: 'Talent Leader', title: 'Clarity + Expectations', description: 'Clarify roles, responsibilities, and expectations' },
-    { id: 'p2-c9', persona: 'Talent Leader', title: 'Skill Building', description: 'Drive skill development and continuous learning' },
+    { id: 'p2-c1', persona: 'Talent Leader', title: 'Purpose + Alignment', description: 'Help the organization understand its bigger picture and create systems that keep teams focused on what matters most.' },
+    { id: 'p2-c2', persona: 'Talent Leader', title: 'Navigating Change', description: 'Design and implement support systems to help teams through uncertainty, transitions, and shifting priorities.' },
+    { id: 'p2-c3', persona: 'Talent Leader', title: 'Building Trust', description: 'Foster a culture where relationships thrive through accountability, consistency, and mutual respect at scale.' },
+    { id: 'p2-c4', persona: 'Talent Leader', title: 'Coaching Others', description: 'Equip leaders to act as coaches by teaching them to ask better questions and guide (not solve) their teams\' challenges.' },
+    { id: 'p2-c5', persona: 'Talent Leader', title: 'Decision Making', description: 'Build organizational capability to make smart, timely, and aligned decisions at every level.' },
+    { id: 'p2-c6', persona: 'Talent Leader', title: 'Well-Being + Resilience', description: 'Create programs and policies that help employees manage stress, avoid burnout, and stay grounded under pressure.' },
+    { id: 'p2-c7', persona: 'Talent Leader', title: 'Communication + Collaboration', description: 'Develop systems for clear communication, effective meetings, and strong cross-functional collaboration.' },
+    { id: 'p2-c8', persona: 'Talent Leader', title: 'Expectations + Role Clarity', description: 'Design frameworks for clear goals, well-defined responsibilities, and reduced confusion or overlap across teams.' },
+    { id: 'p2-c9', persona: 'Talent Leader', title: 'Growth + Development', description: 'Build scalable programs for feedback, stretch opportunities, and development plans that drive organizational growth.' },
     
     // Individual Contributor challenges
-    { id: 'p3-c1', persona: 'Individual Contributor', title: 'Alignment + Direction', description: 'Understand the purpose behind my work' },
-    { id: 'p3-c2', persona: 'Individual Contributor', title: 'Navigating Change', description: 'Adapt to change with confidence' },
-    { id: 'p3-c3', persona: 'Individual Contributor', title: 'Feedback + Trust', description: 'Build trust with my team' },
-    { id: 'p3-c4', persona: 'Individual Contributor', title: 'Leadership Effectiveness', description: 'Take ownership and contribute meaningfully' },
-    { id: 'p3-c5', persona: 'Individual Contributor', title: 'Decision Making', description: 'Make better decisions in my day-to-day' },
-    { id: 'p3-c6', persona: 'Individual Contributor', title: 'Well-Being', description: 'Care for my well-being and avoid burnout' },
-    { id: 'p3-c7', persona: 'Individual Contributor', title: 'Communication and Collaboration', description: 'Communicate and collaborate more effectively' },
-    { id: 'p3-c8', persona: 'Individual Contributor', title: 'Clarity + Expectations', description: 'Get clear on what\'s expected of me' },
-    { id: 'p3-c9', persona: 'Individual Contributor', title: 'Skill Building', description: 'Grow my skills and develop in my role' },
+    { id: 'p3-c1', persona: 'Individual Contributor', title: 'Purpose + Alignment', description: 'Understand how your work connects to the bigger picture and stay focused on what matters most.' },
+    { id: 'p3-c2', persona: 'Individual Contributor', title: 'Navigating Change', description: 'Build your resilience and adaptability to thrive through uncertainty, transitions, and shifting priorities.' },
+    { id: 'p3-c3', persona: 'Individual Contributor', title: 'Building Trust', description: 'Strengthen relationships with colleagues by following through, showing up, and contributing to mutual respect.' },
+    { id: 'p3-c4', persona: 'Individual Contributor', title: 'Self-Leadership', description: 'Take ownership of your work, ask better questions, and find solutions while knowing when to seek guidance.' },
+    { id: 'p3-c5', persona: 'Individual Contributor', title: 'Decision Making', description: 'Develop your ability to make smart, timely decisions that align with team and organizational goals.' },
+    { id: 'p3-c6', persona: 'Individual Contributor', title: 'Well-Being + Resilience', description: 'Learn to manage stress, avoid burnout, and stay grounded under pressure while maintaining performance.' },
+    { id: 'p3-c7', persona: 'Individual Contributor', title: 'Communication + Collaboration', description: 'Communicate clearly, participate effectively in meetings, and build strong working relationships with your team.' },
+    { id: 'p3-c8', persona: 'Individual Contributor', title: 'Expectations + Role Clarity', description: 'Get clear on goals, understand your responsibilities, and navigate any confusion or overlap in your role.' },
+    { id: 'p3-c9', persona: 'Individual Contributor', title: 'Growth + Development', description: 'Pursue feedback, seek stretch opportunities, and create your own development plan to advance your career.' },
     
     // CEO/Executive challenges
-    { id: 'p4-c1', persona: 'CEO/Executive', title: 'Alignment + Direction', description: 'Align the company around purpose and direction' },
-    { id: 'p4-c2', persona: 'CEO/Executive', title: 'Navigating Change', description: 'Lead the organization through change' },
-    { id: 'p4-c3', persona: 'CEO/Executive', title: 'Feedback + Trust', description: 'Build a culture of trust and psychological safety' },
-    { id: 'p4-c4', persona: 'CEO/Executive', title: 'Leadership Effectiveness', description: 'Empower leaders to grow and develop their teams' },
-    { id: 'p4-c5', persona: 'CEO/Executive', title: 'Decision Making', description: 'Improve decision making at every level' },
-    { id: 'p4-c6', persona: 'CEO/Executive', title: 'Well-Being', description: 'Support well-being and resilience across the company' },
-    { id: 'p4-c7', persona: 'CEO/Executive', title: 'Communication and Collaboration', description: 'Strengthen communication and collaboration company-wide' },
-    { id: 'p4-c8', persona: 'CEO/Executive', title: 'Clarity + Expectations', description: 'Ensure clarity of roles, accountability, and expectations' },
-    { id: 'p4-c9', persona: 'CEO/Executive', title: 'Skill Building', description: 'Invest in skill development to drive performance and growth' },
-    
-    // Other challenges
-    { id: 'p5-c1', persona: 'Other', title: 'Alignment + Direction', description: 'Connect my work to the organization\'s purpose and direction' },
-    { id: 'p5-c2', persona: 'Other', title: 'Navigating Change', description: 'Support others through change and transition' },
-    { id: 'p5-c3', persona: 'Other', title: 'Feedback + Trust', description: 'Create spaces of trust and psychological safety' },
-    { id: 'p5-c4', persona: 'Other', title: 'Leadership Effectiveness', description: 'Help others grow through support and encouragement' },
-    { id: 'p5-c5', persona: 'Other', title: 'Decision Making', description: 'Contribute to better decisions across the team' },
-    { id: 'p5-c6', persona: 'Other', title: 'Well-Being', description: 'Promote well-being and emotional resilience' },
-    { id: 'p5-c7', persona: 'Other', title: 'Communication and Collaboration', description: 'Facilitate clear and respectful communication' },
-    { id: 'p5-c8', persona: 'Other', title: 'Clarity + Expectations', description: 'Bring clarity to roles and shared expectations' },
-    { id: 'p5-c9', persona: 'Other', title: 'Skill Building', description: 'Support learning and skill development for those around me' }
+    { id: 'p4-c1', persona: 'CEO/Executive', title: 'Purpose + Alignment', description: 'Unite the entire organization around a clear vision and ensure every team stays focused on strategic priorities.' },
+    { id: 'p4-c2', persona: 'CEO/Executive', title: 'Navigating Change', description: 'Lead the organization through transformation, market shifts, and strategic pivots with confidence and clarity.' },
+    { id: 'p4-c3', persona: 'CEO/Executive', title: 'Building Trust', description: 'Model and scale a culture of trust through authentic leadership, transparency, and organizational integrity.' },
+    { id: 'p4-c4', persona: 'CEO/Executive', title: 'Coaching Others', description: 'Develop leaders who coach by asking powerful questions and empowering (not micromanaging) their teams.' },
+    { id: 'p4-c5', persona: 'CEO/Executive', title: 'Decision Making', description: 'Create decision-making frameworks that enable smart, timely, and strategically aligned choices at scale.' },
+    { id: 'p4-c6', persona: 'CEO/Executive', title: 'Well-Being + Resilience', description: 'Champion organizational health by addressing burnout, promoting balance, and modeling sustainable leadership.' },
+    { id: 'p4-c7', persona: 'CEO/Executive', title: 'Communication + Collaboration', description: 'Drive clarity in strategic communication, optimize executive meetings, and break down organizational silos.' },
+    { id: 'p4-c8', persona: 'CEO/Executive', title: 'Expectations + Role Clarity', description: 'Establish clear accountability, define leadership responsibilities, and eliminate organizational confusion.' },
+    { id: 'p4-c9', persona: 'CEO/Executive', title: 'Growth + Development', description: 'Build a learning organization through strategic talent development, succession planning, and leadership pipelines.' },
   ];
 
   const challenges = allChallenges.filter(challenge => challenge.persona === userProfile.role);
@@ -968,39 +956,42 @@ function ToolsPage() {
               className="h-12 sm:h-14 md:h-16"
             />
           </div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">Fuel a culture that performs.</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">Solve your biggest leadership and team challenges—starting now.</h2>
           <p className="text-base sm:text-lg md:text-xl text-purple-100 mb-8 sm:mb-12 md:mb-16 px-2">
-            Discover the right tools, assessments, and courses to help you—and your teams—grow stronger, move faster, and build real momentum.
-            Answer a few quick questions and we'll match you with the most impactful solutions for your role and challenges.
+            This interactive hub gives you instant access to tools, workshops, and personalized recommendations to help you lead better, align your team, and build a culture that performs. Simply answer a few quick questions and we'll match you with solutions that fit your needs.
           </p>
           
           <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/20">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8">Let's get started!</h2>
-            <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8">What is your role?</p>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8">What is your role?</h2>
             
-            <div className="relative mb-6">
-              <select
-                value={userProfile.role}
-                onChange={(e) => {
-                  const newRole = e.target.value;
-                  setUserProfile(prev => ({ ...prev, role: newRole }));
-                  if (newRole) {
-                    analytics.trackAction('Role Selected', { role: newRole });
-                  }
-                }}
-                className="w-full p-3 sm:p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-orange-400 appearance-none pr-12 text-base"
-              >
-                <option value="" className="text-gray-800">Select your role</option>
-                {roles.map(role => (
-                  <option key={role} value={role} className="text-gray-800">{role}</option>
-                ))}
-              </select>
-              {/* Custom dropdown arrow */}
-              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
-                </svg>
-              </div>
+            <div className="grid grid-cols-2 gap-4 mb-8">
+              {roles.map((role) => {
+                const Icon = role.icon;
+                const isSelected = userProfile.role === role.id;
+                return (
+                  <button
+                    key={role.id}
+                    onClick={() => {
+                      setUserProfile(prev => ({ ...prev, role: role.id }));
+                      analytics.trackAction('Role Selected', { role: role.id });
+                    }}
+                    className={`p-6 rounded-xl border-2 transition-all ${
+                      isSelected
+                        ? 'bg-white/30 border-white shadow-lg'
+                        : 'bg-white/10 border-white/30 hover:bg-white/20 hover:border-white/50'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-3">
+                      <div className={`p-3 rounded-full ${
+                        isSelected ? 'bg-white/30' : 'bg-white/20'
+                      }`}>
+                        <Icon className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="font-semibold text-white text-lg">{role.name}</h3>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
             
             <div className="flex flex-col gap-4">
@@ -1026,7 +1017,7 @@ function ToolsPage() {
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-4xl font-bold text-nightfall mb-6">
-              What are your biggest challenges as a {userProfile.role}?
+              What are your biggest challenges as a {roles.find(r => r.id === userProfile.role)?.name || userProfile.role}?
             </h2>
             <p className="text-lg text-gray-600">
               Select up to 5 challenges ({selectedChallenges.length}/5 selected)

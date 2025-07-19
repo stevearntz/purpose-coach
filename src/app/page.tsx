@@ -6,6 +6,7 @@ import { Flame, ArrowLeft, ArrowRight, Target, Printer, BookOpen, Share2 } from 
 import { challengeCourseMappings } from '@/app/lib/courseMappings';
 import Footer from '@/components/Footer';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import ShareButton from '@/components/ShareButton';
 
 interface UserProfile {
   role: string;
@@ -313,7 +314,6 @@ function ToolsPage() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
-  const [isSharing, setIsSharing] = useState(false);
 
   // Handle returning from courses page
   useEffect(() => {
@@ -459,14 +459,14 @@ function ToolsPage() {
     return { tools, courses };
   };
 
-  // Loading effect (3 seconds)
+  // Loading effect (2 seconds)
   useEffect(() => {
     if (currentScreen === 3) {
       setLoadingProgress(0); // Reset progress when entering screen 3
       
       // Start the animation after a brief delay to ensure smooth start
       const startDelay = setTimeout(() => {
-        const totalDuration = 3000; // 3 seconds
+        const totalDuration = 2000; // 2 seconds
         const intervalDuration = 20; // Update every 20ms for smoother animation
         const increment = 100 / (totalDuration / intervalDuration);
         
@@ -608,63 +608,45 @@ function ToolsPage() {
   };
 
   const handleShare = async () => {
-    if (isSharing) return;
-    
-    setIsSharing(true);
-    try {
-      const recommendations = getRecommendations();
-      const shareData = {
-        type: 'personal-development-plan',
-        title: 'Personal Development Plan',
-        role: userProfile.role,
-        selectedChallenges,
-        challenges: selectedChallenges.map(id => {
-          const challenge = challenges.find(c => c.id === id);
-          return challenge || { id, title: 'Unknown Challenge', description: '' };
-        }),
-        recommendations,
-        createdAt: new Date().toISOString()
-      };
+    const recommendations = getRecommendations();
+    const shareData = {
+      type: 'personal-development-plan',
+      title: 'Personal Development Plan',
+      role: userProfile.role,
+      selectedChallenges,
+      challenges: selectedChallenges.map(id => {
+        const challenge = challenges.find(c => c.id === id);
+        return challenge || { id, title: 'Unknown Challenge', description: '' };
+      }),
+      recommendations,
+      createdAt: new Date().toISOString()
+    };
 
-      const response = await fetch('/api/share', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(shareData)
-      });
+    const response = await fetch('/api/share', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(shareData)
+    });
 
-      if (!response.ok) {
-        throw new Error('Failed to create share link');
-      }
-
-      const { url } = await response.json();
-      const fullUrl = `${window.location.origin}${url}`;
-      setShareUrl(fullUrl);
-      
-      // Copy to clipboard
-      await navigator.clipboard.writeText(fullUrl);
-      
-      // Track share event
-      analytics.trackShare('Personal Development Plan', 'link', {
-        role: userProfile.role,
-        challenges: selectedChallenges,
-        tools_count: recommendations.tools.length,
-        courses_count: recommendations.courses.length
-      });
-      
-      // Show success feedback
-      alert('✨ Share link copied to clipboard!');
-    } catch (error) {
-      console.error('Error sharing plan:', error);
-      analytics.trackError('Share Failed', error instanceof Error ? error.message : 'Unknown error', {
-        page: 'homepage',
-        type: 'personal-development-plan'
-      });
-      alert('Sorry, couldn\'t create a share link. Please try again.');
-    } finally {
-      setIsSharing(false);
+    if (!response.ok) {
+      throw new Error('Failed to create share link');
     }
+
+    const { url } = await response.json();
+    const fullUrl = `${window.location.origin}${url}`;
+    setShareUrl(fullUrl);
+    
+    // Track share event
+    analytics.trackShare('Personal Development Plan', 'link', {
+      role: userProfile.role,
+      challenges: selectedChallenges,
+      tools_count: recommendations.tools.length,
+      courses_count: recommendations.courses.length
+    });
+    
+    return fullUrl;
   };
 
   const handlePrint = () => {
@@ -1168,15 +1150,11 @@ function ToolsPage() {
                   BACK
                 </button>
                 <div className="flex gap-4">
-                  <button 
-                    onClick={handleShare}
-                    disabled={isSharing}
-                    className="px-4 py-2 border border-gray-300 text-iris-500 rounded-lg hover:border-purple-400 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    title="Share your development plan"
-                  >
-                    <Share2 className="w-4 h-4 text-iris-500" />
-                    {isSharing ? 'SHARING...' : 'SHARE'}
-                  </button>
+                  <ShareButton 
+                    onShare={handleShare}
+                    variant="secondary"
+                    className="text-iris-500 border-gray-300 hover:border-purple-400"
+                  />
                   <button 
                     onClick={handlePrint}
                     className="px-4 py-2 border border-gray-300 text-iris-500 rounded-lg hover:border-purple-400 transition-colors flex items-center gap-2"

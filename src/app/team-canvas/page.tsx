@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import jsPDF from 'jspdf'
 import { useAnalytics } from '@/hooks/useAnalytics'
+import ShareButton from '@/components/ShareButton'
 
 interface TeamData {
   teamName: string
@@ -89,7 +90,6 @@ export default function TeamCanvasTool() {
   const router = useRouter()
   const analytics = useAnalytics()
   const [currentStage, setCurrentStage] = useState(0)
-  const [isSharing, setIsSharing] = useState(false)
   const [shareUrl, setShareUrl] = useState('')
   const [startTime] = useState(Date.now())
   const [teamData, setTeamData] = useState<TeamData>({
@@ -283,51 +283,36 @@ export default function TeamCanvasTool() {
   }
 
   const handleShare = async () => {
-    if (isSharing) return
-    
-    setIsSharing(true)
-    try {
-      const shareData = {
-        type: 'team-canvas',
-        data: teamData,
-        createdAt: new Date().toISOString()
-      }
-
-      const response = await fetch('/api/share', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(shareData)
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to create share link')
-      }
-
-      const { url } = await response.json()
-      const fullUrl = `${window.location.origin}${url}`
-      setShareUrl(fullUrl)
-      
-      await navigator.clipboard.writeText(fullUrl)
-      
-      // Track share event
-      analytics.trackShare('Team Canvas', 'link', {
-        teamName: teamData.teamName,
-        team_size: teamData.people.filter(p => p.name.trim()).length,
-        values_count: teamData.values.length
-      })
-      
-      alert('Share link copied to clipboard!')
-    } catch (error) {
-      console.error('Error sharing:', error)
-      analytics.trackError('Share Failed', error instanceof Error ? error.message : 'Unknown error', {
-        tool: 'Team Canvas'
-      })
-      alert('Sorry, couldn\'t create a share link. Please try again.')
-    } finally {
-      setIsSharing(false)
+    const shareData = {
+      type: 'team-canvas',
+      data: teamData,
+      createdAt: new Date().toISOString()
     }
+
+    const response = await fetch('/api/share', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(shareData)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create share link')
+    }
+
+    const { url } = await response.json()
+    const fullUrl = `${window.location.origin}${url}`
+    setShareUrl(fullUrl)
+    
+    // Track share event
+    analytics.trackShare('Team Canvas', 'link', {
+      teamName: teamData.teamName,
+      team_size: teamData.people.filter(p => p.name.trim()).length,
+      values_count: teamData.values.length
+    })
+    
+    return fullUrl
   }
 
   const renderStage = () => {
@@ -1277,14 +1262,10 @@ export default function TeamCanvasTool() {
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">Your Team Canvas Complete!</h2>
                   <div className="flex gap-3">
-                    <button
-                      onClick={handleShare}
-                      disabled={isSharing}
-                      className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 disabled:opacity-50"
-                    >
-                      <Share2 className="w-4 h-4" />
-                      {isSharing ? 'Sharing...' : 'Share'}
-                    </button>
+                    <ShareButton
+                      onShare={handleShare}
+                      variant="secondary"
+                    />
                     <button
                       onClick={generatePDF}
                       className="px-4 py-2 bg-[#FFA851] text-white rounded-lg hover:bg-[#FF9741] transition-colors flex items-center gap-2"

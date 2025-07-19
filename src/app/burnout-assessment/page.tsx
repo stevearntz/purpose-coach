@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Footer from '@/components/Footer'
 import { toolConfigs } from '@/lib/toolConfigs'
 import { useAnalytics } from '@/hooks/useAnalytics'
+import ShareButton from '@/components/ShareButton'
 
 interface Question {
   id: string
@@ -378,54 +379,45 @@ export default function BurnoutAssessmentPage() {
                   >
                     <Printer className="w-5 h-5" />
                   </button>
-                  <button
-                    onClick={async () => {
-                      try {
-                        const shareData = {
-                          type: 'burnout-assessment',
-                          toolName: 'Burnout Assessment',
-                          userName: formatName(userName),
-                          results: {
-                            dimensions,
-                            overall,
-                            overallReadiness: getBurnoutLevel(overall)
-                          }
+                  <ShareButton
+                    onShare={async () => {
+                      const shareData = {
+                        type: 'burnout-assessment',
+                        toolName: 'Burnout Assessment',
+                        userName: formatName(userName),
+                        results: {
+                          dimensions,
+                          overall,
+                          overallReadiness: getBurnoutLevel(overall)
                         }
-                        
-                        const response = await fetch('/api/share', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify(shareData)
-                        })
-                        
-                        if (response.ok) {
-                          const { id } = await response.json()
-                          const shareUrl = `${window.location.origin}/burnout-assessment/share/${id}`
-                          navigator.clipboard.writeText(shareUrl)
-                          
-                          // Track share event
-                          analytics.trackShare('Burnout Assessment', 'link', {
-                            userName: userName,
-                            risk_level: getBurnoutLevel(overall).level,
-                            total_score: overall
-                          })
-                          
-                          alert('Share link copied to clipboard!')
-                        } else {
-                          alert('Failed to create share link')
-                        }
-                      } catch (error) {
-                        console.error('Share error:', error)
-                        analytics.trackError('Share Failed', error instanceof Error ? error.message : 'Unknown error', {
-                          tool: 'Burnout Assessment'
-                        })
-                        alert('Failed to create share link')
                       }
+                      
+                      const response = await fetch('/api/share', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(shareData)
+                      })
+                      
+                      if (!response.ok) {
+                        throw new Error('Failed to create share link')
+                      }
+                      
+                      const { id } = await response.json()
+                      const shareUrl = `${window.location.origin}/burnout-assessment/share/${id}`
+                      
+                      // Track share event
+                      analytics.trackShare('Burnout Assessment', 'link', {
+                        userName: userName,
+                        risk_level: getBurnoutLevel(overall).level,
+                        total_score: overall
+                      })
+                      
+                      return shareUrl
                     }}
-                    className="px-6 py-3 bg-[#30B859] text-white rounded-lg hover:bg-[#289A4D] transition-colors shadow-lg font-medium"
+                    className="bg-[#30B859] hover:bg-[#289A4D]"
                   >
                     SHARE
-                  </button>
+                  </ShareButton>
                 </div>
               </div>
               

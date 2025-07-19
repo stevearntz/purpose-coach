@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Footer from '@/components/Footer'
 import { toolConfigs } from '@/lib/toolConfigs'
 import { UserGuideData, generateShareableGuide } from '@/lib/userGuideHelpers'
+import ShareButton from '@/components/ShareButton'
 
 const sections = [
   { id: 'working-conditions', title: 'Working Conditions', icon: Clock },
@@ -66,6 +67,36 @@ export default function UserGuidePage() {
     if (currentSectionIndex > 0) {
       setCurrentSectionIndex(currentSectionIndex - 1)
     }
+  }
+
+  const handleShare = async () => {
+    const guide = generateShareableGuide(userData)
+    
+    const shareData = {
+      type: 'user-guide',
+      toolName: 'Working With Me',
+      results: {
+        userData,
+        guide
+      }
+    }
+    
+    const response = await fetch('/api/share', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(shareData)
+    })
+    
+    if (!response.ok) {
+      throw new Error('Failed to create share link')
+    }
+    
+    const { url } = await response.json()
+    const fullUrl = `${window.location.origin}${url}`
+    
+    return fullUrl
   }
   
   // Keyboard navigation
@@ -198,46 +229,12 @@ export default function UserGuidePage() {
                   >
                     <Printer className="w-5 h-5" />
                   </button>
-                  <button
-                    onClick={async () => {
-                      try {
-                        const guide = generateShareableGuide(userData)
-                        
-                        const shareData = {
-                          type: 'user-guide',
-                          toolName: 'Working With Me',
-                          results: {
-                            userData,
-                            guide
-                          }
-                        }
-                        
-                        const response = await fetch('/api/share', {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify(shareData)
-                        })
-                        
-                        if (!response.ok) {
-                          throw new Error('Failed to create share link')
-                        }
-                        
-                        const { url } = await response.json()
-                        const fullUrl = `${window.location.origin}${url}`
-                        
-                        await navigator.clipboard.writeText(fullUrl)
-                        alert('✨ Share link copied to clipboard!')
-                      } catch (error) {
-                        console.error('Error sharing guide:', error)
-                        alert('Sorry, couldn\'t create a share link. Please try again.')
-                      }
-                    }}
-                    className="px-6 py-3 bg-[#2A74B9] text-white rounded-lg hover:bg-[#215A91] transition-colors shadow-lg font-medium"
+                  <ShareButton
+                    onShare={handleShare}
+                    className="bg-[#2A74B9] hover:bg-[#215A91]"
                   >
                     SHARE
-                  </button>
+                  </ShareButton>
                   <button
                     onClick={() => {
                       // Generate downloadable text file

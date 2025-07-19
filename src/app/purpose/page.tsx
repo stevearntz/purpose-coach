@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
 import { Share2, Loader2 } from 'lucide-react';
 import Footer from '@/components/Footer';
+import ShareButton from '@/components/ShareButton';
 
 interface UserData {
   id: string;
@@ -36,8 +37,6 @@ export default function PurposeCoach() {
   const [isComplete, setIsComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
-  const [isSharing, setIsSharing] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   const questions = [
     {
@@ -263,48 +262,37 @@ export default function PurposeCoach() {
   };
 
   const shareResults = async () => {
-    setIsSharing(true);
-    try {
-      const shareData = {
-        type: 'purpose',
-        title: 'Purpose Discovery Results',
-        results: {
-          purpose: `I exist to ${responses.purpose}`,
-          mission: `I am on a mission to ${responses.mission}`,
-          vision: `I see a world where ${responses.vision}`,
-          insights: [
-            `Purpose: ${responses.purpose}`,
-            `Mission: ${responses.mission}`,
-            `Vision: ${responses.vision}`
-          ]
-        },
-        userProfile: {
-          name: user?.name
-        }
-      };
+    const shareData = {
+      type: 'purpose',
+      title: 'Purpose Discovery Results',
+      results: {
+        purpose: `I exist to ${responses.purpose}`,
+        mission: `I am on a mission to ${responses.mission}`,
+        vision: `I see a world where ${responses.vision}`,
+        insights: [
+          `Purpose: ${responses.purpose}`,
+          `Mission: ${responses.mission}`,
+          `Vision: ${responses.vision}`
+        ]
+      },
+      userProfile: {
+        name: user?.name
+      }
+    };
 
-      const response = await fetch('/api/share', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(shareData)
-      });
+    const response = await fetch('/api/share', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(shareData)
+    });
 
-      if (!response.ok) throw new Error('Failed to create share link');
-      
-      const { url } = await response.json();
-      const fullUrl = `${window.location.origin}${url}`;
-      setShareUrl(fullUrl);
-      
-      // Also copy to clipboard
-      navigator.clipboard.writeText(fullUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error('Error sharing results:', error);
-      alert('Failed to create shareable link. Please try again.');
-    } finally {
-      setIsSharing(false);
-    }
+    if (!response.ok) throw new Error('Failed to create share link');
+    
+    const { url } = await response.json();
+    const fullUrl = `${window.location.origin}${url}`;
+    setShareUrl(fullUrl);
+    
+    return fullUrl;
   };
 
   const restartJourney = () => {
@@ -430,16 +418,14 @@ export default function PurposeCoach() {
                   readOnly
                   className="flex-1 bg-white/10 border border-white/30 rounded-lg px-4 py-2 text-white text-sm"
                 />
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(shareUrl);
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                  }}
-                  className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-colors"
+                <ShareButton
+                  shareUrl={shareUrl}
+                  variant="secondary"
+                  className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                  showIcon={false}
                 >
-                  {copied ? 'COPIED!' : 'COPY'}
-                </button>
+                  COPY
+                </ShareButton>
               </div>
               <p className="text-purple-300 text-sm mt-2">Anyone with this link can view your results</p>
             </div>
@@ -458,23 +444,13 @@ export default function PurposeCoach() {
                 <span>DOWNLOAD PDF</span>
               </button>
               
-              <button
-                onClick={shareResults}
-                disabled={isSharing}
-                className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2"
+              <ShareButton
+                onShare={shareResults}
+                className="bg-blue-600 hover:bg-blue-700"
               >
-                {isSharing ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>CREATING LINK...</span>
-                  </>
-                ) : (
-                  <>
-                    <Share2 className="w-5 h-5" />
-                    <span>{copied ? 'LINK COPIED!' : 'SHARE RESULTS'}</span>
-                  </>
-                )}
-              </button>
+                <Share2 className="w-5 h-5" />
+                <span>SHARE RESULTS</span>
+              </ShareButton>
               
               <button
                 onClick={restartJourney}

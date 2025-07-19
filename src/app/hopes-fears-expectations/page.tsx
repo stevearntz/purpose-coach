@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import jsPDF from 'jspdf'
 import { useAnalytics } from '@/hooks/useAnalytics'
+import ShareButton from '@/components/ShareButton'
 
 interface HopesFears {
   context: string
@@ -241,7 +242,6 @@ export default function HopesFearsTool() {
   const [hopes, setHopes] = useState<string[]>(['', '', ''])
   const [fears, setFears] = useState<string[]>(['', '', ''])
   const [expectations, setExpectations] = useState<string[]>(['', '', ''])
-  const [isSharing, setIsSharing] = useState(false)
   const [startTime] = useState(Date.now())
 
   // Track tool start
@@ -287,52 +287,36 @@ export default function HopesFearsTool() {
   }
 
   const handleShare = async () => {
-    if (isSharing) return
-    
-    setIsSharing(true)
-    try {
-      const shareData = {
-        type: 'hopes-fears-expectations',
-        data: {
-          context: selectedContext,
-          hopes,
-          fears,
-          expectations
-        },
-        createdAt: new Date().toISOString()
-      }
-
-      const response = await fetch('/api/share', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(shareData)
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to create share link')
-      }
-
-      const { url } = await response.json()
-      const fullUrl = `${window.location.origin}${url}`
-      
-      await navigator.clipboard.writeText(fullUrl)
-      alert('Share link copied to clipboard!')
-      
-      // Track share event
-      analytics.trackShare('Hopes Fears Expectations', 'link')
-    } catch (error) {
-      console.error('Error sharing:', error)
-      alert('Sorry, couldn\'t create a share link. Please try again.')
-      
-      // Track error
-      analytics.trackError('Share Error', error instanceof Error ? error.message : 'Unknown error', {
-        tool: 'Hopes Fears Expectations'
-      })
-    } finally {
-      setIsSharing(false)
+    const shareData = {
+      type: 'hopes-fears-expectations',
+      data: {
+        context: selectedContext,
+        hopes,
+        fears,
+        expectations
+      },
+      createdAt: new Date().toISOString()
     }
+
+    const response = await fetch('/api/share', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(shareData)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create share link')
+    }
+
+    const { url } = await response.json()
+    const fullUrl = `${window.location.origin}${url}`
+    
+    // Track share event
+    analytics.trackShare('Hopes Fears Expectations', 'link')
+    
+    return fullUrl
   }
 
   const generatePDF = () => {
@@ -815,14 +799,10 @@ export default function HopesFearsTool() {
                       <Download className="w-4 h-4" />
                       Download PDF
                     </button>
-                    <button
-                      onClick={handleShare}
-                      disabled={isSharing}
-                      className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 disabled:opacity-50"
-                    >
-                      <Share2 className="w-4 h-4" />
-                      {isSharing ? 'Sharing...' : 'Share'}
-                    </button>
+                    <ShareButton
+                      onShare={handleShare}
+                      variant="secondary"
+                    />
                   </div>
                 </div>
               </div>

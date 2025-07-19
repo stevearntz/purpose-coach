@@ -8,6 +8,7 @@ import ToolLayout from '@/components/ToolLayout'
 import ToolIntroCard from '@/components/ToolIntroCard'
 import { toolConfigs, toolStyles } from '@/lib/toolConfigs'
 import { useAnalytics } from '@/hooks/useAnalytics'
+import ShareButton from '@/components/ShareButton'
 
 interface Question {
   id: string
@@ -340,54 +341,45 @@ export default function TrustAuditPage() {
                   >
                     <Printer className="w-5 h-5" />
                   </button>
-                  <button
-                    onClick={async () => {
-                      try {
-                        const shareData = {
-                          type: 'trust-audit',
-                          toolName: 'Trust Audit',
-                          userName: formatName(relationshipName),
-                          results: {
-                            sections,
-                            total,
-                            trustLevel
-                          }
+                  <ShareButton
+                    onShare={async () => {
+                      const shareData = {
+                        type: 'trust-audit',
+                        toolName: 'Trust Audit',
+                        userName: formatName(relationshipName),
+                        results: {
+                          sections,
+                          total,
+                          trustLevel
                         }
-                        
-                        const response = await fetch('/api/share', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify(shareData)
-                        })
-                        
-                        if (response.ok) {
-                          const { id } = await response.json()
-                          const shareUrl = `${window.location.origin}/trust-audit/share/${id}`
-                          navigator.clipboard.writeText(shareUrl)
-                          
-                          // Track share event
-                          analytics.trackShare('Trust Audit', 'link', {
-                            relationshipName: relationshipName,
-                            trustLevel: trustLevel,
-                            total_score: total
-                          })
-                          
-                          alert('Share link copied to clipboard!')
-                        } else {
-                          alert('Failed to create share link')
-                        }
-                      } catch (error) {
-                        console.error('Share error:', error)
-                        analytics.trackError('Share Failed', error instanceof Error ? error.message : 'Unknown error', {
-                          tool: 'Trust Audit'
-                        })
-                        alert('Failed to create share link')
                       }
+                      
+                      const response = await fetch('/api/share', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(shareData)
+                      })
+                      
+                      if (!response.ok) {
+                        throw new Error('Failed to create share link')
+                      }
+                      
+                      const { id } = await response.json()
+                      const shareUrl = `${window.location.origin}/trust-audit/share/${id}`
+                      
+                      // Track share event
+                      analytics.trackShare('Trust Audit', 'link', {
+                        relationshipName: relationshipName,
+                        trustLevel: trustLevel,
+                        total_score: total
+                      })
+                      
+                      return shareUrl
                     }}
-                    className="px-6 py-3 bg-[#DB4839] text-white rounded-lg hover:bg-[#C73229] transition-colors shadow-lg font-medium"
+                    className="bg-[#DB4839] hover:bg-[#C73229]"
                   >
                     SHARE
-                  </button>
+                  </ShareButton>
                 </div>
               </div>
               

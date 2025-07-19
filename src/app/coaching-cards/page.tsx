@@ -5,6 +5,7 @@ import { ArrowRight, ArrowLeft, Download, Share2, X, Lightbulb, Users, Building2
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import ShareButton from '@/components/ShareButton'
 
 interface ReflectionData {
   category: string
@@ -167,7 +168,6 @@ export default function CoachingCardsTool() {
   const [reflections, setReflections] = useState<Record<number, string>>({})
   const [challengeSolution, setChallengeSolution] = useState('')
   const [nextStep, setNextStep] = useState('')
-  const [isSharing, setIsSharing] = useState(false)
 
   const handleNext = () => {
     if (currentStage < stages.length - 1) {
@@ -197,48 +197,37 @@ export default function CoachingCardsTool() {
   }
 
   const handleShare = async () => {
-    if (isSharing) return
-    
-    setIsSharing(true)
-    try {
-      const shareData = {
-        type: 'coaching-reflection',
-        data: {
-          category: selectedCategory,
-          focusArea: selectedFocusArea,
-          questions: selectedQuestions.map(idx => ({
-            text: getQuestions()[idx],
-            reflection: reflections[idx] || ''
-          })),
-          challengeSolution,
-          nextStep
-        },
-        createdAt: new Date().toISOString()
-      }
-
-      const response = await fetch('/api/share', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(shareData)
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to create share link')
-      }
-
-      const { url } = await response.json()
-      const fullUrl = `${window.location.origin}${url}`
-      
-      await navigator.clipboard.writeText(fullUrl)
-      alert('Share link copied to clipboard!')
-    } catch (error) {
-      console.error('Error sharing:', error)
-      alert('Sorry, couldn\'t create a share link. Please try again.')
-    } finally {
-      setIsSharing(false)
+    const shareData = {
+      type: 'coaching-reflection',
+      data: {
+        category: selectedCategory,
+        focusArea: selectedFocusArea,
+        questions: selectedQuestions.map(idx => ({
+          text: getQuestions()[idx],
+          reflection: reflections[idx] || ''
+        })),
+        challengeSolution,
+        nextStep
+      },
+      createdAt: new Date().toISOString()
     }
+
+    const response = await fetch('/api/share', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(shareData)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create share link')
+    }
+
+    const { url } = await response.json()
+    const fullUrl = `${window.location.origin}${url}`
+    
+    return fullUrl
   }
 
   const renderStage = () => {
@@ -814,14 +803,10 @@ export default function CoachingCardsTool() {
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">Your Coaching Reflection Summary</h2>
                   <div className="flex gap-3">
-                    <button
-                      onClick={handleShare}
-                      disabled={isSharing}
-                      className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 disabled:opacity-50"
-                    >
-                      <Share2 className="w-4 h-4" />
-                      {isSharing ? 'Sharing...' : 'Share'}
-                    </button>
+                    <ShareButton
+                      onShare={handleShare}
+                      variant="secondary"
+                    />
                   </div>
                 </div>
               </div>

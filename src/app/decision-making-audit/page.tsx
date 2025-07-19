@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Footer from '@/components/Footer'
 import { toolConfigs } from '@/lib/toolConfigs'
 import { Question, Answer, questions, dimensionInfo, getDecisionRecommendations } from '@/lib/decisionMakingHelpers'
+import ShareButton from '@/components/ShareButton'
 
 const likertOptions = [
   { value: 1, label: 'Strongly Disagree' },
@@ -210,51 +211,45 @@ export default function DecisionMakingAuditPage() {
                   >
                     <Printer className="w-5 h-5" />
                   </button>
-                  <button
-                    onClick={async () => {
-                      try {
-                        const { dimensions, total } = calculateScores()
-                        const readinessLevel = total >= 16 ? 'Well Prepared' : total >= 10 ? 'Moderately Prepared' : 'Needs More Work'
-                        
-                        const shareData = {
-                          type: 'decision-making-audit',
-                          toolName: 'Decision Making Audit',
-                          results: {
-                            decisionContext,
-                            dimensions,
-                            total,
-                            readinessLevel,
-                            answers,
-                            questions
-                          }
+                  <ShareButton
+                    onShare={async () => {
+                      const { dimensions, total } = calculateScores()
+                      const readinessLevel = total >= 16 ? 'Well Prepared' : total >= 10 ? 'Moderately Prepared' : 'Needs More Work'
+                      
+                      const shareData = {
+                        type: 'decision-making-audit',
+                        toolName: 'Decision Making Audit',
+                        results: {
+                          decisionContext,
+                          dimensions,
+                          total,
+                          readinessLevel,
+                          answers,
+                          questions
                         }
-                        
-                        const response = await fetch('/api/share', {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify(shareData)
-                        })
-                        
-                        if (!response.ok) {
-                          throw new Error('Failed to create share link')
-                        }
-                        
-                        const { url } = await response.json()
-                        const fullUrl = `${window.location.origin}${url}`
-                        
-                        await navigator.clipboard.writeText(fullUrl)
-                        alert('✨ Share link copied to clipboard!')
-                      } catch (error) {
-                        console.error('Error sharing results:', error)
-                        alert('Sorry, couldn\'t create a share link. Please try again.')
                       }
+                      
+                      const response = await fetch('/api/share', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(shareData)
+                      })
+                      
+                      if (!response.ok) {
+                        throw new Error('Failed to create share link')
+                      }
+                      
+                      const { url } = await response.json()
+                      const fullUrl = `${window.location.origin}${url}`
+                      
+                      return fullUrl
                     }}
-                    className="px-6 py-3 bg-[#3C36FF] text-white rounded-lg hover:bg-[#302CC6] transition-colors shadow-lg font-medium"
+                    className="bg-[#3C36FF] hover:bg-[#302CC6]"
                   >
                     SHARE
-                  </button>
+                  </ShareButton>
                 </div>
               </div>
               

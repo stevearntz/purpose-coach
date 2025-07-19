@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Footer from '@/components/Footer'
 import { toolConfigs } from '@/lib/toolConfigs'
 import { Question, Answer, questions, dimensionInfo, getChangeReadinessLevel, getChangeRecommendations } from '@/lib/changeReadinessHelpers'
+import ShareButton from '@/components/ShareButton'
 
 const likertOptions = [
   { value: 1, label: 'Strongly Disagree' },
@@ -209,51 +210,45 @@ export default function ChangeReadinessPage() {
                   >
                     <Printer className="w-5 h-5" />
                   </button>
-                  <button
-                    onClick={async () => {
-                      try {
-                        const { dimensions, total } = calculateScores()
-                        const overallReadiness = getChangeReadinessLevel(total)
-                        
-                        const shareData = {
-                          type: 'change-readiness',
-                          toolName: 'Change Readiness Assessment',
-                          results: {
-                            changeContext,
-                            dimensions,
-                            total,
-                            overallReadiness,
-                            answers,
-                            questions
-                          }
+                  <ShareButton
+                    onShare={async () => {
+                      const { dimensions, total } = calculateScores()
+                      const overallReadiness = getChangeReadinessLevel(total)
+                      
+                      const shareData = {
+                        type: 'change-readiness',
+                        toolName: 'Change Readiness Assessment',
+                        results: {
+                          changeContext,
+                          dimensions,
+                          total,
+                          overallReadiness,
+                          answers,
+                          questions
                         }
-                        
-                        const response = await fetch('/api/share', {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify(shareData)
-                        })
-                        
-                        if (!response.ok) {
-                          throw new Error('Failed to create share link')
-                        }
-                        
-                        const { url } = await response.json()
-                        const fullUrl = `${window.location.origin}${url}`
-                        
-                        await navigator.clipboard.writeText(fullUrl)
-                        alert('✨ Share link copied to clipboard!')
-                      } catch (error) {
-                        console.error('Error sharing results:', error)
-                        alert('Sorry, couldn\'t create a share link. Please try again.')
                       }
+                      
+                      const response = await fetch('/api/share', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(shareData)
+                      })
+                      
+                      if (!response.ok) {
+                        throw new Error('Failed to create share link')
+                      }
+                      
+                      const { url } = await response.json()
+                      const fullUrl = `${window.location.origin}${url}`
+                      
+                      return fullUrl
                     }}
-                    className="px-6 py-3 bg-[#BF4C74] text-white rounded-lg hover:bg-[#A63D5F] transition-colors shadow-lg font-medium"
+                    className="bg-[#BF4C74] hover:bg-[#A63D5F]"
                   >
                     SHARE
-                  </button>
+                  </ShareButton>
                 </div>
               </div>
               

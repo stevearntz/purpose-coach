@@ -4,6 +4,9 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   
+  // Commented out to allow /tools page to work
+  // This was previously redirecting /tools to homepage
+  /*
   // Only handle exact /tools paths, not API routes or assets
   if (pathname === '/tools' || pathname.match(/^\/tools\/[^.]+$/)) {
     const url = request.nextUrl.clone()
@@ -18,6 +21,7 @@ export function middleware(request: NextRequest) {
     // Permanent redirect for SEO
     return NextResponse.redirect(url, { status: 308 })
   }
+  */
   
   return NextResponse.next()
 }

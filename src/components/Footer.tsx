@@ -1,10 +1,12 @@
 'use client';
 
+import Link from 'next/link';
+
 export default function Footer() {
   return (
     <footer className="bg-gray-100 border-t border-gray-200">
       <div className="container mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           {/* Logo and Copyright */}
           <div className="md:col-span-1">
             <a 
@@ -52,6 +54,15 @@ export default function Footer() {
             <ul className="space-y-2">
               <li><a href="#" className="text-gray-600 hover:text-iris transition-colors">Blog</a></li>
               <li><a href="#" className="text-gray-600 hover:text-iris transition-colors">Contact Us</a></li>
+            </ul>
+          </div>
+
+          {/* Tools Column */}
+          <div className="md:col-span-1">
+            <h3 className="font-semibold text-nightfall mb-4">Resources</h3>
+            <ul className="space-y-2">
+              <li><Link href="/tools" className="text-gray-600 hover:text-iris transition-colors">All Tools</Link></li>
+              <li><Link href="/courses" className="text-gray-600 hover:text-iris transition-colors">Course Catalog</Link></li>
             </ul>
           </div>
 

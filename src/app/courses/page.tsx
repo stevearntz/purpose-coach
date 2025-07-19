@@ -136,9 +136,8 @@ export default function CoursesPage() {
           </div>
           
           <div className="text-center">
-            <h1 className="text-4xl font-bold mb-4">Programs That Scale With You</h1>
-            <p className="text-2xl text-iris-100 mb-2">Built for growing teams, designed for real impact.</p>
-            <p className="text-xl text-purple-200">Every session here helps you build alignment, capability, and culture—at scale.</p>
+            <h1 className="text-4xl font-bold mb-4">Workshops for Every Challenge</h1>
+            <p className="text-2xl text-iris-100 mb-2">Live, conversation-based sessions built to develop people, strengthen culture, and drive real impact.</p>
           </div>
         </div>
       </div>

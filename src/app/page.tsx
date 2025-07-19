@@ -400,7 +400,7 @@ function ToolsPage() {
       'c6': { id: 't6', name: 'Burnout Assessment', type: 'assessment', description: 'Identify and address signs of burnout' },
       'c7': { id: 't7', name: 'Working with Me Guide', type: 'guide', description: 'Share your work style and improve collaboration' },
       'c8': { id: 't8', name: 'Hopes, Fears, Expectations Template', type: 'guide', description: 'Create clarity through open dialogue about expectations' },
-      'c9': { id: 't9', name: 'Career Drivers Exercise', type: 'reflection', description: 'Discover what motivates and drives your career growth' }
+      'c9': { id: 't9', name: 'Career Drivers Exercise', type: 'reflection', description: 'Explore what motivates your team members and support the ways they want to grow in their role.' }
     };
 
     // Use the shared course mappings
@@ -1105,7 +1105,7 @@ function ToolsPage() {
             </div>
             
             <h2 className="text-3xl font-bold text-nightfall mb-12">
-              Building Your Personalized Development Plan
+              Building your personalized development plan
             </h2>
             
             <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
@@ -1196,7 +1196,7 @@ function ToolsPage() {
                   })}
                 </div>
                 <p className="text-gray-600 text-sm mt-4">
-                  We've crafted a targeted plan with {recommendations.tools.length} tools and {recommendations.courses.length} programs to help you overcome these challenges
+                  We've crafted a targeted plan that includes tools and workshops to help you overcome these challenges.
                 </p>
               </div>
             </div>
@@ -1211,7 +1211,7 @@ function ToolsPage() {
                 </div>
                 <h3 className="text-2xl font-bold text-nightfall">Recommended Tools</h3>
               </div>
-              <p className="text-gray-600 mb-6 ml-13">Quick wins to address your immediate needs</p>
+              <p className="text-gray-600 mb-6 ml-13">Simple, effective tools to help you tackle your challenges right away.</p>
               
               <div className="grid gap-4">
                 {recommendations.tools.map((tool, index) => {
@@ -1276,7 +1276,7 @@ function ToolsPage() {
                 </div>
                 <h3 className="text-2xl font-bold text-nightfall">Development Programs</h3>
               </div>
-              <p className="text-gray-600 mb-6 ml-13">In-depth learning to build lasting capabilities</p>
+              <p className="text-gray-600 mb-6 ml-13">Live, guided sessions designed to build key skills through a blend of learning, reflection, and peer connection.</p>
               
               <div className="grid gap-6">
                 {recommendations.courses.slice(0, 5).map((course) => (

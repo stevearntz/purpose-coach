@@ -1,4 +1,5 @@
 import * as amplitude from '@amplitude/analytics-browser'
+import { Types } from '@amplitude/analytics-browser'
 
 // Initialize Amplitude with your API key
 export const initAmplitude = () => {
@@ -19,8 +20,24 @@ export const initAmplitude = () => {
       fileDownloads: true,
       formInteractions: true,
     },
+    // Disable remote config to prevent network errors
+    autocapture: {
+      elementInteractions: false,
+    },
     // Optional: Set server URL for EU data residency
     // serverUrl: 'https://api.eu.amplitude.com/2/httpapi',
+    serverUrl: process.env.NEXT_PUBLIC_AMPLITUDE_SERVER_URL,
+    // Disable fetching remote config to prevent network errors
+    useBatch: false,
+    // Add timeout for network requests
+    uploadPeriodMillis: 10000,
+    // Retry configuration
+    retryClass: {
+      maxRetries: 3,
+      retryTimeouts: [1000, 2000, 4000],
+    },
+    // Disable console logging in production
+    logLevel: process.env.NODE_ENV === 'production' ? Types.LogLevel.None : Types.LogLevel.Warn,
   })
 }
 

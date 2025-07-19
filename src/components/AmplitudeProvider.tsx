@@ -10,25 +10,33 @@ function AmplitudeProviderInner({ children }: { children: React.ReactNode }) {
 
   // Initialize Amplitude on mount
   useEffect(() => {
-    initAmplitude()
+    try {
+      initAmplitude()
+    } catch (error) {
+      console.warn('Failed to initialize Amplitude:', error)
+    }
   }, [])
 
   // Track page views on route change
   useEffect(() => {
     if (pathname) {
-      // Get a friendly page name from the pathname
-      const pageName = pathname === '/' 
-        ? 'Home' 
-        : pathname.split('/').filter(Boolean).map(part => 
-            part.split('-').map(word => 
-              word.charAt(0).toUpperCase() + word.slice(1)
-            ).join(' ')
-          ).join(' - ')
-      
-      trackPageView(pageName, {
-        referrer: document.referrer,
-        search_params: Object.fromEntries(searchParams.entries()),
-      })
+      try {
+        // Get a friendly page name from the pathname
+        const pageName = pathname === '/' 
+          ? 'Home' 
+          : pathname.split('/').filter(Boolean).map(part => 
+              part.split('-').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+              ).join(' ')
+            ).join(' - ')
+        
+        trackPageView(pageName, {
+          referrer: document.referrer,
+          search_params: Object.fromEntries(searchParams.entries()),
+        })
+      } catch (error) {
+        console.warn('Failed to track page view:', error)
+      }
     }
   }, [pathname, searchParams])
 

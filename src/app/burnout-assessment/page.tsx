@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, ArrowRight, Printer } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Printer, Heart } from 'lucide-react'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
 import { toolConfigs } from '@/lib/toolConfigs'
@@ -281,6 +281,9 @@ export default function BurnoutAssessmentPage() {
         </Link>
         
         <div className="text-center text-white mb-12 max-w-3xl">
+          <div className="inline-flex p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
+            <Heart className="w-20 h-20 text-white" />
+          </div>
           <h1 className="text-5xl font-bold mb-6">{config.title}</h1>
           <h2 className="text-3xl mb-8">{config.subtitle}</h2>
           <p className="text-xl text-white/90 leading-relaxed">
@@ -301,9 +304,8 @@ export default function BurnoutAssessmentPage() {
               type="text"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
-              placeholder="FIRST NAME"
-              className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-2xl font-normal uppercase text-center"
-              style={{ letterSpacing: '0.05em' }}
+              placeholder="Enter your first name..."
+              className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
               required
             />
             

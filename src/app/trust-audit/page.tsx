@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, ArrowRight, Printer } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Printer, Shield } from 'lucide-react'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
 import ToolLayout from '@/components/ToolLayout'
@@ -244,6 +244,9 @@ export default function TrustAuditPage() {
         </Link>
         
         <div className="text-center text-white mb-12 max-w-3xl">
+          <div className="inline-flex p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
+            <Shield className="w-20 h-20 text-white" />
+          </div>
           <h1 className="text-5xl font-bold mb-6">{toolConfigs.trustAudit.title}</h1>
           <h2 className="text-3xl mb-8">{toolConfigs.trustAudit.subtitle}</h2>
           <p className="text-xl text-white/90 leading-relaxed">
@@ -264,9 +267,8 @@ export default function TrustAuditPage() {
               type="text"
               value={relationshipName}
               onChange={(e) => setRelationshipName(e.target.value)}
-              placeholder="FIRST NAME"
-              className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-2xl font-normal uppercase text-center"
-              style={{ letterSpacing: '0.05em' }}
+              placeholder="Enter their first name..."
+              className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
               required
             />
             

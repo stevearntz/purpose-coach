@@ -118,6 +118,9 @@ export default function ChangeReadinessPage() {
         </Link>
         
         <div className="text-center text-white mb-12 max-w-3xl">
+          <div className="inline-flex p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
+            <ArrowRight className="w-20 h-20 text-white" />
+          </div>
           <h1 className="text-5xl font-bold mb-6">{config.title}</h1>
           <h2 className="text-3xl mb-8">{config.subtitle}</h2>
           <p className="text-xl text-white/90 leading-relaxed">
@@ -137,7 +140,7 @@ export default function ChangeReadinessPage() {
               value={changeContext}
               onChange={(e) => setChangeContext(e.target.value)}
               placeholder="e.g., Team restructuring, new technology implementation, role transition..."
-              className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-base min-h-[100px] resize-y"
+              className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg min-h-[100px] resize-y"
               required
             />
             

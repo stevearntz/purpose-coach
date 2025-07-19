@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, ArrowRight, Printer } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Printer, Brain } from 'lucide-react'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
 import { toolConfigs } from '@/lib/toolConfigs'
@@ -119,6 +119,9 @@ export default function DecisionMakingAuditPage() {
         </Link>
         
         <div className="text-center text-white mb-12 max-w-3xl">
+          <div className="inline-flex p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
+            <Brain className="w-20 h-20 text-white" />
+          </div>
           <h1 className="text-5xl font-bold mb-6">{config.title}</h1>
           <h2 className="text-3xl mb-8">{config.subtitle}</h2>
           <p className="text-xl text-white/90 leading-relaxed">
@@ -138,7 +141,7 @@ export default function DecisionMakingAuditPage() {
               value={decisionContext}
               onChange={(e) => setDecisionContext(e.target.value)}
               placeholder="e.g., Should we expand into a new market? Which vendor should we choose?"
-              className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-base min-h-[100px] resize-y"
+              className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg min-h-[100px] resize-y"
               required
             />
             

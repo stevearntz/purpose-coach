@@ -361,16 +361,17 @@ export default function CareerDriversTool() {
         return (
           <div className="min-h-screen bg-gradient-to-br from-[#BADA54] to-[#30B859] flex items-center justify-center p-4">
             <div className="w-full max-w-2xl">
-              <button
-                onClick={() => router.push('/')}
-                className="absolute top-4 left-4 p-2 text-white/80 hover:text-white transition-colors"
+              <Link 
+                href="/?screen=4" 
+                className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
               >
-                <X className="w-6 h-6" />
-              </button>
+                <ArrowLeft className="w-5 h-5 mr-2" />
+                Back to Plan
+              </Link>
 
               <div className="text-center space-y-8">
                 <div className="inline-flex p-6 bg-white/20 backdrop-blur-sm rounded-full">
-                  <TrendingUp className="w-20 h-20 text-white" />
+                  <Sparkles className="w-20 h-20 text-white" />
                 </div>
                 
                 <div className="space-y-4">

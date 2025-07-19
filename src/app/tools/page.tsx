@@ -93,16 +93,6 @@ const challenges: Challenge[] = [
 
 const tools: Tool[] = [
   {
-    id: 'purpose',
-    path: '/purpose',
-    title: 'Purpose Discovery',
-    subtitle: 'Find your why',
-    description: 'Uncover your core purpose and align your work with what matters most to you.',
-    gradient: 'from-[#6E3FCC] to-[#EB6593]',
-    icon: <Target className="w-8 h-8" />,
-    challenges: ['purpose-direction', 'alignment']
-  },
-  {
     id: 'team-canvas',
     path: '/team-canvas',
     title: 'Team Canvas',

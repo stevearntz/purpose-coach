@@ -245,6 +245,7 @@ export default function SharePage() {
     yPosition += 20;
 
     if (data.type === 'purpose' && data.results) {
+      // Legacy Purpose Coach results - still display them for existing shares
       doc.setFontSize(14);
       doc.text('Purpose Statement', 20, yPosition);
       yPosition += 10;
@@ -518,7 +519,7 @@ export default function SharePage() {
                 <div className="grid gap-4">
                   {data.recommendations.tools.map((tool, index) => {
                     const isClickable = tool.id === 't3' || tool.id === 't1' || tool.id === 't6';
-                    const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/purpose' : tool.id === 't6' ? '/burnout-assessment' : '';
+                    const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/team-canvas' : tool.id === 't6' ? '/burnout-assessment' : '';
                     
                     const toolContent = (
                       <>
@@ -662,6 +663,7 @@ export default function SharePage() {
           </div>
 
           {data.type === 'purpose' && data.results && (
+            // Legacy Purpose Coach results - still display them for existing shares
             <div className="space-y-6">
               <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6">
                 <h2 className="text-xl font-semibold text-white mb-3">Your Purpose Statement</h2>

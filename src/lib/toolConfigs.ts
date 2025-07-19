@@ -6,12 +6,6 @@ export const toolConfigs = {
     subtitle: "Build stronger work relationships.",
     description: "Assess trust across three key dimensions—Integrity, Competence, and Empathy—to identify strengths and opportunities for growth in your professional relationships."
   },
-  purpose: {
-    gradient: "from-[#6E3FCC] to-[#EB6593]", // Example gradient for Purpose tool
-    title: "Purpose Discovery",
-    subtitle: "Find your why.",
-    description: "Uncover your core purpose and align your work with what matters most to you."
-  },
   burnoutAssessment: {
     gradient: "from-[#74DEDE] to-[#30B859]",
     title: "Burnout Assessment",

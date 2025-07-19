@@ -531,53 +531,65 @@ export default function UserGuidePage() {
 
   // Main Form Screen
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#30C7C7]/10 via-[#5D9DD9]/10 to-[#2A74B9]/10 flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full">
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-3xl mx-auto">
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <button
-              onClick={() => setShowIntro(true)}
-              className="inline-flex items-center text-[#2A74B9] hover:text-[#215A91] transition-colors font-medium"
-            >
-              <ArrowLeft className="w-5 h-5 mr-2" />
-              Back
-            </button>
-            <span className="text-gray-600 text-sm">
-              Section {currentSectionIndex + 1} of {sections.length}
-            </span>
-          </div>
-          
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="h-2 rounded-full bg-gradient-to-r from-[#30C7C7] to-[#2A74B9] transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
+          <Link href="/?screen=4" className="text-gray-600 hover:text-gray-800 flex items-center gap-2 mb-4">
+            <ArrowLeft className="w-4 h-4" />
+            Back to tools
+          </Link>
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">User Guide</h2>
+            <div className="flex flex-col items-end gap-1">
+              <p className="text-sm text-gray-600">
+                Section {currentSectionIndex + 1} of {sections.length}
+              </p>
+              <div className="flex items-center gap-2">
+                {sections.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      if (index < currentSectionIndex) {
+                        setCurrentSectionIndex(index)
+                      }
+                    }}
+                    disabled={index > currentSectionIndex}
+                    className={`h-2 rounded-full transition-all ${
+                      index === currentSectionIndex
+                        ? 'w-8 bg-[#2A74B9]'
+                        : index < currentSectionIndex
+                        ? 'w-2 bg-[#2A74B9]/50 hover:bg-[#2A74B9]/70 cursor-pointer'
+                        : 'w-2 bg-gray-300 cursor-not-allowed'
+                    }`}
+                    aria-label={`Go to section ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
         
-        <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-white/80 shadow-lg">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           {renderSection()}
           
           <div className="flex justify-between mt-8">
             <button
               onClick={handlePrevious}
               disabled={currentSectionIndex === 0}
-              className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 border-2 ${
+              className={`px-6 py-3 font-medium transition-colors ${
                 currentSectionIndex === 0
-                  ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
-                  : 'border-[#2A74B9] text-[#2A74B9] hover:bg-[#2A74B9]/10'
+                  ? 'text-gray-300 cursor-not-allowed'
+                  : 'text-gray-600 hover:text-gray-800'
               }`}
             >
-              <ArrowLeft className="w-5 h-5" />
-              <span>PREVIOUS</span>
+              Back
             </button>
             
             <button
               onClick={handleNext}
-              className="flex items-center space-x-2 px-6 py-3 bg-[#2A74B9] text-white rounded-xl font-medium transition-all duration-200 hover:bg-[#215A91] shadow-lg"
+              className="px-6 py-3 bg-[#2A74B9] text-white rounded-lg font-medium hover:bg-[#215A91] transition-colors"
             >
-              <span>{currentSectionIndex === sections.length - 1 ? 'FINISH' : 'NEXT'}</span>
-              <ArrowRight className="w-5 h-5" />
+              {currentSectionIndex === sections.length - 1 ? 'Complete' : 'Continue'}
             </button>
           </div>
         </div>

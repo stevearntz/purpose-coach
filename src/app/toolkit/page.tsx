@@ -187,6 +187,7 @@ const tools: Tool[] = [
 export default function ToolsIndexPage() {
   const analytics = useAnalytics()
   const [selectedChallenge, setSelectedChallenge] = useState<string | null>(null)
+  
 
   const filteredTools = useMemo(() => {
     if (!selectedChallenge) return tools

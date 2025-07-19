@@ -295,19 +295,31 @@ export default function CoachingCardsTool() {
                 </Link>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">Choose Your Category</h2>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="text-sm text-gray-600">
+                      Step {currentStage} of {stages.length - 1}
+                    </p>
+                    <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
-                      <div
+                      <button
                         key={s.id}
+                        onClick={() => {
+                          if (index < currentStage) {
+                            setCurrentStage(index)
+                          }
+                        }}
+                        disabled={index > currentStage}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#8AB307]'
                             : index < currentStage
-                            ? 'w-2 bg-[#8AB307]/50'
-                            : 'w-2 bg-gray-300'
+                            ? 'w-2 bg-[#8AB307]/50 hover:bg-[#8AB307]/70 cursor-pointer'
+                            : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
+                        aria-label={`Go to ${s.title}`}
                       />
                     ))}
+                  </div>
                   </div>
                 </div>
               </div>
@@ -383,19 +395,31 @@ export default function CoachingCardsTool() {
                 </Link>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">Choose Your Focus Area</h2>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="text-sm text-gray-600">
+                      Step {currentStage} of {stages.length - 1}
+                    </p>
+                    <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
-                      <div
+                      <button
                         key={s.id}
+                        onClick={() => {
+                          if (index < currentStage) {
+                            setCurrentStage(index)
+                          }
+                        }}
+                        disabled={index > currentStage}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#8AB307]'
                             : index < currentStage
-                            ? 'w-2 bg-[#8AB307]/50'
-                            : 'w-2 bg-gray-300'
+                            ? 'w-2 bg-[#8AB307]/50 hover:bg-[#8AB307]/70 cursor-pointer'
+                            : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
+                        aria-label={`Go to ${s.title}`}
                       />
                     ))}
+                  </div>
                   </div>
                 </div>
               </div>
@@ -467,19 +491,31 @@ export default function CoachingCardsTool() {
                 </Link>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">Select Your Questions</h2>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="text-sm text-gray-600">
+                      Step {currentStage} of {stages.length - 1}
+                    </p>
+                    <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
-                      <div
+                      <button
                         key={s.id}
+                        onClick={() => {
+                          if (index < currentStage) {
+                            setCurrentStage(index)
+                          }
+                        }}
+                        disabled={index > currentStage}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#8AB307]'
                             : index < currentStage
-                            ? 'w-2 bg-[#8AB307]/50'
-                            : 'w-2 bg-gray-300'
+                            ? 'w-2 bg-[#8AB307]/50 hover:bg-[#8AB307]/70 cursor-pointer'
+                            : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
+                        aria-label={`Go to ${s.title}`}
                       />
                     ))}
+                  </div>
                   </div>
                 </div>
               </div>
@@ -557,19 +593,31 @@ export default function CoachingCardsTool() {
                 </Link>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">Reflect on Your Questions</h2>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="text-sm text-gray-600">
+                      Step {currentStage} of {stages.length - 1}
+                    </p>
+                    <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
-                      <div
+                      <button
                         key={s.id}
+                        onClick={() => {
+                          if (index < currentStage) {
+                            setCurrentStage(index)
+                          }
+                        }}
+                        disabled={index > currentStage}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#8AB307]'
                             : index < currentStage
-                            ? 'w-2 bg-[#8AB307]/50'
-                            : 'w-2 bg-gray-300'
+                            ? 'w-2 bg-[#8AB307]/50 hover:bg-[#8AB307]/70 cursor-pointer'
+                            : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
+                        aria-label={`Go to ${s.title}`}
                       />
                     ))}
+                  </div>
                   </div>
                 </div>
               </div>
@@ -647,19 +695,31 @@ export default function CoachingCardsTool() {
                 </Link>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">Identify Your Solution</h2>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="text-sm text-gray-600">
+                      Step {currentStage} of {stages.length - 1}
+                    </p>
+                    <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
-                      <div
+                      <button
                         key={s.id}
+                        onClick={() => {
+                          if (index < currentStage) {
+                            setCurrentStage(index)
+                          }
+                        }}
+                        disabled={index > currentStage}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#8AB307]'
                             : index < currentStage
-                            ? 'w-2 bg-[#8AB307]/50'
-                            : 'w-2 bg-gray-300'
+                            ? 'w-2 bg-[#8AB307]/50 hover:bg-[#8AB307]/70 cursor-pointer'
+                            : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
+                        aria-label={`Go to ${s.title}`}
                       />
                     ))}
+                  </div>
                   </div>
                 </div>
               </div>
@@ -726,19 +786,31 @@ export default function CoachingCardsTool() {
                 </Link>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">Define Your Next Step</h2>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="text-sm text-gray-600">
+                      Step {currentStage} of {stages.length - 1}
+                    </p>
+                    <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
-                      <div
+                      <button
                         key={s.id}
+                        onClick={() => {
+                          if (index < currentStage) {
+                            setCurrentStage(index)
+                          }
+                        }}
+                        disabled={index > currentStage}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#8AB307]'
                             : index < currentStage
-                            ? 'w-2 bg-[#8AB307]/50'
-                            : 'w-2 bg-gray-300'
+                            ? 'w-2 bg-[#8AB307]/50 hover:bg-[#8AB307]/70 cursor-pointer'
+                            : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
+                        aria-label={`Go to ${s.title}`}
                       />
                     ))}
+                  </div>
                   </div>
                 </div>
               </div>

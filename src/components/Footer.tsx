@@ -61,7 +61,7 @@ export default function Footer() {
           <div className="md:col-span-1">
             <h3 className="font-semibold text-nightfall mb-4">Resources</h3>
             <ul className="space-y-2">
-              <li><Link href="/tools" className="text-gray-600 hover:text-iris transition-colors">All Tools</Link></li>
+              <li><Link href="/toolkit" className="text-gray-600 hover:text-iris transition-colors">All Tools</Link></li>
               <li><Link href="/courses" className="text-gray-600 hover:text-iris transition-colors">Course Catalog</Link></li>
             </ul>
           </div>

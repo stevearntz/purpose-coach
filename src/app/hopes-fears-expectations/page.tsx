@@ -428,19 +428,31 @@ export default function HopesFearsTool() {
                 </Link>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">What's Your Context?</h2>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="text-sm text-gray-600">
+                      Stage {currentStage + 1} of {stages.length}
+                    </p>
+                    <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
-                      <div
+                      <button
                         key={s.id}
+                        onClick={() => {
+                          if (index < currentStage && index > 0) {
+                            setCurrentStage(index)
+                          }
+                        }}
+                        disabled={index > currentStage || index === 0}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#DB4839]'
                             : index < currentStage
-                            ? 'w-2 bg-[#DB4839]/50'
-                            : 'w-2 bg-gray-300'
+                            ? 'w-2 bg-[#DB4839]/50 hover:bg-[#DB4839]/70 cursor-pointer'
+                            : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
+                        aria-label={`Go to ${s.title}`}
                       />
                     ))}
+                  </div>
                   </div>
                 </div>
               </div>
@@ -519,19 +531,31 @@ export default function HopesFearsTool() {
                 </Link>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">What Are Your Hopes?</h2>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="text-sm text-gray-600">
+                      Stage {currentStage + 1} of {stages.length}
+                    </p>
+                    <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
-                      <div
+                      <button
                         key={s.id}
+                        onClick={() => {
+                          if (index < currentStage && index > 0) {
+                            setCurrentStage(index)
+                          }
+                        }}
+                        disabled={index > currentStage || index === 0}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#DB4839]'
                             : index < currentStage
-                            ? 'w-2 bg-[#DB4839]/50'
-                            : 'w-2 bg-gray-300'
+                            ? 'w-2 bg-[#DB4839]/50 hover:bg-[#DB4839]/70 cursor-pointer'
+                            : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
+                        aria-label={`Go to ${s.title}`}
                       />
                     ))}
+                  </div>
                   </div>
                 </div>
               </div>
@@ -610,19 +634,31 @@ export default function HopesFearsTool() {
                 </Link>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">What Are Your Fears?</h2>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="text-sm text-gray-600">
+                      Stage {currentStage + 1} of {stages.length}
+                    </p>
+                    <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
-                      <div
+                      <button
                         key={s.id}
+                        onClick={() => {
+                          if (index < currentStage && index > 0) {
+                            setCurrentStage(index)
+                          }
+                        }}
+                        disabled={index > currentStage || index === 0}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#DB4839]'
                             : index < currentStage
-                            ? 'w-2 bg-[#DB4839]/50'
-                            : 'w-2 bg-gray-300'
+                            ? 'w-2 bg-[#DB4839]/50 hover:bg-[#DB4839]/70 cursor-pointer'
+                            : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
+                        aria-label={`Go to ${s.title}`}
                       />
                     ))}
+                  </div>
                   </div>
                 </div>
               </div>
@@ -701,19 +737,31 @@ export default function HopesFearsTool() {
                 </Link>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">What Are Your Expectations?</h2>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="text-sm text-gray-600">
+                      Stage {currentStage + 1} of {stages.length}
+                    </p>
+                    <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
-                      <div
+                      <button
                         key={s.id}
+                        onClick={() => {
+                          if (index < currentStage && index > 0) {
+                            setCurrentStage(index)
+                          }
+                        }}
+                        disabled={index > currentStage || index === 0}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#DB4839]'
                             : index < currentStage
-                            ? 'w-2 bg-[#DB4839]/50'
-                            : 'w-2 bg-gray-300'
+                            ? 'w-2 bg-[#DB4839]/50 hover:bg-[#DB4839]/70 cursor-pointer'
+                            : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
+                        aria-label={`Go to ${s.title}`}
                       />
                     ))}
+                  </div>
                   </div>
                 </div>
               </div>

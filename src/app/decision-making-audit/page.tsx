@@ -328,10 +328,10 @@ export default function DecisionMakingAuditPage() {
 
   // Main Assessment Screen
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#6DC7FF]/10 via-[#5581FF]/10 to-[#3C36FF]/10 flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full">
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-3xl mx-auto">
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-2">
             <button
               onClick={() => setShowIntro(true)}
               className="inline-flex items-center text-[#3C36FF] hover:text-[#302CC6] transition-colors font-medium"
@@ -344,15 +344,30 @@ export default function DecisionMakingAuditPage() {
             </span>
           </div>
           
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="h-2 rounded-full bg-gradient-to-r from-[#6DC7FF] to-[#3C36FF] transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
+          <div className="flex items-center gap-2 justify-center">
+            {Array.from({ length: questions.length }).map((_, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  if (index < currentQuestionIndex) {
+                    setCurrentQuestionIndex(index)
+                  }
+                }}
+                disabled={index > currentQuestionIndex}
+                className={`h-2 rounded-full transition-all ${
+                  index === currentQuestionIndex
+                    ? 'w-8 bg-[#3C36FF]'
+                    : index < currentQuestionIndex
+                    ? 'w-2 bg-[#3C36FF]/50 hover:bg-[#3C36FF]/70 cursor-pointer'
+                    : 'w-2 bg-gray-300 cursor-not-allowed'
+                }`}
+                aria-label={`Go to question ${index + 1}`}
+              />
+            ))}
           </div>
         </div>
         
-        <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-white/80 shadow-lg">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           {currentDimension && (
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-nightfall">
@@ -406,40 +421,31 @@ export default function DecisionMakingAuditPage() {
             </div>
           </div>
           
-          <div className="flex justify-between">
+          <div className="flex justify-between mt-8">
             <button
               onClick={handlePrevious}
               disabled={currentQuestionIndex === 0}
-              className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 border-2 ${
+              className={`px-6 py-3 font-medium transition-colors ${
                 currentQuestionIndex === 0
-                  ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
-                  : 'border-[#3C36FF] text-[#3C36FF] hover:bg-[#3C36FF]/10'
+                  ? 'text-gray-300 cursor-not-allowed'
+                  : 'text-gray-600 hover:text-gray-800'
               }`}
             >
-              <ArrowLeft className="w-5 h-5" />
-              <span>PREVIOUS</span>
+              Back
             </button>
             
             <button
               onClick={handleNext}
               disabled={!getCurrentAnswer()}
-              className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                 !getCurrentAnswer()
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-[#3C36FF] text-white hover:bg-[#302CC6] shadow-lg'
+                  : 'bg-[#3C36FF] text-white hover:bg-[#302CC6]'
               }`}
             >
-              <span>{currentQuestionIndex === questions.length - 1 ? 'SEE RESULTS' : 'NEXT'}</span>
-              <ArrowRight className="w-5 h-5" />
+              {currentQuestionIndex === questions.length - 1 ? 'See Results' : 'Continue'}
             </button>
           </div>
-        </div>
-        
-        <div className="text-center mt-4 text-sm text-gray-600">
-          <span className="inline-block bg-white/60 backdrop-blur-sm px-4 py-2 rounded-lg">
-            Press <kbd className="px-2 py-1 bg-gray-200 rounded text-xs font-mono">1</kbd> - <kbd className="px-2 py-1 bg-gray-200 rounded text-xs font-mono">5</kbd> to select • 
-            <kbd className="px-2 py-1 bg-gray-200 rounded text-xs font-mono">←</kbd> <kbd className="px-2 py-1 bg-gray-200 rounded text-xs font-mono">→</kbd> to navigate
-          </span>
         </div>
       </div>
     </div>

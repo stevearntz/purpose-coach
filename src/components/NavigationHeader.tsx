@@ -3,6 +3,7 @@
 import React from 'react';
 import { ArrowLeft, Share2, Printer } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import ShareButton from './ShareButton';
 
 interface NavigationAction {
   type: 'share' | 'print' | 'custom';
@@ -39,15 +40,32 @@ export default function NavigationHeader({
   };
 
   const renderAction = (action: NavigationAction, index: number) => {
+    // Special handling for share actions - use ShareButton component
+    if (action.type === 'share') {
+      return (
+        <ShareButton
+          key={index}
+          onShare={action.onClick as () => Promise<string>}
+          variant="secondary"
+          className={variant === 'light' 
+            ? 'px-6 py-2.5 bg-white/10 text-white rounded-lg font-semibold hover:bg-white/20 transition-colors backdrop-blur-sm border border-white/20'
+            : 'px-6 py-2.5 bg-white text-iris-500 rounded-lg font-semibold hover:bg-gray-50 transition-colors border border-gray-200'
+          }
+        >
+          <Share2 className="w-4 h-4" />
+          <span>{action.label || 'Share'}</span>
+        </ShareButton>
+      );
+    }
+
+    // Regular button for other actions
     const baseClass = action.variant === 'primary' 
       ? 'px-6 py-2.5 bg-iris-500 text-white rounded-lg font-semibold hover:bg-iris-700 transition-colors'
       : variant === 'light'
       ? 'px-6 py-2.5 bg-white/10 text-white rounded-lg font-semibold hover:bg-white/20 transition-colors backdrop-blur-sm border border-white/20'
       : 'px-6 py-2.5 bg-white text-iris-500 rounded-lg font-semibold hover:bg-gray-50 transition-colors border border-gray-200';
 
-    const icon = action.type === 'share' ? <Share2 className="w-4 h-4" /> 
-                : action.type === 'print' ? <Printer className="w-4 h-4" />
-                : null;
+    const icon = action.type === 'print' ? <Printer className="w-4 h-4" /> : null;
 
     return (
       <button
@@ -56,7 +74,7 @@ export default function NavigationHeader({
         className={`${baseClass} flex items-center gap-2`}
       >
         {icon}
-        {action.label || (action.type === 'share' ? 'Share' : action.type === 'print' ? 'Print' : '')}
+        {action.label || (action.type === 'print' ? 'Print' : '')}
       </button>
     );
   };

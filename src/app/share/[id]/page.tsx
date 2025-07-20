@@ -52,6 +52,7 @@ interface SharedData {
     tools: Tool[];
     courses: Course[];
   };
+  data?: any; // Generic data property for tools
   createdAt: string;
 }
 

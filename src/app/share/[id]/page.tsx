@@ -623,6 +623,204 @@ export default function SharePage() {
     );
   }
 
+  // Team Canvas share view
+  if (data.type === 'team-canvas' && data.data) {
+    return (
+      <>
+        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-orange-50 py-16">
+          <div className="container mx-auto px-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-12">
+                <div className="flex justify-between items-center mb-8">
+                  <Link
+                    href="/"
+                    className="text-orange-600 hover:text-orange-700 flex items-center gap-2"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    BACK
+                  </Link>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={handleCopyLink}
+                      className="px-4 py-2 border border-gray-300 text-orange-600 rounded-lg hover:border-orange-400 transition-colors flex items-center gap-2"
+                    >
+                      <Share2 className="w-4 h-4" />
+                      {copied ? 'COPIED!' : 'SHARE'}
+                    </button>
+                    <button
+                      onClick={handleDownloadPDF}
+                      className="px-4 py-2 border border-gray-300 text-orange-600 rounded-lg hover:border-orange-400 transition-colors flex items-center gap-2"
+                    >
+                      <Download className="w-4 h-4" />
+                      DOWNLOAD PDF
+                    </button>
+                  </div>
+                </div>
+                
+                <h2 className="text-4xl font-bold text-nightfall mb-4">Team Canvas</h2>
+                <p className="text-gray-600">Created on {new Date(data.createdAt).toLocaleDateString()}</p>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-lg p-8">
+                <pre className="whitespace-pre-wrap text-gray-700">
+                  {JSON.stringify(data.data, null, 2)}
+                </pre>
+              </div>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  // Hopes, Fears & Expectations share view
+  if (data.type === 'hopes-fears-expectations' && data.data) {
+    return (
+      <>
+        <div className="min-h-screen bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 py-16">
+          <div className="container mx-auto px-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-12">
+                <div className="flex justify-between items-center mb-8">
+                  <Link
+                    href="/"
+                    className="text-orange-600 hover:text-orange-700 flex items-center gap-2"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    BACK
+                  </Link>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={handleCopyLink}
+                      className="px-4 py-2 border border-gray-300 text-orange-600 rounded-lg hover:border-orange-400 transition-colors flex items-center gap-2"
+                    >
+                      <Share2 className="w-4 h-4" />
+                      {copied ? 'COPIED!' : 'SHARE'}
+                    </button>
+                    <button
+                      onClick={handleDownloadPDF}
+                      className="px-4 py-2 border border-gray-300 text-orange-600 rounded-lg hover:border-orange-400 transition-colors flex items-center gap-2"
+                    >
+                      <Download className="w-4 h-4" />
+                      DOWNLOAD PDF
+                    </button>
+                  </div>
+                </div>
+                
+                <h2 className="text-4xl font-bold text-nightfall mb-4">Hopes, Fears & Expectations</h2>
+                <p className="text-gray-600">Created on {new Date(data.createdAt).toLocaleDateString()}</p>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-lg p-8">
+                {data.data.context && (
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold text-nightfall mb-2">Context</h3>
+                    <p className="text-gray-600">{data.data.context}</p>
+                  </div>
+                )}
+                
+                {data.data.hopes && (
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold text-green-600 mb-4">Hopes</h3>
+                    <ul className="space-y-2">
+                      {data.data.hopes.filter((h: string) => h).map((hope: string, index: number) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <span className="text-green-500 mt-1">•</span>
+                          <span className="text-gray-700">{hope}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {data.data.fears && (
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold text-red-600 mb-4">Fears</h3>
+                    <ul className="space-y-2">
+                      {data.data.fears.filter((f: string) => f).map((fear: string, index: number) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <span className="text-red-500 mt-1">•</span>
+                          <span className="text-gray-700">{fear}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {data.data.expectations && (
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold text-blue-600 mb-4">Expectations</h3>
+                    <ul className="space-y-2">
+                      {data.data.expectations.filter((e: string) => e).map((expectation: string, index: number) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <span className="text-blue-500 mt-1">•</span>
+                          <span className="text-gray-700">{expectation}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  // Generic tool share view for other tools
+  if (data.type && data.data) {
+    return (
+      <>
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50 py-16">
+          <div className="container mx-auto px-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-12">
+                <div className="flex justify-between items-center mb-8">
+                  <Link
+                    href="/"
+                    className="text-blue-600 hover:text-blue-700 flex items-center gap-2"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    BACK
+                  </Link>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={handleCopyLink}
+                      className="px-4 py-2 border border-gray-300 text-blue-600 rounded-lg hover:border-blue-400 transition-colors flex items-center gap-2"
+                    >
+                      <Share2 className="w-4 h-4" />
+                      {copied ? 'COPIED!' : 'SHARE'}
+                    </button>
+                    <button
+                      onClick={handleDownloadPDF}
+                      className="px-4 py-2 border border-gray-300 text-blue-600 rounded-lg hover:border-blue-400 transition-colors flex items-center gap-2"
+                    >
+                      <Download className="w-4 h-4" />
+                      DOWNLOAD PDF
+                    </button>
+                  </div>
+                </div>
+                
+                <h2 className="text-4xl font-bold text-nightfall mb-4">{data.title || 'Shared Results'}</h2>
+                <p className="text-gray-600">Created on {new Date(data.createdAt).toLocaleDateString()}</p>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-lg p-8">
+                <pre className="whitespace-pre-wrap text-gray-700">
+                  {JSON.stringify(data.data, null, 2)}
+                </pre>
+              </div>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
   // Original share page content for other types
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-indigo-950 to-black">

@@ -242,11 +242,18 @@ export async function POST(request: NextRequest) {
     // Return the correct URL based on the tool type
     const toolType = body.type;
     
-    // Use generic share route for personal-development-plan
-    const urlPath = toolType === 'personal-development-plan' 
-      ? `/share/${id}`
-      : toolType 
-      ? `/${toolType}/share/${id}` 
+    // Tools that have their own share pages
+    const toolsWithSharePages = [
+      'burnout-assessment',
+      'trust-audit',
+      'decision-making-audit',
+      'change-readiness',
+      'user-guide'
+    ];
+    
+    // Use tool-specific share route only if the tool has its own share page
+    const urlPath = toolsWithSharePages.includes(toolType)
+      ? `/${toolType}/share/${id}`
       : `/share/${id}`;
     
     return NextResponse.json({ id, url: urlPath });

@@ -1298,7 +1298,7 @@ function ToolsPage() {
                     className="group bg-white rounded-2xl overflow-hidden shadow-sm cursor-pointer flex flex-col transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105"
                   >
                     {/* Image/Visual Area */}
-                    <div className="relative h-48 overflow-hidden bg-gray-50">
+                    <div className="relative h-40 overflow-hidden bg-gray-50">
                       {courseImageMapping[course.id] && (
                         <Image
                           src={courseImageMapping[course.id]}
@@ -1311,13 +1311,13 @@ function ToolsPage() {
                     </div>
                     
                     {/* Content Area */}
-                    <div className="p-6 flex flex-col h-full">
+                    <div className="p-5 flex flex-col h-full">
                       <div className="flex-grow">
-                        <h3 className="text-xl font-semibold text-nightfall mb-3">
+                        <h3 className="text-2xl font-semibold text-nightfall mb-3 leading-tight">
                           {courseDetailsFromCSV[course.id]?.title || course.title}
                         </h3>
                         
-                        <p className="text-sm text-gray-600 line-clamp-3">
+                        <p className="text-base text-gray-600 line-clamp-3 leading-relaxed">
                           {courseDetailsFromCSV[course.id]?.description || course.description}
                         </p>
                       </div>

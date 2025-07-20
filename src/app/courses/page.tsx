@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, Flame, ArrowRight, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Flame, ArrowRight, ChevronLeft, ChevronRight, ExternalLink, Target, Navigation, Shield, Users, Brain, Heart, Lightbulb, Sparkles, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { getCourseIdsForChallenges } from '@/app/lib/courseMappings';
@@ -21,6 +21,7 @@ interface Challenge {
   id: string;
   title: string;
   description: string;
+  icon: JSX.Element;
 }
 
 const getCourseGradient = (courseId: string): string => {
@@ -127,15 +128,15 @@ const getCourseVisual = (courseId: string): React.ReactElement => {
 const courses = allCourses as Course[];
 
 const challenges: Challenge[] = [
-  { id: 'c1', title: 'Purpose + Direction', description: 'Clarify purpose and set clear direction' },
-  { id: 'c2', title: 'Navigating Change', description: 'Lead through transitions and uncertainty' },
-  { id: 'c3', title: 'Feedback + Trust', description: 'Build trust and psychological safety' },
-  { id: 'c4', title: 'Empowering Others', description: 'Develop and empower your team' },
-  { id: 'c5', title: 'Decision Making', description: 'Make better decisions under pressure' },
-  { id: 'c6', title: 'Well-Being', description: 'Maintain balance and prevent burnout' },
-  { id: 'c7', title: 'Communication and Collaboration', description: 'Improve team communication' },
-  { id: 'c8', title: 'Skill Building', description: 'Develop key leadership skills' },
-  { id: 'c9', title: 'Alignment + Direction', description: 'Align teams around shared goals' }
+  { id: 'c1', title: 'Purpose + Direction', description: 'Clarify purpose and set clear direction', icon: <Target className="w-5 h-5" /> },
+  { id: 'c2', title: 'Navigating Change', description: 'Lead through transitions and uncertainty', icon: <Navigation className="w-5 h-5" /> },
+  { id: 'c3', title: 'Feedback + Trust', description: 'Build trust and psychological safety', icon: <Shield className="w-5 h-5" /> },
+  { id: 'c4', title: 'Empowering Others', description: 'Develop and empower your team', icon: <Users className="w-5 h-5" /> },
+  { id: 'c5', title: 'Decision Making', description: 'Make better decisions under pressure', icon: <Brain className="w-5 h-5" /> },
+  { id: 'c6', title: 'Well-Being', description: 'Maintain balance and prevent burnout', icon: <Heart className="w-5 h-5" /> },
+  { id: 'c7', title: 'Communication and Collaboration', description: 'Improve team communication', icon: <Lightbulb className="w-5 h-5" /> },
+  { id: 'c8', title: 'Skill Building', description: 'Develop key leadership skills', icon: <Sparkles className="w-5 h-5" /> },
+  { id: 'c9', title: 'Alignment + Direction', description: 'Align teams around shared goals', icon: <CheckCircle className="w-5 h-5" /> }
 ];
 
 // Remove the old mapping - we'll use the shared one from courseMappings.ts
@@ -177,7 +178,7 @@ export default function CoursesPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="gradient-main-horizontal text-white">
-        <div className="container mx-auto px-6 pt-12 pb-8">
+        <div className="max-w-7xl mx-auto px-6 pt-12 pb-8">
           <div className="mb-8">
             <button
               onClick={() => router.push('/?screen=4')}
@@ -197,11 +198,11 @@ export default function CoursesPage() {
 
       {/* Challenge Filter Pills */}
       <div className="bg-white shadow-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="mb-3">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Filter by Challenge</h3>
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="mb-4">
+            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Filter by Challenge</h3>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             {challenges.map((challenge, index) => {
               const isSelected = selectedChallenges.includes(challenge.id);
               return (
@@ -209,14 +210,15 @@ export default function CoursesPage() {
                   key={challenge.id}
                   onClick={() => handleChallengeToggle(challenge.id)}
                   className={`
-                    relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
+                    relative px-5 py-3 rounded-full flex items-center gap-2 text-base font-medium transition-all duration-200
                     ${isSelected 
-                      ? 'bg-iris-100 text-iris-dark shadow-sm' 
+                      ? 'bg-iris-100 text-iris-dark shadow-sm scale-105' 
                       : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-700'
                     }
                   `}
                 >
-                  {challenge.title}
+                  {challenge.icon}
+                  <span>{challenge.title}</span>
                 </button>
               );
             })}
@@ -268,7 +270,7 @@ export default function CoursesPage() {
                 }}
               >
                 {/* Image/Visual Area */}
-                <div className="relative h-48 overflow-hidden bg-gray-50">
+                <div className="relative h-40 overflow-hidden bg-gray-50">
                   {courseImageMapping[course.id] && (
                     <Image
                       src={courseImageMapping[course.id]}
@@ -281,13 +283,13 @@ export default function CoursesPage() {
                 </div>
                 
                 {/* Content Area */}
-                <div className="p-6 flex flex-col h-full">
+                <div className="p-5 flex flex-col h-full">
                   <div className="flex-grow">
-                    <h3 className="text-xl font-semibold text-nightfall mb-3">
+                    <h3 className="text-2xl font-semibold text-nightfall mb-3 leading-tight">
                       {courseDetailsFromCSV[course.id]?.title || course.title}
                     </h3>
                     
-                    <p className="text-sm text-gray-600 line-clamp-3">
+                    <p className="text-base text-gray-600 line-clamp-3 leading-relaxed">
                       {courseDetailsFromCSV[course.id]?.description || 'Learn key concepts and practical strategies to enhance your leadership skills and team performance.'}
                     </p>
                   </div>

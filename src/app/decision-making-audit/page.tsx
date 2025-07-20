@@ -118,6 +118,14 @@ export default function DecisionMakingAuditPage() {
           Back to Plan
         </Link>
         
+        <Link 
+          href="/toolkit" 
+          className="absolute top-8 right-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
+        >
+          All Tools
+          <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
+        </Link>
+        
         <div className="text-center text-white mb-12 max-w-3xl">
           <div className="inline-flex p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
             <Brain className="w-20 h-20 text-white" />

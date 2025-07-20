@@ -9,6 +9,7 @@ import { courseDetailsFromCSV } from '@/app/lib/courseDetailsFromCSV';
 import { courseImageMapping } from '@/app/lib/courseImages';
 import Footer from '@/components/Footer';
 import Modal from '@/components/Modal';
+import NavigationHeader from '@/components/NavigationHeader';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import ShareButton from '@/components/ShareButton';
 
@@ -41,113 +42,31 @@ interface Course {
 const getToolVisual = (toolId: string): React.ReactElement => {
   const visuals: { [key: string]: React.ReactElement } = {
     't1': ( // Team Canvas
-      <svg viewBox="0 0 128 96" className="w-full h-full">
-        <circle cx="32" cy="32" r="12" fill="#FFA851" opacity="0.4"/>
-        <circle cx="64" cy="32" r="12" fill="#FFA851" opacity="0.4"/>
-        <circle cx="96" cy="32" r="12" fill="#FFA851" opacity="0.4"/>
-        <circle cx="48" cy="64" r="12" fill="#EB6593" opacity="0.4"/>
-        <circle cx="80" cy="64" r="12" fill="#EB6593" opacity="0.4"/>
-        <path d="M32 32 L48 64 M64 32 L48 64 L80 64 M96 32 L80 64 M64 32 L80 64" stroke="#FFA851" strokeWidth="2" opacity="0.6"/>
-        <circle cx="32" cy="32" r="4" fill="#FFA851"/>
-        <circle cx="64" cy="32" r="4" fill="#FFA851"/>
-        <circle cx="96" cy="32" r="4" fill="#FFA851"/>
-        <circle cx="48" cy="64" r="4" fill="#EB6593"/>
-        <circle cx="80" cy="64" r="4" fill="#EB6593"/>
-      </svg>
+      <img src="/tool-icons/map-icon.png" alt="Team Canvas" className="w-full h-full object-contain p-2" />
     ),
     't2': ( // Change Readiness Reflection
-      <svg viewBox="0 0 128 96" className="w-full h-full">
-        <path d="M32 48 Q64 16 96 48 T64 80" fill="none" stroke="#34d399" strokeWidth="4" opacity="0.5"/>
-        <circle cx="32" cy="48" r="8" fill="#10b981"/>
-        <circle cx="64" cy="32" r="8" fill="#34d399"/>
-        <circle cx="96" cy="48" r="8" fill="#6ee7b7"/>
-        <path d="M40 48 L56 32 M72 32 L88 48" stroke="#10b981" strokeWidth="2" strokeLinecap="round"/>
-        <rect x="52" y="60" width="24" height="4" fill="#10b981" rx="2"/>
-        <rect x="48" y="68" width="32" height="4" fill="#34d399" opacity="0.6" rx="2"/>
-      </svg>
+      <img src="/tool-icons/kite-icon.png" alt="Change Readiness" className="w-full h-full object-contain p-2" />
     ),
     't3': ( // Team Trust Audit
-      <svg viewBox="0 0 128 96" className="w-full h-full">
-        <circle cx="40" cy="32" r="12" fill="#c084fc" opacity="0.4"/>
-        <circle cx="88" cy="32" r="12" fill="#c084fc" opacity="0.4"/>
-        <circle cx="64" cy="64" r="12" fill="#c084fc" opacity="0.4"/>
-        <path d="M40 32 L88 32 L64 64 Z" fill="none" stroke="#9333ea" strokeWidth="2"/>
-        <circle cx="40" cy="32" r="4" fill="#7c3aed"/>
-        <circle cx="88" cy="32" r="4" fill="#7c3aed"/>
-        <circle cx="64" cy="64" r="4" fill="#7c3aed"/>
-        <path d="M52 40 Q64 48 76 40" fill="none" stroke="#9333ea" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
+      <img src="/tool-icons/compass-icon.png" alt="Trust Audit" className="w-full h-full object-contain p-2" />
     ),
     't4': ( // Coaching Questions Card Deck
-      <svg viewBox="0 0 128 96" className="w-full h-full">
-        <rect x="24" y="24" width="40" height="56" fill="#60a5fa" opacity="0.3" rx="4" transform="rotate(-10 44 52)"/>
-        <rect x="44" y="20" width="40" height="56" fill="#3b82f6" opacity="0.5" rx="4" transform="rotate(-5 64 48)"/>
-        <rect x="64" y="16" width="40" height="56" fill="#1e40af" rx="4"/>
-        <circle cx="84" cy="36" r="4" fill="white"/>
-        <rect x="72" y="48" width="24" height="2" fill="white" rx="1"/>
-        <rect x="72" y="54" width="24" height="2" fill="white" rx="1"/>
-        <rect x="72" y="60" width="16" height="2" fill="white" rx="1"/>
-      </svg>
+      <img src="/tool-icons/tools-icon.png" alt="Coaching Questions" className="w-full h-full object-contain p-2" />
     ),
     't5': ( // Decision Filter Framework
-      <svg viewBox="0 0 128 96" className="w-full h-full">
-        <path d="M32 24 L96 24 L80 48 L96 72 L32 72 L48 48 Z" fill="#f472b6" opacity="0.3"/>
-        <path d="M48 24 L80 24 L72 48 L80 72 L48 72 L56 48 Z" fill="#ec4899" opacity="0.5"/>
-        <circle cx="64" cy="48" r="8" fill="#be185d"/>
-        <path d="M24 16 L24 80 M104 16 L104 80" stroke="#ec4899" strokeWidth="2" strokeDasharray="2 4"/>
-        <path d="M64 40 L64 56 M56 48 L72 48" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
+      <img src="/tool-icons/submarine-icon.png" alt="Decision Filter" className="w-full h-full object-contain p-2" />
     ),
     't6': ( // Burnout Assessment
-      <svg viewBox="0 0 128 96" className="w-full h-full">
-        <rect x="24" y="40" width="80" height="16" fill="#f87171" opacity="0.2" rx="8"/>
-        <rect x="24" y="40" width="60" height="16" fill="#ef4444" opacity="0.4" rx="8"/>
-        <rect x="24" y="40" width="40" height="16" fill="#dc2626" opacity="0.6" rx="8"/>
-        <rect x="24" y="40" width="20" height="16" fill="#b91c1c" rx="8"/>
-        <circle cx="44" cy="48" r="4" fill="white"/>
-        <path d="M32 20 Q40 32 48 20" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"/>
-        <path d="M56 20 Q64 32 72 20" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round"/>
-        <path d="M80 20 Q88 32 96 20" fill="none" stroke="#fca5a5" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
+      <img src="/tool-icons/lantern-icon.png" alt="Burnout Assessment" className="w-full h-full object-contain p-2" />
     ),
     't7': ( // Working with Me Guide
-      <svg viewBox="0 0 128 96" className="w-full h-full">
-        <rect x="32" y="16" width="64" height="64" fill="#34d399" opacity="0.2" rx="8"/>
-        <circle cx="64" cy="40" r="16" fill="#10b981" opacity="0.5"/>
-        <circle cx="64" cy="40" r="8" fill="#059669"/>
-        <rect x="44" y="56" width="8" height="2" fill="#10b981" rx="1"/>
-        <rect x="44" y="62" width="16" height="2" fill="#10b981" rx="1"/>
-        <rect x="44" y="68" width="12" height="2" fill="#10b981" rx="1"/>
-        <rect x="68" y="56" width="12" height="2" fill="#10b981" rx="1"/>
-        <rect x="68" y="62" width="16" height="2" fill="#10b981" rx="1"/>
-        <rect x="68" y="68" width="8" height="2" fill="#10b981" rx="1"/>
-      </svg>
+      <img src="/tool-icons/hammock-icon.png" alt="Working with Me" className="w-full h-full object-contain p-2" />
     ),
     't8': ( // Hopes, Fears, Expectations Template
-      <svg viewBox="0 0 128 96" className="w-full h-full">
-        <path d="M32 32 Q64 16 96 32" fill="none" stroke="#fbbf24" strokeWidth="4" strokeLinecap="round"/>
-        <path d="M32 48 Q64 64 96 48" fill="none" stroke="#f59e0b" strokeWidth="4" strokeLinecap="round"/>
-        <path d="M32 64 Q64 48 96 64" fill="none" stroke="#f87171" strokeWidth="4" strokeLinecap="round"/>
-        <circle cx="32" cy="32" r="6" fill="#fbbf24"/>
-        <circle cx="64" cy="48" r="6" fill="#f59e0b"/>
-        <circle cx="96" cy="64" r="6" fill="#f87171"/>
-      </svg>
+      <img src="/tool-icons/plant-icon.png" alt="Hopes Fears Expectations" className="w-full h-full object-contain p-2" />
     ),
     't9': ( // Career Drivers Exercise
-      <svg viewBox="0 0 128 96" className="w-full h-full">
-        <path d="M24 72 L24 24 M24 72 L104 72" stroke="#c084fc" strokeWidth="2"/>
-        <path d="M32 64 L40 48 L48 56 L56 40 L64 44 L72 32 L80 36 L88 24 L96 28" fill="none" stroke="#9333ea" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-        <circle cx="40" cy="48" r="4" fill="#7c3aed"/>
-        <circle cx="56" cy="40" r="4" fill="#7c3aed"/>
-        <circle cx="72" cy="32" r="4" fill="#7c3aed"/>
-        <circle cx="88" cy="24" r="4" fill="#7c3aed"/>
-        <path d="M88 24 L104 8" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" markerEnd="url(#arrowhead)"/>
-        <defs>
-          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-            <polygon points="0 0, 10 3.5, 0 7" fill="#7c3aed"/>
-          </marker>
-        </defs>
-      </svg>
+      <img src="/tool-icons/moon-icon.png" alt="Career Drivers" className="w-full h-full object-contain p-2" />
     )
   };
   
@@ -156,95 +75,41 @@ const getToolVisual = (toolId: string): React.ReactElement => {
 
 const getChallengeVisual = (challengeId: string): React.ReactElement => {
   const visuals: { [key: string]: React.ReactElement } = {
-    // Purpose + Direction
+    // Purpose + Direction (maps to Team Canvas - t1)
     'c1': (
-      <svg viewBox="0 0 96 72" className="w-full h-full">
-        <circle cx="48" cy="36" r="24" fill="#fbbf24" opacity="0.2"/>
-        <circle cx="48" cy="36" r="16" fill="#f59e0b" opacity="0.3"/>
-        <circle cx="48" cy="36" r="8" fill="#f87171"/>
-        <path d="M48 12 L48 60 M24 36 L72 36" stroke="#7c3aed" strokeWidth="2" strokeDasharray="3 2"/>
-      </svg>
+      <img src="/tool-icons/map-icon.png" alt="Purpose + Direction" className="w-full h-full object-contain p-2" />
     ),
-    // Navigating Change
+    // Navigating Change (maps to Change Readiness Assessment - t2)
     'c2': (
-      <svg viewBox="0 0 96 72" className="w-full h-full">
-        <path d="M24 36 Q48 12 72 36 T48 60" fill="none" stroke="#34d399" strokeWidth="3" opacity="0.5"/>
-        <circle cx="24" cy="36" r="6" fill="#10b981"/>
-        <circle cx="48" cy="24" r="6" fill="#34d399"/>
-        <circle cx="72" cy="36" r="6" fill="#6ee7b7"/>
-        <path d="M30 36 L42 24 M54 24 L66 36" stroke="#10b981" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
+      <img src="/tool-icons/kite-icon.png" alt="Navigating Change" className="w-full h-full object-contain p-2" />
     ),
-    // Trust + Psychological Safety / Feedback + Trust
+    // Trust + Psychological Safety / Feedback + Trust (maps to Team Trust Audit - t3)
     'c3': (
-      <svg viewBox="0 0 96 72" className="w-full h-full">
-        <circle cx="30" cy="24" r="10" fill="#c084fc" opacity="0.3"/>
-        <circle cx="66" cy="24" r="10" fill="#c084fc" opacity="0.3"/>
-        <circle cx="48" cy="48" r="10" fill="#c084fc" opacity="0.3"/>
-        <path d="M30 24 L66 24 L48 48 Z" fill="none" stroke="#9333ea" strokeWidth="2"/>
-        <path d="M36 30 Q48 36 60 30" fill="none" stroke="#9333ea" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
+      <img src="/tool-icons/compass-icon.png" alt="Trust + Psychological Safety" className="w-full h-full object-contain p-2" />
     ),
-    // Empowering Others / Leadership Effectiveness
+    // Empowering Others / Leadership Effectiveness (maps to Coaching Questions Card Deck - t4)
     'c4': (
-      <svg viewBox="0 0 96 72" className="w-full h-full">
-        <rect x="20" y="12" width="24" height="20" fill="#60a5fa" opacity="0.3" rx="2"/>
-        <rect x="52" y="40" width="24" height="20" fill="#3b82f6" opacity="0.3" rx="2"/>
-        <path d="M44 22 L52 50" stroke="#1e40af" strokeWidth="2"/>
-        <circle cx="32" cy="22" r="4" fill="#3b82f6"/>
-        <circle cx="64" cy="50" r="4" fill="#1e40af"/>
-      </svg>
+      <img src="/tool-icons/tools-icon.png" alt="Empowering Others" className="w-full h-full object-contain p-2" />
     ),
-    // Effective Decision Making
+    // Effective Decision Making (maps to Decision Filter Framework - t5)
     'c5': (
-      <svg viewBox="0 0 96 72" className="w-full h-full">
-        <path d="M24 18 L72 18 L60 36 L72 54 L24 54 L36 36 Z" fill="#f472b6" opacity="0.3"/>
-        <circle cx="48" cy="36" r="6" fill="#ec4899"/>
-        <path d="M48 30 L48 42 M42 36 L54 36" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
+      <img src="/tool-icons/submarine-icon.png" alt="Effective Decision Making" className="w-full h-full object-contain p-2" />
     ),
-    // Well-Being + Resilience / Well-Being
+    // Well-Being + Resilience / Well-Being (maps to Burnout Assessment - t6)
     'c6': (
-      <svg viewBox="0 0 96 72" className="w-full h-full">
-        <rect x="18" y="30" width="60" height="12" fill="#f87171" opacity="0.2" rx="6"/>
-        <rect x="18" y="30" width="45" height="12" fill="#ef4444" opacity="0.4" rx="6"/>
-        <rect x="18" y="30" width="30" height="12" fill="#dc2626" opacity="0.6" rx="6"/>
-        <rect x="18" y="30" width="15" height="12" fill="#b91c1c" rx="6"/>
-        <path d="M30 18 Q36 24 42 18" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round"/>
-        <path d="M48 18 Q54 24 60 18" fill="none" stroke="#34d399" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
+      <img src="/tool-icons/lantern-icon.png" alt="Well-Being + Resilience" className="w-full h-full object-contain p-2" />
     ),
-    // Communication and Collaboration
+    // Communication and Collaboration (maps to Working with Me Guide - t7)
     'c7': (
-      <svg viewBox="0 0 96 72" className="w-full h-full">
-        <circle cx="30" cy="36" r="8" fill="#60a5fa" opacity="0.3"/>
-        <circle cx="66" cy="36" r="8" fill="#3b82f6" opacity="0.3"/>
-        <path d="M38 36 L58 36" stroke="#1e40af" strokeWidth="2"/>
-        <path d="M30 28 Q48 20 66 28" fill="none" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round"/>
-        <path d="M30 44 Q48 52 66 44" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
+      <img src="/tool-icons/hammock-icon.png" alt="Communication and Collaboration" className="w-full h-full object-contain p-2" />
     ),
-    // Role Clarity + Expectations / Clarity + Expectations
+    // Role Clarity + Expectations / Clarity + Expectations (maps to Hopes, Fears, Expectations Template - t8)
     'c8': (
-      <svg viewBox="0 0 96 72" className="w-full h-full">
-        <rect x="24" y="12" width="48" height="48" fill="none" stroke="#34d399" strokeWidth="2" rx="4" strokeDasharray="4 2"/>
-        <rect x="30" y="24" width="8" height="2" fill="#10b981" rx="1"/>
-        <rect x="30" y="30" width="16" height="2" fill="#10b981" rx="1"/>
-        <rect x="30" y="36" width="12" height="2" fill="#10b981" rx="1"/>
-        <rect x="54" y="24" width="12" height="2" fill="#10b981" rx="1"/>
-        <rect x="54" y="30" width="8" height="2" fill="#10b981" rx="1"/>
-        <rect x="54" y="36" width="10" height="2" fill="#10b981" rx="1"/>
-      </svg>
+      <img src="/tool-icons/plant-icon.png" alt="Role Clarity + Expectations" className="w-full h-full object-contain p-2" />
     ),
-    // Growth + Development / Skill Building
+    // Growth + Development / Skill Building (maps to Career Drivers Exercise - t9)
     'c9': (
-      <svg viewBox="0 0 96 72" className="w-full h-full">
-        <path d="M24 54 L24 18" stroke="#c084fc" strokeWidth="2"/>
-        <path d="M24 54 L72 54" stroke="#c084fc" strokeWidth="2"/>
-        <path d="M30 48 L36 36 L42 42 L48 30 L54 33 L60 21 L66 24" fill="none" stroke="#9333ea" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-        <circle cx="60" cy="21" r="3" fill="#7c3aed"/>
-        <path d="M60 21 L72 9" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
+      <img src="/tool-icons/moon-icon.png" alt="Growth + Development" className="w-full h-full object-contain p-2" />
     )
   };
   
@@ -952,61 +817,63 @@ function ToolsPage() {
   // Screen 1: Role Selection (with nice dropdown)
   if (currentScreen === 1) {
     return (
-      <div className="min-h-screen bg-custom-gradient-diagonal flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-2xl mx-auto text-center text-white">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <img 
-              src="/campfire-logo-white.png"
-              alt="Campfire Logo"
-              className="h-12 sm:h-14 md:h-16"
-            />
-          </div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">Solve your biggest leadership and team challenges—starting now.</h2>
-          <p className="text-base sm:text-lg md:text-xl text-purple-100 mb-8 sm:mb-12 md:mb-16 px-2">
-            This interactive hub gives you instant access to tools, workshops, and personalized recommendations to help you lead better, align your team, and build a culture that performs. Simply answer a few quick questions and we'll match you with solutions that fit your needs.
-          </p>
-          
-          <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/20">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8">What is your role?</h2>
-            
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              {roles.map((role) => {
-                const Icon = role.icon;
-                const isSelected = userProfile.role === role.id;
-                return (
-                  <button
-                    key={role.id}
-                    onClick={() => {
-                      setUserProfile(prev => ({ ...prev, role: role.id }));
-                      analytics.trackAction('Role Selected', { role: role.id });
-                    }}
-                    className={`p-6 rounded-xl border-2 transition-all ${
-                      isSelected
-                        ? 'bg-white/30 border-white shadow-lg'
-                        : 'bg-white/10 border-white/30 hover:bg-white/20 hover:border-white/50'
-                    }`}
-                  >
-                    <div className="flex flex-col items-center gap-3">
-                      <div className={`p-3 rounded-full ${
-                        isSelected ? 'bg-white/30' : 'bg-white/20'
-                      }`}>
-                        <Icon className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="font-semibold text-white text-lg">{role.name}</h3>
-                    </div>
-                  </button>
-                );
-              })}
+      <div className="bg-custom-gradient-diagonal">
+        <div className="min-h-screen flex items-center justify-center px-4 py-8">
+          <div className="w-full max-w-2xl mx-auto text-center text-white">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <img 
+                src="/campfire-logo-white.png"
+                alt="Campfire Logo"
+                className="h-12 sm:h-14 md:h-16"
+              />
             </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">Solve your biggest leadership and team challenges—starting now.</h2>
+            <p className="text-base sm:text-lg md:text-xl text-purple-100 mb-8 sm:mb-12 md:mb-16 px-2">
+              This interactive hub gives you instant access to tools, workshops, and personalized recommendations to help you lead better, align your team, and build a culture that performs. Simply answer a few quick questions and we'll match you with solutions that fit your needs.
+            </p>
             
-            <div className="flex flex-col gap-4">
-              <button
-                onClick={handleNext}
-                disabled={!userProfile.role}
-                className="w-full py-3 sm:py-4 bg-white text-iris-500 rounded-xl font-semibold hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base sm:text-lg"
-              >
-                NEXT
-              </button>
+            <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/20">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8">What is your role?</h2>
+              
+              <div className="grid grid-cols-2 gap-4 mb-8">
+                {roles.map((role) => {
+                  const Icon = role.icon;
+                  const isSelected = userProfile.role === role.id;
+                  return (
+                    <button
+                      key={role.id}
+                      onClick={() => {
+                        setUserProfile(prev => ({ ...prev, role: role.id }));
+                        analytics.trackAction('Role Selected', { role: role.id });
+                      }}
+                      className={`p-6 rounded-xl border-2 transition-all ${
+                        isSelected
+                          ? 'bg-white/30 border-white shadow-lg'
+                          : 'bg-white/10 border-white/30 hover:bg-white/20 hover:border-white/50'
+                      }`}
+                    >
+                      <div className="flex flex-col items-center gap-3">
+                        <div className={`p-3 rounded-full ${
+                          isSelected ? 'bg-white/30' : 'bg-white/20'
+                        }`}>
+                          <Icon className="w-8 h-8 text-white" />
+                        </div>
+                        <h3 className="font-semibold text-white text-lg">{role.name}</h3>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              
+              <div className="flex flex-col gap-4">
+                <button
+                  onClick={handleNext}
+                  disabled={!userProfile.role}
+                  className="w-full py-3 sm:py-4 bg-white text-iris-500 rounded-xl font-semibold hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base sm:text-lg"
+                >
+                  NEXT
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1018,8 +885,14 @@ function ToolsPage() {
   if (currentScreen === 2) {
     return (
       <>
-        <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-purple-50 py-16">
-        <div className="container mx-auto px-6">
+        <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-purple-50">
+          <NavigationHeader
+            onBack={handleBack}
+            backLabel="Back"
+            variant="dark"
+          />
+          
+        <div className="container mx-auto px-6 py-16">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-4xl font-bold text-nightfall mb-6">
               What are your biggest challenges as a {roles.find(r => r.id === userProfile.role)?.name || userProfile.role}?
@@ -1050,7 +923,7 @@ function ToolsPage() {
                     </div>
                   )}
                   
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-stretch gap-4">
                     <div className="flex-1">
                       <h4 className={`text-xl font-semibold mb-2 ${isSelected ? 'text-iris-700' : 'text-nightfall'}`}>
                         {challenge.title}
@@ -1060,8 +933,8 @@ function ToolsPage() {
                       </p>
                     </div>
                     
-                    {/* Small illustration on the right */}
-                    <div className={`w-16 h-12 rounded-lg flex-shrink-0 overflow-hidden ${isSelected ? 'bg-purple-100' : 'bg-gray-50'}`}>
+                    {/* Full height illustration on the right */}
+                    <div className={`w-24 rounded-lg flex-shrink-0 overflow-hidden ${isSelected ? 'bg-purple-100' : 'bg-gray-50'}`}>
                       {getChallengeVisual(challenge.id)}
                     </div>
                   </div>
@@ -1070,15 +943,7 @@ function ToolsPage() {
             })}
           </div>
 
-          <div className="flex justify-center gap-4">
-            <button
-              onClick={handleBack}
-              className="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-semibold hover:border-gray-400 transition-all flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              BACK
-            </button>
-            
+          <div className="flex justify-center">
             <button
               onClick={handleChallengesNext}
               disabled={selectedChallenges.length === 0}
@@ -1133,39 +998,36 @@ function ToolsPage() {
     
     return (
       <>
-        <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-purple-50 py-16">
-        <div className="container mx-auto px-6">
+        <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-purple-50 print:bg-white">
+          <div className="print:hidden">
+            <NavigationHeader
+              onBack={handleBackToChallenge}
+              backLabel="Back"
+              variant="dark"
+              rightActions={[
+                { 
+                  type: 'share', 
+                  onClick: handleShare,
+                  variant: 'secondary'
+                },
+                { 
+                  type: 'print', 
+                  onClick: handlePrint,
+                  variant: 'secondary'
+                },
+                { 
+                  type: 'custom',
+                  label: 'Book a Demo',
+                  onClick: () => window.open('https://calendly.com/getcampfire/demo', '_blank'),
+                  variant: 'primary'
+                }
+              ]}
+            />
+          </div>
+          
+        <div className="container mx-auto px-6 py-16">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <div className="flex justify-between items-center mb-8 print:hidden">
-                <button
-                  onClick={handleBackToChallenge}
-                  className="text-iris-500 hover:text-iris-700 flex items-center gap-2"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  BACK
-                </button>
-                <div className="flex gap-4">
-                  <ShareButton 
-                    onShare={handleShare}
-                    variant="secondary"
-                    className="text-iris-500 border-gray-300 hover:border-purple-400"
-                  />
-                  <button 
-                    onClick={handlePrint}
-                    className="px-4 py-2 border border-gray-300 text-iris-500 rounded-lg hover:border-purple-400 transition-colors flex items-center gap-2"
-                  >
-                    <Printer className="w-4 h-4 text-iris-500" />
-                    PRINT
-                  </button>
-                  <button 
-                    onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}
-                    className="px-4 py-2 bg-iris-500 text-white rounded-lg hover:bg-iris-700 transition-colors"
-                  >
-                    BOOK A DEMO
-                  </button>
-                </div>
-              </div>
               
               {/* Print-only header with logo */}
               <div className="hidden print:block mb-8">
@@ -1317,7 +1179,7 @@ function ToolsPage() {
                           {courseDetailsFromCSV[course.id]?.title || course.title}
                         </h3>
                         
-                        <p className="text-base text-gray-600 line-clamp-3 leading-relaxed">
+                        <p className="text-base text-gray-600 leading-relaxed">
                           {courseDetailsFromCSV[course.id]?.description || course.description}
                         </p>
                       </div>
@@ -1393,7 +1255,9 @@ function ToolsPage() {
                     See how the slides, script notes, and activities from this template come alive in our custom virtual classroom!
                   </p>
                   <a 
-                    href="#" 
+                    href={`https://meet.getcampfire.com/lessons/${courseDetailsFromCSV[selectedCourse].title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}/preview`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-6 py-3 bg-iris text-white rounded-lg hover:bg-iris-dark transition-colors"
                   >
                     <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">

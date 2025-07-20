@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { ArrowRight, Sparkles, Target, Shield, Heart, Brain, Users, Lightbulb, CheckCircle, ArrowLeft } from 'lucide-react'
 import Footer from '@/components/Footer'
+import NavigationHeader from '@/components/NavigationHeader'
 import { useAnalytics } from '@/hooks/useAnalytics'
 
 interface Tool {
@@ -223,14 +224,13 @@ export default function ToolsIndexPage() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
         </div>
 
-        <div className="relative z-10 px-4 py-20 max-w-7xl mx-auto">
-          <Link 
-            href="/"
-            className="inline-flex items-center gap-2 text-white/70 hover:text-white mb-8 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
-          </Link>
+        <NavigationHeader 
+          backTo="/" 
+          backLabel="Back to Home"
+          variant="light"
+        />
+        
+        <div className="relative z-10 px-4 pb-20 max-w-7xl mx-auto">
 
           <div className="text-center mb-16">
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">

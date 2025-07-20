@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { ArrowLeft, Flame, ArrowRight, ChevronLeft, ChevronRight, ExternalLink, Target, Navigation, Shield, Users, Brain, Heart, Lightbulb, Sparkles, CheckCircle } from 'lucide-react';
+import NavigationHeader from '@/components/NavigationHeader';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { getCourseIdsForChallenges } from '@/app/lib/courseMappings';
@@ -178,17 +179,13 @@ export default function CoursesPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="gradient-main-horizontal text-white">
-        <div className="max-w-7xl mx-auto px-6 pt-12 pb-8">
-          <div className="mb-8">
-            <button
-              onClick={() => router.push('/?screen=4')}
-              className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              BACK TO TOOLS
-            </button>
-          </div>
-          
+        <NavigationHeader 
+          backTo="/?screen=4" 
+          backLabel="Back to Tools"
+          variant="light"
+        />
+        
+        <div className="max-w-7xl mx-auto px-6 pb-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold mb-4">Workshops for Every Challenge</h1>
             <p className="text-2xl text-iris-100 mb-2">Live, conversation-based sessions built to develop people, strengthen culture, and drive real impact.</p>
@@ -224,13 +221,13 @@ export default function CoursesPage() {
             })}
           </div>
           {selectedChallenges.length > 0 && (
-            <div className="mt-3 flex items-center justify-between">
-              <p className="text-xs text-gray-500">
+            <div className="mt-6 flex items-center justify-between">
+              <p className="text-base font-medium text-gray-700">
                 Showing {filteredCourses.length} of {courses.length} courses
               </p>
               <button
                 onClick={() => setSelectedChallenges([])}
-                className="text-xs text-iris hover:text-iris-dark font-medium"
+                className="text-sm text-iris hover:text-iris-dark font-medium"
               >
                 CLEAR FILTERS
               </button>
@@ -289,7 +286,7 @@ export default function CoursesPage() {
                       {courseDetailsFromCSV[course.id]?.title || course.title}
                     </h3>
                     
-                    <p className="text-base text-gray-600 line-clamp-3 leading-relaxed">
+                    <p className="text-base text-gray-600 leading-relaxed">
                       {courseDetailsFromCSV[course.id]?.description || 'Learn key concepts and practical strategies to enhance your leadership skills and team performance.'}
                     </p>
                   </div>
@@ -349,7 +346,9 @@ export default function CoursesPage() {
                     See how the slides, script notes, and activities from this template come alive in our custom virtual classroom!
                   </p>
                   <a 
-                    href="#" 
+                    href={`https://meet.getcampfire.com/lessons/${courseDetailsFromCSV[selectedCourse].title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}/preview`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-6 py-3 bg-iris text-white rounded-lg hover:bg-iris-dark transition-colors"
                   >
                     <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">

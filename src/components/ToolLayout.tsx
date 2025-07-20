@@ -11,6 +11,7 @@ interface ToolLayoutProps {
   showBackButton?: boolean
   backUrl?: string
   backText?: string
+  showAllTools?: boolean // Show "All Tools" link on the right
 }
 
 export default function ToolLayout({ 
@@ -19,7 +20,8 @@ export default function ToolLayout({
   isLight = false,
   showBackButton = true,
   backUrl = "/?screen=4",
-  backText = "Back to Plan"
+  backText = "Back to Plan",
+  showAllTools = false
 }: ToolLayoutProps) {
   const gradientClass = isLight 
     ? `bg-gradient-to-br ${gradient}/10` // Light version for working pages
@@ -38,6 +40,15 @@ export default function ToolLayout({
         >
           <ArrowLeft className="w-5 h-5 mr-2" />
           {backText}
+        </Link>
+      )}
+      {showAllTools && (
+        <Link 
+          href="/toolkit" 
+          className={`absolute top-8 right-8 inline-flex items-center ${textColor} transition-colors`}
+        >
+          All Tools
+          <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
         </Link>
       )}
       {children}

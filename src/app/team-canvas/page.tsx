@@ -7,6 +7,7 @@ import Link from 'next/link'
 import jsPDF from 'jspdf'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import ShareButton from '@/components/ShareButton'
+import NavigationHeader from '@/components/NavigationHeader'
 
 interface TeamData {
   teamName: string
@@ -329,6 +330,14 @@ export default function TeamCanvasTool() {
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
                 Back to Plan
+              </Link>
+              
+              <Link 
+                href="/toolkit" 
+                className="absolute top-8 right-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
+              >
+                All Tools
+                <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
               </Link>
 
               <div className="text-center space-y-8">
@@ -1361,29 +1370,29 @@ export default function TeamCanvasTool() {
 
       case 'results':
         return (
-          <div className="min-h-screen bg-gray-50 p-4">
-            <div className="max-w-4xl mx-auto">
+          <div className="min-h-screen bg-gray-50">
+            <NavigationHeader
+              backTo="/toolkit"
+              backLabel="Back to Tools"
+              variant="dark"
+              rightActions={[
+                {
+                  type: 'share',
+                  onClick: handleShare,
+                  variant: 'secondary'
+                },
+                {
+                  type: 'custom',
+                  label: 'Download PDF',
+                  onClick: generatePDF,
+                  variant: 'primary'
+                }
+              ]}
+            />
+            
+            <div className="max-w-4xl mx-auto p-4">
               <div className="mb-8">
-                <Link href="/" className="text-gray-600 hover:text-gray-800 flex items-center gap-2 mb-4">
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to tools
-                </Link>
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-gray-900">Your Team Canvas Complete!</h2>
-                  <div className="flex gap-3">
-                    <ShareButton
-                      onShare={handleShare}
-                      variant="secondary"
-                    />
-                    <button
-                      onClick={generatePDF}
-                      className="px-4 py-2 bg-[#FFA851] text-white rounded-lg hover:bg-[#FF9741] transition-colors flex items-center gap-2"
-                    >
-                      <Download className="w-4 h-4" />
-                      Download PDF
-                    </button>
-                  </div>
-                </div>
+                <h2 className="text-2xl font-bold text-gray-900">Your Team Canvas Complete!</h2>
               </div>
 
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">

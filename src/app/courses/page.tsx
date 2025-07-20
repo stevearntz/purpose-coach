@@ -238,7 +238,7 @@ export default function CoursesPage() {
       </div>
 
       {/* Course Grid */}
-      <div className="container mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-6 py-12">
         {filteredCourses.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg mb-4">No courses match your selected challenges.</p>
@@ -250,7 +250,7 @@ export default function CoursesPage() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredCourses.map((course) => {
             const isVisible = selectedChallenges.length === 0 || filteredCourses.includes(course);
             return (
@@ -258,7 +258,7 @@ export default function CoursesPage() {
                 key={course.id}
                 onClick={() => handleCourseClick(course.id)}
                 className={`
-                  group bg-white rounded-2xl overflow-hidden shadow-sm cursor-pointer
+                  group bg-white rounded-2xl overflow-hidden shadow-sm cursor-pointer flex flex-col
                   transition-all duration-300 ease-in-out
                   hover:shadow-lg hover:scale-105 
                   ${isVisible ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-4'}
@@ -281,18 +281,22 @@ export default function CoursesPage() {
                 </div>
                 
                 {/* Content Area */}
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-nightfall mb-3">
-                    {courseDetailsFromCSV[course.id]?.title || course.title}
-                  </h3>
+                <div className="p-6 flex flex-col h-full">
+                  <div className="flex-grow">
+                    <h3 className="text-xl font-semibold text-nightfall mb-3">
+                      {courseDetailsFromCSV[course.id]?.title || course.title}
+                    </h3>
+                    
+                    <p className="text-sm text-gray-600 line-clamp-3">
+                      {courseDetailsFromCSV[course.id]?.description || 'Learn key concepts and practical strategies to enhance your leadership skills and team performance.'}
+                    </p>
+                  </div>
                   
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                    {courseDetailsFromCSV[course.id]?.description || 'Learn key concepts and practical strategies to enhance your leadership skills and team performance.'}
-                  </p>
-                  
-                  <span className="text-sm font-medium text-iris group-hover:text-iris-dark transition-colors uppercase tracking-wider">
-                    VIEW DETAILS
-                  </span>
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <span className="block text-center text-sm font-medium text-iris group-hover:text-iris-dark transition-colors uppercase tracking-wider">
+                      VIEW DETAILS
+                    </span>
+                  </div>
                 </div>
               </div>
             );
@@ -302,7 +306,7 @@ export default function CoursesPage() {
       </div>
 
       {/* CTA Section */}
-      <div className="container mx-auto px-6 py-12 text-center">
+      <div className="max-w-7xl mx-auto px-6 py-12 text-center">
         <p className="text-gray-600 mb-6">Need help choosing the right courses for your team?</p>
         <button 
           onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}

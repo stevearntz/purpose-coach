@@ -2,9 +2,13 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import { Flame, ArrowLeft, ArrowRight, Target, Printer, BookOpen, Share2, Users, Briefcase, User, Building } from 'lucide-react';
 import { challengeCourseMappings } from '@/app/lib/courseMappings';
+import { courseDetailsFromCSV } from '@/app/lib/courseDetailsFromCSV';
+import { courseImageMapping } from '@/app/lib/courseImages';
 import Footer from '@/components/Footer';
+import Modal from '@/components/Modal';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import ShareButton from '@/components/ShareButton';
 
@@ -314,6 +318,7 @@ function ToolsPage() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
 
   // Handle returning from courses page
   useEffect(() => {
@@ -422,11 +427,11 @@ function ToolsPage() {
     // Get courses using round-robin from each challenge's priority list
     const courses: Course[] = [];
     const coursesAdded = new Set<string>();
-    const maxCourses = 5;
+    const maxCourses = 6;
     let courseIndex = 0;
     
-    // Keep looping until we have 5 courses or run out of options
-    while (courses.length < maxCourses && courseIndex < 5) {
+    // Keep looping until we have 6 courses or run out of options
+    while (courses.length < maxCourses && courseIndex < 6) {
       for (const challengeId of selectedChallenges) {
         if (courses.length >= maxCourses) break;
         
@@ -1203,17 +1208,21 @@ function ToolsPage() {
 
             {/* Visual separator */}
             <div className="w-24 h-1 bg-custom-gradient-horizontal mx-auto mb-12 rounded-full"></div>
+          </div>
 
-            <div className="mb-12 print:keep-with-next">
+          {/* Recommended Tools Section */}
+          <div className="max-w-4xl mx-auto mb-12 print:keep-with-next">
+            <div className="mb-6">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                   <Target className="w-5 h-5 text-iris-500" />
                 </div>
                 <h3 className="text-2xl font-bold text-nightfall">Recommended Tools</h3>
               </div>
-              <p className="text-gray-600 mb-6 ml-13">Simple, effective tools to help you tackle your challenges right away.</p>
-              
-              <div className="grid gap-4">
+              <p className="text-gray-600 ml-13">Simple, effective tools to help you tackle your challenges right away.</p>
+            </div>
+            
+            <div className="grid gap-4">
                 {recommendations.tools.map((tool, index) => {
                   const isClickable = tool.id === 't3' || tool.id === 't1' || tool.id === 't6' || tool.id === 't5' || tool.id === 't2' || tool.id === 't7' || tool.id === 't4' || tool.id === 't9' || tool.id === 't8'; // Trust Audit, Team Canvas, Burnout Assessment, Decision Making Audit, Change Readiness, Working with Me, Coaching Cards, Career Drivers, and Hopes Fears Expectations tools
                   const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/team-canvas' : tool.id === 't6' ? '/burnout-assessment' : tool.id === 't5' ? '/decision-making-audit' : tool.id === 't2' ? '/change-readiness' : tool.id === 't7' ? '/user-guide' : tool.id === 't4' ? '/coaching-cards' : tool.id === 't9' ? '/career-drivers' : tool.id === 't8' ? '/hopes-fears-expectations' : '';
@@ -1269,29 +1278,54 @@ function ToolsPage() {
               </div>
             </div>
 
-            <div className="mb-12 print:keep-with-next print:mt-12">
+          {/* Development Programs Section */}
+          <div className="max-w-4xl mx-auto mb-12 print:keep-with-next print:mt-12">
+            <div className="mb-6">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                   <BookOpen className="w-5 h-5 text-iris-500" />
                 </div>
                 <h3 className="text-2xl font-bold text-nightfall">Development Programs</h3>
               </div>
-              <p className="text-gray-600 mb-6 ml-13">Live, guided sessions designed to build key skills through a blend of learning, reflection, and peer connection.</p>
-              
-              <div className="grid gap-6">
-                {recommendations.courses.slice(0, 5).map((course) => (
-                  <div key={course.id} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm print:avoid-break">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h4 className="text-lg font-semibold text-nightfall mb-2">
-                          {course.title}
-                        </h4>
-                        <p className="text-gray-600">
-                          {course.description}
+              <p className="text-gray-600 ml-13">Live, guided sessions designed to build key skills through a blend of learning, reflection, and peer connection.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recommendations.courses.slice(0, 6).map((course) => (
+                  <div
+                    key={course.id}
+                    onClick={() => setSelectedCourse(course.id)}
+                    className="group bg-white rounded-2xl overflow-hidden shadow-sm cursor-pointer flex flex-col transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105"
+                  >
+                    {/* Image/Visual Area */}
+                    <div className="relative h-48 overflow-hidden bg-gray-50">
+                      {courseImageMapping[course.id] && (
+                        <Image
+                          src={courseImageMapping[course.id]}
+                          alt={courseDetailsFromCSV[course.id]?.title || course.title}
+                          width={400}
+                          height={300}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                    </div>
+                    
+                    {/* Content Area */}
+                    <div className="p-6 flex flex-col h-full">
+                      <div className="flex-grow">
+                        <h3 className="text-xl font-semibold text-nightfall mb-3">
+                          {courseDetailsFromCSV[course.id]?.title || course.title}
+                        </h3>
+                        
+                        <p className="text-sm text-gray-600 line-clamp-3">
+                          {courseDetailsFromCSV[course.id]?.description || course.description}
                         </p>
                       </div>
-                      <div className="w-16 h-12 bg-white rounded-lg flex items-center justify-center ml-6 overflow-hidden">
-                        {getCourseVisual(course.id)}
+                      
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <span className="block text-center text-sm font-medium text-iris group-hover:text-iris-dark transition-colors uppercase tracking-wider">
+                          VIEW DETAILS
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -1299,7 +1333,8 @@ function ToolsPage() {
               </div>
             </div>
 
-            <div className="flex gap-4 justify-center print:hidden">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex gap-4 justify-center print:hidden">
               <button 
                 onClick={() => {
                   analytics.trackAction('Catalog Clicked', { 
@@ -1324,10 +1359,102 @@ function ToolsPage() {
               >
                 BOOK A DEMO
               </button>
+              </div>
             </div>
-          </div>
         </div>
       </div>
+      
+      {/* Course Detail Modal */}
+      <Modal 
+        isOpen={selectedCourse !== null} 
+        onClose={() => setSelectedCourse(null)}
+      >
+        {selectedCourse && courseDetailsFromCSV[selectedCourse] && (
+          <div className="flex flex-col md:flex-row h-full">
+            {/* Left side - Visual/Image */}
+            <div className="md:w-1/2 bg-gradient-to-br from-indigo-100 to-purple-100 p-8 flex items-center justify-center">
+              <div className="relative w-full max-w-md">
+                {/* Main content area with session image */}
+                <div className="bg-white rounded-lg overflow-hidden shadow-xl">
+                  {courseImageMapping[selectedCourse] && (
+                    <Image
+                      src={courseImageMapping[selectedCourse]}
+                      alt={courseDetailsFromCSV[selectedCourse].title}
+                      width={800}
+                      height={600}
+                      className="w-full h-auto"
+                    />
+                  )}
+                </div>
+                
+                {/* View in platform link */}
+                <div className="text-center mt-6">
+                  <p className="text-gray-600 text-sm mb-4">
+                    See how the slides, script notes, and activities from this template come alive in our custom virtual classroom!
+                  </p>
+                  <a 
+                    href="#" 
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-iris text-white rounded-lg hover:bg-iris-dark transition-colors"
+                  >
+                    <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                      <rect x="2" y="4" width="16" height="12" rx="1" stroke="currentColor" strokeWidth="2" fill="none" />
+                      <path d="M7 10 L13 10 M13 10 L11 8 M13 10 L11 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    VIEW IN CAMPFIRE
+                  </a>
+                </div>
+              </div>
+            </div>
+            
+            {/* Right side - Content */}
+            <div className="md:w-1/2 p-8 overflow-y-auto bg-white">
+              <div className="max-w-lg">
+                <h1 className="text-3xl font-bold text-nightfall mb-6">
+                  {courseDetailsFromCSV[selectedCourse].title}
+                </h1>
+                
+                <div className="space-y-8">
+                  <div>
+                    <h3 className="text-lg font-semibold text-nightfall mb-3">This session teaches how to...</h3>
+                    <p className="text-gray-600">
+                      {courseDetailsFromCSV[selectedCourse].description}
+                    </p>
+                  </div>
+                  
+                  {courseDetailsFromCSV[selectedCourse].actionToTake && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-nightfall mb-3">We'll do this by...</h3>
+                      <ul className="space-y-2">
+                        {courseDetailsFromCSV[selectedCourse].actionToTake.split('\n').filter(item => item.trim()).map((item, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-purple-500 mt-1">•</span>
+                            <span className="text-gray-600">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  <div>
+                    <h3 className="text-lg font-semibold text-nightfall mb-3">Leave this session ready to...</h3>
+                    <p className="text-gray-600">
+                      Take meaningful action on what you've learned to drive real impact in your role.
+                    </p>
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}
+                  className="w-full mt-8 px-8 py-4 bg-iris text-white rounded-lg font-semibold hover:bg-iris-dark transition-colors uppercase tracking-wider"
+                >
+                  SCHEDULE SESSION
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
+      
       <Footer />
       </>
     );

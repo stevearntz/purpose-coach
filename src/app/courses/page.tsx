@@ -3,9 +3,12 @@
 import React, { useState, useMemo } from 'react';
 import { ArrowLeft, Flame, ArrowRight, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { getCourseIdsForChallenges } from '@/app/lib/courseMappings';
 import { allCourses } from '@/app/lib/coursesData';
 import { courseDetails } from '@/app/lib/courseDetails';
+import { courseDetailsFromCSV } from '@/app/lib/courseDetailsFromCSV';
+import { courseImageMapping } from '@/app/lib/courseImages';
 import Footer from '@/components/Footer';
 import Modal from '@/components/Modal';
 
@@ -19,6 +22,56 @@ interface Challenge {
   title: string;
   description: string;
 }
+
+const getCourseGradient = (courseId: string): string => {
+  const gradients: { [key: string]: string } = {
+    's1': 'from-yellow-400 via-orange-400 to-red-400',
+    's2': 'from-blue-400 via-indigo-400 to-purple-400',
+    's3': 'from-orange-400 via-red-400 to-pink-400',
+    's4': 'from-teal-400 via-cyan-400 to-blue-400',
+    's5': 'from-green-400 via-emerald-400 to-teal-400',
+    's6': 'from-amber-400 via-yellow-400 to-orange-400',
+    's7': 'from-red-400 via-rose-400 to-pink-400',
+    's8': 'from-indigo-400 via-purple-400 to-pink-400',
+    's9': 'from-purple-400 via-violet-400 to-indigo-400',
+    's10': 'from-blue-400 via-sky-400 to-cyan-400',
+    's11': 'from-yellow-400 via-amber-400 to-orange-400',
+    's12': 'from-emerald-400 via-green-400 to-lime-400',
+    's13': 'from-sky-400 via-blue-400 to-indigo-400',
+    's14': 'from-violet-400 via-purple-400 to-fuchsia-400',
+    's15': 'from-pink-400 via-rose-400 to-red-400',
+    's16': 'from-cyan-400 via-teal-400 to-emerald-400',
+    's17': 'from-lime-400 via-green-400 to-emerald-400',
+    's18': 'from-orange-400 via-amber-400 to-yellow-400',
+    's19': 'from-fuchsia-400 via-purple-400 to-violet-400',
+    's20': 'from-rose-400 via-pink-400 to-fuchsia-400',
+    's21': 'from-amber-400 via-orange-400 to-red-400',
+    's22': 'from-sky-400 via-cyan-400 to-teal-400',
+    's23': 'from-green-400 via-emerald-400 to-cyan-400',
+    's24': 'from-violet-400 via-indigo-400 to-blue-400',
+    's25': 'from-pink-400 via-fuchsia-400 to-purple-400',
+    's26': 'from-blue-400 via-indigo-400 to-violet-400',
+    's27': 'from-red-400 via-orange-400 to-amber-400',
+    's28': 'from-teal-400 via-emerald-400 to-green-400',
+    's29': 'from-yellow-400 via-lime-400 to-green-400',
+    's30': 'from-indigo-400 via-violet-400 to-purple-400',
+    's31': 'from-cyan-400 via-blue-400 to-indigo-400',
+    's32': 'from-rose-400 via-red-400 to-orange-400',
+    's33': 'from-green-400 via-teal-400 to-cyan-400',
+    's34': 'from-orange-400 via-yellow-400 to-lime-400',
+    's35': 'from-purple-400 via-fuchsia-400 to-pink-400',
+    's36': 'from-blue-400 via-cyan-400 to-teal-400',
+    's37': 'from-pink-400 via-rose-400 to-red-400',
+    's38': 'from-emerald-400 via-green-400 to-lime-400',
+    's39': 'from-amber-400 via-yellow-400 to-orange-400',
+    's40': 'from-violet-400 via-purple-400 to-fuchsia-400',
+    's41': 'from-red-400 via-pink-400 to-rose-400',
+    's42': 'from-blue-400 via-sky-400 to-cyan-400',
+    's43': 'from-green-400 via-emerald-400 to-teal-400'
+  };
+  
+  return gradients[courseId] || 'from-purple-400 via-pink-400 to-orange-400';
+};
 
 const getCourseVisual = (courseId: string): React.ReactElement => {
   const visuals: { [key: string]: React.ReactElement } = {
@@ -197,32 +250,51 @@ export default function CoursesPage() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
           {filteredCourses.map((course) => {
             const isVisible = selectedChallenges.length === 0 || filteredCourses.includes(course);
             return (
-              <button
+              <div
                 key={course.id}
                 onClick={() => handleCourseClick(course.id)}
                 className={`
-                  group bg-white rounded-xl border-2 p-6 
+                  group bg-white rounded-2xl overflow-hidden shadow-sm cursor-pointer
                   transition-all duration-300 ease-in-out
-                  hover:shadow-lg hover:border-purple-300 hover:scale-105 
-                  ${selectedCourse === course.id ? 'border-purple-500 shadow-lg' : 'border-gray-200'}
+                  hover:shadow-lg hover:scale-105 
                   ${isVisible ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-4'}
                 `}
                 style={{
                   transitionDelay: isVisible ? '0ms' : '0ms'
                 }}
               >
-                <div className="w-full h-24 bg-gray-50 rounded-lg mb-4 overflow-hidden group-hover:bg-purple-50 transition-colors">
-                  {getCourseVisual(course.id)}
+                {/* Image/Visual Area */}
+                <div className="relative h-48 overflow-hidden bg-gray-50">
+                  {courseImageMapping[course.id] && (
+                    <Image
+                      src={courseImageMapping[course.id]}
+                      alt={courseDetailsFromCSV[course.id]?.title || course.title}
+                      width={400}
+                      height={300}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
                 
-                <h3 className="text-sm font-semibold text-nightfall text-center leading-tight group-hover:text-iris transition-colors">
-                  {course.title}
-                </h3>
-              </button>
+                {/* Content Area */}
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold text-nightfall mb-3">
+                    {courseDetailsFromCSV[course.id]?.title || course.title}
+                  </h3>
+                  
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                    {courseDetailsFromCSV[course.id]?.description || 'Learn key concepts and practical strategies to enhance your leadership skills and team performance.'}
+                  </p>
+                  
+                  <span className="text-sm font-medium text-iris group-hover:text-iris-dark transition-colors uppercase tracking-wider">
+                    VIEW DETAILS
+                  </span>
+                </div>
+              </div>
             );
           })}
         </div>
@@ -247,81 +319,64 @@ export default function CoursesPage() {
         isOpen={selectedCourse !== null} 
         onClose={() => setSelectedCourse(null)}
       >
-        {selectedCourse && (
+        {selectedCourse && courseDetailsFromCSV[selectedCourse] && (
           <div className="flex flex-col md:flex-row h-full">
             {/* Left side - Visual/Image */}
-            <div className="md:w-1/2 bg-gradient-to-br from-purple-600 to-pink-500 p-8 flex items-center justify-center">
+            <div className="md:w-1/2 bg-gradient-to-br from-indigo-100 to-purple-100 p-8 flex items-center justify-center">
               <div className="relative w-full max-w-md">
-                {/* Slide preview background */}
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 shadow-2xl">
-                  <div className="aspect-video bg-purple-900/50 rounded-lg flex items-center justify-center mb-4 relative overflow-hidden">
-                    {/* Course visual as background */}
-                    <div className="absolute inset-0 opacity-20">
-                      {getCourseVisual(selectedCourse)}
-                    </div>
-                    
-                    {/* Course title overlay */}
-                    <h2 className="text-4xl font-bold text-white text-center px-4 relative z-10">
-                      {courseDetails[selectedCourse]?.title || courses.find(c => c.id === selectedCourse)?.title}
-                    </h2>
-                    
-                    {/* Slide number */}
-                    <div className="absolute top-4 right-4 text-white/70 text-sm">
-                      1 / 17
-                    </div>
-                  </div>
-                  
-                  {/* Navigation dots */}
-                  <div className="flex items-center justify-center gap-2">
-                    <ChevronLeft className="w-5 h-5 text-white/50" />
-                    <div className="flex gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <div 
-                          key={i} 
-                          className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/30'}`} 
-                        />
-                      ))}
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-white/50" />
-                  </div>
+                {/* Main content area with session image */}
+                <div className="bg-white rounded-lg overflow-hidden shadow-xl">
+                  {courseImageMapping[selectedCourse] && (
+                    <Image
+                      src={courseImageMapping[selectedCourse]}
+                      alt={courseDetailsFromCSV[selectedCourse].title}
+                      width={800}
+                      height={600}
+                      className="w-full h-auto"
+                    />
+                  )}
                 </div>
                 
                 {/* View in platform link */}
                 <div className="text-center mt-6">
-                  <p className="text-white/80 text-sm mb-4">
+                  <p className="text-gray-600 text-sm mb-4">
                     See how the slides, script notes, and activities from this template come alive in our custom virtual classroom!
                   </p>
                   <a 
                     href="#" 
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-iris text-white rounded-lg hover:bg-iris-dark transition-colors"
                   >
-                    <ExternalLink className="w-4 h-4" />
-                    VIEW IN PLATFORM
+                    <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                      <rect x="2" y="4" width="16" height="12" rx="1" stroke="currentColor" strokeWidth="2" fill="none" />
+                      <path d="M7 10 L13 10 M13 10 L11 8 M13 10 L11 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    VIEW IN CAMPFIRE
                   </a>
                 </div>
               </div>
             </div>
             
             {/* Right side - Content */}
-            <div className="md:w-1/2 p-8 overflow-y-auto">
+            <div className="md:w-1/2 p-8 overflow-y-auto bg-white">
               <div className="max-w-lg">
+                
                 <h1 className="text-3xl font-bold text-nightfall mb-6">
-                  {courseDetails[selectedCourse]?.title || courses.find(c => c.id === selectedCourse)?.title}
+                  {courseDetailsFromCSV[selectedCourse].title}
                 </h1>
                 
-                {courseDetails[selectedCourse] && (
-                  <>
-                    <div className="mb-8">
-                      <h3 className="text-lg font-semibold text-nightfall mb-3">This session teaches how to...</h3>
-                      <p className="text-gray-600">
-                        {courseDetails[selectedCourse].tagline}
-                      </p>
-                    </div>
-                    
-                    <div className="mb-8">
+                <div className="space-y-8">
+                  <div>
+                    <h3 className="text-lg font-semibold text-nightfall mb-3">This session teaches how to...</h3>
+                    <p className="text-gray-600">
+                      {courseDetailsFromCSV[selectedCourse].description}
+                    </p>
+                  </div>
+                  
+                  {courseDetailsFromCSV[selectedCourse].actionToTake && (
+                    <div>
                       <h3 className="text-lg font-semibold text-nightfall mb-3">We'll do this by...</h3>
                       <ul className="space-y-2">
-                        {courseDetails[selectedCourse].whatYouWillLearn.map((item, index) => (
+                        {courseDetailsFromCSV[selectedCourse].actionToTake.split('\n').filter(item => item.trim()).map((item, index) => (
                           <li key={index} className="flex items-start gap-2">
                             <span className="text-purple-500 mt-1">•</span>
                             <span className="text-gray-600">{item}</span>
@@ -329,26 +384,21 @@ export default function CoursesPage() {
                         ))}
                       </ul>
                     </div>
-                    
-                    <div className="mb-8">
-                      <h3 className="text-lg font-semibold text-nightfall mb-3">Leave this session ready to...</h3>
-                      <p className="text-gray-600">
-                        {courseDetails[selectedCourse].leaveReadyTo}
-                      </p>
-                    </div>
-                    
-                    {courseDetails[selectedCourse].duration && (
-                      <div className="mb-8">
-                        <p className="text-sm text-gray-500">
-                          Duration: {courseDetails[selectedCourse].duration}
-                        </p>
-                      </div>
-                    )}
-                  </>
-                )}
+                  )}
+                  
+                  <div>
+                    <h3 className="text-lg font-semibold text-nightfall mb-3">Leave this session ready to...</h3>
+                    <p className="text-gray-600">
+                      Claim more autonomy by taking a meaningful step toward ownership in the area you've identified.
+                    </p>
+                  </div>
+                </div>
                 
-                <button className="w-full px-8 py-4 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors">
-                  CREATE MEETING
+                <button 
+                  onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}
+                  className="w-full mt-8 px-8 py-4 bg-iris text-white rounded-lg font-semibold hover:bg-iris-dark transition-colors uppercase tracking-wider"
+                >
+                  SCHEDULE SESSION
                 </button>
               </div>
             </div>

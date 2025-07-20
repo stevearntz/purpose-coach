@@ -241,7 +241,13 @@ export async function POST(request: NextRequest) {
     
     // Return the correct URL based on the tool type
     const toolType = body.type;
-    const urlPath = toolType ? `/${toolType}/share/${id}` : `/share/${id}`;
+    
+    // Use generic share route for personal-development-plan
+    const urlPath = toolType === 'personal-development-plan' 
+      ? `/share/${id}`
+      : toolType 
+      ? `/${toolType}/share/${id}` 
+      : `/share/${id}`;
     
     return NextResponse.json({ id, url: urlPath });
   } catch (error) {

@@ -21,7 +21,7 @@ interface Challenge {
   id: string;
   title: string;
   description: string;
-  icon: JSX.Element;
+  icon: React.ReactNode;
 }
 
 const getCourseGradient = (courseId: string): string => {

@@ -186,7 +186,7 @@ function generateCSV(leads: Lead[]): string {
     lead.createdAt,
     lead.userRole || lead.metadata?.userRole || '',
     lead.source === 'tool' 
-      ? (lead.metadata?.toolName || lead.toolName || '')
+      ? (lead.metadata?.toolName || '')
       : (lead.selectedChallenges?.join('; ') || ''),
     lead.recommendedTools?.join('; ') || ''
   ]);
@@ -229,7 +229,7 @@ async function sendToExternalServices(lead: Lead) {
   if (process.env.SLACK_WEBHOOK_URL) {
     try {
       const isToolLead = lead.source === 'tool';
-      const toolName = lead.metadata?.toolName || lead.toolName || 'Unknown Tool';
+      const toolName = lead.metadata?.toolName || 'Unknown Tool';
       const challengesList = lead.selectedChallenges?.join(', ') || 'None';
       const toolsList = lead.recommendedTools?.join(', ') || 'None';
       const userRole = lead.userRole || lead.metadata?.userRole || 'Not specified';

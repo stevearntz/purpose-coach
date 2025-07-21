@@ -51,9 +51,11 @@ export default function EmailGateModal({ isOpen, onClose, onSubmit, onSkip }: Em
         <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative animate-fade-in">
           {/* Success illustration */}
           <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-10 h-10 text-white" />
-            </div>
+            <img 
+              src="/smore.png" 
+              alt="S'more" 
+              className="w-20 h-20 object-contain"
+            />
           </div>
 
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-3">

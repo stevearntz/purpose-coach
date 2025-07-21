@@ -1157,7 +1157,7 @@ function ToolsPage() {
                         {index + 1}
                       </div>
                       
-                      <div className="flex items-start gap-4">
+                      <div className="flex items-center gap-4">
                         <div className="w-24 h-20 bg-white rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
                           {getToolVisual(tool.id)}
                         </div>
@@ -1170,6 +1170,12 @@ function ToolsPage() {
                             {tool.description}
                           </p>
                         </div>
+                        
+                        {isClickable && (
+                          <button className="px-6 py-2 bg-iris-500 text-white rounded-lg font-semibold text-sm uppercase tracking-wider hover:bg-iris-700 transition-colors flex-shrink-0">
+                            START
+                          </button>
+                        )}
                       </div>
                     </>
                   );
@@ -1185,7 +1191,7 @@ function ToolsPage() {
                           from_challenges: selectedChallenges,
                           priority: index + 1
                         })}
-                        className="relative bg-white rounded-xl border border-gray-200 p-6 shadow-sm print:avoid-break hover:shadow-lg hover:border-purple-300 transition-all cursor-pointer"
+                        className="group relative bg-white rounded-xl border-2 border-gray-200 p-6 shadow-sm print:avoid-break hover:shadow-xl hover:border-iris-500 hover:scale-[1.02] transition-all cursor-pointer"
                       >
                         {toolContent}
                       </a>

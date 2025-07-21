@@ -1,5 +1,40 @@
 import ToolSharePage from '@/components/ToolSharePage'
 import { toolConfigs } from '@/lib/toolConfigs'
+import type { Metadata } from 'next'
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params
+  const baseUrl = 'https://tools.getcampfire.com'
+  
+  return {
+    title: 'My Working with Me Guide - Campfire',
+    description: 'Learn how to work effectively with me - my communication style, work preferences, and collaboration tips.',
+    openGraph: {
+      title: 'My Working with Me Guide - Campfire',
+      description: 'Learn how to work effectively with me - my communication style, work preferences, and collaboration tips.',
+      url: `${baseUrl}/user-guide/share/${id}`,
+      siteName: 'Campfire',
+      images: [
+        {
+          url: `${baseUrl}/og-user-guide-share.png`,
+          width: 1200,
+          height: 630,
+          alt: 'Working with Me Guide - Campfire',
+        },
+      ],
+      locale: 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'My Working with Me Guide - Campfire',
+      description: 'Learn how to work effectively with me - my communication style, work preferences, and collaboration tips.',
+      images: [`${baseUrl}/og-user-guide-share.png`],
+      site: '@campfire',
+    },
+    metadataBase: new URL(baseUrl),
+  }
+}
 
 interface Props {
   params: Promise<{ id: string }>

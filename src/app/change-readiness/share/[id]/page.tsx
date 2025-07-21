@@ -1,6 +1,41 @@
 import ToolSharePage from '@/components/ToolSharePage'
 import { dimensionInfo, getChangeRecommendations } from '@/lib/changeReadinessHelpers'
 import { toolConfigs } from '@/lib/toolConfigs'
+import type { Metadata } from 'next'
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params
+  const baseUrl = 'https://tools.getcampfire.com'
+  
+  return {
+    title: 'My Change Readiness Assessment Results - Campfire',
+    description: 'View my change readiness assessment across People, Purpose, and Principles dimensions to navigate change with confidence.',
+    openGraph: {
+      title: 'My Change Readiness Assessment Results - Campfire',
+      description: 'View my change readiness assessment across People, Purpose, and Principles dimensions to navigate change with confidence.',
+      url: `${baseUrl}/change-readiness/share/${id}`,
+      siteName: 'Campfire',
+      images: [
+        {
+          url: `${baseUrl}/og-change-readiness-share.png`,
+          width: 1200,
+          height: 630,
+          alt: 'Change Readiness Assessment Results - Campfire',
+        },
+      ],
+      locale: 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'My Change Readiness Assessment Results - Campfire',
+      description: 'View my change readiness assessment across People, Purpose, and Principles dimensions to navigate change with confidence.',
+      images: [`${baseUrl}/og-change-readiness-share.png`],
+      site: '@campfire',
+    },
+    metadataBase: new URL(baseUrl),
+  }
+}
 
 interface Props {
   params: Promise<{ id: string }>

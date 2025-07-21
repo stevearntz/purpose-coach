@@ -1,5 +1,44 @@
 import ToolSharePage from '@/components/ToolSharePage'
 import { toolConfigs } from '@/lib/toolConfigs'
+import type { Metadata } from 'next'
+
+interface Props {
+  params: Promise<{ id: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params
+  const baseUrl = 'https://tools.getcampfire.com'
+  
+  return {
+    title: 'My Trust Audit Results - Campfire',
+    description: 'View my trust assessment results across Integrity, Competence, and Empathy dimensions to build stronger professional relationships.',
+    openGraph: {
+      title: 'My Trust Audit Results - Campfire',
+      description: 'View my trust assessment results across Integrity, Competence, and Empathy dimensions to build stronger professional relationships.',
+      url: `${baseUrl}/trust-audit/share/${id}`,
+      siteName: 'Campfire',
+      images: [
+        {
+          url: `${baseUrl}/og-trust-audit-share.png`,
+          width: 1200,
+          height: 630,
+          alt: 'Trust Audit Results - Campfire',
+        },
+      ],
+      locale: 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'My Trust Audit Results - Campfire',
+      description: 'View my trust assessment results across Integrity, Competence, and Empathy dimensions to build stronger professional relationships.',
+      images: [`${baseUrl}/og-trust-audit-share.png`],
+      site: '@campfire',
+    },
+    metadataBase: new URL(baseUrl),
+  }
+}
 
 const sectionInfo = {
   integrity: {
@@ -51,10 +90,6 @@ const getRecommendations = (section: string, score: number) => {
   } else {
     return [recommendations[section as keyof typeof recommendations]?.[0] || 'Keep up the great work!']
   }
-}
-
-interface Props {
-  params: Promise<{ id: string }>
 }
 
 export default async function TrustAuditSharePage({ params }: Props) {

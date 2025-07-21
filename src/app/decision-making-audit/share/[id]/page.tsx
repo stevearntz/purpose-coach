@@ -1,6 +1,41 @@
 import ToolSharePage from '@/components/ToolSharePage'
 import { dimensionInfo, getDecisionRecommendations } from '@/lib/decisionMakingHelpers'
 import { toolConfigs } from '@/lib/toolConfigs'
+import type { Metadata } from 'next'
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params
+  const baseUrl = 'https://tools.getcampfire.com'
+  
+  return {
+    title: 'My Decision Making Audit Results - Campfire',
+    description: 'View my decision-making assessment across People, Purpose, Principles, and Outcomes dimensions to make better decisions.',
+    openGraph: {
+      title: 'My Decision Making Audit Results - Campfire',
+      description: 'View my decision-making assessment across People, Purpose, Principles, and Outcomes dimensions to make better decisions.',
+      url: `${baseUrl}/decision-making-audit/share/${id}`,
+      siteName: 'Campfire',
+      images: [
+        {
+          url: `${baseUrl}/og-decision-making-share.png`,
+          width: 1200,
+          height: 630,
+          alt: 'Decision Making Audit Results - Campfire',
+        },
+      ],
+      locale: 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'My Decision Making Audit Results - Campfire',
+      description: 'View my decision-making assessment across People, Purpose, Principles, and Outcomes dimensions to make better decisions.',
+      images: [`${baseUrl}/og-decision-making-share.png`],
+      site: '@campfire',
+    },
+    metadataBase: new URL(baseUrl),
+  }
+}
 
 interface Props {
   params: Promise<{ id: string }>

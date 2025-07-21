@@ -44,10 +44,10 @@ export default function EmailGateModal({ isOpen, onClose, onSubmit, onSkip }: Em
   return (
     <>
       {/* Backdrop with blur */}
-      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" />
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60]" />
       
       {/* Modal */}
-      <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+      <div className="fixed inset-0 flex items-center justify-center z-[70] p-4">
         <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative animate-fade-in">
           {/* Success illustration */}
           <div className="flex justify-center mb-6">

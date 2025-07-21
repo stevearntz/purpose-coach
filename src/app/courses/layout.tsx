@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     siteName: 'Campfire',
     images: [
       {
-        url: 'https://tools.getcampfire.com/campfire-logo-new.png', // Using existing logo for now
+        url: 'https://tools.getcampfire.com/og-courses.png',
         width: 1200,
         height: 630,
         alt: 'Campfire Catalog - Leadership Development Workshops',
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Campfire Catalog',
     description: 'Explore our library of evidence-based workshops designed to address your biggest leadership and team challenges.',
-    images: ['https://tools.getcampfire.com/campfire-logo-new.png'],
+    images: ['https://tools.getcampfire.com/og-courses.png'],
     site: '@campfire',
   },
   alternates: {

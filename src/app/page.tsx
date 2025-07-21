@@ -10,6 +10,7 @@ import { courseImageMapping } from '@/app/lib/courseImages';
 import Footer from '@/components/Footer';
 import Modal from '@/components/Modal';
 import NavigationHeader from '@/components/NavigationHeader';
+import EmailGateModal from '@/components/EmailGateModal';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import ShareButton from '@/components/ShareButton';
 
@@ -184,6 +185,8 @@ function ToolsPage() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
+  const [showEmailGate, setShowEmailGate] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
 
   // Handle returning from courses page
   useEffect(() => {
@@ -347,7 +350,11 @@ function ToolsPage() {
                 })
               );
               
-              setTimeout(() => setCurrentScreen(4), 300);
+              // Show email gate instead of going directly to screen 4
+              setTimeout(() => {
+                setCurrentScreen(4); // Show results screen in background
+                setShowEmailGate(true); // Show email modal on top
+              }, 300);
               return 100;
             }
             return newProgress;
@@ -463,6 +470,52 @@ function ToolsPage() {
     };
     
     return `<svg ${attributes}>${renderChildren(svgElement.children)}</svg>`;
+  };
+
+  const handleEmailSubmit = async (email: string, name?: string) => {
+    setUserEmail(email);
+    setShowEmailGate(false);
+    
+    // Track conversion
+    analytics.trackAction('Email Captured', {
+      from_page: 'personal_development_plan',
+      has_name: !!name
+    });
+    
+    // Send to our API
+    try {
+      const recommendations = getRecommendations();
+      const selectedRole = roles.find(r => r.id === userProfile.role);
+      
+      await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          name,
+          source: 'personal-development-plan',
+          metadata: {
+            userRole: selectedRole?.name || userProfile.role,
+            selectedChallenges: selectedChallenges.map(id => {
+              const challenge = challenges.find(c => c.id === id);
+              return challenge?.title || id;
+            }),
+            recommendedTools: recommendations.tools.map(t => t.name),
+            recommendedCourses: recommendations.courses.slice(0, 3).map(c => c.title)
+          }
+        })
+      });
+    } catch (error) {
+      console.error('Failed to save lead:', error);
+      // Don't block the user experience if lead capture fails
+    }
+  };
+  
+  const handleEmailSkip = () => {
+    setShowEmailGate(false);
+    analytics.trackAction('Email Gate Skipped', {
+      from_page: 'personal_development_plan'
+    });
   };
 
   const handleShare = async () => {
@@ -1319,6 +1372,14 @@ function ToolsPage() {
       </Modal>
       
       <Footer />
+      
+      {/* Email Gate Modal */}
+      <EmailGateModal
+        isOpen={showEmailGate}
+        onClose={() => setShowEmailGate(false)}
+        onSubmit={handleEmailSubmit}
+        onSkip={handleEmailSkip}
+      />
       </>
     );
   }

@@ -234,7 +234,7 @@ export default function ToolsIndexPage() {
 
           <div className="text-center mb-16">
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">
-              Leadership Development Tools
+              Team Building Tools
             </h1>
             <p className="text-xl md:text-2xl text-white/80 max-w-3xl mx-auto">
               Evidence-based tools to help you grow as a leader, build stronger teams, and navigate workplace challenges with confidence.

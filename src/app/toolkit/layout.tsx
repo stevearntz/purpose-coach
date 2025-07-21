@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Toolkit - The Campfire Hub',
-  description: 'Access our complete toolkit of leadership development resources and tools.',
+  title: 'Team Building Tools - The Campfire Hub',
+  description: 'Access our complete toolkit of team building resources and tools.',
   openGraph: {
-    title: 'Toolkit - The Campfire Hub',
-    description: 'Access our complete toolkit of leadership development resources and tools.',
+    title: 'Team Building Tools - The Campfire Hub',
+    description: 'Access our complete toolkit of team building resources and tools.',
     images: [
       {
         url: 'https://tools.getcampfire.com/og-toolkit.png',
@@ -17,8 +17,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Toolkit - The Campfire Hub',
-    description: 'Access our complete toolkit of leadership development resources and tools.',
+    title: 'Team Building Tools - The Campfire Hub',
+    description: 'Access our complete toolkit of team building resources and tools.',
     images: ['https://tools.getcampfire.com/og-toolkit.png'],
   },
 }

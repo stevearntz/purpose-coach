@@ -7,6 +7,8 @@ import Footer from '@/components/Footer'
 import { toolConfigs } from '@/lib/toolConfigs'
 import { Question, Answer, questions, dimensionInfo, getDecisionRecommendations } from '@/lib/decisionMakingHelpers'
 import ShareButton from '@/components/ShareButton'
+import { useAnalytics } from '@/hooks/useAnalytics'
+import { useEmailCapture } from '@/hooks/useEmailCapture'
 
 const likertOptions = [
   { value: 1, label: 'Strongly Disagree' },
@@ -18,17 +20,53 @@ const likertOptions = [
 
 
 export default function DecisionMakingAuditPage() {
+  const analytics = useAnalytics()
+  const { email, hasStoredEmail, captureEmailForTool } = useEmailCapture()
   const [showIntro, setShowIntro] = useState(true)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<Answer[]>([])
   const [showResults, setShowResults] = useState(false)
   const [decisionContext, setDecisionContext] = useState('')
+  const [userEmail, setUserEmail] = useState('')
+  const [isEmailValid, setIsEmailValid] = useState(false)
+  const [startTime] = useState(Date.now())
   
   const config = toolConfigs.decisionMakingAudit
+
+  // Track tool start
+  useEffect(() => {
+    analytics.trackToolStart('Decision Making Audit')
+  }, [])
+
+  // Pre-populate email if available
+  useEffect(() => {
+    if (hasStoredEmail && email) {
+      setUserEmail(email)
+      setIsEmailValid(true)
+    }
+  }, [email, hasStoredEmail])
+
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return re.test(email)
+  }
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value
+    setUserEmail(newEmail)
+    setIsEmailValid(validateEmail(newEmail))
+  }
 
   const currentQuestion = questions[currentQuestionIndex]
   const currentDimension = currentQuestion?.dimension
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100
+
+  // Track progress
+  useEffect(() => {
+    if (!showIntro && !showResults) {
+      analytics.trackToolProgress('Decision Making Audit', `Question ${currentQuestionIndex + 1}`, progress)
+    }
+  }, [currentQuestionIndex, showIntro, showResults])
   
   const handleAnswer = (value: number, autoAdvance: boolean = false) => {
     const newAnswers = [...answers.filter(a => a.questionId !== currentQuestion.id)]
@@ -51,6 +89,15 @@ export default function DecisionMakingAuditPage() {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
     } else {
+      // Track completion
+      const timeSpent = Math.round((Date.now() - startTime) / 1000)
+      const scores = calculateScores()
+      analytics.trackToolComplete('Decision Making Audit', {
+        decisionContext: decisionContext.slice(0, 50),
+        completionTime: timeSpent,
+        total_score: scores.total,
+        readiness_level: scores.total >= 16 ? 'Well Prepared' : scores.total >= 10 ? 'Moderately Prepared' : 'Needs More Work'
+      })
       setShowResults(true)
     }
   }
@@ -80,14 +127,17 @@ export default function DecisionMakingAuditPage() {
       }
       
       // Enter key for starting the assessment on intro
-      if (e.key === 'Enter' && showIntro && decisionContext.trim()) {
+      if (e.key === 'Enter' && showIntro && decisionContext.trim() && isEmailValid) {
+        if (isEmailValid && userEmail) {
+          captureEmailForTool(userEmail, 'Decision Making Audit', 'dma');
+        }
         setShowIntro(false)
       }
     }
     
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [showIntro, showResults, currentQuestionIndex, decisionContext])
+  }, [showIntro, showResults, currentQuestionIndex, decisionContext, isEmailValid, userEmail])
   
   const calculateScores = () => {
     const dimensions = ['people', 'purpose', 'principles', 'outcomes'] as const
@@ -145,19 +195,40 @@ export default function DecisionMakingAuditPage() {
               Briefly describe the decision you need to make.
             </p>
             
-            <textarea
-              value={decisionContext}
-              onChange={(e) => setDecisionContext(e.target.value)}
-              placeholder="e.g., Should we expand into a new market? Which vendor should we choose?"
-              className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg min-h-[100px] resize-y"
-              required
-            />
+            <div className="space-y-4">
+              <input
+                type="email"
+                value={userEmail}
+                onChange={handleEmailChange}
+                placeholder="Your email..."
+                className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                autoComplete="email"
+              />
+              {hasStoredEmail && (
+                <p className="text-white/70 text-sm text-center">
+                  Welcome back! We've pre-filled your email.
+                </p>
+              )}
+              
+              <textarea
+                value={decisionContext}
+                onChange={(e) => setDecisionContext(e.target.value)}
+                placeholder="e.g., Should we expand into a new market? Which vendor should we choose?"
+                className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg min-h-[100px] resize-y"
+                required
+              />
+            </div>
             
             <button
-              onClick={() => setShowIntro(false)}
-              disabled={!decisionContext.trim()}
+              onClick={async () => {
+                if (isEmailValid && userEmail) {
+                  await captureEmailForTool(userEmail, 'Decision Making Audit', 'dma');
+                }
+                setShowIntro(false);
+              }}
+              disabled={!decisionContext.trim() || !isEmailValid}
               className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
-                decisionContext.trim()
+                decisionContext.trim() && isEmailValid
                   ? 'bg-white text-[#3C36FF] hover:bg-white/90'
                   : 'bg-white/50 text-[#3C36FF]/50 cursor-not-allowed'
               }`}

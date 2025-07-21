@@ -476,6 +476,16 @@ function ToolsPage() {
     setUserEmail(email);
     setShowEmailGate(false);
     
+    // Save user info to localStorage for other tools
+    localStorage.setItem('campfire_user_email', email);
+    if (name) {
+      localStorage.setItem('campfire_user_name', name);
+    }
+    const selectedRole = roles.find(r => r.id === userProfile.role);
+    if (selectedRole?.name) {
+      localStorage.setItem('campfire_user_role', selectedRole.name);
+    }
+    
     // Track conversion
     analytics.trackAction('Email Captured', {
       from_page: 'personal_development_plan',
@@ -485,7 +495,6 @@ function ToolsPage() {
     // Send to our API
     try {
       const recommendations = getRecommendations();
-      const selectedRole = roles.find(r => r.id === userProfile.role);
       
       await fetch('/api/leads', {
         method: 'POST',

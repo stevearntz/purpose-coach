@@ -9,6 +9,7 @@ import ToolIntroCard from '@/components/ToolIntroCard'
 import { toolConfigs, toolStyles } from '@/lib/toolConfigs'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import ShareButton from '@/components/ShareButton'
+import { useEmailCapture } from '@/hooks/useEmailCapture'
 
 interface Question {
   id: string
@@ -75,17 +76,39 @@ const sectionInfo = {
 
 export default function TrustAuditPage() {
   const analytics = useAnalytics()
+  const { email, hasStoredEmail, captureEmailForTool } = useEmailCapture()
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<Answer[]>([])
   const [showResults, setShowResults] = useState(false)
   const [relationshipName, setRelationshipName] = useState('')
   const [showIntro, setShowIntro] = useState(true)
   const [startTime] = useState(Date.now())
+  const [userEmail, setUserEmail] = useState('')
+  const [isEmailValid, setIsEmailValid] = useState(false)
 
   // Track tool start
   useEffect(() => {
     analytics.trackToolStart('Trust Audit')
   }, [])
+
+  // Pre-populate email if available
+  useEffect(() => {
+    if (hasStoredEmail && email) {
+      setUserEmail(email)
+      setIsEmailValid(true)
+    }
+  }, [email, hasStoredEmail])
+
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return re.test(email)
+  }
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value
+    setUserEmail(newEmail)
+    setIsEmailValid(validateEmail(newEmail))
+  }
 
   // Track progress
   useEffect(() => {
@@ -166,14 +189,17 @@ export default function TrustAuditPage() {
       }
       
       // Enter key for starting the assessment on intro
-      if (e.key === 'Enter' && showIntro && relationshipName.trim()) {
+      if (e.key === 'Enter' && showIntro && relationshipName.trim() && isEmailValid) {
+        if (isEmailValid && userEmail) {
+          captureEmailForTool(userEmail, 'Trust Audit', 'ta');
+        }
         setShowIntro(false)
       }
     }
     
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [showIntro, showResults, currentQuestionIndex, relationshipName])
+  }, [showIntro, showResults, currentQuestionIndex, relationshipName, isEmailValid, userEmail])
 
   const calculateScores = () => {
     const sections = ['integrity', 'competence', 'empathy'] as const
@@ -271,20 +297,41 @@ export default function TrustAuditPage() {
               <p>Who would you like to build trust with?</p>
             </div>
             
-            <input
-              type="text"
-              value={relationshipName}
-              onChange={(e) => setRelationshipName(e.target.value)}
-              placeholder="Enter their first name..."
-              className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
-              required
-            />
+            <div className="space-y-4">
+              <input
+                type="email"
+                value={userEmail}
+                onChange={handleEmailChange}
+                placeholder="Your email..."
+                className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                autoComplete="email"
+              />
+              {hasStoredEmail && (
+                <p className="text-white/70 text-sm text-center">
+                  Welcome back! We've pre-filled your email.
+                </p>
+              )}
+              
+              <input
+                type="text"
+                value={relationshipName}
+                onChange={(e) => setRelationshipName(e.target.value)}
+                placeholder="Enter their first name..."
+                className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                required
+              />
+            </div>
             
             <button
-              onClick={() => setShowIntro(false)}
-              disabled={!relationshipName.trim()}
+              onClick={async () => {
+                if (isEmailValid && userEmail) {
+                  await captureEmailForTool(userEmail, 'Trust Audit', 'ta');
+                }
+                setShowIntro(false);
+              }}
+              disabled={!relationshipName.trim() || !isEmailValid}
               className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
-                relationshipName.trim()
+                relationshipName.trim() && isEmailValid
                   ? 'bg-white text-[#DB4839] hover:bg-white/90'
                   : 'bg-white/50 text-[#DB4839]/50 cursor-not-allowed'
               }`}

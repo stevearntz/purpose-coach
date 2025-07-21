@@ -7,6 +7,8 @@ import Footer from '@/components/Footer'
 import { toolConfigs } from '@/lib/toolConfigs'
 import { UserGuideData, generateShareableGuide } from '@/lib/userGuideHelpers'
 import ShareButton from '@/components/ShareButton'
+import { useAnalytics } from '@/hooks/useAnalytics'
+import { useEmailCapture } from '@/hooks/useEmailCapture'
 
 const sections = [
   { id: 'working-conditions', title: 'Working Conditions', icon: Clock },
@@ -20,9 +22,14 @@ const sections = [
 ]
 
 export default function UserGuidePage() {
+  const analytics = useAnalytics()
+  const { email, hasStoredEmail, captureEmailForTool } = useEmailCapture()
   const [showIntro, setShowIntro] = useState(true)
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
   const [showResults, setShowResults] = useState(false)
+  const [userEmail, setUserEmail] = useState('')
+  const [isEmailValid, setIsEmailValid] = useState(false)
+  const [startTime] = useState(Date.now())
   const [userData, setUserData] = useState<UserGuideData>({
     name: '',
     workingConditions: '',
@@ -54,11 +61,49 @@ export default function UserGuidePage() {
   const config = toolConfigs.workingWithMe
   const currentSection = sections[currentSectionIndex]
   const progress = ((currentSectionIndex + 1) / sections.length) * 100
+
+  // Track tool start
+  useEffect(() => {
+    analytics.trackToolStart('Working With Me')
+  }, [])
+
+  // Pre-populate email if available
+  useEffect(() => {
+    if (hasStoredEmail && email) {
+      setUserEmail(email)
+      setIsEmailValid(true)
+    }
+  }, [email, hasStoredEmail])
+
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return re.test(email)
+  }
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value
+    setUserEmail(newEmail)
+    setIsEmailValid(validateEmail(newEmail))
+  }
+
+  // Track progress
+  useEffect(() => {
+    if (!showIntro && !showResults) {
+      analytics.trackToolProgress('Working With Me', currentSection.title, progress)
+    }
+  }, [currentSectionIndex, showIntro, showResults])
   
   const handleNext = () => {
     if (currentSectionIndex < sections.length - 1) {
       setCurrentSectionIndex(currentSectionIndex + 1)
     } else {
+      // Track completion
+      const timeSpent = Math.round((Date.now() - startTime) / 1000)
+      analytics.trackToolComplete('Working With Me', {
+        userName: userData.name,
+        completionTime: timeSpent,
+        sections_completed: sections.length
+      })
       setShowResults(true)
     }
   }
@@ -96,6 +141,11 @@ export default function UserGuidePage() {
     const { url } = await response.json()
     const fullUrl = `${window.location.origin}${url}`
     
+    // Track share event
+    analytics.trackShare('Working With Me', 'link', {
+      userName: userData.name
+    })
+    
     return fullUrl
   }
   
@@ -103,7 +153,10 @@ export default function UserGuidePage() {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       // Enter key for starting on intro
-      if (e.key === 'Enter' && showIntro && userData.name.trim()) {
+      if (e.key === 'Enter' && showIntro && userData.name.trim() && isEmailValid) {
+        if (isEmailValid && userEmail) {
+          captureEmailForTool(userEmail, 'Working With Me', 'wwm');
+        }
         setShowIntro(false)
       }
       
@@ -119,7 +172,7 @@ export default function UserGuidePage() {
     
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [showIntro, showResults, currentSectionIndex, userData.name])
+  }, [showIntro, showResults, currentSectionIndex, userData.name, isEmailValid, userEmail])
   
 
   // Intro Screen
@@ -163,20 +216,41 @@ export default function UserGuidePage() {
               What should people call you?
             </p>
             
-            <input
-              type="text"
-              value={userData.name}
-              onChange={(e) => setUserData({...userData, name: e.target.value})}
-              placeholder="Enter your name..."
-              className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
-              required
-            />
+            <div className="space-y-4">
+              <input
+                type="email"
+                value={userEmail}
+                onChange={handleEmailChange}
+                placeholder="Your email..."
+                className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                autoComplete="email"
+              />
+              {hasStoredEmail && (
+                <p className="text-white/70 text-sm text-center">
+                  Welcome back! We've pre-filled your email.
+                </p>
+              )}
+              
+              <input
+                type="text"
+                value={userData.name}
+                onChange={(e) => setUserData({...userData, name: e.target.value})}
+                placeholder="Enter your name..."
+                className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                required
+              />
+            </div>
             
             <button
-              onClick={() => setShowIntro(false)}
-              disabled={!userData.name.trim()}
+              onClick={async () => {
+                if (isEmailValid && userEmail) {
+                  await captureEmailForTool(userEmail, 'Working With Me', 'wwm');
+                }
+                setShowIntro(false);
+              }}
+              disabled={!userData.name.trim() || !isEmailValid}
               className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
-                userData.name.trim()
+                userData.name.trim() && isEmailValid
                   ? 'bg-white text-[#2A74B9] hover:bg-white/90'
                   : 'bg-white/50 text-[#2A74B9]/50 cursor-not-allowed'
               }`}

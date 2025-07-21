@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowRight, ArrowLeft, Download, Share2, X, Lightbulb, Users, Building2, Heart, Brain, TrendingUp, Sparkles, ShieldCheck, Target } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import ShareButton from '@/components/ShareButton'
+import { useAnalytics } from '@/hooks/useAnalytics'
+import { useEmailCapture } from '@/hooks/useEmailCapture'
 
 interface ReflectionData {
   category: string
@@ -161,6 +163,8 @@ const questionData: Record<string, Record<string, string[]>> = {
 
 export default function CoachingCardsTool() {
   const router = useRouter()
+  const analytics = useAnalytics()
+  const { email, hasStoredEmail, captureEmailForTool } = useEmailCapture()
   const [currentStage, setCurrentStage] = useState(0)
   const [selectedCategory, setSelectedCategory] = useState('')
   const [selectedFocusArea, setSelectedFocusArea] = useState('')
@@ -168,10 +172,57 @@ export default function CoachingCardsTool() {
   const [reflections, setReflections] = useState<Record<number, string>>({})
   const [challengeSolution, setChallengeSolution] = useState('')
   const [nextStep, setNextStep] = useState('')
+  const [userEmail, setUserEmail] = useState('')
+  const [isEmailValid, setIsEmailValid] = useState(false)
+  const [startTime] = useState(Date.now())
+
+  // Track tool start
+  useEffect(() => {
+    analytics.trackToolStart('Coaching Cards')
+  }, [])
+
+  // Pre-populate email if available
+  useEffect(() => {
+    if (hasStoredEmail && email) {
+      setUserEmail(email)
+      setIsEmailValid(true)
+    }
+  }, [email, hasStoredEmail])
+
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return re.test(email)
+  }
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value
+    setUserEmail(newEmail)
+    setIsEmailValid(validateEmail(newEmail))
+  }
+
+  // Track progress
+  useEffect(() => {
+    if (currentStage > 0 && currentStage < stages.length - 1) {
+      const stage = stages[currentStage]
+      const progress = ((currentStage + 1) / stages.length) * 100
+      analytics.trackToolProgress('Coaching Cards', stage.title, progress)
+    }
+  }, [currentStage])
 
   const handleNext = () => {
     if (currentStage < stages.length - 1) {
       setCurrentStage(currentStage + 1)
+    }
+    
+    // Track completion when reaching results
+    if (currentStage === stages.length - 2) {
+      const timeSpent = Math.round((Date.now() - startTime) / 1000)
+      analytics.trackToolComplete('Coaching Cards', {
+        category: selectedCategory,
+        focusArea: selectedFocusArea,
+        completionTime: timeSpent,
+        questions_selected: selectedQuestions.length
+      })
     }
   }
 
@@ -227,6 +278,12 @@ export default function CoachingCardsTool() {
     const { url } = await response.json()
     const fullUrl = `${window.location.origin}${url}`
     
+    // Track share event
+    analytics.trackShare('Coaching Cards', 'link', {
+      category: selectedCategory,
+      focusArea: selectedFocusArea
+    })
+    
     return fullUrl
   }
 
@@ -277,12 +334,43 @@ export default function CoachingCardsTool() {
                   </ol>
                 </div>
 
-                <button
-                  onClick={handleNext}
-                  className="px-8 py-4 bg-white text-[#8AB307] rounded-xl font-semibold text-lg hover:bg-white/90 transition-all duration-200"
-                >
-                  Get Started
-                </button>
+                <div className="space-y-4 max-w-md mx-auto">
+                  <div className="space-y-2">
+                    <label className="block text-lg font-medium text-white/90">
+                      What's your email?
+                    </label>
+                    <input
+                      type="email"
+                      value={userEmail}
+                      onChange={handleEmailChange}
+                      placeholder="you@company.com"
+                      className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                      autoComplete="email"
+                    />
+                    {hasStoredEmail && (
+                      <p className="text-white/70 text-sm">
+                        Welcome back! We've pre-filled your email.
+                      </p>
+                    )}
+                  </div>
+                  
+                  <button
+                    onClick={async () => {
+                      if (isEmailValid && userEmail) {
+                        await captureEmailForTool(userEmail, 'Coaching Cards', 'cc');
+                      }
+                      handleNext();
+                    }}
+                    disabled={!isEmailValid}
+                    className={`w-full px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 ${
+                      isEmailValid
+                        ? 'bg-white text-[#8AB307] hover:bg-white/90'
+                        : 'bg-white/50 text-[#8AB307]/50 cursor-not-allowed'
+                    }`}
+                  >
+                    Get Started
+                  </button>
+                </div>
 
                 <p className="text-white/70 text-sm">
                   This will take about 10-15 minutes to complete

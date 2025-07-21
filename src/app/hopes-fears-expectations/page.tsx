@@ -7,6 +7,7 @@ import Link from 'next/link'
 import jsPDF from 'jspdf'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import ShareButton from '@/components/ShareButton'
+import { useEmailCapture } from '@/hooks/useEmailCapture'
 
 interface HopesFears {
   context: string
@@ -237,17 +238,39 @@ const expectationPrompts = {
 export default function HopesFearsTool() {
   const router = useRouter()
   const analytics = useAnalytics()
+  const { email, hasStoredEmail, captureEmailForTool } = useEmailCapture()
   const [currentStage, setCurrentStage] = useState(0)
   const [selectedContext, setSelectedContext] = useState('')
   const [hopes, setHopes] = useState<string[]>(['', '', ''])
   const [fears, setFears] = useState<string[]>(['', '', ''])
   const [expectations, setExpectations] = useState<string[]>(['', '', ''])
   const [startTime] = useState(Date.now())
+  const [userEmail, setUserEmail] = useState('')
+  const [isEmailValid, setIsEmailValid] = useState(false)
 
   // Track tool start
   useEffect(() => {
     analytics.trackToolStart('Hopes Fears Expectations')
   }, [])
+
+  // Pre-populate email if available
+  useEffect(() => {
+    if (hasStoredEmail && email) {
+      setUserEmail(email)
+      setIsEmailValid(true)
+    }
+  }, [email, hasStoredEmail])
+
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return re.test(email)
+  }
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value
+    setUserEmail(newEmail)
+    setIsEmailValid(validateEmail(newEmail))
+  }
 
   // Track stage progress
   useEffect(() => {
@@ -312,6 +335,11 @@ export default function HopesFearsTool() {
 
     const { url } = await response.json()
     const fullUrl = `${window.location.origin}${url}`
+    
+    // Track share event
+    analytics.trackShare('Hopes Fears Expectations', 'link', {
+      context: selectedContext
+    })
     
     // Track share event
     analytics.trackShare('Hopes Fears Expectations', 'link')
@@ -410,12 +438,43 @@ export default function HopesFearsTool() {
                   </ol>
                 </div>
 
-                <button
-                  onClick={handleNext}
-                  className="px-8 py-4 bg-white text-[#DB4839] rounded-xl font-semibold text-lg hover:bg-white/90 transition-all duration-200"
-                >
-                  Start Preparing
-                </button>
+                <div className="space-y-4 max-w-md mx-auto">
+                  <div className="space-y-2">
+                    <label className="block text-lg font-medium text-white/90">
+                      What's your email?
+                    </label>
+                    <input
+                      type="email"
+                      value={userEmail}
+                      onChange={handleEmailChange}
+                      placeholder="you@company.com"
+                      className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                      autoComplete="email"
+                    />
+                    {hasStoredEmail && (
+                      <p className="text-white/70 text-sm">
+                        Welcome back! We've pre-filled your email.
+                      </p>
+                    )}
+                  </div>
+                  
+                  <button
+                    onClick={async () => {
+                      if (isEmailValid && userEmail) {
+                        await captureEmailForTool(userEmail, 'Hopes Fears Expectations', 'hfe');
+                      }
+                      handleNext();
+                    }}
+                    disabled={!isEmailValid}
+                    className={`w-full px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 ${
+                      isEmailValid
+                        ? 'bg-white text-[#DB4839] hover:bg-white/90'
+                        : 'bg-white/50 text-[#DB4839]/50 cursor-not-allowed'
+                    }`}
+                  >
+                    Start Preparing
+                  </button>
+                </div>
 
                 <p className="text-white/70 text-sm">
                   This will take about 10-15 minutes to complete

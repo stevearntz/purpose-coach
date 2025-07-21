@@ -8,6 +8,7 @@ import jsPDF from 'jspdf'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import ShareButton from '@/components/ShareButton'
 import NavigationHeader from '@/components/NavigationHeader'
+import { useEmailCapture } from '@/hooks/useEmailCapture'
 
 interface TeamData {
   teamName: string
@@ -90,9 +91,31 @@ const teamWinOptions = [
 export default function TeamCanvasTool() {
   const router = useRouter()
   const analytics = useAnalytics()
+  const { email, hasStoredEmail, captureEmailForTool } = useEmailCapture()
   const [currentStage, setCurrentStage] = useState(0)
   const [shareUrl, setShareUrl] = useState('')
   const [startTime] = useState(Date.now())
+  const [userEmail, setUserEmail] = useState('')
+  const [isEmailValid, setIsEmailValid] = useState(false)
+
+  useEffect(() => {
+    if (hasStoredEmail && email) {
+      setUserEmail(email)
+      setIsEmailValid(true)
+    }
+  }, [email, hasStoredEmail])
+
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return re.test(email)
+  }
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value
+    setUserEmail(newEmail)
+    setIsEmailValid(validateEmail(newEmail))
+  }
+
   const [teamData, setTeamData] = useState<TeamData>({
     teamName: '',
     purpose: { exists: '', outcome: '' },
@@ -352,22 +375,48 @@ export default function TeamCanvasTool() {
                   </p>
                 </div>
 
-                <div className="space-y-4 max-w-md mx-auto">
-                  <label className="block text-lg font-medium text-white/90">
-                    Let's start with your team name
-                  </label>
-                  <input
-                    type="text"
-                    value={teamData.teamName}
-                    onChange={(e) => setTeamData({ ...teamData, teamName: e.target.value })}
-                    placeholder="Enter your team name..."
-                    className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
-                  />
+                <div className="space-y-6 max-w-md mx-auto">
+                  <div className="space-y-4">
+                    <label className="block text-lg font-medium text-white/90">
+                      What's your email?
+                    </label>
+                    <input
+                      type="email"
+                      value={userEmail}
+                      onChange={handleEmailChange}
+                      placeholder="you@company.com"
+                      className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                      autoComplete="email"
+                    />
+                    {hasStoredEmail && (
+                      <p className="text-white/70 text-sm">
+                        Welcome back! We've pre-filled your email.
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <label className="block text-lg font-medium text-white/90">
+                      Let's start with your team name
+                    </label>
+                    <input
+                      type="text"
+                      value={teamData.teamName}
+                      onChange={(e) => setTeamData({ ...teamData, teamName: e.target.value })}
+                      placeholder="Enter your team name..."
+                      className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                    />
+                  </div>
                 </div>
 
                 <button
-                  onClick={handleNext}
-                  disabled={!teamData.teamName}
+                  onClick={async () => {
+                    if (isEmailValid && userEmail) {
+                      await captureEmailForTool(userEmail, 'Team Canvas', 't1');
+                    }
+                    handleNext();
+                  }}
+                  disabled={!teamData.teamName || !isEmailValid}
                   className="px-8 py-4 bg-white text-[#FFA851] rounded-xl font-semibold text-lg hover:bg-white/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Start Building Your Canvas

@@ -13,6 +13,12 @@ interface Lead {
   userRole?: string
   selectedChallenges?: string[]
   recommendedTools?: string[]
+  metadata?: {
+    toolName?: string
+    toolId?: string
+    userRole?: string
+    [key: string]: any
+  }
 }
 
 interface LeadStats {
@@ -254,7 +260,7 @@ export default function LeadsPage() {
                       Source
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Challenges
+                      Challenges/Tool
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Date
@@ -271,7 +277,7 @@ export default function LeadsPage() {
                         {lead.name || '-'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {lead.userRole || '-'}
+                        {lead.userRole || lead.metadata?.userRole || '-'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
@@ -279,7 +285,10 @@ export default function LeadsPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
-                        {lead.selectedChallenges?.join(', ') || '-'}
+                        {lead.source === 'tool' 
+                          ? (lead.metadata?.toolName || '-')
+                          : (lead.selectedChallenges?.join(', ') || '-')
+                        }
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(lead.createdAt).toLocaleDateString()}

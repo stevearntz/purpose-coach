@@ -177,15 +177,17 @@ export async function GET(request: NextRequest) {
 
 // Helper: Generate CSV
 function generateCSV(leads: Lead[]): string {
-  const headers = ['ID', 'Email', 'Name', 'Source', 'Created At', 'Role', 'Challenges', 'Tools'];
+  const headers = ['ID', 'Email', 'Name', 'Source', 'Created At', 'Role', 'Challenges/Tool', 'Recommended Tools'];
   const rows = leads.map(lead => [
     lead.id,
     lead.email,
     lead.name || '',
     lead.source,
     lead.createdAt,
-    lead.userRole || '',
-    lead.selectedChallenges?.join('; ') || '',
+    lead.userRole || lead.metadata?.userRole || '',
+    lead.source === 'tool' 
+      ? (lead.metadata?.toolName || lead.toolName || '')
+      : (lead.selectedChallenges?.join('; ') || ''),
     lead.recommendedTools?.join('; ') || ''
   ]);
   
@@ -226,32 +228,45 @@ async function sendToExternalServices(lead: Lead) {
   // Slack notification
   if (process.env.SLACK_WEBHOOK_URL) {
     try {
+      const isToolLead = lead.source === 'tool';
+      const toolName = lead.metadata?.toolName || lead.toolName || 'Unknown Tool';
       const challengesList = lead.selectedChallenges?.join(', ') || 'None';
       const toolsList = lead.recommendedTools?.join(', ') || 'None';
+      const userRole = lead.userRole || lead.metadata?.userRole || 'Not specified';
       
-      const slackMessage = {
-        text: `🔥 New Campfire Lead!`,
-        blocks: [
-          {
-            type: "section",
-            text: {
+      let messageBlocks = [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `*🔥 New Lead Captured!*\n*Email:* ${lead.email}${lead.name ? `\n*Name:* ${lead.name}` : ''}`
+          }
+        },
+        {
+          type: "section",
+          fields: [
+            {
               type: "mrkdwn",
-              text: `*🔥 New Lead Captured!*\n*Email:* ${lead.email}${lead.name ? `\n*Name:* ${lead.name}` : ''}`
+              text: `*Role:*\n${userRole}`
+            },
+            {
+              type: "mrkdwn",
+              text: `*Source:*\n${lead.source.replace('-', ' ')}`
             }
-          },
-          {
-            type: "section",
-            fields: [
-              {
-                type: "mrkdwn",
-                text: `*Role:*\n${lead.userRole || 'Not specified'}`
-              },
-              {
-                type: "mrkdwn",
-                text: `*Source:*\n${lead.source.replace('-', ' ')}`
-              }
-            ]
-          },
+          ]
+        }
+      ];
+      
+      if (isToolLead) {
+        messageBlocks.push({
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `*Tool Used:*\n${toolName}`
+          }
+        });
+      } else {
+        messageBlocks.push(
           {
             type: "section",
             text: {
@@ -265,7 +280,14 @@ async function sendToExternalServices(lead: Lead) {
               type: "mrkdwn",
               text: `*Recommended Tools:*\n${toolsList}`
             }
-          },
+          }
+        );
+      }
+      
+      const slackMessage = {
+        text: `🔥 New Campfire Lead!`,
+        blocks: [
+          ...messageBlocks,
           {
             type: "context",
             elements: [

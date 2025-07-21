@@ -47,7 +47,9 @@ export async function POST(request: NextRequest) {
       name,
       source: source || 'personal-development-plan',
       createdAt: new Date().toISOString(),
-      ...metadata // Spread any additional metadata
+      metadata: metadata || undefined,
+      // Also spread for backwards compatibility
+      ...metadata
     };
     
     // Store in Redis with multiple access patterns

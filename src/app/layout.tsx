@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     siteName: 'Campfire',
     images: [
       {
-        url: 'https://tools.getcampfire.com/og-tools-hub.jpg',
+        url: 'https://tools.getcampfire.com/og-tools-hub-new.jpg',
         width: 1200,
         height: 630,
         alt: 'The Campfire Hub - Leadership Development Tools',
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'The Campfire Hub',
     description: 'Solve your biggest leadership and team challenges—starting now. Get instant access to tools, workshops, and personalized recommendations.',
-    images: ['https://tools.getcampfire.com/og-tools-hub.jpg'],
+    images: ['https://tools.getcampfire.com/og-tools-hub-new.jpg'],
     site: '@campfire',
   },
   robots: {

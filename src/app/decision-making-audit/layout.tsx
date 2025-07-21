@@ -1,9 +1,6 @@
-import { Metadata } from 'next'
+import { generateToolMetadata } from '@/lib/toolMetadata'
 
-export const metadata: Metadata = {
-  title: 'Campfire Decision Making Audit',
-  description: 'Evaluate how you make decisions across four key dimensions—People, Purpose, Principles, and Outcomes—to identify your strengths and areas for growth.',
-}
+export const metadata = generateToolMetadata('decision-making-audit')
 
 export default function DecisionMakingAuditLayout({
   children,

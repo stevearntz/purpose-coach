@@ -362,11 +362,19 @@ export default function CareerDriversTool() {
           <div className="min-h-screen bg-gradient-to-br from-[#BADA54] to-[#30B859] flex items-center justify-center p-4">
             <div className="w-full max-w-2xl">
               <Link 
-                href="/?screen=4" 
+                href="/" 
                 className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
-                Back to Plan
+                Back to tools
+              </Link>
+
+              <Link
+                href="/"
+                className="absolute top-8 right-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
+              >
+                All Tools
+                <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
               </Link>
 
               <div className="text-center space-y-8">

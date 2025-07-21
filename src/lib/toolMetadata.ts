@@ -1,0 +1,98 @@
+import type { Metadata } from 'next'
+
+interface ToolMetadataConfig {
+  name: string
+  description: string
+  ogImage?: string
+}
+
+export const toolsMetadata: Record<string, ToolMetadataConfig> = {
+  'team-canvas': {
+    name: 'Team Canvas',
+    description: 'Create a visual map of your team\'s purpose, values, activities, and goals to align everyone around what matters most.',
+    ogImage: '/og-team-canvas.jpg'
+  },
+  'burnout-assessment': {
+    name: 'Burnout Assessment',
+    description: 'Evaluate your current state of workplace wellbeing and get personalized strategies to prevent or recover from burnout.',
+    ogImage: '/og-burnout.jpg'
+  },
+  'trust-audit': {
+    name: 'Trust Audit',
+    description: 'Assess and strengthen trust in your key relationships with a comprehensive trust evaluation framework.',
+    ogImage: '/og-trust.jpg'
+  },
+  'change-readiness': {
+    name: 'Change Readiness',
+    description: 'Evaluate your preparedness for change and develop strategies to navigate transitions with confidence.',
+    ogImage: '/og-change.jpg'
+  },
+  'coaching-cards': {
+    name: 'Coaching Reflection',
+    description: 'Explore powerful coaching questions to gain clarity, overcome challenges, and accelerate your growth.',
+    ogImage: '/og-coaching.jpg'
+  },
+  'career-drivers': {
+    name: 'Career Drivers',
+    description: 'Discover what truly motivates you and create a personalized career map aligned with your core drivers.',
+    ogImage: '/og-career.jpg'
+  },
+  'hopes-fears-expectations': {
+    name: 'Hopes, Fears & Expectations',
+    description: 'Surface and align team expectations to build trust and set the foundation for success.',
+    ogImage: '/og-hopes.jpg'
+  },
+  'decision-making-audit': {
+    name: 'Decision Making Audit',
+    description: 'Analyze your decision-making patterns and develop strategies for more confident, effective choices.',
+    ogImage: '/og-decision.jpg'
+  },
+  'user-guide': {
+    name: 'User Guide',
+    description: 'Create a personalized guide to help others understand how to work with you most effectively.',
+    ogImage: '/og-user-guide.jpg'
+  }
+}
+
+export function generateToolMetadata(toolId: string): Metadata {
+  const tool = toolsMetadata[toolId]
+  
+  if (!tool) {
+    return {
+      title: 'Campfire Tool',
+      description: 'Leadership development tool from Campfire'
+    }
+  }
+
+  const title = `${tool.name} - Campfire`
+  const baseUrl = 'https://tools.getcampfire.com'
+  
+  return {
+    title,
+    description: tool.description,
+    openGraph: {
+      title,
+      description: tool.description,
+      url: `${baseUrl}/${toolId}`,
+      siteName: 'Campfire',
+      images: [
+        {
+          url: `${baseUrl}/campfire-logo-new.png`, // Using existing logo for now
+          width: 1200,
+          height: 630,
+          alt: `${tool.name} - Campfire Tool`,
+        },
+      ],
+      locale: 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: tool.description,
+      images: [`${baseUrl}/campfire-logo-new.png`],
+      site: '@campfire',
+    },
+    metadataBase: new URL(baseUrl),
+  }
+}

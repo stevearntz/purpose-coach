@@ -18,6 +18,7 @@ interface NavigationHeaderProps {
   onBack?: () => void;
   rightActions?: NavigationAction[];
   variant?: 'light' | 'dark'; // light for gradient backgrounds, dark for light backgrounds
+  className?: string; // Additional classes for the wrapper
 }
 
 export default function NavigationHeader({ 
@@ -25,7 +26,8 @@ export default function NavigationHeader({
   backLabel = 'Back',
   onBack,
   rightActions = [],
-  variant = 'light'
+  variant = 'light',
+  className = ''
 }: NavigationHeaderProps) {
   const router = useRouter();
 
@@ -80,11 +82,11 @@ export default function NavigationHeader({
   };
 
   return (
-    <div className="w-full">
-      <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
+    <div className={`w-full relative z-50 ${className}`}>
+      <div className="max-w-7xl mx-auto px-6 h-[5.5rem] flex items-center justify-between">
         <button
           onClick={handleBack}
-          className={`flex items-center gap-2 font-medium transition-colors ${
+          className={`flex items-center gap-2 font-medium transition-colors py-2 ${
             variant === 'light' 
               ? 'text-white/80 hover:text-white' 
               : 'text-gray-600 hover:text-gray-800'

@@ -892,11 +892,11 @@ function ToolsPage() {
             variant="dark"
           />
           
-        <div className="container mx-auto px-6 py-16">
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-4xl font-bold text-nightfall mb-6">
-              What are your biggest challenges as a {roles.find(r => r.id === userProfile.role)?.name || userProfile.role}?
-            </h2>
+          <div className="container mx-auto px-6 py-16">
+            <div className="max-w-4xl mx-auto text-center mb-12">
+              <h2 className="text-4xl font-bold text-nightfall mb-6">
+                What are your biggest challenges as a {roles.find(r => r.id === userProfile.role)?.name || userProfile.role}?
+              </h2>
             <p className="text-lg text-gray-600">
               Select up to 5 challenges ({selectedChallenges.length}/5 selected)
             </p>
@@ -934,7 +934,7 @@ function ToolsPage() {
                     </div>
                     
                     {/* Full height illustration on the right */}
-                    <div className={`w-24 rounded-lg flex-shrink-0 overflow-hidden ${isSelected ? 'bg-purple-100' : 'bg-gray-50'}`}>
+                    <div className="w-24 rounded-lg flex-shrink-0 overflow-hidden bg-white">
                       {getChallengeVisual(challenge.id)}
                     </div>
                   </div>
@@ -999,12 +999,12 @@ function ToolsPage() {
     return (
       <>
         <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-purple-50 print:bg-white">
-          <div className="print:hidden">
-            <NavigationHeader
-              onBack={handleBackToChallenge}
-              backLabel="Back"
-              variant="dark"
-              rightActions={[
+          <NavigationHeader
+            onBack={handleBackToChallenge}
+            backLabel="Back"
+            variant="dark"
+            className="print:hidden"
+            rightActions={[
                 { 
                   type: 'share', 
                   onClick: handleShare,
@@ -1023,11 +1023,10 @@ function ToolsPage() {
                 }
               ]}
             />
-          </div>
           
-        <div className="container mx-auto px-6 py-16">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
+          <div className="container mx-auto px-6 py-16">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-12">
               
               {/* Print-only header with logo */}
               <div className="hidden print:block mb-8">

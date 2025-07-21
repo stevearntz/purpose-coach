@@ -89,14 +89,42 @@ class LocalFileStorage implements StorageAdapter {
 // Redis storage implementation
 class RedisStorage implements StorageAdapter {
   private redis: Redis | null = null;
+  private connectionError: Error | null = null;
 
   private async ensureRedis() {
+    // If we had a connection error, don't retry
+    if (this.connectionError) {
+      throw this.connectionError;
+    }
+
     if (!this.redis && process.env.REDIS_URL) {
       try {
-        this.redis = new Redis(process.env.REDIS_URL);
+        this.redis = new Redis(process.env.REDIS_URL, {
+          // Add connection options for better reliability
+          retryStrategy: (times) => {
+            const delay = Math.min(times * 50, 2000);
+            return delay;
+          },
+          connectTimeout: 10000,
+          maxRetriesPerRequest: 3,
+          enableOfflineQueue: false,
+          lazyConnect: true, // Don't connect until first command
+        });
+
+        // Explicitly connect
+        await this.redis.connect();
+        
+        // Set up error handlers
+        this.redis.on('error', (err) => {
+          console.error('Redis connection error:', err);
+          this.connectionError = err;
+        });
+
         console.log('Redis connection established');
       } catch (error) {
         console.error('Failed to connect to Redis:', error);
+        this.connectionError = error as Error;
+        this.redis = null;
         throw error;
       }
     }
@@ -111,6 +139,7 @@ class RedisStorage implements StorageAdapter {
       return data ? JSON.parse(data) : null;
     } catch (error) {
       console.error('Redis get error:', error);
+      // Don't throw, return null to allow fallback
       return null;
     }
   }
@@ -221,6 +250,8 @@ function ensureStorage(): StorageAdapter {
 }
 
 export async function POST(request: NextRequest) {
+  let fallbackStorage: StorageAdapter | null = null;
+  
   try {
     const body = await request.json();
     
@@ -233,11 +264,29 @@ export async function POST(request: NextRequest) {
     
     console.log('Attempting to save share data with id:', id);
     
-    await ensureStorage().set(`share:${id}`, shareData, {
-      ex: 60 * 60 * 24 * 30, // 30 days expiry
-    });
-    
-    console.log('Share data saved successfully');
+    // Try primary storage first
+    try {
+      await ensureStorage().set(`share:${id}`, shareData, {
+        ex: 60 * 60 * 24 * 30, // 30 days expiry
+      });
+      console.log('Share data saved successfully to primary storage');
+    } catch (primaryError) {
+      console.error('Primary storage failed:', primaryError);
+      
+      // If primary storage fails, try fallback storage
+      if (process.env.NODE_ENV === 'production') {
+        console.log('Attempting fallback to in-memory storage');
+        fallbackStorage = new InMemoryStorage();
+      } else {
+        console.log('Attempting fallback to local file storage');
+        fallbackStorage = new LocalFileStorage();
+      }
+      
+      await fallbackStorage.set(`share:${id}`, shareData, {
+        ex: 60 * 60 * 24 * 30, // 30 days expiry
+      });
+      console.log('Share data saved successfully to fallback storage');
+    }
     
     // Return the correct URL based on the tool type
     const toolType = body.type;
@@ -284,7 +333,39 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    const data = await ensureStorage().get(`share:${id}`);
+    let data = null;
+    
+    // Try primary storage first
+    try {
+      data = await ensureStorage().get(`share:${id}`);
+      if (data) {
+        console.log('Retrieved data from primary storage');
+      }
+    } catch (primaryError) {
+      console.error('Primary storage read failed:', primaryError);
+    }
+    
+    // If primary storage failed or returned null, try fallback
+    if (!data) {
+      let fallbackStorage: StorageAdapter | null = null;
+      
+      if (process.env.NODE_ENV === 'production') {
+        console.log('Attempting to read from in-memory fallback storage');
+        fallbackStorage = new InMemoryStorage();
+      } else {
+        console.log('Attempting to read from local file fallback storage');
+        fallbackStorage = new LocalFileStorage();
+      }
+      
+      try {
+        data = await fallbackStorage.get(`share:${id}`);
+        if (data) {
+          console.log('Retrieved data from fallback storage');
+        }
+      } catch (fallbackError) {
+        console.error('Fallback storage read failed:', fallbackError);
+      }
+    }
     
     console.log('Retrieved data:', data ? 'Found' : 'Not found');
     

@@ -226,7 +226,7 @@ export default function ToolsIndexPage() {
 
         <NavigationHeader 
           backTo="/" 
-          backLabel="Back to Home"
+          backLabel="BACK TO HOME"
           variant="light"
         />
         

@@ -14,18 +14,19 @@ export const metadata: Metadata = {
   title: 'The Campfire Hub',
   description: 'Solve your biggest leadership and team challenges—starting now. Get instant access to tools, workshops, and personalized recommendations to help you lead better, align your team, and build a culture that performs.',
   keywords: 'purpose, coaching, self-discovery, personal development, values, strengths, clarity, relationships, career',
-  authors: [{ name: 'Campfire Guides' }],
+  authors: [{ name: 'Campfire' }],
+  metadataBase: new URL('https://tools.getcampfire.com'),
   openGraph: {
-    title: 'Campfire Guides',
-    description: 'At Campfire, we empower every employee with the direction, support, and skills they need to thrive.',
+    title: 'The Campfire Hub',
+    description: 'Solve your biggest leadership and team challenges—starting now. Get instant access to tools, workshops, and personalized recommendations.',
     url: 'https://tools.getcampfire.com',
-    siteName: 'Campfire Guides',
+    siteName: 'Campfire',
     images: [
       {
-        url: '/og-image.jpg', // You'll want to add this image
+        url: 'https://tools.getcampfire.com/campfire-logo-new.png',
         width: 1200,
         height: 630,
-        alt: 'Campfire Guides - Deep Conversations for Transformation',
+        alt: 'The Campfire Hub - Leadership Development Tools',
       },
     ],
     locale: 'en_US',
@@ -33,9 +34,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Campfire Guides',
-    description: 'At Campfire, we empower every employee with the direction, support, and skills they need to thrive.',
-    images: ['/og-image.jpg'],
+    title: 'The Campfire Hub',
+    description: 'Solve your biggest leadership and team challenges—starting now. Get instant access to tools, workshops, and personalized recommendations.',
+    images: ['https://tools.getcampfire.com/campfire-logo-new.png'],
+    site: '@campfire',
   },
   robots: {
     index: true,

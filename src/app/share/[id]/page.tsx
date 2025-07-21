@@ -626,6 +626,7 @@ export default function SharePage() {
 
   // Team Canvas share view
   if (data.type === 'team-canvas' && data.data) {
+    const teamData = data.data;
     return (
       <>
         <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-orange-50 py-16">
@@ -662,10 +663,147 @@ export default function SharePage() {
                 <p className="text-gray-600">Created on {new Date(data.createdAt).toLocaleDateString()}</p>
               </div>
 
-              <div className="bg-white rounded-xl shadow-lg p-8">
-                <pre className="whitespace-pre-wrap text-gray-700">
-                  {JSON.stringify(data.data, null, 2)}
-                </pre>
+              <div className="bg-white rounded-xl shadow-lg p-8 space-y-8">
+                {/* Team Name */}
+                {teamData.teamName && (
+                  <div className="text-center">
+                    <h3 className="text-3xl font-bold text-orange-600 mb-2">{teamData.teamName}</h3>
+                  </div>
+                )}
+
+                {/* Purpose */}
+                {teamData.purpose && (
+                  <div className="bg-orange-50 rounded-lg p-6">
+                    <h4 className="text-lg font-semibold text-orange-800 mb-3">Purpose</h4>
+                    <div className="space-y-2">
+                      {teamData.purpose.exists && (
+                        <p className="text-gray-700">{teamData.purpose.exists}</p>
+                      )}
+                      {teamData.purpose.outcome && (
+                        <p className="text-gray-700 italic">Outcome: {teamData.purpose.outcome}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* People */}
+                {teamData.people && teamData.people.length > 0 && (
+                  <div className="bg-yellow-50 rounded-lg p-6">
+                    <h4 className="text-lg font-semibold text-yellow-800 mb-3">Team Members</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {teamData.people.map((person: any, index: number) => (
+                        <div key={index} className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-yellow-200 rounded-full flex items-center justify-center">
+                            <span className="text-yellow-800 font-medium">{person.name.charAt(0)}</span>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-800">{person.name}</p>
+                            <p className="text-sm text-gray-600">{person.role}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Values */}
+                {teamData.values && teamData.values.length > 0 && (
+                  <div className="bg-green-50 rounded-lg p-6">
+                    <h4 className="text-lg font-semibold text-green-800 mb-3">Core Values</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {teamData.values.filter((v: any) => v).map((value: string, index: number) => (
+                        <span key={index} className="px-3 py-1 bg-green-200 text-green-800 rounded-full text-sm">
+                          {value}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Impact */}
+                {teamData.impact && (
+                  <div className="bg-blue-50 rounded-lg p-6">
+                    <h4 className="text-lg font-semibold text-blue-800 mb-3">Impact</h4>
+                    <p className="text-gray-700">{teamData.impact}</p>
+                    {teamData.impactExplanation && (
+                      <p className="text-gray-600 mt-2 text-sm">{teamData.impactExplanation}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Activities */}
+                {teamData.activities && teamData.activities.length > 0 && (
+                  <div className="bg-purple-50 rounded-lg p-6">
+                    <h4 className="text-lg font-semibold text-purple-800 mb-3">Key Activities</h4>
+                    <ul className="space-y-2">
+                      {teamData.activities.filter((a: any) => a).map((activity: string, index: number) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="text-purple-600 mt-1">•</span>
+                          <span className="text-gray-700">{activity}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Strengths */}
+                {teamData.strengths && teamData.strengths.length > 0 && (
+                  <div className="bg-indigo-50 rounded-lg p-6">
+                    <h4 className="text-lg font-semibold text-indigo-800 mb-3">Team Strengths</h4>
+                    <ul className="space-y-2">
+                      {teamData.strengths.filter((s: any) => s).map((strength: string, index: number) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="text-indigo-600 mt-1">✓</span>
+                          <span className="text-gray-700">{strength}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Needs Support */}
+                {teamData.needsSupport && teamData.needsSupport.length > 0 && (
+                  <div className="bg-red-50 rounded-lg p-6">
+                    <h4 className="text-lg font-semibold text-red-800 mb-3">Areas Needing Support</h4>
+                    <ul className="space-y-2">
+                      {teamData.needsSupport.filter((n: any) => n).map((need: string, index: number) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="text-red-600 mt-1">!</span>
+                          <span className="text-gray-700">{need}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Goals */}
+                {teamData.goals && (
+                  <div className="bg-teal-50 rounded-lg p-6">
+                    <h4 className="text-lg font-semibold text-teal-800 mb-3">Goals</h4>
+                    <div className="space-y-4">
+                      {teamData.goals.shortTerm && teamData.goals.shortTerm.length > 0 && (
+                        <div>
+                          <h5 className="font-medium text-teal-700 mb-2">Short Term (3 months)</h5>
+                          <ul className="space-y-1">
+                            {teamData.goals.shortTerm.filter((g: any) => g).map((goal: string, index: number) => (
+                              <li key={index} className="text-gray-700">• {goal}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {teamData.goals.longTerm && teamData.goals.longTerm.length > 0 && (
+                        <div>
+                          <h5 className="font-medium text-teal-700 mb-2">Long Term (1 year)</h5>
+                          <ul className="space-y-1">
+                            {teamData.goals.longTerm.filter((g: any) => g).map((goal: string, index: number) => (
+                              <li key={index} className="text-gray-700">• {goal}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -757,6 +895,128 @@ export default function SharePage() {
                         <li key={index} className="flex items-start gap-3">
                           <span className="text-blue-500 mt-1">•</span>
                           <span className="text-gray-700">{expectation}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  // Coaching Cards share view
+  if (data.type === 'coaching-cards' && data.data) {
+    const { themes } = data.data;
+    return (
+      <>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-50 py-16">
+          <div className="container mx-auto px-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-12">
+                <div className="flex justify-between items-center mb-8">
+                  <Link
+                    href="/"
+                    className="text-indigo-600 hover:text-indigo-700 flex items-center gap-2"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    BACK
+                  </Link>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={handleCopyLink}
+                      className="px-4 py-2 border border-gray-300 text-indigo-600 rounded-lg hover:border-indigo-400 transition-colors flex items-center gap-2"
+                    >
+                      <Share2 className="w-4 h-4" />
+                      {copied ? 'COPIED!' : 'SHARE'}
+                    </button>
+                    <button
+                      onClick={handleDownloadPDF}
+                      className="px-4 py-2 border border-gray-300 text-indigo-600 rounded-lg hover:border-indigo-400 transition-colors flex items-center gap-2"
+                    >
+                      <Download className="w-4 h-4" />
+                      DOWNLOAD PDF
+                    </button>
+                  </div>
+                </div>
+                
+                <h2 className="text-4xl font-bold text-nightfall mb-4">Coaching Reflection</h2>
+                <p className="text-gray-600">Created on {new Date(data.createdAt).toLocaleDateString()}</p>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-lg p-8 space-y-8">
+                {/* Context */}
+                {data.data.context && (
+                  <div className="mb-6">
+                    <h3 className="text-xl font-semibold text-nightfall mb-2">Context</h3>
+                    <p className="text-gray-600">{data.data.context}</p>
+                  </div>
+                )}
+
+                {/* Reflection Themes */}
+                {themes && themes.length > 0 && (
+                  <div className="space-y-6">
+                    <h3 className="text-2xl font-bold text-nightfall">Reflection Themes</h3>
+                    
+                    <div className="grid gap-6">
+                      {themes.map((theme: any, index: number) => (
+                        <div key={index} className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-lg p-6 shadow-sm">
+                          <div className="flex items-start gap-4">
+                            <div className="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
+                              {index + 1}
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-lg font-semibold text-indigo-900 mb-3">{theme.theme}</h4>
+                              
+                              {/* Questions and Answers */}
+                              <div className="space-y-4">
+                                {theme.questions.map((qa: any, qIndex: number) => (
+                                  <div key={qIndex} className="bg-white/50 rounded-lg p-4">
+                                    <p className="font-medium text-indigo-700 mb-2">
+                                      Q{qIndex + 1}: {qa.question}
+                                    </p>
+                                    <p className="text-gray-700 pl-4 border-l-2 border-indigo-200">
+                                      {qa.answer}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Actions if any */}
+                {data.data.actions && data.data.actions.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="text-xl font-semibold text-nightfall mb-4">Action Items</h3>
+                    <ul className="space-y-2">
+                      {data.data.actions.map((action: string, index: number) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <span className="text-indigo-600 mt-1">→</span>
+                          <span className="text-gray-700">{action}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Key Insights if any */}
+                {data.data.insights && data.data.insights.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="text-xl font-semibold text-nightfall mb-4">Key Insights</h3>
+                    <ul className="space-y-2">
+                      {data.data.insights.map((insight: string, index: number) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <span className="text-indigo-600 mt-1">✓</span>
+                          <span className="text-gray-700">{insight}</span>
                         </li>
                       ))}
                     </ul>

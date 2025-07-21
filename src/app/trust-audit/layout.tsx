@@ -1,9 +1,6 @@
-import { Metadata } from 'next'
+import { generateToolMetadata } from '@/lib/toolMetadata'
 
-export const metadata: Metadata = {
-  title: 'Campfire Trust Audit',
-  description: 'Build stronger work relationships by assessing trust across Integrity, Competence, and Empathy dimensions.',
-}
+export const metadata = generateToolMetadata('trust-audit')
 
 export default function TrustAuditLayout({
   children,

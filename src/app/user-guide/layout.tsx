@@ -1,9 +1,6 @@
-import { Metadata } from 'next'
+import { generateToolMetadata } from '@/lib/toolMetadata'
 
-export const metadata: Metadata = {
-  title: 'Working with Me - Personal User Guide',
-  description: 'Build a shareable guide that helps others understand your work style, communication preferences, and how to collaborate effectively with you.',
-}
+export const metadata = generateToolMetadata('user-guide')
 
 export default function UserGuideLayout({
   children,

@@ -1,8 +1,8 @@
 import { generateToolMetadata } from '@/lib/toolMetadata'
 
-export const metadata = generateToolMetadata('burnout-assessment')
+export const metadata = generateToolMetadata('team-canvas')
 
-export default function BurnoutAssessmentLayout({
+export default function TeamCanvasLayout({
   children,
 }: {
   children: React.ReactNode

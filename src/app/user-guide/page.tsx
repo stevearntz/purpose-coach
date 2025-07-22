@@ -112,6 +112,9 @@ export default function UserGuidePage() {
   const handlePrevious = () => {
     if (currentSectionIndex > 0) {
       setCurrentSectionIndex(currentSectionIndex - 1)
+    } else if (currentSectionIndex === 0) {
+      // Go back to name input
+      setShowNameInput(true)
     }
   }
 
@@ -672,7 +675,8 @@ export default function UserGuidePage() {
   }
 
   // Main Form Screen
-  return (
+  if (!showIntro && !showNameInput && !showResults) {
+    return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
@@ -717,12 +721,7 @@ export default function UserGuidePage() {
           <div className="flex justify-between mt-8">
             <button
               onClick={handlePrevious}
-              disabled={currentSectionIndex === 0}
-              className={`px-6 py-3 font-medium transition-colors ${
-                currentSectionIndex === 0
-                  ? 'text-gray-300 cursor-not-allowed'
-                  : 'text-gray-600 hover:text-gray-800'
-              }`}
+              className="px-6 py-3 font-medium transition-colors text-gray-600 hover:text-gray-800"
             >
               Back
             </button>
@@ -738,4 +737,8 @@ export default function UserGuidePage() {
       </div>
     </div>
   )
+  }
+  
+  // Fallback return
+  return null
 }

@@ -93,6 +93,7 @@ export default function TeamCanvasTool() {
   const analytics = useAnalytics()
   const { email, hasStoredEmail, captureEmailForTool } = useEmailCapture()
   const [currentStage, setCurrentStage] = useState(0)
+  const [showTeamNameInput, setShowTeamNameInput] = useState(false)
   const [shareUrl, setShareUrl] = useState('')
   const [startTime] = useState(Date.now())
   const [userEmail, setUserEmail] = useState('')
@@ -349,6 +350,62 @@ export default function TeamCanvasTool() {
 
     switch (stage.id) {
       case 'intro':
+        if (showTeamNameInput) {
+          return (
+            <div className="min-h-screen bg-gradient-to-br from-[#FFA851] via-[#FF8FA3] to-[#EB6593] flex items-center justify-center p-4">
+              <div className="w-full max-w-2xl">
+                <Link 
+                  href="/?screen=4" 
+                  className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5 mr-2" />
+                  Back to Plan
+                </Link>
+                
+                <Link 
+                  href="/toolkit" 
+                  className="absolute top-8 right-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
+                >
+                  All Tools
+                  <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
+                </Link>
+
+                <div className="text-center space-y-8">
+                  <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+                    <h3 className="text-3xl font-bold text-white mb-6">Let's start with your team name</h3>
+                    
+                    <div className="space-y-6">
+                      <p className="text-xl text-white/90">
+                        What should we call your team?
+                      </p>
+                      
+                      <input
+                        type="text"
+                        value={teamData.teamName}
+                        onChange={(e) => setTeamData({ ...teamData, teamName: e.target.value })}
+                        placeholder="Enter your team name..."
+                        className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                        autoFocus
+                      />
+                      
+                      <button
+                        onClick={() => {
+                          setShowTeamNameInput(false);
+                          handleNext();
+                        }}
+                        disabled={!teamData.teamName.trim()}
+                        className="w-full py-4 bg-white text-[#FFA851] rounded-xl font-semibold text-lg hover:bg-white/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed uppercase"
+                      >
+                        Continue
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        }
+        
         return (
           <div className="min-h-screen bg-gradient-to-br from-[#FFA851] via-[#FF8FA3] to-[#EB6593] flex items-center justify-center p-4">
             <div className="w-full max-w-2xl">
@@ -399,19 +456,6 @@ export default function TeamCanvasTool() {
                       </p>
                     )}
                   </div>
-                  
-                  <div className="space-y-4">
-                    <label className="block text-lg font-medium text-white/90">
-                      Let's start with your team name
-                    </label>
-                    <input
-                      type="text"
-                      value={teamData.teamName}
-                      onChange={(e) => setTeamData({ ...teamData, teamName: e.target.value })}
-                      placeholder="Enter your team name..."
-                      className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
-                    />
-                  </div>
                 </div>
 
                 <button
@@ -419,9 +463,9 @@ export default function TeamCanvasTool() {
                     if (isEmailValid && userEmail) {
                       await captureEmailForTool(userEmail, 'Team Charter', 't1');
                     }
-                    handleNext();
+                    setShowTeamNameInput(true);
                   }}
-                  disabled={!teamData.teamName || !isEmailValid}
+                  disabled={!isEmailValid}
                   className="px-8 py-4 bg-white text-[#FFA851] rounded-xl font-semibold text-lg hover:bg-white/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Start Building Your Charter
@@ -522,7 +566,15 @@ export default function TeamCanvasTool() {
 
                 <div className="flex justify-between mt-8">
                   <button
-                    onClick={handleBack}
+                    onClick={() => {
+                      if (currentStage === 1) {
+                        // Go back to team name input
+                        setCurrentStage(0)
+                        setShowTeamNameInput(true)
+                      } else {
+                        handleBack()
+                      }
+                    }}
                     className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
                   >
                     Back

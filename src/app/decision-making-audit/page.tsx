@@ -106,6 +106,9 @@ export default function DecisionMakingAuditPage() {
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1)
+    } else if (currentQuestionIndex === 0) {
+      // Go back to decision context input
+      setShowDecisionContext(true)
     }
   }
   
@@ -460,7 +463,8 @@ export default function DecisionMakingAuditPage() {
   }
 
   // Main Assessment Screen
-  return (
+  if (!showIntro && !showDecisionContext && !showResults) {
+    return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
@@ -557,12 +561,7 @@ export default function DecisionMakingAuditPage() {
           <div className="flex justify-between mt-8">
             <button
               onClick={handlePrevious}
-              disabled={currentQuestionIndex === 0}
-              className={`px-6 py-3 font-medium transition-colors ${
-                currentQuestionIndex === 0
-                  ? 'text-gray-300 cursor-not-allowed'
-                  : 'text-gray-600 hover:text-gray-800'
-              }`}
+              className="px-6 py-3 font-medium transition-colors text-gray-600 hover:text-gray-800"
             >
               Back
             </button>
@@ -583,4 +582,8 @@ export default function DecisionMakingAuditPage() {
       </div>
     </div>
   )
+  }
+  
+  // Fallback return
+  return null
 }

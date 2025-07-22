@@ -182,6 +182,9 @@ export default function BurnoutAssessmentPage() {
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1)
+    } else if (currentQuestionIndex === 0) {
+      // Go back to name input
+      setShowNameInput(true)
     }
   }
   
@@ -611,7 +614,8 @@ export default function BurnoutAssessmentPage() {
   }
 
   // Main Assessment Screen
-  return (
+  if (!showIntro && !showNameInput && !showResults) {
+    return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
@@ -706,12 +710,7 @@ export default function BurnoutAssessmentPage() {
           <div className="flex justify-between mt-8">
             <button
               onClick={handlePrevious}
-              disabled={currentQuestionIndex === 0}
-              className={`px-6 py-3 font-medium transition-colors ${
-                currentQuestionIndex === 0
-                  ? 'text-gray-300 cursor-not-allowed'
-                  : 'text-gray-600 hover:text-gray-800'
-              }`}
+              className="px-6 py-3 font-medium transition-colors text-gray-600 hover:text-gray-800"
             >
               Back
             </button>
@@ -732,4 +731,8 @@ export default function BurnoutAssessmentPage() {
       </div>
     </div>
   )
+  }
+  
+  // Fallback return
+  return null
 }

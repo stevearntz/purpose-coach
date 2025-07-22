@@ -140,7 +140,7 @@ const tools: Tool[] = [
     title: 'Change Readiness Assessment',
     subtitle: 'Navigate change confidently',
     description: 'Assess your readiness for change and identify where you need support.',
-    gradient: 'from-[#FCA376] to-[#BF4C74]',
+    gradient: 'from-[#F595B6] to-[#BF4C74]',
     icon: <ArrowRight className="w-8 h-8" />,
     challenges: ['navigating-change']
   },
@@ -160,7 +160,7 @@ const tools: Tool[] = [
     title: 'Expectations Reflection',
     subtitle: 'Surface team dynamics',
     description: 'Create psychological safety by sharing hopes, fears, and expectations.',
-    gradient: 'from-[#F687B3] to-[#9333EA]',
+    gradient: 'from-[#C67AF4] to-[#3E37FF]',
     icon: <Heart className="w-8 h-8" />,
     challenges: ['trust-feedback', 'navigating-change', 'communication']
   },
@@ -180,7 +180,7 @@ const tools: Tool[] = [
     title: 'Coaching Cards',
     subtitle: 'Guided reflection',
     description: 'Use powerful questions to guide self-reflection and growth.',
-    gradient: 'from-[#10B981] to-[#059669]',
+    gradient: 'from-[#D4F564] to-[#87AE05]',
     icon: <Lightbulb className="w-8 h-8" />,
     challenges: ['empowering-others', 'skill-building']
   }

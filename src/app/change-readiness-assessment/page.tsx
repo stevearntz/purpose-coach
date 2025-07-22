@@ -170,7 +170,7 @@ export default function ChangeReadinessPage() {
   // Intro Screen (Full vibrant gradient)
   if (showIntro) {
     return (
-      <ViewportContainer className="bg-gradient-to-br from-[#FCA376] to-[#BF4C74] flex items-center justify-center p-4">
+      <ViewportContainer className="bg-gradient-to-br from-[#F595B6] to-[#BF4C74] flex flex-col items-center justify-center p-4">
         <Link 
           href="/?screen=4" 
           className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
@@ -250,7 +250,7 @@ export default function ChangeReadinessPage() {
   // Change Context Screen
   if (showChangeContext) {
     return (
-      <ViewportContainer className="bg-gradient-to-br from-[#FCA376] via-[#E37A75] to-[#BF4C74] flex items-center justify-center p-4">
+      <ViewportContainer className="bg-gradient-to-br from-[#F595B6] via-[#E37A75] to-[#BF4C74] flex items-center justify-center p-4">
         <Link 
           href="/?screen=4" 
           className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
@@ -352,7 +352,7 @@ export default function ChangeReadinessPage() {
             }
           }
         `}</style>
-        <ViewportContainer className="bg-gradient-to-br from-[#FCA376]/10 via-[#E37A75]/10 to-[#BF4C74]/10 py-16 print-section">
+        <ViewportContainer className="bg-white sm:bg-gradient-to-br sm:from-[#F595B6]/10 sm:via-[#E37A75]/10 sm:to-[#BF4C74]/10 py-16 print-section">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto">
               <div className="flex justify-between items-center mb-8 no-print">
@@ -457,7 +457,7 @@ export default function ChangeReadinessPage() {
                     
                     <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
                       <div
-                        className="h-3 rounded-full bg-gradient-to-r from-[#FCA376] to-[#BF4C74] transition-all duration-500"
+                        className="h-3 rounded-full bg-gradient-to-r from-[#F595B6] to-[#BF4C74] transition-all duration-500"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
@@ -578,8 +578,8 @@ export default function ChangeReadinessPage() {
                   autoFocus={index === 0}
                   className={`w-full p-4 rounded-xl text-left transition-all duration-200 border-2 ${
                     getCurrentAnswer() === option.value
-                      ? 'bg-gradient-to-r from-[#FCA376] to-[#BF4C74] text-white border-[#BF4C74] shadow-lg'
-                      : 'bg-white text-nightfall border-gray-200 hover:border-[#FCA376]/50'
+                      ? 'bg-gradient-to-r from-[#F595B6] to-[#BF4C74] text-white border-[#BF4C74] shadow-lg'
+                      : 'bg-white text-nightfall border-gray-200 hover:border-[#F595B6]/50'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -604,14 +604,7 @@ export default function ChangeReadinessPage() {
             </div>
           </div>
           
-          <div className="flex justify-between mt-8">
-            <button
-              onClick={handlePrevious}
-              className="px-6 py-3 font-medium transition-colors text-gray-600 hover:text-gray-800"
-            >
-              Back
-            </button>
-            
+          <div className="flex justify-end mt-8">
             <button
               onClick={handleNext}
               disabled={!getCurrentAnswer()}

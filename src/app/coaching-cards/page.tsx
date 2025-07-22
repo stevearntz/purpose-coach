@@ -293,7 +293,7 @@ export default function CoachingCardsTool() {
     switch (stage.id) {
       case 'intro':
         return (
-          <div className="min-h-screen bg-gradient-to-br from-[#FACD65] to-[#8AB307] flex items-center justify-center p-4">
+          <div className="min-h-screen bg-gradient-to-br from-[#D4F564] to-[#87AE05] flex items-center justify-center p-4">
             <div className="w-full max-w-2xl">
               <Link 
                 href="/?screen=4" 
@@ -364,8 +364,8 @@ export default function CoachingCardsTool() {
                     disabled={!isEmailValid}
                     className={`w-full px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 ${
                       isEmailValid
-                        ? 'bg-white text-[#8AB307] hover:bg-white/90'
-                        : 'bg-white/50 text-[#8AB307]/50 cursor-not-allowed'
+                        ? 'bg-white text-[#87AE05] hover:bg-white/90'
+                        : 'bg-white/50 text-[#87AE05]/50 cursor-not-allowed'
                     }`}
                   >
                     Get Started
@@ -407,9 +407,9 @@ export default function CoachingCardsTool() {
                         disabled={index > currentStage}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
-                            ? 'w-8 bg-[#8AB307]'
+                            ? 'w-8 bg-[#87AE05]'
                             : index < currentStage
-                            ? 'w-2 bg-[#8AB307]/50 hover:bg-[#8AB307]/70 cursor-pointer'
+                            ? 'w-2 bg-[#87AE05]/50 hover:bg-[#87AE05]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
                         aria-label={`Go to ${s.title}`}
@@ -470,7 +470,7 @@ export default function CoachingCardsTool() {
                   <button
                     onClick={handleNext}
                     disabled={!selectedCategory}
-                    className="px-6 py-3 bg-[#8AB307] text-white rounded-lg font-medium hover:bg-[#7A9F06] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-[#87AE05] text-white rounded-lg font-medium hover:bg-[#7A9F06] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Continue
                   </button>
@@ -507,9 +507,9 @@ export default function CoachingCardsTool() {
                         disabled={index > currentStage}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
-                            ? 'w-8 bg-[#8AB307]'
+                            ? 'w-8 bg-[#87AE05]'
                             : index < currentStage
-                            ? 'w-2 bg-[#8AB307]/50 hover:bg-[#8AB307]/70 cursor-pointer'
+                            ? 'w-2 bg-[#87AE05]/50 hover:bg-[#87AE05]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
                         aria-label={`Go to ${s.title}`}
@@ -566,7 +566,7 @@ export default function CoachingCardsTool() {
                   <button
                     onClick={handleNext}
                     disabled={!selectedFocusArea}
-                    className="px-6 py-3 bg-[#8AB307] text-white rounded-lg font-medium hover:bg-[#7A9F06] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-[#87AE05] text-white rounded-lg font-medium hover:bg-[#7A9F06] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Continue
                   </button>
@@ -603,9 +603,9 @@ export default function CoachingCardsTool() {
                         disabled={index > currentStage}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
-                            ? 'w-8 bg-[#8AB307]'
+                            ? 'w-8 bg-[#87AE05]'
                             : index < currentStage
-                            ? 'w-2 bg-[#8AB307]/50 hover:bg-[#8AB307]/70 cursor-pointer'
+                            ? 'w-2 bg-[#87AE05]/50 hover:bg-[#87AE05]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
                         aria-label={`Go to ${s.title}`}
@@ -641,7 +641,7 @@ export default function CoachingCardsTool() {
                         }`}
                       >
                         {isSelected && (
-                          <div className="absolute -top-3 -right-3 w-10 h-10 bg-[#8AB307] rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md z-10">
+                          <div className="absolute -top-3 -right-3 w-10 h-10 bg-[#87AE05] rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md z-10">
                             {selectedQuestions.indexOf(index) + 1}
                           </div>
                         )}
@@ -668,7 +668,7 @@ export default function CoachingCardsTool() {
                   <button
                     onClick={handleNext}
                     disabled={selectedQuestions.length !== 2}
-                    className="px-6 py-3 bg-[#8AB307] text-white rounded-lg font-medium hover:bg-[#7A9F06] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-[#87AE05] text-white rounded-lg font-medium hover:bg-[#7A9F06] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Continue
                   </button>
@@ -705,9 +705,9 @@ export default function CoachingCardsTool() {
                         disabled={index > currentStage}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
-                            ? 'w-8 bg-[#8AB307]'
+                            ? 'w-8 bg-[#87AE05]'
                             : index < currentStage
-                            ? 'w-2 bg-[#8AB307]/50 hover:bg-[#8AB307]/70 cursor-pointer'
+                            ? 'w-2 bg-[#87AE05]/50 hover:bg-[#87AE05]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
                         aria-label={`Go to ${s.title}`}
@@ -751,7 +751,7 @@ export default function CoachingCardsTool() {
                                 [questionIndex]: e.target.value
                               })}
                               placeholder="Write your thoughts here..."
-                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8AB307] min-h-[120px] resize-none"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#87AE05] min-h-[120px] resize-none"
                             />
                           </div>
                         </div>
@@ -770,7 +770,7 @@ export default function CoachingCardsTool() {
                   <button
                     onClick={handleNext}
                     disabled={selectedQuestions.some(idx => !reflections[idx])}
-                    className="px-6 py-3 bg-[#8AB307] text-white rounded-lg font-medium hover:bg-[#7A9F06] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-[#87AE05] text-white rounded-lg font-medium hover:bg-[#7A9F06] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Continue
                   </button>
@@ -807,9 +807,9 @@ export default function CoachingCardsTool() {
                         disabled={index > currentStage}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
-                            ? 'w-8 bg-[#8AB307]'
+                            ? 'w-8 bg-[#87AE05]'
                             : index < currentStage
-                            ? 'w-2 bg-[#8AB307]/50 hover:bg-[#8AB307]/70 cursor-pointer'
+                            ? 'w-2 bg-[#87AE05]/50 hover:bg-[#87AE05]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
                         aria-label={`Go to ${s.title}`}
@@ -846,7 +846,7 @@ export default function CoachingCardsTool() {
                       value={challengeSolution}
                       onChange={(e) => setChallengeSolution(e.target.value)}
                       placeholder="Describe your solution or approach..."
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8AB307] min-h-[150px] resize-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#87AE05] min-h-[150px] resize-none"
                     />
                   </div>
                 </div>
@@ -861,7 +861,7 @@ export default function CoachingCardsTool() {
                   <button
                     onClick={handleNext}
                     disabled={!challengeSolution}
-                    className="px-6 py-3 bg-[#8AB307] text-white rounded-lg font-medium hover:bg-[#7A9F06] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-[#87AE05] text-white rounded-lg font-medium hover:bg-[#7A9F06] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Continue
                   </button>
@@ -898,9 +898,9 @@ export default function CoachingCardsTool() {
                         disabled={index > currentStage}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
-                            ? 'w-8 bg-[#8AB307]'
+                            ? 'w-8 bg-[#87AE05]'
                             : index < currentStage
-                            ? 'w-2 bg-[#8AB307]/50 hover:bg-[#8AB307]/70 cursor-pointer'
+                            ? 'w-2 bg-[#87AE05]/50 hover:bg-[#87AE05]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
                         aria-label={`Go to ${s.title}`}
@@ -913,7 +913,7 @@ export default function CoachingCardsTool() {
 
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <div className="space-y-6">
-                  <div className="p-4 bg-[#FACD65]/20 rounded-lg">
+                  <div className="p-4 bg-[#D4F564]/20 rounded-lg">
                     <h3 className="font-semibold text-gray-900 mb-2">Your Solution:</h3>
                     <p className="text-gray-700 italic">"{challengeSolution}"</p>
                   </div>
@@ -926,7 +926,7 @@ export default function CoachingCardsTool() {
                       value={nextStep}
                       onChange={(e) => setNextStep(e.target.value)}
                       placeholder="Be specific: What will you do? When? How will you know it's complete?"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8AB307] min-h-[120px] resize-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#87AE05] min-h-[120px] resize-none"
                     />
                   </div>
 
@@ -947,7 +947,7 @@ export default function CoachingCardsTool() {
                   <button
                     onClick={handleNext}
                     disabled={!nextStep}
-                    className="px-6 py-3 bg-[#8AB307] text-white rounded-lg font-medium hover:bg-[#7A9F06] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-[#87AE05] text-white rounded-lg font-medium hover:bg-[#7A9F06] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     View Summary
                   </button>
@@ -994,7 +994,7 @@ export default function CoachingCardsTool() {
                     onClick={() => {
                       setCurrentStage(stages.length - 2)
                     }}
-                    className="text-[#8AB307] hover:text-[#7A9F06] flex items-center gap-2 font-medium text-sm sm:text-base"
+                    className="text-[#87AE05] hover:text-[#7A9F06] flex items-center gap-2 font-medium text-sm sm:text-base"
                   >
                     <ArrowLeft className="w-4 h-4" />
                     <span className="uppercase tracking-wider">Back</span>
@@ -1002,14 +1002,14 @@ export default function CoachingCardsTool() {
                   <div className="flex gap-2 sm:gap-4">
                     <button
                       onClick={() => window.print()}
-                      className="hidden sm:block p-2.5 sm:p-3 border-2 border-[#8AB307]/50 text-[#8AB307] rounded-lg hover:border-[#8AB307] hover:bg-[#8AB307]/10 transition-all"
+                      className="hidden sm:block p-2.5 sm:p-3 border-2 border-[#87AE05]/50 text-[#87AE05] rounded-lg hover:border-[#87AE05] hover:bg-[#87AE05]/10 transition-all"
                       title="Print results"
                     >
                       <Printer className="w-5 h-5" />
                     </button>
                     <ShareButton
                       onShare={handleShare}
-                      className="px-3 sm:px-6 py-2.5 bg-[#8AB307] hover:bg-[#7A9F06] text-white rounded-lg font-semibold transition-colors"
+                      className="px-3 sm:px-6 py-2.5 bg-[#87AE05] hover:bg-[#7A9F06] text-white rounded-lg font-semibold transition-colors"
                     >
                       <Share2 className="w-5 h-5 inline sm:hidden" />
                       <span className="hidden sm:inline uppercase tracking-wider">Share</span>
@@ -1049,12 +1049,12 @@ export default function CoachingCardsTool() {
                       </div>
                     </div>
 
-                    <div className="p-4 bg-[#FACD65]/20 rounded-lg">
+                    <div className="p-4 bg-[#D4F564]/20 rounded-lg">
                       <h4 className="font-semibold text-gray-900 mb-2">Your Solution:</h4>
                       <p className="text-gray-700">{challengeSolution}</p>
                     </div>
 
-                    <div className="p-4 bg-[#8AB307]/20 rounded-lg">
+                    <div className="p-4 bg-[#87AE05]/20 rounded-lg">
                       <h4 className="font-semibold text-gray-900 mb-2">Your Next Step:</h4>
                       <p className="text-gray-700">{nextStep}</p>
                     </div>
@@ -1073,7 +1073,7 @@ export default function CoachingCardsTool() {
                   </button>
                   <button
                     onClick={() => window.location.reload()}
-                    className="px-6 py-3 bg-[#8AB307] text-white rounded-lg hover:bg-[#7A9F06] transition-colors"
+                    className="px-6 py-3 bg-[#87AE05] text-white rounded-lg hover:bg-[#7A9F06] transition-colors"
                   >
                     Start New Reflection
                   </button>

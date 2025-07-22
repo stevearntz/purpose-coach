@@ -397,7 +397,7 @@ export default function HopesFearsTool() {
     switch (stage.id) {
       case 'intro':
         return (
-          <div className="min-h-screen bg-gradient-to-br from-[#FFA62A] to-[#DB4839] flex items-center justify-center p-4">
+          <div className="min-h-screen bg-gradient-to-br from-[#C67AF4] to-[#3E37FF] flex items-center justify-center p-4">
             <div className="w-full max-w-2xl">
               <Link 
                 href="/?screen=4" 
@@ -468,8 +468,8 @@ export default function HopesFearsTool() {
                     disabled={!isEmailValid}
                     className={`w-full px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 ${
                       isEmailValid
-                        ? 'bg-white text-[#DB4839] hover:bg-white/90'
-                        : 'bg-white/50 text-[#DB4839]/50 cursor-not-allowed'
+                        ? 'bg-white text-[#3E37FF] hover:bg-white/90'
+                        : 'bg-white/50 text-[#3E37FF]/50 cursor-not-allowed'
                     }`}
                   >
                     <span className="sm:hidden">Start Reflection</span>
@@ -512,9 +512,9 @@ export default function HopesFearsTool() {
                         disabled={index > currentStage || index === 0}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
-                            ? 'w-8 bg-[#DB4839]'
+                            ? 'w-8 bg-[#3E37FF]'
                             : index < currentStage
-                            ? 'w-2 bg-[#DB4839]/50 hover:bg-[#DB4839]/70 cursor-pointer'
+                            ? 'w-2 bg-[#3E37FF]/50 hover:bg-[#3E37FF]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
                         aria-label={`Go to ${s.title}`}
@@ -575,7 +575,7 @@ export default function HopesFearsTool() {
                   <button
                     onClick={handleNext}
                     disabled={!selectedContext}
-                    className="px-6 py-3 bg-[#DB4839] text-white rounded-lg font-medium hover:bg-[#C43830] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-[#3E37FF] text-white rounded-lg font-medium hover:bg-[#332DD9] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Continue
                   </button>
@@ -615,9 +615,9 @@ export default function HopesFearsTool() {
                         disabled={index > currentStage || index === 0}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
-                            ? 'w-8 bg-[#DB4839]'
+                            ? 'w-8 bg-[#3E37FF]'
                             : index < currentStage
-                            ? 'w-2 bg-[#DB4839]/50 hover:bg-[#DB4839]/70 cursor-pointer'
+                            ? 'w-2 bg-[#3E37FF]/50 hover:bg-[#3E37FF]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
                         aria-label={`Go to ${s.title}`}
@@ -662,7 +662,7 @@ export default function HopesFearsTool() {
                             setHopes(newHopes)
                           }}
                           placeholder={hopeQuestions[index]}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DB4839] min-h-[80px] resize-none"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3E37FF] min-h-[80px] resize-none"
                         />
                       </div>
                     ))}
@@ -679,7 +679,7 @@ export default function HopesFearsTool() {
                   <button
                     onClick={handleNext}
                     disabled={!hopes.some(h => h.trim())}
-                    className="px-6 py-3 bg-[#DB4839] text-white rounded-lg font-medium hover:bg-[#C43830] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-[#3E37FF] text-white rounded-lg font-medium hover:bg-[#332DD9] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Continue
                   </button>
@@ -718,9 +718,9 @@ export default function HopesFearsTool() {
                         disabled={index > currentStage || index === 0}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
-                            ? 'w-8 bg-[#DB4839]'
+                            ? 'w-8 bg-[#3E37FF]'
                             : index < currentStage
-                            ? 'w-2 bg-[#DB4839]/50 hover:bg-[#DB4839]/70 cursor-pointer'
+                            ? 'w-2 bg-[#3E37FF]/50 hover:bg-[#3E37FF]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
                         aria-label={`Go to ${s.title}`}
@@ -765,7 +765,7 @@ export default function HopesFearsTool() {
                             setFears(newFears)
                           }}
                           placeholder={fearQuestions[index]}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DB4839] min-h-[80px] resize-none"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3E37FF] min-h-[80px] resize-none"
                         />
                       </div>
                     ))}
@@ -782,7 +782,7 @@ export default function HopesFearsTool() {
                   <button
                     onClick={handleNext}
                     disabled={!fears.some(f => f.trim())}
-                    className="px-6 py-3 bg-[#DB4839] text-white rounded-lg font-medium hover:bg-[#C43830] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-[#3E37FF] text-white rounded-lg font-medium hover:bg-[#332DD9] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Continue
                   </button>
@@ -821,9 +821,9 @@ export default function HopesFearsTool() {
                         disabled={index > currentStage || index === 0}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
-                            ? 'w-8 bg-[#DB4839]'
+                            ? 'w-8 bg-[#3E37FF]'
                             : index < currentStage
-                            ? 'w-2 bg-[#DB4839]/50 hover:bg-[#DB4839]/70 cursor-pointer'
+                            ? 'w-2 bg-[#3E37FF]/50 hover:bg-[#3E37FF]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
                         aria-label={`Go to ${s.title}`}
@@ -868,7 +868,7 @@ export default function HopesFearsTool() {
                             setExpectations(newExpectations)
                           }}
                           placeholder={expectationQuestions[index]}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DB4839] min-h-[80px] resize-none"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3E37FF] min-h-[80px] resize-none"
                         />
                       </div>
                     ))}
@@ -885,7 +885,7 @@ export default function HopesFearsTool() {
                   <button
                     onClick={handleNext}
                     disabled={!expectations.some(e => e.trim())}
-                    className="px-6 py-3 bg-[#DB4839] text-white rounded-lg font-medium hover:bg-[#C43830] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-[#3E37FF] text-white rounded-lg font-medium hover:bg-[#332DD9] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     View Conversation Guide
                   </button>
@@ -931,7 +931,7 @@ export default function HopesFearsTool() {
                     onClick={() => {
                       setCurrentStage(stages.length - 2)
                     }}
-                    className="text-[#DB4839] hover:text-[#C43830] flex items-center gap-2 font-medium text-sm sm:text-base"
+                    className="text-[#3E37FF] hover:text-[#332DD9] flex items-center gap-2 font-medium text-sm sm:text-base"
                   >
                     <ArrowLeft className="w-4 h-4" />
                     <span className="uppercase tracking-wider">Back</span>
@@ -939,14 +939,14 @@ export default function HopesFearsTool() {
                   <div className="flex gap-2 sm:gap-4">
                     <button
                       onClick={() => window.print()}
-                      className="hidden sm:block p-2.5 sm:p-3 border-2 border-[#DB4839]/50 text-[#DB4839] rounded-lg hover:border-[#DB4839] hover:bg-[#DB4839]/10 transition-all"
+                      className="hidden sm:block p-2.5 sm:p-3 border-2 border-[#3E37FF]/50 text-[#3E37FF] rounded-lg hover:border-[#3E37FF] hover:bg-[#3E37FF]/10 transition-all"
                       title="Print results"
                     >
                       <Printer className="w-5 h-5" />
                     </button>
                     <ShareButton
                       onShare={handleShare}
-                      className="px-3 sm:px-6 py-2.5 bg-[#DB4839] hover:bg-[#C43830] text-white rounded-lg font-semibold transition-colors"
+                      className="px-3 sm:px-6 py-2.5 bg-[#3E37FF] hover:bg-[#332DD9] text-white rounded-lg font-semibold transition-colors"
                     >
                       <Share2 className="w-5 h-5 inline sm:hidden" />
                       <span className="hidden sm:inline uppercase tracking-wider">Share</span>
@@ -959,7 +959,7 @@ export default function HopesFearsTool() {
 
               <div className="space-y-6">
                 {/* Context Header */}
-                <div className="bg-gradient-to-br from-[#FFA62A] to-[#DB4839] rounded-2xl p-8 text-white">
+                <div className="bg-gradient-to-br from-[#C67AF4] to-[#3E37FF] rounded-2xl p-8 text-white">
                   <div className="flex items-center gap-4">
                     <div className="inline-flex p-3 bg-white/20 rounded-full">
                       {selectedContextInfo && <selectedContextInfo.icon className="w-8 h-8 text-white" />}
@@ -1085,7 +1085,7 @@ export default function HopesFearsTool() {
                 </div>
 
                 {/* Next Steps */}
-                <div className="bg-gradient-to-r from-[#FFA62A]/10 to-[#DB4839]/10 rounded-2xl p-6 border border-[#DB4839]/20">
+                <div className="bg-gradient-to-r from-[#C67AF4]/10 to-[#3E37FF]/10 rounded-2xl p-6 border border-[#3E37FF]/20">
                   <h4 className="font-semibold text-gray-900 mb-3">Suggested Next Steps:</h4>
                   <ol className="space-y-2 text-gray-700">
                     <li>1. Schedule a conversation to discuss these topics</li>
@@ -1107,7 +1107,7 @@ export default function HopesFearsTool() {
                   </button>
                   <button
                     onClick={() => window.location.reload()}
-                    className="px-6 py-3 bg-[#DB4839] text-white rounded-lg hover:bg-[#C43830] transition-colors"
+                    className="px-6 py-3 bg-[#3E37FF] text-white rounded-lg hover:bg-[#332DD9] transition-colors"
                   >
                     Start New Conversation
                   </button>

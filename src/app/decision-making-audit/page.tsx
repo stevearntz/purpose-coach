@@ -351,7 +351,7 @@ export default function DecisionMakingAuditPage() {
             }
           }
         `}</style>
-        <div className="min-h-screen bg-gradient-to-br from-[#6DC7FF]/10 via-[#5581FF]/10 to-[#3C36FF]/10 py-16 print-section">
+        <div className="min-h-screen bg-white sm:bg-gradient-to-br sm:from-[#6DC7FF]/10 sm:via-[#5581FF]/10 sm:to-[#3C36FF]/10 py-16 print-section">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto">
               <div className="flex justify-between items-center mb-8 no-print">
@@ -590,14 +590,7 @@ export default function DecisionMakingAuditPage() {
             </div>
           </div>
           
-          <div className="flex justify-between mt-8">
-            <button
-              onClick={handlePrevious}
-              className="px-6 py-3 font-medium transition-colors text-gray-600 hover:text-gray-800"
-            >
-              Back
-            </button>
-            
+          <div className="flex justify-end mt-8">
             <button
               onClick={handleNext}
               disabled={!getCurrentAnswer()}

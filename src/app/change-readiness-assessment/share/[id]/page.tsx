@@ -94,7 +94,7 @@ export default async function ChangeReadinessSharePage({ params }: Props) {
                 
                 <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
                   <div
-                    className="h-3 rounded-full bg-gradient-to-r from-[#FCA376] to-[#BF4C74] transition-all duration-500"
+                    className="h-3 rounded-full bg-gradient-to-r from-[#F595B6] to-[#BF4C74] transition-all duration-500"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
@@ -130,7 +130,7 @@ export default async function ChangeReadinessSharePage({ params }: Props) {
       toolPath="/change-readiness-assessment"
       toolConfig={{
         title: config.title,
-        gradient: 'from-[#FCA376] to-[#BF4C74]'
+        gradient: 'from-[#F595B6] to-[#BF4C74]'
       }}
       renderResults={renderResults}
     />

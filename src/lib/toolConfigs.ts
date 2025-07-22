@@ -19,7 +19,7 @@ export const toolConfigs = {
     description: "Evaluate how you make decisions across four key dimensions—People, Purpose, Principles, and Outcomes—to identify your strengths and areas for growth."
   },
   changeReadiness: {
-    gradient: "from-[#FCA376] to-[#BF4C74]",
+    gradient: "from-[#F595B6] to-[#BF4C74]",
     title: "Change Readiness Assessment",
     subtitle: "Navigate change with confidence.",
     description: "Assess your readiness for change across three key dimensions—People, Purpose, and Principles—to identify where you feel confident and where you need support."
@@ -29,6 +29,18 @@ export const toolConfigs = {
     title: "User Guide",
     subtitle: "Create your personal user guide.",
     description: "Build a shareable guide that helps others understand your work style, communication preferences, and how to collaborate effectively with you."
+  },
+  coachingCards: {
+    gradient: "from-[#D4F564] to-[#87AE05]",
+    title: "Coaching Cards",
+    subtitle: "Spark meaningful conversations.",
+    description: "Powerful questions to spark meaningful conversations and drive personal and team growth."
+  },
+  expectationsReflection: {
+    gradient: "from-[#C67AF4] to-[#3E37FF]",
+    title: "Hopes, Fears & Expectations",
+    subtitle: "Prepare for meaningful conversations.",
+    description: "Prepare for meaningful conversations by clarifying what you hope for, what concerns you, and what you need to succeed."
   },
   // Add more tools here as you create them
 }

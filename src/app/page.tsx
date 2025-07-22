@@ -73,6 +73,9 @@ const getToolVisual = (toolId: string): React.ReactElement => {
     ),
     't9': ( // Drivers Reflection
       <img src="/tool-icons/moon-icon.png" alt="Drivers Reflection" className="w-full h-full object-contain p-2" />
+    ),
+    't2c': ( // Change Reflection
+      <img src="/tool-icons/kite-icon.png" alt="Change Reflection" className="w-full h-full object-contain p-2" />
     )
   };
   
@@ -262,7 +265,8 @@ function ToolsPage() {
       'c1': [{ id: 't1', name: 'Team Charter', type: 'guide', description: 'Map your team\'s purpose, composition, and growth opportunities' }],
       'c2': [
         { id: 't2', name: 'Change Style Assessment', type: 'assessment', description: 'Discover how you naturally respond to change and get personalized strategies' },
-        { id: 't2b', name: 'Change Readiness Assessment', type: 'assessment', description: 'Assess and build readiness for navigating change' }
+        { id: 't2b', name: 'Change Readiness Assessment', type: 'assessment', description: 'Assess and build readiness for navigating change' },
+        { id: 't2c', name: 'Change Reflection', type: 'guide', description: 'Prepare for meaningful conversations about change with your team' }
       ],
       'c3': [{ id: 't3', name: 'Trust Audit', type: 'assessment', description: 'Evaluate and strengthen trust within your team' }],
       'c4': [{ id: 't4', name: 'Coaching Cards', type: 'guide', description: 'Powerful questions to empower and develop others' }],
@@ -1196,8 +1200,8 @@ function ToolsPage() {
             
             <div className="grid gap-4">
                 {recommendations.tools.map((tool, index) => {
-                  const isClickable = tool.id === 't3' || tool.id === 't1' || tool.id === 't6' || tool.id === 't5' || tool.id === 't2' || tool.id === 't2b' || tool.id === 't7' || tool.id === 't4' || tool.id === 't9' || tool.id === 't8'; // Trust Audit, Team Canvas, Burnout Assessment, Decision Making Audit, Change Style, Change Readiness, Working with Me, Coaching Cards, Career Drivers, and Hopes Fears Expectations tools
-                  const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/team-charter' : tool.id === 't6' ? '/burnout-assessment' : tool.id === 't5' ? '/decision-making-audit' : tool.id === 't2' ? '/change-style' : tool.id === 't2b' ? '/change-readiness-assessment' : tool.id === 't7' ? '/user-guide' : tool.id === 't4' ? '/coaching-cards' : tool.id === 't9' ? '/drivers-reflection' : tool.id === 't8' ? '/expectations-reflection' : '';
+                  const isClickable = tool.id === 't3' || tool.id === 't1' || tool.id === 't6' || tool.id === 't5' || tool.id === 't2' || tool.id === 't2b' || tool.id === 't2c' || tool.id === 't7' || tool.id === 't4' || tool.id === 't9' || tool.id === 't8'; // Trust Audit, Team Canvas, Burnout Assessment, Decision Making Audit, Change Style, Change Readiness, Change Reflection, Working with Me, Coaching Cards, Career Drivers, and Hopes Fears Expectations tools
+                  const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/team-charter' : tool.id === 't6' ? '/burnout-assessment' : tool.id === 't5' ? '/decision-making-audit' : tool.id === 't2' ? '/change-style' : tool.id === 't2b' ? '/change-readiness-assessment' : tool.id === 't2c' ? '/change-reflection' : tool.id === 't7' ? '/user-guide' : tool.id === 't4' ? '/coaching-cards' : tool.id === 't9' ? '/drivers-reflection' : tool.id === 't8' ? '/expectations-reflection' : '';
                   
                   const toolContent = (
                     <>

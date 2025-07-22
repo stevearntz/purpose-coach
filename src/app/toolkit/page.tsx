@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Sparkles, Target, Shield, Heart, Brain, Users, Lightbulb, CheckCircle, ArrowLeft } from 'lucide-react'
+import { ArrowRight, Sparkles, Target, Shield, Heart, Brain, Users, Lightbulb, CheckCircle, ArrowLeft, RefreshCw } from 'lucide-react'
 import Footer from '@/components/Footer'
 import NavigationHeader from '@/components/NavigationHeader'
 import ViewportContainer from '@/components/ViewportContainer'
@@ -193,6 +193,16 @@ const tools: Tool[] = [
     gradient: 'from-[#D4F564] to-[#87AE05]',
     icon: <Lightbulb className="w-8 h-8" />,
     challenges: ['empowering-others', 'skill-building']
+  },
+  {
+    id: 'change-reflection',
+    path: '/change-reflection',
+    title: 'Change Reflection',
+    subtitle: '1:1 conversation prep',
+    description: 'Prepare for meaningful conversations about change with your team members.',
+    gradient: 'from-[#F595B6] to-[#BF4C74]',
+    icon: <RefreshCw className="w-8 h-8" />,
+    challenges: ['navigating-change', 'empowering-others', 'communication']
   }
 ]
 

@@ -235,9 +235,12 @@ export default function TrustAuditPage() {
       const sectionAnswers = answers.filter(a => 
         sectionQuestions.some(q => q.id === a.questionId)
       )
-      const total = sectionAnswers.reduce((sum, a) => sum + a.value, 0)
-      const average = sectionAnswers.length > 0 ? total / sectionAnswers.length : 0
-      return { section, score: average, count: sectionAnswers.length }
+      // Sum up the raw scores (1-5 for each question, 5 questions per section)
+      const rawTotal = sectionAnswers.reduce((sum, a) => sum + a.value, 0)
+      // Scale to 10 points per section: subtract minimum (5) and scale by 2.5
+      // Raw range: 5-25, Scaled range: 0-10
+      const scaledScore = sectionAnswers.length === 5 ? Math.round((rawTotal - 5) * 0.5) : 0
+      return { section, score: scaledScore, count: sectionAnswers.length }
     })
     
     const totalScore = scores.reduce((sum, s) => sum + s.score, 0)
@@ -248,7 +251,7 @@ export default function TrustAuditPage() {
     const result = calculateScores()
     const sectionMap: any = {}
     result.sections.forEach(s => {
-      sectionMap[s.section] = { average: s.score }
+      sectionMap[s.section] = { average: s.score, score: s.score }
     })
     return { ...sectionMap, total: result.total }
   }
@@ -275,9 +278,9 @@ export default function TrustAuditPage() {
       ]
     }
 
-    if (score < 2.5) {
+    if (score < 5) {
       return recommendations[section as keyof typeof recommendations] || []
-    } else if (score < 3.8) {
+    } else if (score < 8) {
       return recommendations[section as keyof typeof recommendations]?.slice(0, 2) || []
     } else {
       return [recommendations[section as keyof typeof recommendations]?.[0] || 'Keep up the great work!']
@@ -472,7 +475,7 @@ export default function TrustAuditPage() {
 
   if (showResults) {
     const { sections, total } = calculateScores()
-    const trustLevel = total >= 12 ? 'Strong' : total >= 7.5 ? 'Moderate' : 'Needs Attention'
+    const trustLevel = total >= 24 ? 'Strong' : total >= 15 ? 'Moderate' : 'Needs Attention'
     
     return (
       <>
@@ -577,21 +580,21 @@ export default function TrustAuditPage() {
                   Overall Trust Level: {trustLevel}
                 </h2>
                 <div className="text-3xl font-bold text-[#DB4839] text-center">
-                  {total.toFixed(1)} / 15
+                  {total} / 30
                 </div>
               </div>
             
             <div className="space-y-6 mb-8">
               {sections.map(({ section, score }) => {
                 const info = sectionInfo[section as keyof typeof sectionInfo]
-                const percentage = (score / 5) * 100
+                const percentage = (score / 10) * 100
                 
                 return (
                   <div key={section} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-xl font-semibold text-nightfall">{info.title}</h3>
                       <div className="text-2xl font-bold text-[#DB4839]">
-                        {score.toFixed(1)} / 5
+                        {score} / 10
                       </div>
                     </div>
                     

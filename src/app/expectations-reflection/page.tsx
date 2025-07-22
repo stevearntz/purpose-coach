@@ -493,7 +493,7 @@ export default function HopesFearsTool() {
             <div className="max-w-4xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#3E37FF] hover:text-[#332DD9] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -604,7 +604,7 @@ export default function HopesFearsTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#3E37FF] hover:text-[#332DD9] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -715,7 +715,7 @@ export default function HopesFearsTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#3E37FF] hover:text-[#332DD9] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -826,7 +826,7 @@ export default function HopesFearsTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#3E37FF] hover:text-[#332DD9] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />

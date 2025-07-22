@@ -509,7 +509,7 @@ export default function TeamCanvasTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -626,7 +626,7 @@ export default function TeamCanvasTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -724,7 +724,7 @@ export default function TeamCanvasTool() {
 
                 <div className="flex justify-between items-center mt-8">
                   <button
-                    onClick={handlePrevious}
+                    onClick={handleBack}
                     disabled={currentStage === 0}
                     className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                       currentStage === 0
@@ -753,7 +753,7 @@ export default function TeamCanvasTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -846,7 +846,7 @@ export default function TeamCanvasTool() {
 
                 <div className="flex justify-between items-center mt-8">
                   <button
-                    onClick={handlePrevious}
+                    onClick={handleBack}
                     disabled={currentStage === 0}
                     className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                       currentStage === 0
@@ -875,7 +875,7 @@ export default function TeamCanvasTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -958,7 +958,7 @@ export default function TeamCanvasTool() {
 
                 <div className="flex justify-between items-center mt-8">
                   <button
-                    onClick={handlePrevious}
+                    onClick={handleBack}
                     disabled={currentStage === 0}
                     className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                       currentStage === 0
@@ -987,7 +987,7 @@ export default function TeamCanvasTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -1064,7 +1064,7 @@ export default function TeamCanvasTool() {
 
                 <div className="flex justify-between items-center mt-8">
                   <button
-                    onClick={handlePrevious}
+                    onClick={handleBack}
                     disabled={currentStage === 0}
                     className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                       currentStage === 0
@@ -1093,7 +1093,7 @@ export default function TeamCanvasTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -1196,7 +1196,7 @@ export default function TeamCanvasTool() {
 
                 <div className="flex justify-between items-center mt-8">
                   <button
-                    onClick={handlePrevious}
+                    onClick={handleBack}
                     disabled={currentStage === 0}
                     className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                       currentStage === 0
@@ -1225,7 +1225,7 @@ export default function TeamCanvasTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -1328,7 +1328,7 @@ export default function TeamCanvasTool() {
 
                 <div className="flex justify-between items-center mt-8">
                   <button
-                    onClick={handlePrevious}
+                    onClick={handleBack}
                     disabled={currentStage === 0}
                     className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                       currentStage === 0
@@ -1357,7 +1357,7 @@ export default function TeamCanvasTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -1444,7 +1444,7 @@ export default function TeamCanvasTool() {
 
                 <div className="flex justify-between items-center mt-8">
                   <button
-                    onClick={handlePrevious}
+                    onClick={handleBack}
                     disabled={currentStage === 0}
                     className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                       currentStage === 0
@@ -1473,7 +1473,7 @@ export default function TeamCanvasTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -1560,7 +1560,7 @@ export default function TeamCanvasTool() {
 
                 <div className="flex justify-between items-center mt-8">
                   <button
-                    onClick={handlePrevious}
+                    onClick={handleBack}
                     disabled={currentStage === 0}
                     className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                       currentStage === 0

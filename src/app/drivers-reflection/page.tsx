@@ -713,7 +713,7 @@ export default function CareerDriversTool() {
                       <div className={`flex items-center gap-2 flex-1 bg-gray-50 rounded-lg px-4 py-3 cursor-move transition-all ${
                         dragOverIndex === index && draggedIndex !== index ? 'border-2 border-[#30B859]' : ''
                       } hover:bg-gray-100`}>
-                        <GripVertical className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
+                        <GripVertical className="w-5 h-5 text-gray-400 group-hover:text-gray-600 hidden sm:block" />
                         <span className="font-medium text-gray-900">{driver}</span>
                       </div>
                       <div className="flex flex-col gap-1">

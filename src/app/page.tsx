@@ -257,33 +257,56 @@ function ToolsPage() {
       return { tools: [], courses: [] };
     }
     
-    const toolMappings: { [key: string]: Tool } = {
-      'c1': { id: 't1', name: 'Team Charter', type: 'guide', description: 'Map your team\'s purpose, composition, and growth opportunities' },
-      'c2': { id: 't2', name: 'Change Style Assessment', type: 'assessment', description: 'Discover how you naturally respond to change and get personalized strategies' },
-      'c3': { id: 't3', name: 'Trust Audit', type: 'assessment', description: 'Evaluate and strengthen trust within your team' },
-      'c4': { id: 't4', name: 'Coaching Cards', type: 'guide', description: 'Powerful questions to empower and develop others' },
-      'c5': { id: 't5', name: 'Decision Making Audit', type: 'guide', description: 'Make better decisions with a structured approach' },
-      'c6': { id: 't6', name: 'Burnout Assessment', type: 'assessment', description: 'Identify and address signs of burnout' },
-      'c7': { id: 't7', name: 'User Guide', type: 'guide', description: 'Share your work style and improve collaboration' },
-      'c8': { id: 't8', name: 'Expectations Reflection', type: 'guide', description: 'Create clarity through open dialogue about expectations' },
-      'c9': { id: 't9', name: 'Drivers Reflection', type: 'reflection', description: 'Explore what motivates your team members and support the ways they want to grow in their role.' }
+    // Tool mappings - now supports multiple tools per challenge
+    const toolMappings: { [key: string]: Tool[] } = {
+      'c1': [{ id: 't1', name: 'Team Charter', type: 'guide', description: 'Map your team\'s purpose, composition, and growth opportunities' }],
+      'c2': [
+        { id: 't2', name: 'Change Style Assessment', type: 'assessment', description: 'Discover how you naturally respond to change and get personalized strategies' },
+        { id: 't2b', name: 'Change Readiness Assessment', type: 'assessment', description: 'Assess and build readiness for navigating change' }
+      ],
+      'c3': [{ id: 't3', name: 'Trust Audit', type: 'assessment', description: 'Evaluate and strengthen trust within your team' }],
+      'c4': [{ id: 't4', name: 'Coaching Cards', type: 'guide', description: 'Powerful questions to empower and develop others' }],
+      'c5': [{ id: 't5', name: 'Decision Making Audit', type: 'guide', description: 'Make better decisions with a structured approach' }],
+      'c6': [{ id: 't6', name: 'Burnout Assessment', type: 'assessment', description: 'Identify and address signs of burnout' }],
+      'c7': [{ id: 't7', name: 'User Guide', type: 'guide', description: 'Share your work style and improve collaboration' }],
+      'c8': [{ id: 't8', name: 'Expectations Reflection', type: 'guide', description: 'Create clarity through open dialogue about expectations' }],
+      'c9': [{ id: 't9', name: 'Drivers Reflection', type: 'reflection', description: 'Explore what motivates your team members and support the ways they want to grow in their role.' }]
     };
 
     // Use the shared course mappings
     const courseMappings = challengeCourseMappings;
 
-    // Get tools based on selected challenges in priority order
+    // Get tools using round-robin distribution
     const tools: Tool[] = [];
     const toolsAdded = new Set<string>();
+    const maxTools = 6; // Maximum number of tools to show
+    let toolIndex = 0;
     
-    selectedChallenges.forEach(challengeId => {
-      const challengeType = challengeId.split('-')[1];
-      const tool = toolMappings[challengeType];
-      if (tool && !toolsAdded.has(tool.id)) {
-        tools.push(tool);
-        toolsAdded.add(tool.id);
+    // Keep looping until we have enough tools or run out of options
+    while (tools.length < maxTools) {
+      let addedInThisRound = false;
+      
+      for (const challengeId of selectedChallenges) {
+        if (tools.length >= maxTools) break;
+        
+        const challengeType = challengeId.split('-')[1];
+        const challengeTools = toolMappings[challengeType] || [];
+        
+        if (toolIndex < challengeTools.length) {
+          const tool = challengeTools[toolIndex];
+          if (!toolsAdded.has(tool.id)) {
+            tools.push(tool);
+            toolsAdded.add(tool.id);
+            addedInThisRound = true;
+          }
+        }
       }
-    });
+      
+      // If we didn't add any tools in this round, we've exhausted all options
+      if (!addedInThisRound) break;
+      
+      toolIndex++;
+    }
 
     // Get courses using round-robin from each challenge's priority list
     const courses: Course[] = [];
@@ -1173,8 +1196,8 @@ function ToolsPage() {
             
             <div className="grid gap-4">
                 {recommendations.tools.map((tool, index) => {
-                  const isClickable = tool.id === 't3' || tool.id === 't1' || tool.id === 't6' || tool.id === 't5' || tool.id === 't2' || tool.id === 't7' || tool.id === 't4' || tool.id === 't9' || tool.id === 't8'; // Trust Audit, Team Canvas, Burnout Assessment, Decision Making Audit, Change Style, Working with Me, Coaching Cards, Career Drivers, and Hopes Fears Expectations tools
-                  const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/team-charter' : tool.id === 't6' ? '/burnout-assessment' : tool.id === 't5' ? '/decision-making-audit' : tool.id === 't2' ? '/change-style' : tool.id === 't7' ? '/user-guide' : tool.id === 't4' ? '/coaching-cards' : tool.id === 't9' ? '/drivers-reflection' : tool.id === 't8' ? '/expectations-reflection' : '';
+                  const isClickable = tool.id === 't3' || tool.id === 't1' || tool.id === 't6' || tool.id === 't5' || tool.id === 't2' || tool.id === 't2b' || tool.id === 't7' || tool.id === 't4' || tool.id === 't9' || tool.id === 't8'; // Trust Audit, Team Canvas, Burnout Assessment, Decision Making Audit, Change Style, Change Readiness, Working with Me, Coaching Cards, Career Drivers, and Hopes Fears Expectations tools
+                  const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/team-charter' : tool.id === 't6' ? '/burnout-assessment' : tool.id === 't5' ? '/decision-making-audit' : tool.id === 't2' ? '/change-style' : tool.id === 't2b' ? '/change-readiness-assessment' : tool.id === 't7' ? '/user-guide' : tool.id === 't4' ? '/coaching-cards' : tool.id === 't9' ? '/drivers-reflection' : tool.id === 't8' ? '/expectations-reflection' : '';
                   
                   const toolContent = (
                     <>

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowRight, Sparkles, Target, Shield, Heart, Brain, Users, Lightbulb, CheckCircle, ArrowLeft } from 'lucide-react'
 import Footer from '@/components/Footer'
 import NavigationHeader from '@/components/NavigationHeader'
+import ViewportContainer from '@/components/ViewportContainer'
 import { useAnalytics } from '@/hooks/useAnalytics'
 
 interface Tool {
@@ -214,7 +215,7 @@ export default function ToolsIndexPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900">
+    <ViewportContainer className="bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-pink-600/20 to-indigo-600/20 animate-gradient-shift" />
@@ -355,6 +356,6 @@ export default function ToolsIndexPage() {
       </div>
 
       <Footer />
-    </div>
+    </ViewportContainer>
   )
 }

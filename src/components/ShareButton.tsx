@@ -40,9 +40,31 @@ export default function ShareButton({
         throw new Error('No URL to share')
       }
 
-      // Copy to clipboard
-      await navigator.clipboard.writeText(urlToCopy)
-      setStatus('copied')
+      // Try to copy to clipboard
+      try {
+        await navigator.clipboard.writeText(urlToCopy)
+        setStatus('copied')
+      } catch (clipboardError) {
+        // Fallback for browsers that block clipboard access
+        // Create a temporary input element
+        const textArea = document.createElement('textarea')
+        textArea.value = urlToCopy
+        textArea.style.position = 'fixed'
+        textArea.style.opacity = '0'
+        document.body.appendChild(textArea)
+        textArea.select()
+        
+        try {
+          document.execCommand('copy')
+          setStatus('copied')
+        } catch (fallbackError) {
+          // If both methods fail, show the URL in a prompt
+          prompt('Copy this link:', urlToCopy)
+          setStatus('copied') // Still mark as copied since user can manually copy
+        } finally {
+          document.body.removeChild(textArea)
+        }
+      }
 
       // Reset status after 2 seconds
       setTimeout(() => {

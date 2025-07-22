@@ -489,7 +489,8 @@ export default function TeamCanvasTool() {
                   disabled={!isEmailValid}
                   className="px-8 py-4 bg-white text-[#FFA851] rounded-xl font-semibold text-lg hover:bg-white/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Start Building Your Charter
+                  <span className="sm:hidden">Start Charter</span>
+                  <span className="hidden sm:inline">Start Building Your Charter</span>
                 </button>
 
                 <p className="text-white/70 text-sm">
@@ -668,7 +669,7 @@ export default function TeamCanvasTool() {
 
                   <div className="space-y-4">
                     {teamData.people.map((person, index) => (
-                      <div key={index} className="flex gap-4">
+                      <div key={index} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                         <input
                           type="text"
                           value={person.name}

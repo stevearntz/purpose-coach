@@ -233,7 +233,8 @@ export default function DecisionMakingAuditPage() {
                   : 'bg-white/50 text-[#3C36FF]/50 cursor-not-allowed'
               }`}
             >
-              Start Decision Making Audit
+              <span className="sm:hidden">Start Audit</span>
+              <span className="hidden sm:inline">Start Decision Making Audit</span>
             </button>
             
             <p className="text-white/70 text-sm text-center">
@@ -372,8 +373,8 @@ export default function DecisionMakingAuditPage() {
                   >
                     <Printer className="w-5 h-5" />
                   </button>
-                  <button
-                    onClick={async () => {
+                  <ShareButton
+                    onShare={async () => {
                       const { dimensions, total } = calculateScores()
                       const readinessLevel = total >= 16 ? 'Well Prepared' : total >= 10 ? 'Moderately Prepared' : 'Needs More Work'
                       
@@ -405,14 +406,19 @@ export default function DecisionMakingAuditPage() {
                       const { url } = await response.json()
                       const fullUrl = `${window.location.origin}${url}`
                       
-                      navigator.clipboard.writeText(fullUrl)
-                      alert('Share link copied to clipboard!')
+                      // Track share event
+                      analytics.trackShare('Decision Making Audit', 'link', {
+                        readinessLevel,
+                        decisionContext: decisionContext.slice(0, 50)
+                      })
+                      
+                      return fullUrl
                     }}
                     className="px-3 sm:px-6 py-2.5 bg-[#3C36FF] hover:bg-[#302CC6] text-white rounded-lg font-semibold transition-colors"
                   >
                     <Share2 className="w-5 h-5 inline sm:hidden" />
                     <span className="hidden sm:inline uppercase tracking-wider">Share</span>
-                  </button>
+                  </ShareButton>
                 </div>
               </div>
               

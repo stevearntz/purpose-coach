@@ -472,7 +472,8 @@ export default function HopesFearsTool() {
                         : 'bg-white/50 text-[#DB4839]/50 cursor-not-allowed'
                     }`}
                   >
-                    Start Preparing
+                    <span className="sm:hidden">Start Reflection</span>
+                    <span className="hidden sm:inline">Start Preparing</span>
                   </button>
                 </div>
 
@@ -943,17 +944,13 @@ export default function HopesFearsTool() {
                     >
                       <Printer className="w-5 h-5" />
                     </button>
-                    <button
-                      onClick={async () => {
-                        const fullUrl = await handleShare()
-                        navigator.clipboard.writeText(fullUrl)
-                        alert('Share link copied to clipboard!')
-                      }}
+                    <ShareButton
+                      onShare={handleShare}
                       className="px-3 sm:px-6 py-2.5 bg-[#DB4839] hover:bg-[#C43830] text-white rounded-lg font-semibold transition-colors"
                     >
                       <Share2 className="w-5 h-5 inline sm:hidden" />
                       <span className="hidden sm:inline uppercase tracking-wider">Share</span>
-                    </button>
+                    </ShareButton>
                   </div>
                 </div>
               </div>

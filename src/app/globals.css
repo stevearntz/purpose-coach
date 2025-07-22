@@ -174,12 +174,26 @@
 html {
   /* Ensure instant scrolling, not smooth scrolling */
   scroll-behavior: auto;
+  /* Fix iOS Safari height issues */
+  height: -webkit-fill-available;
 }
 
+/* iOS Safari viewport height fix */
 body {
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-league-spartan), 'League Spartan', Futura, 'Century Gothic', sans-serif;
+}
+
+/* Fix for iOS Safari min-h-screen */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari specific fix */
+  .min-h-screen {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
 }
 
 /* Print styles */

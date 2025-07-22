@@ -1007,17 +1007,13 @@ export default function CoachingCardsTool() {
                     >
                       <Printer className="w-5 h-5" />
                     </button>
-                    <button
-                      onClick={async () => {
-                        const fullUrl = await handleShare()
-                        navigator.clipboard.writeText(fullUrl)
-                        alert('Share link copied to clipboard!')
-                      }}
+                    <ShareButton
+                      onShare={handleShare}
                       className="px-3 sm:px-6 py-2.5 bg-[#8AB307] hover:bg-[#7A9F06] text-white rounded-lg font-semibold transition-colors"
                     >
                       <Share2 className="w-5 h-5 inline sm:hidden" />
                       <span className="hidden sm:inline uppercase tracking-wider">Share</span>
-                    </button>
+                    </ShareButton>
                   </div>
                 </div>
               </div>

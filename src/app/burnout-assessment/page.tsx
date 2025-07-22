@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { ArrowLeft, ArrowRight, Printer, Heart, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
+import ViewportContainer from '@/components/ViewportContainer'
 import { toolConfigs } from '@/lib/toolConfigs'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import ShareButton from '@/components/ShareButton'
@@ -375,7 +376,8 @@ export default function BurnoutAssessmentPage() {
                   : 'bg-white/50 text-[#30B859]/50 cursor-not-allowed'
               }`}
             >
-              Start Burnout Assessment
+              <span className="sm:hidden">Start Assessment</span>
+              <span className="hidden sm:inline">Start Burnout Assessment</span>
             </button>
             
             <p className="text-white/70 text-sm text-center">

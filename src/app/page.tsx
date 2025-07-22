@@ -11,6 +11,7 @@ import Footer from '@/components/Footer';
 import Modal from '@/components/Modal';
 import NavigationHeader from '@/components/NavigationHeader';
 import EmailGateModal from '@/components/EmailGateModal';
+import ViewportContainer from '@/components/ViewportContainer';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import ShareButton from '@/components/ShareButton';
 
@@ -880,7 +881,7 @@ function ToolsPage() {
   if (currentScreen === 1) {
     return (
       <div className="bg-custom-gradient-diagonal">
-        <div className="min-h-screen flex items-center justify-center px-4 py-8 pb-24 sm:pb-8">
+        <ViewportContainer className="flex items-center justify-center px-4 py-8 pb-24 sm:pb-8">
           <div className="w-full max-w-2xl mx-auto text-center text-white">
             <div className="flex items-center justify-center gap-3 mb-6">
               <img 
@@ -938,7 +939,7 @@ function ToolsPage() {
               </div>
             </div>
           </div>
-        </div>
+        </ViewportContainer>
       </div>
     );
   }
@@ -947,7 +948,7 @@ function ToolsPage() {
   if (currentScreen === 2) {
     return (
       <>
-        <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-purple-50">
+        <ViewportContainer className="bg-gradient-to-br from-purple-100 via-pink-50 to-purple-50">
           <NavigationHeader
             onBack={handleBack}
             backLabel="Back"
@@ -1016,7 +1017,7 @@ function ToolsPage() {
             </button>
           </div>
         </div>
-      </div>
+      </ViewportContainer>
       <Footer />
       </>
     );
@@ -1025,7 +1026,7 @@ function ToolsPage() {
   // Screen 3: Loading State (3 seconds)
   if (currentScreen === 3) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <ViewportContainer className="bg-gray-50 flex items-center justify-center">
         <div className="max-w-lg mx-auto text-center px-6">
           <div className="bg-white rounded-2xl p-12 shadow-lg">
             <div className="mb-6">
@@ -1050,7 +1051,7 @@ function ToolsPage() {
             <p className="text-sm text-gray-500">Creating your custom recommendations...</p>
           </div>
         </div>
-      </div>
+      </ViewportContainer>
     );
   }
 
@@ -1060,7 +1061,7 @@ function ToolsPage() {
     
     return (
       <>
-        <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-purple-50 print:bg-white">
+        <ViewportContainer className="bg-gradient-to-br from-purple-100 via-pink-50 to-purple-50 print:bg-white">
           <NavigationHeader
             onBack={handleBackToChallenge}
             backLabel="Back"
@@ -1293,7 +1294,7 @@ function ToolsPage() {
               </div>
             </div>
         </div>
-      </div>
+      </ViewportContainer>
       
       {/* Course Detail Modal */}
       <Modal 
@@ -1402,11 +1403,11 @@ function ToolsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <ViewportContainer className="bg-gray-50 flex items-center justify-center">
       <div className="text-center">
         <h1 className="text-4xl font-bold text-nightfall">Loading...</h1>
       </div>
-    </div>
+    </ViewportContainer>
   );
 }
 
@@ -1414,11 +1415,11 @@ function ToolsPage() {
 export default function Page() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <ViewportContainer className="bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-nightfall">Loading...</h1>
         </div>
-      </div>
+      </ViewportContainer>
     }>
       <ToolsPage />
     </Suspense>

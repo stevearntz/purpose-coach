@@ -224,9 +224,34 @@ export default function SharePage() {
     fetchSharedData();
   }, [params.id]);
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
+  const handleCopyLink = async () => {
+    const url = window.location.href;
+    
+    try {
+      // Try modern clipboard API first
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+    } catch (error) {
+      // Fallback for browsers that block clipboard access
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.select();
+      
+      try {
+        document.execCommand('copy');
+        setCopied(true);
+      } catch (fallbackError) {
+        // If both methods fail, show the URL in a prompt
+        prompt('Copy this link:', url);
+        setCopied(true); // Still mark as copied since user can manually copy
+      } finally {
+        document.body.removeChild(textArea);
+      }
+    }
+    
     setTimeout(() => setCopied(false), 2000);
   };
 

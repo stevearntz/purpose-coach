@@ -3,6 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import ViewportContainer from './ViewportContainer'
 
 interface ToolLayoutProps {
   children: React.ReactNode
@@ -32,7 +33,7 @@ export default function ToolLayout({
     : "text-white/70 hover:text-white"
   
   return (
-    <div className={`min-h-screen ${gradientClass} flex flex-col items-center justify-center p-4`}>
+    <ViewportContainer className={`${gradientClass} flex items-center justify-center p-4 relative`}>
       {showBackButton && (
         <Link 
           href={backUrl} 
@@ -52,6 +53,6 @@ export default function ToolLayout({
         </Link>
       )}
       {children}
-    </div>
+    </ViewportContainer>
   )
 }

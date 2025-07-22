@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { ArrowLeft, ArrowRight, Printer, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
+import ViewportContainer from '@/components/ViewportContainer'
 import { toolConfigs } from '@/lib/toolConfigs'
 import { Question, Answer, questions, dimensionInfo, getChangeReadinessLevel, getChangeRecommendations } from '@/lib/changeReadinessHelpers'
 import ShareButton from '@/components/ShareButton'
@@ -169,7 +170,7 @@ export default function ChangeReadinessPage() {
   // Intro Screen (Full vibrant gradient)
   if (showIntro) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FCA376] to-[#BF4C74] flex flex-col items-center justify-center p-4">
+      <ViewportContainer className="bg-gradient-to-br from-[#FCA376] to-[#BF4C74] flex items-center justify-center p-4">
         <Link 
           href="/?screen=4" 
           className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
@@ -233,7 +234,8 @@ export default function ChangeReadinessPage() {
                   : 'bg-white/50 text-[#BF4C74]/50 cursor-not-allowed'
               }`}
             >
-              Start Change Readiness Assessment
+              <span className="sm:hidden">Start Assessment</span>
+              <span className="hidden sm:inline">Start Change Readiness Assessment</span>
             </button>
             
             <p className="text-white/70 text-sm text-center">
@@ -241,14 +243,14 @@ export default function ChangeReadinessPage() {
             </p>
           </div>
         </div>
-      </div>
+      </ViewportContainer>
     )
   }
 
   // Change Context Screen
   if (showChangeContext) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FCA376] via-[#E37A75] to-[#BF4C74] flex flex-col items-center justify-center p-4">
+      <ViewportContainer className="bg-gradient-to-br from-[#FCA376] via-[#E37A75] to-[#BF4C74] flex items-center justify-center p-4">
         <Link 
           href="/?screen=4" 
           className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
@@ -316,7 +318,7 @@ export default function ChangeReadinessPage() {
             </div>
           </div>
         </div>
-      </div>
+      </ViewportContainer>
     )
   }
 
@@ -350,7 +352,7 @@ export default function ChangeReadinessPage() {
             }
           }
         `}</style>
-        <div className="min-h-screen bg-gradient-to-br from-[#FCA376]/10 via-[#E37A75]/10 to-[#BF4C74]/10 py-16 print-section">
+        <ViewportContainer className="bg-gradient-to-br from-[#FCA376]/10 via-[#E37A75]/10 to-[#BF4C74]/10 py-16 print-section">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto">
               <div className="flex justify-between items-center mb-8 no-print">
@@ -372,8 +374,8 @@ export default function ChangeReadinessPage() {
                   >
                     <Printer className="w-5 h-5" />
                   </button>
-                  <button
-                    onClick={async () => {
+                  <ShareButton
+                    onShare={async () => {
                       const { dimensions, total } = calculateScores()
                       const overallReadiness = getChangeReadinessLevel(total)
                       
@@ -405,14 +407,13 @@ export default function ChangeReadinessPage() {
                       const { url } = await response.json()
                       const fullUrl = `${window.location.origin}${url}`
                       
-                      navigator.clipboard.writeText(fullUrl)
-                      alert('Share link copied to clipboard!')
+                      return fullUrl
                     }}
                     className="px-3 sm:px-6 py-2.5 bg-[#BF4C74] hover:bg-[#A63D5F] text-white rounded-lg font-semibold transition-colors"
                   >
-                    <Share2 className="w-5 h-5 inline sm:hidden" />
+                    <Share2 className="w-5 h-5" />
                     <span className="hidden sm:inline uppercase tracking-wider">Share</span>
-                  </button>
+                  </ShareButton>
                 </div>
               </div>
               
@@ -499,7 +500,7 @@ export default function ChangeReadinessPage() {
             </div>
           </div>
         </div>
-      </div>
+      </ViewportContainer>
       <Footer />
       </>
     )
@@ -508,7 +509,7 @@ export default function ChangeReadinessPage() {
   // Main Assessment Screen
   if (!showIntro && !showChangeContext && !showResults) {
     return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <ViewportContainer className="bg-gray-50 p-4">
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
@@ -625,7 +626,7 @@ export default function ChangeReadinessPage() {
           </div>
         </div>
       </div>
-    </div>
+    </ViewportContainer>
   )
   }
   

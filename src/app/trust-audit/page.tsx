@@ -338,7 +338,8 @@ export default function TrustAuditPage() {
                   : 'bg-white/50 text-[#DB4839]/50 cursor-not-allowed'
               }`}
             >
-              Start Trust Audit
+              <span className="sm:hidden">Start Audit</span>
+              <span className="hidden sm:inline">Start Trust Audit</span>
             </button>
             
             <p className="text-white/70 text-sm text-center">

@@ -47,28 +47,29 @@ export default function EmailGateModal({ isOpen, onClose, onSubmit, onSkip }: Em
       <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60]" />
       
       {/* Modal */}
-      <div className="fixed inset-0 flex items-center justify-center z-[70] p-4">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative animate-fade-in">
+      <div className="fixed inset-0 z-[70] overflow-y-auto">
+        <div className="flex min-h-full items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative animate-fade-in">
           {/* Success illustration */}
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-4 sm:mb-6">
             <img 
               src="/smore.png" 
               alt="S'more" 
-              className="w-20 h-20 object-contain"
+              className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
             />
           </div>
 
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-3">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-2 sm:mb-3">
             Your Personalized Development Plan is Ready!
           </h2>
           
-          <p className="text-center text-gray-600 mb-6">
+          <p className="text-center text-gray-600 text-sm sm:text-base mb-4 sm:mb-6">
             Enter your email to unlock your custom recommendations and save your results.
           </p>
 
           {/* Benefits list */}
-          <div className="bg-gray-50 rounded-lg p-4 mb-6">
-            <div className="space-y-2 text-sm">
+          <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+            <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
               <div className="flex items-start gap-2">
                 <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                 <span className="text-gray-700">Your personalized tool recommendations</span>
@@ -127,9 +128,10 @@ export default function EmailGateModal({ isOpen, onClose, onSubmit, onSkip }: Em
             Continue without saving →
           </button>
 
-          <p className="text-xs text-center text-gray-400 mt-4">
+          <p className="text-xs text-center text-gray-400 mt-3 sm:mt-4">
             We respect your privacy. Unsubscribe anytime.
           </p>
+          </div>
         </div>
       </div>
     </>

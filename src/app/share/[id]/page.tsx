@@ -453,7 +453,7 @@ export default function SharePage() {
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-12">
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex justify-start items-center mb-8">
                   <Link
                     href="/"
                     className="text-iris-500 hover:text-iris-700 flex items-center gap-2"
@@ -461,22 +461,6 @@ export default function SharePage() {
                     <ArrowLeft className="w-4 h-4" />
                     BACK
                   </Link>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={handleCopyLink}
-                      className="px-4 py-2 border border-gray-300 text-iris-500 rounded-lg hover:border-purple-400 transition-colors flex items-center gap-2"
-                    >
-                      <Share2 className="w-4 h-4 text-iris-500" />
-                      {copied ? 'COPIED!' : 'SHARE'}
-                    </button>
-                    <button
-                      onClick={handleDownloadPDF}
-                      className="px-4 py-2 border border-gray-300 text-iris-500 rounded-lg hover:border-purple-400 transition-colors flex items-center gap-2"
-                    >
-                      <Download className="w-4 h-4 text-iris-500" />
-                      DOWNLOAD PDF
-                    </button>
-                  </div>
                 </div>
                 
                 <h2 className="text-4xl font-bold text-nightfall mb-8">
@@ -633,7 +617,7 @@ export default function SharePage() {
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-12">
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex justify-start items-center mb-8">
                   <Link
                     href="/"
                     className="text-orange-600 hover:text-orange-700 flex items-center gap-2"
@@ -641,22 +625,6 @@ export default function SharePage() {
                     <ArrowLeft className="w-4 h-4" />
                     BACK
                   </Link>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={handleCopyLink}
-                      className="px-4 py-2 border border-gray-300 text-orange-600 rounded-lg hover:border-orange-400 transition-colors flex items-center gap-2"
-                    >
-                      <Share2 className="w-4 h-4" />
-                      {copied ? 'COPIED!' : 'SHARE'}
-                    </button>
-                    <button
-                      onClick={handleDownloadPDF}
-                      className="px-4 py-2 border border-gray-300 text-orange-600 rounded-lg hover:border-orange-400 transition-colors flex items-center gap-2"
-                    >
-                      <Download className="w-4 h-4" />
-                      DOWNLOAD PDF
-                    </button>
-                  </div>
                 </div>
                 
                 <h2 className="text-4xl font-bold text-nightfall mb-4">Team Canvas</h2>
@@ -821,7 +789,7 @@ export default function SharePage() {
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-12">
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex justify-start items-center mb-8">
                   <Link
                     href="/"
                     className="text-orange-600 hover:text-orange-700 flex items-center gap-2"
@@ -829,22 +797,6 @@ export default function SharePage() {
                     <ArrowLeft className="w-4 h-4" />
                     BACK
                   </Link>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={handleCopyLink}
-                      className="px-4 py-2 border border-gray-300 text-orange-600 rounded-lg hover:border-orange-400 transition-colors flex items-center gap-2"
-                    >
-                      <Share2 className="w-4 h-4" />
-                      {copied ? 'COPIED!' : 'SHARE'}
-                    </button>
-                    <button
-                      onClick={handleDownloadPDF}
-                      className="px-4 py-2 border border-gray-300 text-orange-600 rounded-lg hover:border-orange-400 transition-colors flex items-center gap-2"
-                    >
-                      <Download className="w-4 h-4" />
-                      DOWNLOAD PDF
-                    </button>
-                  </div>
                 </div>
                 
                 <h2 className="text-4xl font-bold text-nightfall mb-4">Hopes, Fears & Expectations</h2>
@@ -909,39 +861,23 @@ export default function SharePage() {
     );
   }
 
-  // Coaching Cards share view
-  if (data.type === 'coaching-cards' && data.data) {
-    const { themes } = data.data;
+  // Coaching Reflection share view
+  if (data.type === 'coaching-reflection' && data.data) {
+    const { category, focusArea, questions, challengeSolution, nextStep } = data.data;
     return (
       <>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-50 py-16">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-green-50 py-16">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-12">
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex justify-start items-center mb-8">
                   <Link
                     href="/"
-                    className="text-indigo-600 hover:text-indigo-700 flex items-center gap-2"
+                    className="text-green-600 hover:text-green-700 flex items-center gap-2"
                   >
                     <ArrowLeft className="w-4 h-4" />
                     BACK
                   </Link>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={handleCopyLink}
-                      className="px-4 py-2 border border-gray-300 text-indigo-600 rounded-lg hover:border-indigo-400 transition-colors flex items-center gap-2"
-                    >
-                      <Share2 className="w-4 h-4" />
-                      {copied ? 'COPIED!' : 'SHARE'}
-                    </button>
-                    <button
-                      onClick={handleDownloadPDF}
-                      className="px-4 py-2 border border-gray-300 text-indigo-600 rounded-lg hover:border-indigo-400 transition-colors flex items-center gap-2"
-                    >
-                      <Download className="w-4 h-4" />
-                      DOWNLOAD PDF
-                    </button>
-                  </div>
                 </div>
                 
                 <h2 className="text-4xl font-bold text-nightfall mb-4">Coaching Reflection</h2>
@@ -949,41 +885,36 @@ export default function SharePage() {
               </div>
 
               <div className="bg-white rounded-xl shadow-lg p-8 space-y-8">
-                {/* Context */}
-                {data.data.context && (
-                  <div className="mb-6">
-                    <h3 className="text-xl font-semibold text-nightfall mb-2">Context</h3>
-                    <p className="text-gray-600">{data.data.context}</p>
-                  </div>
-                )}
+                {/* Category and Focus Area */}
+                <div className="text-center bg-gradient-to-br from-green-50 to-blue-50 rounded-lg p-6">
+                  <h3 className="text-2xl font-bold text-green-800 mb-2">
+                    {category?.charAt(0).toUpperCase() + category?.slice(1)} Focus
+                  </h3>
+                  <p className="text-gray-700 text-lg">
+                    {focusArea?.charAt(0).toUpperCase() + focusArea?.slice(1)}
+                  </p>
+                </div>
 
-                {/* Reflection Themes */}
-                {themes && themes.length > 0 && (
+                {/* Reflection Questions */}
+                {questions && questions.length > 0 && (
                   <div className="space-y-6">
-                    <h3 className="text-2xl font-bold text-nightfall">Reflection Themes</h3>
+                    <h3 className="text-2xl font-bold text-nightfall">Reflection Questions & Answers</h3>
                     
-                    <div className="grid gap-6">
-                      {themes.map((theme: any, index: number) => (
-                        <div key={index} className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-lg p-6 shadow-sm">
+                    <div className="space-y-4">
+                      {questions.map((qa: any, index: number) => (
+                        <div key={index} className="bg-gradient-to-br from-green-50 to-blue-50 rounded-lg p-6">
                           <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
+                            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
                               {index + 1}
                             </div>
                             <div className="flex-1">
-                              <h4 className="text-lg font-semibold text-indigo-900 mb-3">{theme.theme}</h4>
-                              
-                              {/* Questions and Answers */}
-                              <div className="space-y-4">
-                                {theme.questions.map((qa: any, qIndex: number) => (
-                                  <div key={qIndex} className="bg-white/50 rounded-lg p-4">
-                                    <p className="font-medium text-indigo-700 mb-2">
-                                      Q{qIndex + 1}: {qa.question}
-                                    </p>
-                                    <p className="text-gray-700 pl-4 border-l-2 border-indigo-200">
-                                      {qa.answer}
-                                    </p>
-                                  </div>
-                                ))}
+                              <p className="font-medium text-green-700 mb-3">
+                                {qa.text}
+                              </p>
+                              <div className="bg-white/60 rounded-lg p-4">
+                                <p className="text-gray-700">
+                                  {qa.reflection || 'No reflection provided'}
+                                </p>
                               </div>
                             </div>
                           </div>
@@ -993,33 +924,116 @@ export default function SharePage() {
                   </div>
                 )}
 
-                {/* Actions if any */}
-                {data.data.actions && data.data.actions.length > 0 && (
-                  <div className="mt-8">
-                    <h3 className="text-xl font-semibold text-nightfall mb-4">Action Items</h3>
-                    <ul className="space-y-2">
-                      {data.data.actions.map((action: string, index: number) => (
-                        <li key={index} className="flex items-start gap-3">
-                          <span className="text-indigo-600 mt-1">→</span>
-                          <span className="text-gray-700">{action}</span>
-                        </li>
-                      ))}
-                    </ul>
+                {/* Challenge Solution */}
+                {challengeSolution && (
+                  <div className="bg-blue-50 rounded-lg p-6">
+                    <h3 className="text-xl font-semibold text-blue-800 mb-3">Challenge Solution</h3>
+                    <p className="text-gray-700">{challengeSolution}</p>
                   </div>
                 )}
 
-                {/* Key Insights if any */}
-                {data.data.insights && data.data.insights.length > 0 && (
-                  <div className="mt-8">
-                    <h3 className="text-xl font-semibold text-nightfall mb-4">Key Insights</h3>
-                    <ul className="space-y-2">
-                      {data.data.insights.map((insight: string, index: number) => (
-                        <li key={index} className="flex items-start gap-3">
-                          <span className="text-indigo-600 mt-1">✓</span>
-                          <span className="text-gray-700">{insight}</span>
-                        </li>
+                {/* Next Step */}
+                {nextStep && (
+                  <div className="bg-green-50 rounded-lg p-6">
+                    <h3 className="text-xl font-semibold text-green-800 mb-3">Next Step</h3>
+                    <p className="text-gray-700">{nextStep}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  // Career Drivers share view
+  if (data.type === 'career-drivers' && data.data) {
+    const { selectedDrivers, rankedDrivers, focusDriver } = data.data;
+    return (
+      <>
+        <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-pink-50 py-16">
+          <div className="container mx-auto px-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-12">
+                <div className="flex justify-start items-center mb-8">
+                  <Link
+                    href="/"
+                    className="text-pink-600 hover:text-pink-700 flex items-center gap-2"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    BACK
+                  </Link>
+                </div>
+                
+                <h2 className="text-4xl font-bold text-nightfall mb-4">Career Drivers Map</h2>
+                <p className="text-gray-600">Created on {new Date(data.createdAt).toLocaleDateString()}</p>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-lg p-8 space-y-8">
+                {/* Focus Driver */}
+                {focusDriver && (
+                  <div className="bg-gradient-to-br from-pink-100 to-purple-100 rounded-lg p-6">
+                    <h3 className="text-2xl font-bold text-pink-800 mb-4">Your Primary Driver</h3>
+                    <div className="bg-white/60 rounded-lg p-4">
+                      <h4 className="text-xl font-semibold text-pink-700 mb-2">{focusDriver.driver}</h4>
+                      <p className="text-gray-700 mb-3">{focusDriver.meaning}</p>
+                      <p className="text-gray-600 text-sm italic">{focusDriver.why}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Ranked Drivers */}
+                {rankedDrivers && rankedDrivers.length > 0 && (
+                  <div>
+                    <h3 className="text-2xl font-bold text-nightfall mb-6">Your Top {rankedDrivers.length} Career Drivers</h3>
+                    <div className="space-y-4">
+                      {rankedDrivers.map((driver: any, index: number) => (
+                        <div key={index} className="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
+                          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                            {index + 1}
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-lg font-semibold text-gray-800">{driver.driver}</h4>
+                            <p className="text-gray-600">{driver.meaning}</p>
+                          </div>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
+                  </div>
+                )}
+
+                {/* All Selected Drivers by Section */}
+                {selectedDrivers && selectedDrivers.length > 0 && (
+                  <div>
+                    <h3 className="text-2xl font-bold text-nightfall mb-6">Selected Drivers by Category</h3>
+                    <div className="space-y-6">
+                      {selectedDrivers.map((selection: any, index: number) => {
+                        const sectionNames = [
+                          'Creativity & Freedom',
+                          'Growth & Challenge', 
+                          'Leadership & Impact',
+                          'Stability & Recognition',
+                          'Connection & Support',
+                          'Purpose & Meaning'
+                        ];
+                        return (
+                          <div key={index} className="bg-gray-50 rounded-lg p-6">
+                            <h4 className="text-lg font-semibold text-gray-800 mb-4">
+                              {sectionNames[selection.section - 1] || `Section ${selection.section}`}
+                            </h4>
+                            <div className="flex flex-wrap gap-2">
+                              {selection.drivers.map((driver: string, dIndex: number) => (
+                                <span key={dIndex} className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
+                                  {driver}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
@@ -1039,7 +1053,7 @@ export default function SharePage() {
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-12">
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex justify-start items-center mb-8">
                   <Link
                     href="/"
                     className="text-blue-600 hover:text-blue-700 flex items-center gap-2"
@@ -1047,22 +1061,6 @@ export default function SharePage() {
                     <ArrowLeft className="w-4 h-4" />
                     BACK
                   </Link>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={handleCopyLink}
-                      className="px-4 py-2 border border-gray-300 text-blue-600 rounded-lg hover:border-blue-400 transition-colors flex items-center gap-2"
-                    >
-                      <Share2 className="w-4 h-4" />
-                      {copied ? 'COPIED!' : 'SHARE'}
-                    </button>
-                    <button
-                      onClick={handleDownloadPDF}
-                      className="px-4 py-2 border border-gray-300 text-blue-600 rounded-lg hover:border-blue-400 transition-colors flex items-center gap-2"
-                    >
-                      <Download className="w-4 h-4" />
-                      DOWNLOAD PDF
-                    </button>
-                  </div>
                 </div>
                 
                 <h2 className="text-4xl font-bold text-nightfall mb-4">{data.title || 'Shared Results'}</h2>
@@ -1088,7 +1086,7 @@ export default function SharePage() {
       <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
       
       <div className="relative z-10 container mx-auto p-6 max-w-4xl">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-start items-center mb-8">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
@@ -1097,22 +1095,6 @@ export default function SharePage() {
             Back to Home
           </Link>
           
-          <div className="flex gap-2">
-            <button
-              onClick={handleCopyLink}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors backdrop-blur-sm border border-white/10"
-            >
-              <Share2 className="w-4 h-4" />
-              {copied ? 'COPIED!' : 'SHARE'}
-            </button>
-            <button
-              onClick={handleDownloadPDF}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors backdrop-blur-sm border border-white/10"
-            >
-              <Download className="w-4 h-4" />
-              DOWNLOAD PDF
-            </button>
-          </div>
         </div>
 
         <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-8">

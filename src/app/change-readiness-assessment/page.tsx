@@ -563,10 +563,11 @@ export default function ChangeReadinessPage() {
             </h3>
             
             <div className="space-y-3">
-              {likertOptions.map((option) => (
+              {likertOptions.map((option, index) => (
                 <button
                   key={option.value}
                   onClick={() => handleAnswer(option.value, false)} // No auto-advance on click
+                  autoFocus={index === 0}
                   className={`w-full p-4 rounded-xl text-left transition-all duration-200 border-2 ${
                     getCurrentAnswer() === option.value
                       ? 'bg-gradient-to-r from-[#FCA376] to-[#BF4C74] text-white border-[#BF4C74] shadow-lg'

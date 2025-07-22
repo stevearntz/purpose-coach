@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ArrowRight, Users, Target, Heart, Zap, TrendingUp, Shield, Trophy, Sparkles, ArrowLeft, Download, Share2, X, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -557,6 +557,7 @@ export default function TeamCanvasTool() {
                           purpose: { ...teamData.purpose, exists: e.target.value } 
                         })}
                         placeholder="Describe your team's reason for being..."
+                        autoFocus
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFA851] min-h-[100px] resize-none"
                       />
                     </div>
@@ -672,6 +673,7 @@ export default function TeamCanvasTool() {
                             }
                           }}
                           placeholder="Team member name..."
+                          autoFocus={index === 0}
                           className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFA851]"
                         />
                         <input
@@ -778,10 +780,11 @@ export default function TeamCanvasTool() {
                   </div>
 
                   <div className="flex flex-wrap gap-3">
-                    {valueOptions.map((value) => (
+                    {valueOptions.map((value, index) => (
                       <button
                         key={value}
                         onClick={() => toggleValue(value)}
+                        autoFocus={index === 0}
                         className={`px-4 py-2 rounded-full font-medium transition-all duration-200 ${
                           teamData.values.includes(value)
                             ? 'bg-[#FFA851] text-white'
@@ -892,10 +895,11 @@ export default function TeamCanvasTool() {
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {impactOptions.map((option) => (
+                    {impactOptions.map((option, index) => (
                       <button
                         key={option.id}
                         onClick={() => setTeamData({ ...teamData, impact: option.label })}
+                        autoFocus={index === 0}
                         className={`p-4 rounded-xl border-2 transition-all duration-200 ${
                           teamData.impact === option.label
                             ? 'border-[#FFA851] bg-[#FFA851]/10'
@@ -911,7 +915,7 @@ export default function TeamCanvasTool() {
                   {teamData.impact && (
                     <div className="space-y-3">
                       <label className="block text-sm font-medium text-gray-700">
-                        Explain how your team drives {teamData.impact.toLowerCase()}:
+                        Explain how your team drives {teamData.impact.toLowerCase()}: (Optional)
                       </label>
                       <textarea
                         value={teamData.impactExplanation}
@@ -932,7 +936,7 @@ export default function TeamCanvasTool() {
                   </button>
                   <button
                     onClick={handleNext}
-                    disabled={!teamData.impact || !teamData.impactExplanation}
+                    disabled={!teamData.impact}
                     className="px-6 py-3 bg-[#FFA851] text-white rounded-lg font-medium hover:bg-[#FF9741] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Continue
@@ -1014,6 +1018,7 @@ export default function TeamCanvasTool() {
                             setTeamData({ ...teamData, activities: updated })
                           }}
                           placeholder={`Activity ${index + 1}...`}
+                          autoFocus={index === 0}
                           className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFA851]"
                         />
                       </div>
@@ -1117,10 +1122,11 @@ export default function TeamCanvasTool() {
                   <div className="space-y-4">
                     <p className="text-sm text-gray-600 text-center">Click to select your team's strengths:</p>
                     <div className="flex flex-wrap gap-3">
-                      {strengthOptions.map((strength) => (
+                      {strengthOptions.map((strength, index) => (
                         <button
                           key={strength}
                           onClick={() => toggleStrength(strength)}
+                          autoFocus={index === 0}
                           disabled={teamData.strengths.length >= 3 && !teamData.strengths.includes(strength)}
                           className={`px-4 py-2 rounded-full font-medium transition-all duration-200 ${
                             teamData.strengths.includes(strength)
@@ -1241,9 +1247,10 @@ export default function TeamCanvasTool() {
                   <div className="space-y-4">
                     <p className="text-sm text-gray-600 text-center">Click to identify your team's challenges:</p>
                     <div className="flex flex-wrap gap-3">
-                      {weaknessOptions.map((weakness) => (
+                      {weaknessOptions.map((weakness, index) => (
                         <button
                           key={weakness}
+                          autoFocus={index === 0}
                           onClick={() => toggleWeakness(weakness)}
                           disabled={teamData.weaknesses.length >= 3 && !teamData.weaknesses.includes(weakness)}
                           className={`px-4 py-2 rounded-full font-medium transition-all duration-200 ${
@@ -1344,10 +1351,11 @@ export default function TeamCanvasTool() {
                   <p className="text-sm text-gray-600">Select all that apply:</p>
 
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {soloWinOptions.map((option) => (
+                    {soloWinOptions.map((option, index) => (
                       <button
                         key={option}
                         onClick={() => toggleSoloWin(option)}
+                        autoFocus={index === 0}
                         className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 text-sm ${
                           teamData.soloWins.includes(option)
                             ? 'bg-[#FFA851] text-white'
@@ -1452,10 +1460,11 @@ export default function TeamCanvasTool() {
                   <p className="text-sm text-gray-600">Select all that apply:</p>
 
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {teamWinOptions.map((option) => (
+                    {teamWinOptions.map((option, index) => (
                       <button
                         key={option}
                         onClick={() => toggleTeamWin(option)}
+                        autoFocus={index === 0}
                         className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 text-sm ${
                           teamData.teamWins.includes(option)
                             ? 'bg-[#FFA851] text-white'

@@ -464,6 +464,7 @@ export default function UserGuidePage() {
             
             <textarea
               value={userData.workingConditions}
+              autoFocus
               onChange={(e) => setUserData({...userData, workingConditions: e.target.value})}
               placeholder="Explain your ideal working conditions. For example: 'I do my best work in a quiet environment with minimal interruptions' or 'I thrive in collaborative spaces with background energy'"
               className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y"
@@ -485,9 +486,10 @@ export default function UserGuidePage() {
                 { key: 'evening', label: 'Evening (5pm-8pm)' },
                 { key: 'late', label: 'Night owl (after 8pm)' },
                 { key: 'weekends', label: 'Weekends' },
-              ].map(({ key, label }) => (
+              ].map(({ key, label }, index) => (
                 <button
                   key={key}
+                  autoFocus={index === 0}
                   onClick={() => setUserData({
                     ...userData,
                     hoursOfOperation: {
@@ -530,9 +532,10 @@ export default function UserGuidePage() {
                   { key: 'text', label: 'Text' },
                   { key: 'zoom', label: 'Video call' },
                   { key: 'slack', label: 'Slack/Chat' },
-                ].map(({ key, label }) => (
+                ].map(({ key, label }, index) => (
                   <button
                     key={key}
+                    autoFocus={index === 0}
                     onClick={() => setUserData({
                       ...userData,
                       communicationMethods: {
@@ -586,6 +589,7 @@ export default function UserGuidePage() {
               value={userData.feedbackPreferences}
               onChange={(e) => setUserData({...userData, feedbackPreferences: e.target.value})}
               placeholder="Share how you prefer to receive recognition and constructive feedback. For example: 'I appreciate specific examples in feedback' or 'I prefer private recognition over public praise'"
+              autoFocus
               className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y"
             />
             
@@ -605,6 +609,7 @@ export default function UserGuidePage() {
               value={userData.biggestNeeds}
               onChange={(e) => setUserData({...userData, biggestNeeds: e.target.value})}
               placeholder="Share what you need most to thrive. For example: 'Clear expectations and autonomy to execute' or 'Regular check-ins and collaborative brainstorming'"
+              autoFocus
               className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y"
             />
             
@@ -626,6 +631,7 @@ export default function UserGuidePage() {
               value={userData.personalStruggles}
               onChange={(e) => setUserData({...userData, personalStruggles: e.target.value})}
               placeholder="Share what you find challenging. For example: 'I can be a perfectionist which sometimes slows me down' or 'I tend to take on too much and need help prioritizing'"
+              autoFocus
               className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y"
             />
             
@@ -657,6 +663,7 @@ export default function UserGuidePage() {
                     setUserData({...userData, thingsILove: newThings})
                   }}
                   placeholder={`Thing #${index + 1} I love...`}
+                  autoFocus={index === 0}
                   className="flex-1 p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9]"
                 />
               </div>
@@ -674,6 +681,7 @@ export default function UserGuidePage() {
               value={userData.thingsAboutMe}
               onChange={(e) => setUserData({...userData, thingsAboutMe: e.target.value})}
               placeholder="Share anything else that helps people understand you better. Hobbies, fun facts, pet peeves, superpowers..."
+              autoFocus
               className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y"
             />
             

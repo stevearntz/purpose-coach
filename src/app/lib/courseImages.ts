@@ -26,7 +26,7 @@ export const courseImageMapping: { [key: string]: string } = {
   's24': '/images/sessions/Strategic Thinking.png',
   's25': '/images/sessions/Setting & Achieving Goals.png',
   's26': '/images/sessions/Lead Effective Meetings.png',
-  's27': '/images/sessions/Campfire Kickoff.png',
+ '/images/sessions/Campfire Kickoff.png',
   's28': '/images/sessions/Deliver Feedback.png',
   's29': '/images/sessions/Campfire Kickoff.png', // Campfire Storytelling - using Kickoff image
   's30': '/images/sessions/Career Conversations.png', // Career Mapping
@@ -36,8 +36,8 @@ export const courseImageMapping: { [key: string]: string } = {
   's34': '/images/sessions/Hopes, Fears, and Expectations.png',
   's35': '/images/sessions/Conscious Communication.png', // Collaborate Intentionally - using Conscious Communication
   's36': '/images/sessions/Candid Communication.png',
-  's37': '/images/sessions/Inspire with Vision.png', // Alignment & Momentum - using Inspire with Vision
-  's38': '/images/sessions/Develop Your Team.png', // Improving Together - using Develop Your Team
+ '/images/sessions/Inspire with Vision.png', // Alignment & Momentum - using Inspire with Vision
+ '/images/sessions/Develop Your Team.png', // Improving Together - using Develop Your Team
   's39': '/images/sessions/Foster Belonging.png', // Connected Leadership - using Foster Belonging
   's40': '/images/sessions/Curiosity in Conversations.png', // Curiosity in Sales - using Curiosity in Conversations
   's41': '/images/sessions/Foster Belonging.png', // Leading with Compassion - using Foster Belonging

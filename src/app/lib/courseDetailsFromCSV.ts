@@ -261,13 +261,6 @@ export const courseDetailsFromCSV: { [key: string]: CourseDetailCSV } = {
     howToPrepare: 'How important is it to you to feel recognized for the work you do, and how do you feel when your work isn\'t recognized?\nDo you understand the difference between reward-based and behavior-based recognition, and which one should you prioritize on your team?\n\nEveryone wants to feel recognized for the work they do, but often, recognition doesn\'t happen as often as it should. When leaders make it a goal to recognize their team\'s efforts and positive behaviors regularly, team culture and engagement will flourish, and team members will be motivated to continuously perform at their highest levels.'
   },
   // Add remaining courses that don't have CSV data
-  's27': {
-    id: 's27',
-    title: 'Campfire Kickoff',
-    description: 'Grow in your career by using the Campfire Platform, content, and learning principles.',
-    actionToTake: '',
-    howToPrepare: ''
-  },
   's29': {
     id: 's29',
     title: 'Campfire Storytelling',
@@ -278,20 +271,6 @@ export const courseDetailsFromCSV: { [key: string]: CourseDetailCSV } = {
   's35': {
     id: 's35',
     title: 'Collaborate Intentionally',
-    description: 'Learn key concepts and practical strategies to enhance your leadership skills and team performance.',
-    actionToTake: '',
-    howToPrepare: ''
-  },
-  's37': {
-    id: 's37',
-    title: 'Alignment & Momentum',
-    description: 'Learn key concepts and practical strategies to enhance your leadership skills and team performance.',
-    actionToTake: '',
-    howToPrepare: ''
-  },
-  's38': {
-    id: 's38',
-    title: 'Improving Together',
     description: 'Learn key concepts and practical strategies to enhance your leadership skills and team performance.',
     actionToTake: '',
     howToPrepare: ''

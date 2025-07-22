@@ -12,7 +12,6 @@ export const challengeCourseMappings: { [key: string]: Course[] } = {
     { id: 's6', title: 'Inspire with Vision', description: 'Create shared understanding of organizational direction', duration: '2 weeks' },
     { id: 's15', title: 'Define Your Leadership Brand', description: 'Establish your unique leadership identity', duration: '3 weeks' },
     { id: 's25', title: 'Setting and Achieving Goals', description: 'Learn to set and cascade meaningful goals', duration: '2 weeks' },
-    { id: 's37', title: 'Alignment & Momentum', description: 'Build alignment and maintain momentum', duration: '3 weeks' },
     { id: 's24', title: 'Strategic Thinking', description: 'Develop strategic thinking capabilities', duration: '3 weeks' },
     { id: 's30', title: 'Career Mapping', description: 'Create clarity around purpose and strategic alignment', duration: '3 weeks' },
     { id: 's11', title: 'The Art of Recognition', description: 'Create shared understanding of organizational direction', duration: '2 weeks' },
@@ -28,10 +27,7 @@ export const challengeCourseMappings: { [key: string]: Course[] } = {
     { id: 's39', title: 'Connected Leadership', description: 'Build connections that matter', duration: '3 weeks' },
     { id: 's18', title: 'Curiosity in Conversations', description: 'Foster curiosity in your interactions', duration: '2 weeks' },
     { id: 's25', title: 'Setting and Achieving Goals', description: 'Learn to set and cascade meaningful goals', duration: '2 weeks' },
-    { id: 's37', title: 'Alignment & Momentum', description: 'Build alignment and maintain momentum', duration: '3 weeks' },
     { id: 's11', title: 'The Art of Recognition', description: 'Create shared understanding of organizational direction', duration: '2 weeks' },
-    { id: 's27', title: 'Campfire Kickoff', description: 'Create a strong foundation for change', duration: '2 weeks' },
-    { id: 's38', title: 'Improving Together', description: 'Navigate change through continuous improvement', duration: '2 weeks' },
     { id: 's6', title: 'Inspire with Vision', description: 'Create shared understanding of organizational direction', duration: '2 weeks' }
   ],
   'c3': [ // Feedback + Trust
@@ -42,7 +38,6 @@ export const challengeCourseMappings: { [key: string]: Course[] } = {
     { id: 's34', title: 'Hopes Fears and Expectations', description: 'Navigate team dynamics effectively', duration: '2 weeks' },
     { id: 's33', title: 'Inclusive Leadership', description: 'Foster trust through inclusive practices', duration: '3 weeks' },
     { id: 's41', title: 'Leading with Compassion', description: 'Lead with empathy and compassion', duration: '3 weeks' },
-    { id: 's38', title: 'Improving Together', description: 'Build trust through continuous improvement', duration: '2 weeks' }
   ],
   'c4': [ // Empowering Others
     { id: 's10', title: 'Successful Delegation', description: 'Learn to delegate effectively and build capability', duration: '2 weeks' },
@@ -62,7 +57,6 @@ export const challengeCourseMappings: { [key: string]: Course[] } = {
     { id: 's31', title: 'Conscious Communication', description: 'Communicate with intention and clarity', duration: '2 weeks' },
     { id: 's40', title: 'Curiosity in Sales', description: 'Make decisions through strategic questioning', duration: '2 weeks' },
     { id: 's25', title: 'Setting and Achieving Goals', description: 'Learn to set and cascade meaningful goals', duration: '2 weeks' },
-    { id: 's37', title: 'Alignment & Momentum', description: 'Build alignment and maintain momentum', duration: '3 weeks' }
   ],
   'c6': [ // Well-Being
     { id: 's7', title: 'Manage Burnout', description: 'Prevent and address burnout', duration: '3 weeks' },
@@ -81,7 +75,6 @@ export const challengeCourseMappings: { [key: string]: Course[] } = {
     { id: 's3', title: 'Constructive Conflict', description: 'Navigate conflict productively', duration: '2 weeks' },
     { id: 's4', title: 'Deliberate Listening', description: 'Listen with intention and presence', duration: '2 weeks' },
     { id: 's39', title: 'Connected Leadership', description: 'Build connections that matter', duration: '3 weeks' },
-    { id: 's38', title: 'Improving Together', description: 'Collaborate for continuous improvement', duration: '2 weeks' },
     { id: 's40', title: 'Curiosity in Sales', description: 'Communicate with curiosity and influence', duration: '2 weeks' }
   ],
   'c8': [ // Skill Building

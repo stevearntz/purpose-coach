@@ -50,24 +50,37 @@ export default function NavigationHeader({
           onShare={action.onClick as () => Promise<string>}
           variant="secondary"
           className={variant === 'light' 
-            ? 'px-6 py-2.5 bg-white/10 text-white rounded-lg font-semibold hover:bg-white/20 transition-colors backdrop-blur-sm border border-white/20'
-            : 'px-6 py-2.5 bg-white text-iris-500 rounded-lg font-semibold hover:bg-gray-50 transition-colors border border-gray-200'
+            ? 'px-3 sm:px-6 py-2.5 bg-white/10 text-white rounded-lg font-semibold hover:bg-white/20 transition-colors backdrop-blur-sm border border-white/20'
+            : 'px-3 sm:px-6 py-2.5 bg-white text-iris-500 rounded-lg font-semibold hover:bg-gray-50 transition-colors border border-gray-200'
           }
         >
           <Share2 className="w-4 h-4" />
-          <span>{action.label || 'Share'}</span>
+          <span className="hidden sm:inline">{action.label || 'Share'}</span>
         </ShareButton>
       );
     }
 
     // Regular button for other actions
     const baseClass = action.variant === 'primary' 
-      ? 'px-6 py-2.5 bg-iris-500 text-white rounded-lg font-semibold hover:bg-iris-700 transition-colors'
+      ? 'px-3 sm:px-6 py-2.5 bg-iris-500 text-white rounded-lg font-semibold hover:bg-iris-700 transition-colors'
       : variant === 'light'
-      ? 'px-6 py-2.5 bg-white/10 text-white rounded-lg font-semibold hover:bg-white/20 transition-colors backdrop-blur-sm border border-white/20'
-      : 'px-6 py-2.5 bg-white text-iris-500 rounded-lg font-semibold hover:bg-gray-50 transition-colors border border-gray-200';
+      ? 'px-3 sm:px-6 py-2.5 bg-white/10 text-white rounded-lg font-semibold hover:bg-white/20 transition-colors backdrop-blur-sm border border-white/20'
+      : 'px-3 sm:px-6 py-2.5 bg-white text-iris-500 rounded-lg font-semibold hover:bg-gray-50 transition-colors border border-gray-200';
 
     const icon = action.type === 'print' ? <Printer className="w-4 h-4" /> : null;
+
+    // For Demo button (custom type), show only text
+    if (action.type === 'custom' && action.label?.toLowerCase().includes('demo')) {
+      return (
+        <button
+          key={index}
+          onClick={action.onClick}
+          className={baseClass}
+        >
+          <span className="uppercase text-xs tracking-wider">Demo</span>
+        </button>
+      );
+    }
 
     return (
       <button
@@ -76,7 +89,11 @@ export default function NavigationHeader({
         className={`${baseClass} flex items-center gap-2`}
       >
         {icon}
-        {action.label || (action.type === 'print' ? 'Print' : '')}
+        {action.type === 'print' ? (
+          <span className="hidden sm:inline">{action.label || 'Print'}</span>
+        ) : (
+          <span>{action.label || ''}</span>
+        )}
       </button>
     );
   };

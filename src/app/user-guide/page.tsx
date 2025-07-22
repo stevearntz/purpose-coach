@@ -384,25 +384,30 @@ export default function UserGuidePage() {
                     setShowResults(false)
                     setCurrentSectionIndex(sections.length - 1)
                   }}
-                  className="text-[#2A74B9] hover:text-[#215A91] flex items-center gap-2 font-medium"
+                  className="text-[#2A74B9] hover:text-[#215A91] flex items-center gap-2 font-medium text-sm sm:text-base"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  BACK
+                  <span className="uppercase tracking-wider">Back</span>
                 </button>
-                <div className="flex gap-4">
+                <div className="flex gap-2 sm:gap-4">
                   <button
                     onClick={() => window.print()}
-                    className="p-3 border-2 border-[#2A74B9]/50 text-[#2A74B9] rounded-lg hover:border-[#2A74B9] hover:bg-[#2A74B9]/10 transition-all"
+                    className="p-2.5 sm:p-3 border-2 border-[#2A74B9]/50 text-[#2A74B9] rounded-lg hover:border-[#2A74B9] hover:bg-[#2A74B9]/10 transition-all"
                     title="Print guide"
                   >
                     <Printer className="w-5 h-5" />
                   </button>
-                  <ShareButton
-                    onShare={handleShare}
-                    className="bg-[#2A74B9] hover:bg-[#215A91]"
+                  <button
+                    onClick={async () => {
+                      const fullUrl = await handleShare()
+                      navigator.clipboard.writeText(fullUrl)
+                      alert('Share link copied to clipboard!')
+                    }}
+                    className="px-3 sm:px-6 py-2.5 bg-[#2A74B9] hover:bg-[#215A91] text-white rounded-lg font-semibold transition-colors"
                   >
-                    SHARE
-                  </ShareButton>
+                    <Share2 className="w-5 h-5 inline sm:hidden" />
+                    <span className="hidden sm:inline uppercase tracking-wider">Share</span>
+                  </button>
                 </div>
               </div>
               

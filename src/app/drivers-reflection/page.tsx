@@ -883,25 +883,30 @@ export default function CareerDriversTool() {
                     onClick={() => {
                       setCurrentStage(stages.length - 2)
                     }}
-                    className="text-[#30B859] hover:text-[#2AA34F] flex items-center gap-2 font-medium"
+                    className="text-[#30B859] hover:text-[#2AA34F] flex items-center gap-2 font-medium text-sm sm:text-base"
                   >
                     <ArrowLeft className="w-4 h-4" />
-                    BACK
+                    <span className="uppercase tracking-wider">Back</span>
                   </button>
-                  <div className="flex gap-4">
+                  <div className="flex gap-2 sm:gap-4">
                     <button
                       onClick={() => window.print()}
-                      className="p-3 border-2 border-[#30B859]/50 text-[#30B859] rounded-lg hover:border-[#30B859] hover:bg-[#30B859]/10 transition-all"
+                      className="p-2.5 sm:p-3 border-2 border-[#30B859]/50 text-[#30B859] rounded-lg hover:border-[#30B859] hover:bg-[#30B859]/10 transition-all"
                       title="Print results"
                     >
                       <Printer className="w-5 h-5" />
                     </button>
-                    <ShareButton
-                      onShare={handleShare}
-                      className="bg-[#30B859] hover:bg-[#2AA34F]"
+                    <button
+                      onClick={async () => {
+                        const fullUrl = await handleShare()
+                        navigator.clipboard.writeText(fullUrl)
+                        alert('Share link copied to clipboard!')
+                      }}
+                      className="px-3 sm:px-6 py-2.5 bg-[#30B859] hover:bg-[#2AA34F] text-white rounded-lg font-semibold transition-colors"
                     >
-                      SHARE
-                    </ShareButton>
+                      <Share2 className="w-5 h-5 inline sm:hidden" />
+                      <span className="hidden sm:inline uppercase tracking-wider">Share</span>
+                    </button>
                   </div>
                 </div>
               </div>

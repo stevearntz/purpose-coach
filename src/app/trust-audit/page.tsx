@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, ArrowRight, Printer, Shield } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Printer, Shield, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
 import ToolLayout from '@/components/ToolLayout'
@@ -459,18 +459,18 @@ export default function TrustAuditPage() {
                     setShowResults(false)
                     setCurrentQuestionIndex(questions.length - 1)
                   }}
-                  className="text-[#DB4839] hover:text-[#B93A2F] flex items-center gap-2 font-medium"
+                  className="text-[#DB4839] hover:text-[#B93A2F] flex items-center gap-2 font-medium text-sm sm:text-base"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  BACK
+                  <span className="uppercase tracking-wider">Back</span>
                 </button>
-                <div className="flex gap-4">
+                <div className="flex gap-2 sm:gap-4">
                   <button
                     onClick={() => {
                       analytics.trackDownload('Print', 'Trust Audit')
                       window.print()
                     }}
-                    className="p-3 border-2 border-[#DB4839]/50 text-[#DB4839] rounded-lg hover:border-[#DB4839] hover:bg-[#DB4839]/10 transition-all"
+                    className="p-2.5 sm:p-3 border-2 border-[#DB4839]/50 text-[#DB4839] rounded-lg hover:border-[#DB4839] hover:bg-[#DB4839]/10 transition-all"
                     title="Print results"
                   >
                     <Printer className="w-5 h-5" />
@@ -510,9 +510,10 @@ export default function TrustAuditPage() {
                       
                       return shareUrl
                     }}
-                    className="bg-[#DB4839] hover:bg-[#C73229]"
+                    className="px-3 sm:px-6 py-2.5 bg-[#DB4839] hover:bg-[#C73229] text-white rounded-lg font-semibold transition-colors"
                   >
-                    SHARE
+                    <Share2 className="w-5 h-5" />
+                    <span className="hidden sm:inline uppercase tracking-wider">Share</span>
                   </ShareButton>
                 </div>
               </div>

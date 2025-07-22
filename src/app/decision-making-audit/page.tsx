@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, ArrowRight, Printer, Brain } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Printer, Brain, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
 import { toolConfigs } from '@/lib/toolConfigs'
@@ -359,21 +359,21 @@ export default function DecisionMakingAuditPage() {
                     setShowResults(false)
                     setCurrentQuestionIndex(questions.length - 1)
                   }}
-                  className="text-[#3C36FF] hover:text-[#302CC6] flex items-center gap-2 font-medium"
+                  className="text-[#3C36FF] hover:text-[#302CC6] flex items-center gap-2 font-medium text-sm sm:text-base"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  BACK
+                  <span className="uppercase tracking-wider">Back</span>
                 </button>
-                <div className="flex gap-4">
+                <div className="flex gap-2 sm:gap-4">
                   <button
                     onClick={() => window.print()}
-                    className="p-3 border-2 border-[#3C36FF]/50 text-[#3C36FF] rounded-lg hover:border-[#3C36FF] hover:bg-[#3C36FF]/10 transition-all"
+                    className="p-2.5 sm:p-3 border-2 border-[#3C36FF]/50 text-[#3C36FF] rounded-lg hover:border-[#3C36FF] hover:bg-[#3C36FF]/10 transition-all"
                     title="Print results"
                   >
                     <Printer className="w-5 h-5" />
                   </button>
-                  <ShareButton
-                    onShare={async () => {
+                  <button
+                    onClick={async () => {
                       const { dimensions, total } = calculateScores()
                       const readinessLevel = total >= 16 ? 'Well Prepared' : total >= 10 ? 'Moderately Prepared' : 'Needs More Work'
                       
@@ -405,12 +405,14 @@ export default function DecisionMakingAuditPage() {
                       const { url } = await response.json()
                       const fullUrl = `${window.location.origin}${url}`
                       
-                      return fullUrl
+                      navigator.clipboard.writeText(fullUrl)
+                      alert('Share link copied to clipboard!')
                     }}
-                    className="bg-[#3C36FF] hover:bg-[#302CC6]"
+                    className="px-3 sm:px-6 py-2.5 bg-[#3C36FF] hover:bg-[#302CC6] text-white rounded-lg font-semibold transition-colors"
                   >
-                    SHARE
-                  </ShareButton>
+                    <Share2 className="w-5 h-5 inline sm:hidden" />
+                    <span className="hidden sm:inline uppercase tracking-wider">Share</span>
+                  </button>
                 </div>
               </div>
               

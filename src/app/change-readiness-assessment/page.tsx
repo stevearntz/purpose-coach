@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, ArrowRight, Printer } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Printer, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
 import { toolConfigs } from '@/lib/toolConfigs'
@@ -359,21 +359,21 @@ export default function ChangeReadinessPage() {
                     setShowResults(false)
                     setCurrentQuestionIndex(questions.length - 1)
                   }}
-                  className="text-[#BF4C74] hover:text-[#A63D5F] flex items-center gap-2 font-medium"
+                  className="text-[#BF4C74] hover:text-[#A63D5F] flex items-center gap-2 font-medium text-sm sm:text-base"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  BACK
+                  <span className="uppercase tracking-wider">Back</span>
                 </button>
-                <div className="flex gap-4">
+                <div className="flex gap-2 sm:gap-4">
                   <button
                     onClick={() => window.print()}
-                    className="p-3 border-2 border-[#BF4C74]/50 text-[#BF4C74] rounded-lg hover:border-[#BF4C74] hover:bg-[#BF4C74]/10 transition-all"
+                    className="p-2.5 sm:p-3 border-2 border-[#BF4C74]/50 text-[#BF4C74] rounded-lg hover:border-[#BF4C74] hover:bg-[#BF4C74]/10 transition-all"
                     title="Print results"
                   >
                     <Printer className="w-5 h-5" />
                   </button>
-                  <ShareButton
-                    onShare={async () => {
+                  <button
+                    onClick={async () => {
                       const { dimensions, total } = calculateScores()
                       const overallReadiness = getChangeReadinessLevel(total)
                       
@@ -405,12 +405,14 @@ export default function ChangeReadinessPage() {
                       const { url } = await response.json()
                       const fullUrl = `${window.location.origin}${url}`
                       
-                      return fullUrl
+                      navigator.clipboard.writeText(fullUrl)
+                      alert('Share link copied to clipboard!')
                     }}
-                    className="bg-[#BF4C74] hover:bg-[#A63D5F]"
+                    className="px-3 sm:px-6 py-2.5 bg-[#BF4C74] hover:bg-[#A63D5F] text-white rounded-lg font-semibold transition-colors"
                   >
-                    SHARE
-                  </ShareButton>
+                    <Share2 className="w-5 h-5 inline sm:hidden" />
+                    <span className="hidden sm:inline uppercase tracking-wider">Share</span>
+                  </button>
                 </div>
               </div>
               

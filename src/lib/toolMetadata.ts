@@ -22,7 +22,7 @@ export const toolsMetadata: Record<string, ToolMetadataConfig> = {
     description: 'Assess and strengthen trust in your key relationships with a comprehensive trust evaluation framework.',
     ogImage: '/og-trust-audit.png'
   },
-  'change-readiness': {
+  'change-readiness-assessment': {
     name: 'Change Readiness Assessment',
     description: 'Evaluate your preparedness for change and develop strategies to navigate transitions with confidence.',
     ogImage: '/og-change-readiness.png'

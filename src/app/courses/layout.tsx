@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Campfire Catalog',
+  title: 'Campfire Workshops',
   description: 'Explore our library of evidence-based workshops designed to address your biggest leadership and team challenges.',
   openGraph: {
-    title: 'Campfire Catalog',
+    title: 'Campfire Workshops',
     description: 'Explore our library of evidence-based workshops designed to address your biggest leadership and team challenges.',
     url: 'https://tools.getcampfire.com/courses',
     siteName: 'Campfire',
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
         url: 'https://tools.getcampfire.com/og-courses.png',
         width: 1200,
         height: 630,
-        alt: 'Campfire Catalog - Leadership Development Workshops',
+        alt: 'Campfire Workshops - Leadership Development',
       },
     ],
     locale: 'en_US',
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Campfire Catalog',
+    title: 'Campfire Workshops',
     description: 'Explore our library of evidence-based workshops designed to address your biggest leadership and team challenges.',
     images: ['https://tools.getcampfire.com/og-courses.png'],
     site: '@campfire',

@@ -299,7 +299,7 @@ export default function ChangeReadinessPage() {
                       const overallReadiness = getChangeReadinessLevel(total)
                       
                       const shareData = {
-                        type: 'change-readiness',
+                        type: 'change-readiness-assessment',
                         toolName: 'Change Readiness Assessment',
                         results: {
                           changeContext,

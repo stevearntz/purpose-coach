@@ -28,7 +28,7 @@ interface TeamData {
 }
 
 const stages = [
-  { id: 'intro', title: 'Team Canvas', icon: Users },
+  { id: 'intro', title: 'Team Charter', icon: Users },
   { id: 'purpose', title: 'Purpose', icon: Target },
   { id: 'people', title: 'People & Roles', icon: Users },
   { id: 'values', title: 'Values', icon: Heart },
@@ -38,7 +38,7 @@ const stages = [
   { id: 'weaknesses', title: 'Weaknesses & Risks', icon: Shield },
   { id: 'solo-wins', title: 'Solo Wins', icon: Trophy },
   { id: 'team-wins', title: 'Team Wins', icon: Trophy },
-  { id: 'results', title: 'Your Team Canvas', icon: Users }
+  { id: 'results', title: 'Your Team Charter', icon: Users }
 ]
 
 const valueOptions = [
@@ -369,7 +369,7 @@ export default function TeamCanvasTool() {
                 </div>
                 
                 <div className="space-y-4">
-                  <h1 className="text-5xl font-bold text-white">Team Canvas</h1>
+                  <h1 className="text-5xl font-bold text-white">Team Charter</h1>
                   <p className="text-xl text-white/90 max-w-xl mx-auto">
                     Map your team's composition, strengths, and opportunities for growth in a comprehensive visual framework.
                   </p>
@@ -412,14 +412,14 @@ export default function TeamCanvasTool() {
                 <button
                   onClick={async () => {
                     if (isEmailValid && userEmail) {
-                      await captureEmailForTool(userEmail, 'Team Canvas', 't1');
+                      await captureEmailForTool(userEmail, 'Team Charter', 't1');
                     }
                     handleNext();
                   }}
                   disabled={!teamData.teamName || !isEmailValid}
                   className="px-8 py-4 bg-white text-[#FFA851] rounded-xl font-semibold text-lg hover:bg-white/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Start Building Your Canvas
+                  Start Building Your Charter
                 </button>
 
                 <p className="text-white/70 text-sm">

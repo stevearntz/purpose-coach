@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: 'My Change Readiness Assessment Results - Campfire',
       description: 'View my change readiness assessment across People, Purpose, and Principles dimensions to navigate change with confidence.',
-      url: `${baseUrl}/change-readiness/share/${id}`,
+      url: `${baseUrl}/change-readiness-assessment/share/${id}`,
       siteName: 'Campfire',
       images: [
         {

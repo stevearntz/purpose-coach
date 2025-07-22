@@ -134,8 +134,8 @@ const tools: Tool[] = [
     challenges: ['decision-making']
   },
   {
-    id: 'change-readiness',
-    path: '/change-readiness',
+    id: 'change-readiness-assessment',
+    path: '/change-readiness-assessment',
     title: 'Change Readiness Assessment',
     subtitle: 'Navigate change confidently',
     description: 'Assess your readiness for change and identify where you need support.',

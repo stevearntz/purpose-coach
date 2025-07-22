@@ -1,6 +1,6 @@
 import { generateToolMetadata } from '@/lib/toolMetadata'
 
-export const metadata = generateToolMetadata('career-drivers')
+export const metadata = generateToolMetadata('drivers-reflection')
 
 export default function CareerDriversLayout({
   children,

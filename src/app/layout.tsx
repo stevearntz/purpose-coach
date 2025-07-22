@@ -11,13 +11,13 @@ const leagueSpartan = League_Spartan({
 })
 
 export const metadata: Metadata = {
-  title: 'The Campfire Hub',
+  title: 'Campfire Tools Hub',
   description: 'Solve your biggest leadership and team challenges—starting now. Get instant access to tools, workshops, and personalized recommendations to help you lead better, align your team, and build a culture that performs.',
   keywords: 'purpose, coaching, self-discovery, personal development, values, strengths, clarity, relationships, career',
   authors: [{ name: 'Campfire' }],
   metadataBase: new URL('https://tools.getcampfire.com'),
   openGraph: {
-    title: 'The Campfire Hub',
+    title: 'Campfire Tools Hub',
     description: 'Solve your biggest leadership and team challenges—starting now. Get instant access to tools, workshops, and personalized recommendations.',
     url: 'https://tools.getcampfire.com',
     siteName: 'Campfire',
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'The Campfire Hub',
+    title: 'Campfire Tools Hub',
     description: 'Solve your biggest leadership and team challenges—starting now. Get instant access to tools, workshops, and personalized recommendations.',
     images: ['https://tools.getcampfire.com/og-tools-hub-new.jpg'],
     site: '@campfire',

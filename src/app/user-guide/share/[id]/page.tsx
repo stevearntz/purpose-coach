@@ -7,10 +7,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const baseUrl = 'https://tools.getcampfire.com'
   
   return {
-    title: 'My Working with Me Guide - Campfire',
+    title: 'My User Guide - Campfire',
     description: 'Learn how to work effectively with me - my communication style, work preferences, and collaboration tips.',
     openGraph: {
-      title: 'My Working with Me Guide - Campfire',
+      title: 'My User Guide - Campfire',
       description: 'Learn how to work effectively with me - my communication style, work preferences, and collaboration tips.',
       url: `${baseUrl}/user-guide/share/${id}`,
       siteName: 'Campfire',
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'My Working with Me Guide - Campfire',
+      title: 'My User Guide - Campfire',
       description: 'Learn how to work effectively with me - my communication style, work preferences, and collaboration tips.',
       images: [`${baseUrl}/og-user-guide-share.png`],
       site: '@campfire',

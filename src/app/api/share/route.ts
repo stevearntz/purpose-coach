@@ -296,7 +296,7 @@ export async function POST(request: NextRequest) {
       'burnout-assessment',
       'trust-audit',
       'decision-making-audit',
-      'change-readiness',
+      'change-readiness-assessment',
       'user-guide'
     ];
     

@@ -1,6 +1,6 @@
 import { generateToolMetadata } from '@/lib/toolMetadata'
 
-export const metadata = generateToolMetadata('hopes-fears-expectations')
+export const metadata = generateToolMetadata('expectations-reflection')
 
 export default function HopesFearsExpectationsLayout({
   children,

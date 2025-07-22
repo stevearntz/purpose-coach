@@ -23,6 +23,7 @@ export default function ChangeReadinessPage() {
   const analytics = useAnalytics()
   const { email, hasStoredEmail, captureEmailForTool } = useEmailCapture()
   const [showIntro, setShowIntro] = useState(true)
+  const [showChangeContext, setShowChangeContext] = useState(false)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<Answer[]>([])
   const [showResults, setShowResults] = useState(false)
@@ -113,32 +114,38 @@ export default function ChangeReadinessPage() {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       // Number keys 1-5 for selecting options
-      if (e.key >= '1' && e.key <= '5' && !showIntro && !showResults) {
+      if (e.key >= '1' && e.key <= '5' && !showIntro && !showChangeContext && !showResults) {
         const value = parseInt(e.key)
         handleAnswer(value, true) // Pass true for auto-advance
       }
       
       // Arrow keys for navigation
-      if (e.key === 'ArrowLeft' && !showIntro && !showResults && currentQuestionIndex > 0) {
+      if (e.key === 'ArrowLeft' && !showIntro && !showChangeContext && !showResults && currentQuestionIndex > 0) {
         handlePrevious()
       }
       
-      if (e.key === 'ArrowRight' && !showIntro && !showResults && getCurrentAnswer()) {
+      if (e.key === 'ArrowRight' && !showIntro && !showChangeContext && !showResults && getCurrentAnswer()) {
         handleNext()
       }
       
       // Enter key for starting the assessment on intro
-      if (e.key === 'Enter' && showIntro && changeContext.trim() && isEmailValid) {
+      if (e.key === 'Enter' && showIntro && isEmailValid) {
         if (isEmailValid && userEmail) {
           captureEmailForTool(userEmail, 'Change Readiness', 'cr');
         }
         setShowIntro(false)
+        setShowChangeContext(true)
+      }
+      
+      // Enter key for continuing from change context
+      if (e.key === 'Enter' && showChangeContext && changeContext.trim()) {
+        setShowChangeContext(false)
       }
     }
     
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [showIntro, showResults, currentQuestionIndex, changeContext, isEmailValid, userEmail])
+  }, [showIntro, showChangeContext, showResults, currentQuestionIndex, changeContext, isEmailValid, userEmail, captureEmailForTool])
   
   const calculateScores = () => {
     const dimensions = ['people', 'purpose', 'principles'] as const
@@ -188,19 +195,16 @@ export default function ChangeReadinessPage() {
         </div>
         
         <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20 max-w-2xl w-full">
-          <h3 className="text-3xl font-bold text-white text-center mb-6">What change are you facing?</h3>
-          
           <div className="space-y-6">
-            <p className="text-xl text-white/90 text-center">
-              Briefly describe the change you're navigating.
-            </p>
-            
             <div className="space-y-4">
+              <label className="block text-lg font-medium text-white/90">
+                What's your email?
+              </label>
               <input
                 type="email"
                 value={userEmail}
                 onChange={handleEmailChange}
-                placeholder="Your email..."
+                placeholder="you@company.com"
                 className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
                 autoComplete="email"
               />
@@ -209,14 +213,6 @@ export default function ChangeReadinessPage() {
                   Welcome back! We've pre-filled your email.
                 </p>
               )}
-              
-              <textarea
-                value={changeContext}
-                onChange={(e) => setChangeContext(e.target.value)}
-                placeholder="e.g., Team restructuring, new technology implementation, role transition..."
-              className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg min-h-[100px] resize-y"
-              required
-            />
             </div>
             
             <button
@@ -225,15 +221,73 @@ export default function ChangeReadinessPage() {
                   await captureEmailForTool(userEmail, 'Change Readiness', 'cr');
                 }
                 setShowIntro(false);
+                setShowChangeContext(true);
               }}
-              disabled={!changeContext.trim() || !isEmailValid}
+              disabled={!isEmailValid}
               className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
-                changeContext.trim() && isEmailValid
+                isEmailValid
                   ? 'bg-white text-[#BF4C74] hover:bg-white/90'
                   : 'bg-white/50 text-[#BF4C74]/50 cursor-not-allowed'
               }`}
             >
               Start Change Readiness Assessment
+            </button>
+            
+            <p className="text-white/70 text-sm text-center">
+              This will take about 5-7 minutes to complete
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Change Context Screen
+  if (showChangeContext) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#FCA376] via-[#E37A75] to-[#BF4C74] flex flex-col items-center justify-center p-4">
+        <Link 
+          href="/?screen=4" 
+          className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back to Plan
+        </Link>
+        
+        <Link 
+          href="/toolkit" 
+          className="absolute top-8 right-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
+        >
+          All Tools
+          <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
+        </Link>
+        
+        <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20 max-w-2xl w-full">
+          <h3 className="text-3xl font-bold text-white text-center mb-6">What change are you facing?</h3>
+          
+          <div className="space-y-6">
+            <p className="text-xl text-white/90 text-center">
+              Briefly describe the change you're navigating.
+            </p>
+            
+            <textarea
+              value={changeContext}
+              onChange={(e) => setChangeContext(e.target.value)}
+              placeholder="e.g., Team restructuring, new technology implementation, role transition..."
+              className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg min-h-[100px] resize-y"
+              autoFocus
+            />
+            
+            <button
+              onClick={() => setShowChangeContext(false)}
+              disabled={!changeContext.trim()}
+              className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
+                changeContext.trim()
+                  ? 'bg-white text-[#BF4C74] hover:bg-white/90'
+                  : 'bg-white/50 text-[#BF4C74]/50 cursor-not-allowed'
+              }`}
+            >
+              Continue
             </button>
           </div>
         </div>

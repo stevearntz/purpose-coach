@@ -127,7 +127,7 @@ export default async function ChangeReadinessSharePage({ params }: Props) {
   return (
     <ToolSharePage 
       shareId={id}
-      toolPath="/change-readiness"
+      toolPath="/change-readiness-assessment"
       toolConfig={{
         title: config.title,
         gradient: 'from-[#FCA376] to-[#BF4C74]'

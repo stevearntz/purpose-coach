@@ -82,6 +82,7 @@ export default function TrustAuditPage() {
   const [showResults, setShowResults] = useState(false)
   const [relationshipName, setRelationshipName] = useState('')
   const [showIntro, setShowIntro] = useState(true)
+  const [showRelationshipInput, setShowRelationshipInput] = useState(false)
   const [startTime] = useState(Date.now())
   const [userEmail, setUserEmail] = useState('')
   const [isEmailValid, setIsEmailValid] = useState(false)
@@ -112,11 +113,11 @@ export default function TrustAuditPage() {
 
   // Track progress
   useEffect(() => {
-    if (!showIntro && !showResults) {
+    if (!showIntro && !showRelationshipInput && !showResults) {
       const progress = ((currentQuestionIndex + 1) / questions.length) * 100
       analytics.trackToolProgress('Trust Audit', `Question ${currentQuestionIndex + 1}`, progress)
     }
-  }, [currentQuestionIndex, showIntro, showResults])
+  }, [currentQuestionIndex, showIntro, showRelationshipInput, showResults])
 
   // Helper function to format name as sentence case
   const formatName = (name: string) => {
@@ -174,32 +175,38 @@ export default function TrustAuditPage() {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       // Number keys 1-5 for selecting options
-      if (e.key >= '1' && e.key <= '5' && !showIntro && !showResults) {
+      if (e.key >= '1' && e.key <= '5' && !showIntro && !showRelationshipInput && !showResults) {
         const value = parseInt(e.key)
         handleAnswer(value, true) // Pass true for auto-advance
       }
       
       // Arrow keys for navigation
-      if (e.key === 'ArrowLeft' && !showIntro && !showResults && currentQuestionIndex > 0) {
+      if (e.key === 'ArrowLeft' && !showIntro && !showRelationshipInput && !showResults && currentQuestionIndex > 0) {
         handlePrevious()
       }
       
-      if (e.key === 'ArrowRight' && !showIntro && !showResults && getCurrentAnswer()) {
+      if (e.key === 'ArrowRight' && !showIntro && !showRelationshipInput && !showResults && getCurrentAnswer()) {
         handleNext()
       }
       
       // Enter key for starting the assessment on intro
-      if (e.key === 'Enter' && showIntro && relationshipName.trim() && isEmailValid) {
+      if (e.key === 'Enter' && showIntro && isEmailValid) {
         if (isEmailValid && userEmail) {
           captureEmailForTool(userEmail, 'Trust Audit', 'ta');
         }
         setShowIntro(false)
+        setShowRelationshipInput(true)
+      }
+      
+      // Enter key for continuing from relationship input
+      if (e.key === 'Enter' && showRelationshipInput && relationshipName.trim()) {
+        setShowRelationshipInput(false)
       }
     }
     
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [showIntro, showResults, currentQuestionIndex, relationshipName, isEmailValid, userEmail])
+  }, [showIntro, showRelationshipInput, showResults, currentQuestionIndex, relationshipName, isEmailValid, userEmail, captureEmailForTool])
 
   const calculateScores = () => {
     const sections = ['integrity', 'competence', 'empathy'] as const
@@ -289,20 +296,16 @@ export default function TrustAuditPage() {
         </div>
         
         <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20 max-w-2xl w-full">
-          <h3 className="text-3xl font-bold text-white text-center mb-6">Pick a relationship</h3>
-          
           <div className="space-y-6">
-            <div className="text-xl text-white/90 text-center">
-              <p>This audit focuses on your relationship with one person.</p>
-              <p>Who would you like to build trust with?</p>
-            </div>
-            
             <div className="space-y-4">
+              <label className="block text-lg font-medium text-white/90">
+                What's your email?
+              </label>
               <input
                 type="email"
                 value={userEmail}
                 onChange={handleEmailChange}
-                placeholder="Your email..."
+                placeholder="you@company.com"
                 className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
                 autoComplete="email"
               />
@@ -311,15 +314,6 @@ export default function TrustAuditPage() {
                   Welcome back! We've pre-filled your email.
                 </p>
               )}
-              
-              <input
-                type="text"
-                value={relationshipName}
-                onChange={(e) => setRelationshipName(e.target.value)}
-                placeholder="Enter their first name..."
-                className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
-                required
-              />
             </div>
             
             <button
@@ -328,15 +322,75 @@ export default function TrustAuditPage() {
                   await captureEmailForTool(userEmail, 'Trust Audit', 'ta');
                 }
                 setShowIntro(false);
+                setShowRelationshipInput(true);
               }}
-              disabled={!relationshipName.trim() || !isEmailValid}
+              disabled={!isEmailValid}
               className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
-                relationshipName.trim() && isEmailValid
+                isEmailValid
                   ? 'bg-white text-[#DB4839] hover:bg-white/90'
                   : 'bg-white/50 text-[#DB4839]/50 cursor-not-allowed'
               }`}
             >
               Start Trust Audit
+            </button>
+            
+            <p className="text-white/70 text-sm text-center">
+              This will take about 5-7 minutes to complete
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Relationship Input Screen
+  if (showRelationshipInput) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#FFA62A] via-[#FF7B47] to-[#DB4839] flex flex-col items-center justify-center p-4">
+        <Link 
+          href="/?screen=4" 
+          className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back to Plan
+        </Link>
+        
+        <Link 
+          href="/toolkit" 
+          className="absolute top-8 right-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
+        >
+          All Tools
+          <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
+        </Link>
+        
+        <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20 max-w-2xl w-full">
+          <h3 className="text-3xl font-bold text-white text-center mb-6">Pick a relationship</h3>
+          
+          <div className="space-y-6">
+            <div className="text-xl text-white/90 text-center">
+              <p>This audit focuses on your relationship with one person.</p>
+              <p>Who would you like to build trust with?</p>
+            </div>
+            
+            <input
+              type="text"
+              value={relationshipName}
+              onChange={(e) => setRelationshipName(e.target.value)}
+              placeholder="Enter their first name..."
+              className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+              autoFocus
+            />
+            
+            <button
+              onClick={() => setShowRelationshipInput(false)}
+              disabled={!relationshipName.trim()}
+              className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
+                relationshipName.trim()
+                  ? 'bg-white text-[#DB4839] hover:bg-white/90'
+                  : 'bg-white/50 text-[#DB4839]/50 cursor-not-allowed'
+              }`}
+            >
+              Continue
             </button>
           </div>
         </div>

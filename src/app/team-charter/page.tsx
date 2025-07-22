@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowRight, Users, Target, Heart, Zap, TrendingUp, Shield, Trophy, Sparkles, ArrowLeft, Download, Share2, X } from 'lucide-react'
+import { ArrowRight, Users, Target, Heart, Zap, TrendingUp, Shield, Trophy, Sparkles, ArrowLeft, Download, Share2, X, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import jsPDF from 'jspdf'
@@ -170,12 +170,17 @@ export default function TeamCanvasTool() {
     }
   }
 
-  const handlePersonAdd = (index: number) => {
+  const handlePersonAdd = () => {
     const updatedPeople = [...teamData.people]
-    if (updatedPeople[index].name.trim()) {
-      updatedPeople.push({ name: '', role: '' })
-      setTeamData({ ...teamData, people: updatedPeople })
-    }
+    updatedPeople.push({ name: '', role: '' })
+    setTeamData({ ...teamData, people: updatedPeople })
+    
+    // Focus on the new name input after adding
+    setTimeout(() => {
+      const nameInputs = document.querySelectorAll('input[placeholder="Team member name..."]')
+      const lastInput = nameInputs[nameInputs.length - 1] as HTMLInputElement
+      lastInput?.focus()
+    }, 50)
   }
 
   const handlePersonChange = (index: number, field: 'name' | 'role', value: string) => {
@@ -595,8 +600,9 @@ export default function TeamCanvasTool() {
                           value={person.name}
                           onChange={(e) => handlePersonChange(index, 'name', e.target.value)}
                           onKeyPress={(e) => {
-                            if (e.key === 'Enter' && person.name.trim()) {
-                              handlePersonAdd(index)
+                            if (e.key === 'Enter') {
+                              e.preventDefault()
+                              handlePersonAdd()
                             }
                           }}
                           placeholder="Team member name..."
@@ -606,13 +612,29 @@ export default function TeamCanvasTool() {
                           type="text"
                           value={person.role}
                           onChange={(e) => handlePersonChange(index, 'role', e.target.value)}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault()
+                              handlePersonAdd()
+                            }
+                          }}
                           placeholder="Role..."
                           className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFA851]"
                         />
                       </div>
                     ))}
+                    
+                    <button
+                      type="button"
+                      onClick={handlePersonAdd}
+                      className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-[#FFA851] hover:bg-[#FFA851]/5 transition-colors flex items-center justify-center gap-2 text-gray-600 hover:text-[#FFA851]"
+                    >
+                      <Plus className="w-5 h-5" />
+                      <span>Add team member</span>
+                    </button>
+                    
                     <p className="text-sm text-gray-500 text-center">
-                      Press Enter after typing a name to add another team member
+                      Press Enter to add another team member
                     </p>
                   </div>
                 </div>

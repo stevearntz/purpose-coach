@@ -23,6 +23,7 @@ export default function DecisionMakingAuditPage() {
   const analytics = useAnalytics()
   const { email, hasStoredEmail, captureEmailForTool } = useEmailCapture()
   const [showIntro, setShowIntro] = useState(true)
+  const [showDecisionContext, setShowDecisionContext] = useState(false)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<Answer[]>([])
   const [showResults, setShowResults] = useState(false)
@@ -63,10 +64,10 @@ export default function DecisionMakingAuditPage() {
 
   // Track progress
   useEffect(() => {
-    if (!showIntro && !showResults) {
+    if (!showIntro && !showDecisionContext && !showResults) {
       analytics.trackToolProgress('Decision Making Audit', `Question ${currentQuestionIndex + 1}`, progress)
     }
-  }, [currentQuestionIndex, showIntro, showResults])
+  }, [currentQuestionIndex, showIntro, showDecisionContext, showResults])
   
   const handleAnswer = (value: number, autoAdvance: boolean = false) => {
     const newAnswers = [...answers.filter(a => a.questionId !== currentQuestion.id)]
@@ -112,32 +113,38 @@ export default function DecisionMakingAuditPage() {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       // Number keys 1-5 for selecting options
-      if (e.key >= '1' && e.key <= '5' && !showIntro && !showResults) {
+      if (e.key >= '1' && e.key <= '5' && !showIntro && !showDecisionContext && !showResults) {
         const value = parseInt(e.key)
         handleAnswer(value, true) // Pass true for auto-advance
       }
       
       // Arrow keys for navigation
-      if (e.key === 'ArrowLeft' && !showIntro && !showResults && currentQuestionIndex > 0) {
+      if (e.key === 'ArrowLeft' && !showIntro && !showDecisionContext && !showResults && currentQuestionIndex > 0) {
         handlePrevious()
       }
       
-      if (e.key === 'ArrowRight' && !showIntro && !showResults && getCurrentAnswer()) {
+      if (e.key === 'ArrowRight' && !showIntro && !showDecisionContext && !showResults && getCurrentAnswer()) {
         handleNext()
       }
       
       // Enter key for starting the assessment on intro
-      if (e.key === 'Enter' && showIntro && decisionContext.trim() && isEmailValid) {
+      if (e.key === 'Enter' && showIntro && isEmailValid) {
         if (isEmailValid && userEmail) {
           captureEmailForTool(userEmail, 'Decision Making Audit', 'dma');
         }
         setShowIntro(false)
+        setShowDecisionContext(true)
+      }
+      
+      // Enter key for continuing from decision context
+      if (e.key === 'Enter' && showDecisionContext && decisionContext.trim()) {
+        setShowDecisionContext(false)
       }
     }
     
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [showIntro, showResults, currentQuestionIndex, decisionContext, isEmailValid, userEmail])
+  }, [showIntro, showDecisionContext, showResults, currentQuestionIndex, decisionContext, isEmailValid, userEmail, captureEmailForTool])
   
   const calculateScores = () => {
     const dimensions = ['people', 'purpose', 'principles', 'outcomes'] as const
@@ -188,19 +195,16 @@ export default function DecisionMakingAuditPage() {
         </div>
         
         <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20 max-w-2xl w-full">
-          <h3 className="text-3xl font-bold text-white text-center mb-6">What decision are you facing?</h3>
-          
           <div className="space-y-6">
-            <p className="text-xl text-white/90 text-center">
-              Briefly describe the decision you need to make.
-            </p>
-            
             <div className="space-y-4">
+              <label className="block text-lg font-medium text-white/90">
+                What's your email?
+              </label>
               <input
                 type="email"
                 value={userEmail}
                 onChange={handleEmailChange}
-                placeholder="Your email..."
+                placeholder="you@company.com"
                 className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
                 autoComplete="email"
               />
@@ -209,14 +213,6 @@ export default function DecisionMakingAuditPage() {
                   Welcome back! We've pre-filled your email.
                 </p>
               )}
-              
-              <textarea
-                value={decisionContext}
-                onChange={(e) => setDecisionContext(e.target.value)}
-                placeholder="e.g., Should we expand into a new market? Which vendor should we choose?"
-                className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg min-h-[100px] resize-y"
-                required
-              />
             </div>
             
             <button
@@ -225,15 +221,73 @@ export default function DecisionMakingAuditPage() {
                   await captureEmailForTool(userEmail, 'Decision Making Audit', 'dma');
                 }
                 setShowIntro(false);
+                setShowDecisionContext(true);
               }}
-              disabled={!decisionContext.trim() || !isEmailValid}
+              disabled={!isEmailValid}
               className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
-                decisionContext.trim() && isEmailValid
+                isEmailValid
                   ? 'bg-white text-[#3C36FF] hover:bg-white/90'
                   : 'bg-white/50 text-[#3C36FF]/50 cursor-not-allowed'
               }`}
             >
               Start Decision Making Audit
+            </button>
+            
+            <p className="text-white/70 text-sm text-center">
+              This will take about 5-7 minutes to complete
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Decision Context Screen
+  if (showDecisionContext) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#6DC7FF] via-[#5581FF] to-[#3C36FF] flex flex-col items-center justify-center p-4">
+        <Link 
+          href="/?screen=4" 
+          className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back to Plan
+        </Link>
+        
+        <Link 
+          href="/toolkit" 
+          className="absolute top-8 right-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
+        >
+          All Tools
+          <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
+        </Link>
+        
+        <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20 max-w-2xl w-full">
+          <h3 className="text-3xl font-bold text-white text-center mb-6">What decision are you facing?</h3>
+          
+          <div className="space-y-6">
+            <p className="text-xl text-white/90 text-center">
+              Briefly describe the decision you need to make.
+            </p>
+            
+            <textarea
+              value={decisionContext}
+              onChange={(e) => setDecisionContext(e.target.value)}
+              placeholder="e.g., Should we expand into a new market? Which vendor should we choose?"
+              className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg min-h-[100px] resize-y"
+              autoFocus
+            />
+            
+            <button
+              onClick={() => setShowDecisionContext(false)}
+              disabled={!decisionContext.trim()}
+              className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
+                decisionContext.trim()
+                  ? 'bg-white text-[#3C36FF] hover:bg-white/90'
+                  : 'bg-white/50 text-[#3C36FF]/50 cursor-not-allowed'
+              }`}
+            >
+              Continue
             </button>
           </div>
         </div>

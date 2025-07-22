@@ -25,6 +25,7 @@ export default function UserGuidePage() {
   const analytics = useAnalytics()
   const { email, hasStoredEmail, captureEmailForTool } = useEmailCapture()
   const [showIntro, setShowIntro] = useState(true)
+  const [showNameInput, setShowNameInput] = useState(false)
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
   const [showResults, setShowResults] = useState(false)
   const [userEmail, setUserEmail] = useState('')
@@ -88,10 +89,10 @@ export default function UserGuidePage() {
 
   // Track progress
   useEffect(() => {
-    if (!showIntro && !showResults) {
+    if (!showIntro && !showNameInput && !showResults) {
       analytics.trackToolProgress('Working With Me', currentSection.title, progress)
     }
-  }, [currentSectionIndex, showIntro, showResults])
+  }, [currentSectionIndex, showIntro, showNameInput, showResults])
   
   const handleNext = () => {
     if (currentSectionIndex < sections.length - 1) {
@@ -153,26 +154,32 @@ export default function UserGuidePage() {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       // Enter key for starting on intro
-      if (e.key === 'Enter' && showIntro && userData.name.trim() && isEmailValid) {
+      if (e.key === 'Enter' && showIntro && isEmailValid) {
         if (isEmailValid && userEmail) {
           captureEmailForTool(userEmail, 'Working With Me', 'wwm');
         }
         setShowIntro(false)
+        setShowNameInput(true)
+      }
+      
+      // Enter key for continuing from name input
+      if (e.key === 'Enter' && showNameInput && userData.name.trim()) {
+        setShowNameInput(false)
       }
       
       // Arrow keys for navigation
-      if (e.key === 'ArrowLeft' && !showIntro && !showResults && currentSectionIndex > 0) {
+      if (e.key === 'ArrowLeft' && !showIntro && !showNameInput && !showResults && currentSectionIndex > 0) {
         handlePrevious()
       }
       
-      if (e.key === 'ArrowRight' && !showIntro && !showResults) {
+      if (e.key === 'ArrowRight' && !showIntro && !showNameInput && !showResults) {
         handleNext()
       }
     }
     
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [showIntro, showResults, currentSectionIndex, userData.name, isEmailValid, userEmail])
+  }, [showIntro, showNameInput, showResults, currentSectionIndex, isEmailValid, userEmail, userData.name, captureEmailForTool])
   
 
   // Intro Screen
@@ -209,19 +216,16 @@ export default function UserGuidePage() {
         </div>
         
         <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20 max-w-2xl w-full">
-          <h3 className="text-3xl font-bold text-white text-center mb-6">Let's start with your name</h3>
-          
           <div className="space-y-6">
-            <p className="text-xl text-white/90 text-center">
-              What should people call you?
-            </p>
-            
             <div className="space-y-4">
+              <label className="block text-lg font-medium text-white/90">
+                What's your email?
+              </label>
               <input
                 type="email"
                 value={userEmail}
                 onChange={handleEmailChange}
-                placeholder="Your email..."
+                placeholder="you@company.com"
                 className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
                 autoComplete="email"
               />
@@ -230,15 +234,6 @@ export default function UserGuidePage() {
                   Welcome back! We've pre-filled your email.
                 </p>
               )}
-              
-              <input
-                type="text"
-                value={userData.name}
-                onChange={(e) => setUserData({...userData, name: e.target.value})}
-                placeholder="Enter your name..."
-                className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
-                required
-              />
             </div>
             
             <button
@@ -247,15 +242,80 @@ export default function UserGuidePage() {
                   await captureEmailForTool(userEmail, 'Working With Me', 'wwm');
                 }
                 setShowIntro(false);
+                setShowNameInput(true);
               }}
-              disabled={!userData.name.trim() || !isEmailValid}
+              disabled={!isEmailValid}
               className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
-                userData.name.trim() && isEmailValid
+                isEmailValid
                   ? 'bg-white text-[#2A74B9] hover:bg-white/90'
                   : 'bg-white/50 text-[#2A74B9]/50 cursor-not-allowed'
               }`}
             >
               Build My User Guide
+            </button>
+            
+            <p className="text-white/70 text-sm text-center">
+              This will take about 5-7 minutes to complete
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Name Input Screen
+  if (showNameInput) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#30C7C7] via-[#4DA0E0] to-[#2A74B9] flex flex-col items-center justify-center p-4">
+        <Link 
+          href="/?screen=4" 
+          className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back to Plan
+        </Link>
+        
+        <Link 
+          href="/toolkit" 
+          className="absolute top-8 right-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
+        >
+          All Tools
+          <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
+        </Link>
+        
+        <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20 max-w-2xl w-full">
+          <h3 className="text-3xl font-bold text-white text-center mb-6">Let's start with your name</h3>
+          
+          <div className="space-y-6">
+            <p className="text-xl text-white/90 text-center">
+              What should people call you?
+            </p>
+            
+            <input
+              type="text"
+              value={userData.name}
+              onChange={(e) => setUserData({...userData, name: e.target.value})}
+              placeholder="Enter your full name..."
+              className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+              autoFocus
+            />
+            
+            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg border border-white/20">
+              <p className="text-sm text-white/90">
+                💡 Tip: Include your full name since multiple people may create user guides
+              </p>
+            </div>
+            
+            <button
+              onClick={() => setShowNameInput(false)}
+              disabled={!userData.name.trim()}
+              className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
+                userData.name.trim()
+                  ? 'bg-white text-[#2A74B9] hover:bg-white/90'
+                  : 'bg-white/50 text-[#2A74B9]/50 cursor-not-allowed'
+              }`}
+            >
+              Continue
             </button>
           </div>
         </div>

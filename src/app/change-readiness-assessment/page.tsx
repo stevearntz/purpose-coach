@@ -577,7 +577,6 @@ export default function ChangeReadinessPage() {
                 <button
                   key={option.value}
                   onClick={() => handleAnswer(option.value, false)} // No auto-advance on click
-                  autoFocus={index === 0}
                   className={`w-full p-4 rounded-xl text-left transition-all duration-200 border-2 ${
                     getCurrentAnswer() === option.value
                       ? 'bg-gradient-to-r from-[#F595B6] to-[#BF4C74] text-white border-[#BF4C74] shadow-lg'

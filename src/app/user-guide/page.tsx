@@ -478,7 +478,6 @@ export default function UserGuidePage() {
               ].map(({ key, label }, index) => (
                 <button
                   key={key}
-                  autoFocus={index === 0}
                   onClick={() => setUserData({
                     ...userData,
                     hoursOfOperation: {
@@ -524,8 +523,7 @@ export default function UserGuidePage() {
                 ].map(({ key, label }, index) => (
                   <button
                     key={key}
-                    autoFocus={index === 0}
-                    onClick={() => setUserData({
+                      onClick={() => setUserData({
                       ...userData,
                       communicationMethods: {
                         ...userData.communicationMethods,
@@ -652,7 +650,6 @@ export default function UserGuidePage() {
                     setUserData({...userData, thingsILove: newThings})
                   }}
                   placeholder={`Thing #${index + 1} I love...`}
-                  autoFocus={index === 0}
                   className="flex-1 p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9]"
                 />
               </div>

@@ -683,7 +683,6 @@ export default function TeamCanvasTool() {
                             }
                           }}
                           placeholder="Team member name..."
-                          autoFocus={index === 0}
                           className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFA851]"
                         />
                         <input
@@ -788,7 +787,6 @@ export default function TeamCanvasTool() {
                       <button
                         key={value}
                         onClick={() => toggleValue(value)}
-                        autoFocus={index === 0}
                         className={`px-4 py-2 rounded-full font-medium transition-all duration-200 ${
                           teamData.values.includes(value)
                             ? 'bg-[#FFA851] text-white'
@@ -897,7 +895,6 @@ export default function TeamCanvasTool() {
                       <button
                         key={option.id}
                         onClick={() => setTeamData({ ...teamData, impact: option.label })}
-                        autoFocus={index === 0}
                         className={`p-4 rounded-xl border-2 transition-all duration-200 ${
                           teamData.impact === option.label
                             ? 'border-[#FFA851] bg-[#FFA851]/10'
@@ -1010,7 +1007,6 @@ export default function TeamCanvasTool() {
                             setTeamData({ ...teamData, activities: updated })
                           }}
                           placeholder={`Activity ${index + 1}...`}
-                          autoFocus={index === 0}
                           className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFA851]"
                         />
                       </div>
@@ -1112,7 +1108,6 @@ export default function TeamCanvasTool() {
                         <button
                           key={strength}
                           onClick={() => toggleStrength(strength)}
-                          autoFocus={index === 0}
                           disabled={teamData.strengths.length >= 3 && !teamData.strengths.includes(strength)}
                           className={`px-4 py-2 rounded-full font-medium transition-all duration-200 ${
                             teamData.strengths.includes(strength)
@@ -1230,7 +1225,6 @@ export default function TeamCanvasTool() {
                       {weaknessOptions.map((weakness, index) => (
                         <button
                           key={weakness}
-                          autoFocus={index === 0}
                           onClick={() => toggleWeakness(weakness)}
                           disabled={teamData.weaknesses.length >= 3 && !teamData.weaknesses.includes(weakness)}
                           className={`px-4 py-2 rounded-full font-medium transition-all duration-200 ${
@@ -1329,7 +1323,6 @@ export default function TeamCanvasTool() {
                       <button
                         key={option}
                         onClick={() => toggleSoloWin(option)}
-                        autoFocus={index === 0}
                         className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 text-sm ${
                           teamData.soloWins.includes(option)
                             ? 'bg-[#FFA851] text-white'
@@ -1432,7 +1425,6 @@ export default function TeamCanvasTool() {
                       <button
                         key={option}
                         onClick={() => toggleTeamWin(option)}
-                        autoFocus={index === 0}
                         className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 text-sm ${
                           teamData.teamWins.includes(option)
                             ? 'bg-[#FFA851] text-white'

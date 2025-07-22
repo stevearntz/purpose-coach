@@ -323,9 +323,11 @@ export default function ToolsIndexPage() {
                   })}
                 </div>
 
-                {/* Hover Arrow */}
-                <div className="absolute bottom-8 right-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <ArrowRight className="w-6 h-6 text-white" />
+                {/* Arrow Indicator - Always visible on mobile, hover on desktop */}
+                <div className="absolute bottom-8 right-8 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="p-2 bg-white/10 rounded-full backdrop-blur-sm">
+                    <ArrowRight className="w-5 h-5 text-white/80" />
+                  </div>
                 </div>
               </div>
             </Link>
@@ -342,13 +344,26 @@ export default function ToolsIndexPage() {
         )}
       </div>
 
+      {/* Book Demo Button */}
+      <div className="px-4 pb-8 max-w-7xl mx-auto">
+        <div className="text-center">
+          <button
+            onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}
+            className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-semibold text-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+          >
+            <span className="sm:hidden">Book Demo</span>
+            <span className="hidden sm:inline">Book a Demo</span>
+          </button>
+        </div>
+      </div>
+
       {/* Coming Soon Section */}
-      <div className="px-4 py-16 max-w-7xl mx-auto">
-        <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-12 border border-white/10 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
+      <div className="px-4 py-16 pb-24 max-w-7xl mx-auto">
+        <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 sm:p-12 border border-white/10 text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
             More Tools Coming Soon
           </h2>
-          <p className="text-lg text-white/70 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto">
             We're continuously developing new tools to help you tackle workplace challenges. 
             Have a specific need? Let us know what tools would be most helpful for you.
           </p>

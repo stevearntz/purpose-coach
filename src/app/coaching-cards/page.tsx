@@ -388,7 +388,7 @@ export default function CoachingCardsTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#87AE05] hover:text-[#7A9F06] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -496,7 +496,7 @@ export default function CoachingCardsTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#87AE05] hover:text-[#7A9F06] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -600,7 +600,7 @@ export default function CoachingCardsTool() {
             <div className="max-w-4xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#87AE05] hover:text-[#7A9F06] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -710,7 +710,7 @@ export default function CoachingCardsTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#87AE05] hover:text-[#7A9F06] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -820,7 +820,7 @@ export default function CoachingCardsTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#87AE05] hover:text-[#7A9F06] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -919,7 +919,7 @@ export default function CoachingCardsTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#87AE05] hover:text-[#7A9F06] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />

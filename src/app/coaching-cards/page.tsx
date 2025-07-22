@@ -780,7 +780,7 @@ export default function CoachingCardsTool() {
                                 [questionIndex]: e.target.value
                               })}
                               placeholder="Write your thoughts here..."
-                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#87AE05] min-h-[120px] resize-none"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#87AE05] min-h-[120px] resize-none placeholder-gray-500"
                             />
                           </div>
                         </div>
@@ -883,7 +883,7 @@ export default function CoachingCardsTool() {
                       value={challengeSolution}
                       onChange={(e) => setChallengeSolution(e.target.value)}
                       placeholder="Describe your solution or approach..."
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#87AE05] min-h-[150px] resize-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#87AE05] min-h-[150px] resize-none placeholder-gray-500"
                     />
                   </div>
                 </div>
@@ -971,7 +971,7 @@ export default function CoachingCardsTool() {
                       value={nextStep}
                       onChange={(e) => setNextStep(e.target.value)}
                       placeholder="Be specific: What will you do? When? How will you know it's complete?"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#87AE05] min-h-[120px] resize-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#87AE05] min-h-[120px] resize-none placeholder-gray-500"
                     />
                   </div>
 

@@ -521,7 +521,7 @@ export default function CareerDriversTool() {
             <div className="max-w-4xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#30B859] hover:text-[#2AA34F] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -640,7 +640,7 @@ export default function CareerDriversTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#30B859] hover:text-[#2AA34F] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -766,7 +766,7 @@ export default function CareerDriversTool() {
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
                 <button
-                  onClick={() => setShowIntro(true)}
+                  onClick={() => setCurrentStage(0)}
                   className="text-[#30B859] hover:text-[#2AA34F] flex items-center gap-2 mb-4 font-medium transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -829,7 +829,7 @@ export default function CareerDriversTool() {
                         meaning: e.target.value
                       })}
                       placeholder="Describe what this driver looks like in your ideal work environment..."
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30B859] min-h-[120px] resize-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30B859] min-h-[120px] resize-none placeholder-gray-500"
                     />
                   </div>
 
@@ -844,7 +844,7 @@ export default function CareerDriversTool() {
                         why: e.target.value
                       })}
                       placeholder="Explain why this matters so much to you..."
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30B859] min-h-[120px] resize-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30B859] min-h-[120px] resize-none placeholder-gray-500"
                     />
                   </div>
                 </div>

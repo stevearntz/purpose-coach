@@ -456,7 +456,7 @@ export default function UserGuidePage() {
               autoFocus
               onChange={(e) => setUserData({...userData, workingConditions: e.target.value})}
               placeholder="Explain your ideal working conditions. For example: 'I do my best work in a quiet environment with minimal interruptions' or 'I thrive in collaborative spaces with background energy'"
-              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y"
+              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y placeholder-gray-500"
             />
           </div>
         )
@@ -500,7 +500,7 @@ export default function UserGuidePage() {
               value={userData.shareHours}
               onChange={(e) => setUserData({...userData, shareHours: e.target.value})}
               placeholder="Share more about your hours. For example: 'My hours vary but I protect my mornings for deep work'"
-              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[100px] resize-y"
+              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[100px] resize-y placeholder-gray-500"
             />
           </div>
         )
@@ -549,7 +549,7 @@ export default function UserGuidePage() {
                 value={userData.responseExpectations}
                 onChange={(e) => setUserData({...userData, responseExpectations: e.target.value})}
                 placeholder="e.g., Within 24 hours for emails, 2 hours for urgent Slack messages"
-                className="w-full mt-2 p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9]"
+                className="w-full mt-2 p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] placeholder-gray-500"
               />
             </div>
             
@@ -560,7 +560,7 @@ export default function UserGuidePage() {
                 value={userData.meetingPreferences}
                 onChange={(e) => setUserData({...userData, meetingPreferences: e.target.value})}
                 placeholder="e.g., I prefer agendas sent 24 hours in advance"
-                className="w-full mt-2 p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9]"
+                className="w-full mt-2 p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] placeholder-gray-500"
               />
             </div>
           </div>
@@ -577,7 +577,7 @@ export default function UserGuidePage() {
               onChange={(e) => setUserData({...userData, feedbackPreferences: e.target.value})}
               placeholder="Share how you prefer to receive recognition and constructive feedback. For example: 'I appreciate specific examples in feedback' or 'I prefer private recognition over public praise'"
               autoFocus
-              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y"
+              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y placeholder-gray-500"
             />
             
             <p className="text-sm text-gray-500 text-center">
@@ -597,7 +597,7 @@ export default function UserGuidePage() {
               onChange={(e) => setUserData({...userData, biggestNeeds: e.target.value})}
               placeholder="Share what you need most to thrive. For example: 'Clear expectations and autonomy to execute' or 'Regular check-ins and collaborative brainstorming'"
               autoFocus
-              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y"
+              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y placeholder-gray-500"
             />
             
             <div className="bg-blue-50 p-4 rounded-lg">
@@ -619,7 +619,7 @@ export default function UserGuidePage() {
               onChange={(e) => setUserData({...userData, personalStruggles: e.target.value})}
               placeholder="Share what you find challenging. For example: 'I can be a perfectionist which sometimes slows me down' or 'I tend to take on too much and need help prioritizing'"
               autoFocus
-              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y"
+              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y placeholder-gray-500"
             />
             
             <div className="bg-purple-50 p-4 rounded-lg">
@@ -650,7 +650,7 @@ export default function UserGuidePage() {
                     setUserData({...userData, thingsILove: newThings})
                   }}
                   placeholder={`Thing #${index + 1} I love...`}
-                  className="flex-1 p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9]"
+                  className="flex-1 p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] placeholder-gray-500"
                 />
               </div>
             ))}
@@ -668,7 +668,7 @@ export default function UserGuidePage() {
               onChange={(e) => setUserData({...userData, thingsAboutMe: e.target.value})}
               placeholder="Share anything else that helps people understand you better. Hobbies, fun facts, pet peeves, superpowers..."
               autoFocus
-              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y"
+              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2A74B9] text-base min-h-[150px] resize-y placeholder-gray-500"
             />
             
             <div className="bg-green-50 p-4 rounded-lg">

@@ -675,7 +675,7 @@ export default function HopesFearsTool() {
                             setHopes(newHopes)
                           }}
                           placeholder={hopeQuestions[index]}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3E37FF] min-h-[80px] resize-none"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3E37FF] min-h-[80px] resize-none placeholder-gray-500"
                         />
                       </div>
                     ))}
@@ -786,7 +786,7 @@ export default function HopesFearsTool() {
                             setFears(newFears)
                           }}
                           placeholder={fearQuestions[index]}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3E37FF] min-h-[80px] resize-none"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3E37FF] min-h-[80px] resize-none placeholder-gray-500"
                         />
                       </div>
                     ))}
@@ -897,7 +897,7 @@ export default function HopesFearsTool() {
                             setExpectations(newExpectations)
                           }}
                           placeholder={expectationQuestions[index]}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3E37FF] min-h-[80px] resize-none"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3E37FF] min-h-[80px] resize-none placeholder-gray-500"
                         />
                       </div>
                     ))}

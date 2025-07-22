@@ -31,6 +31,7 @@ export default function UserGuidePage() {
   const [userEmail, setUserEmail] = useState('')
   const [isEmailValid, setIsEmailValid] = useState(false)
   const [startTime] = useState(Date.now())
+  const [completedSections, setCompletedSections] = useState<Set<number>>(new Set())
   const [userData, setUserData] = useState<UserGuideData>({
     name: '',
     workingConditions: '',
@@ -95,6 +96,9 @@ export default function UserGuidePage() {
   }, [currentSectionIndex, showIntro, showNameInput, showResults])
   
   const handleNext = () => {
+    // Mark current section as completed
+    setCompletedSections(prev => new Set([...prev, currentSectionIndex]))
+    
     if (currentSectionIndex < sections.length - 1) {
       setCurrentSectionIndex(currentSectionIndex + 1)
     } else {
@@ -399,25 +403,6 @@ export default function UserGuidePage() {
                   >
                     SHARE
                   </ShareButton>
-                  <button
-                    onClick={() => {
-                      // Generate downloadable text file
-                      const content = guide.sections
-                        .map(section => `${section.title}\n${'='.repeat(section.title.length)}\n${section.content}\n`)
-                        .join('\n')
-                      const blob = new Blob([`${guide.title}\n${'='.repeat(guide.title.length)}\n\n${content}`], { type: 'text/plain' })
-                      const url = URL.createObjectURL(blob)
-                      const a = document.createElement('a')
-                      a.href = url
-                      a.download = `working-with-${userData.name.toLowerCase().replace(/\s+/g, '-')}.txt`
-                      a.click()
-                      URL.revokeObjectURL(url)
-                    }}
-                    className="px-6 py-3 border-2 border-[#2A74B9] text-[#2A74B9] rounded-lg hover:bg-[#2A74B9]/10 transition-all font-medium flex items-center gap-2"
-                  >
-                    <Download className="w-5 h-5" />
-                    DOWNLOAD
-                  </button>
                 </div>
               </div>
               
@@ -719,15 +704,15 @@ export default function UserGuidePage() {
                   <button
                     key={index}
                     onClick={() => {
-                      if (index < currentSectionIndex) {
+                      if (index <= currentSectionIndex || completedSections.has(index)) {
                         setCurrentSectionIndex(index)
                       }
                     }}
-                    disabled={index > currentSectionIndex}
+                    disabled={!completedSections.has(index) && index > currentSectionIndex}
                     className={`h-2 rounded-full transition-all ${
                       index === currentSectionIndex
                         ? 'w-8 bg-[#2A74B9]'
-                        : index < currentSectionIndex
+                        : completedSections.has(index) || index < currentSectionIndex
                         ? 'w-2 bg-[#2A74B9]/50 hover:bg-[#2A74B9]/70 cursor-pointer'
                         : 'w-2 bg-gray-300 cursor-not-allowed'
                     }`}

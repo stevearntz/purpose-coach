@@ -99,6 +99,7 @@ export default function BurnoutAssessmentPage() {
   const [startTime] = useState(Date.now())
   const [userEmail, setUserEmail] = useState('')
   const [isEmailValid, setIsEmailValid] = useState(false)
+  const [completedQuestions, setCompletedQuestions] = useState<Set<number>>(new Set())
   
   const config = toolConfigs.burnoutAssessment
 
@@ -162,6 +163,9 @@ export default function BurnoutAssessmentPage() {
   }
   
   const handleNext = () => {
+    // Mark current question as completed
+    setCompletedQuestions(prev => new Set([...prev, currentQuestionIndex]))
+    
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
     } else {
@@ -635,7 +639,7 @@ export default function BurnoutAssessmentPage() {
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-2">
+          <div className="flex justify-between items-center mb-4">
             <button
               onClick={() => setShowIntro(true)}
               className="inline-flex items-center text-[#30B859] hover:text-[#289A4D] transition-colors font-medium"
@@ -643,31 +647,32 @@ export default function BurnoutAssessmentPage() {
               <ArrowLeft className="w-5 h-5 mr-2" />
               Back
             </button>
-            <span className="text-gray-600 text-sm">
-              Question {currentQuestionIndex + 1} of {questions.length}
-            </span>
-          </div>
-          
-          <div className="flex items-center gap-2 justify-center">
-            {Array.from({ length: questions.length }).map((_, index) => (
+            <div className="flex flex-col items-end gap-1">
+              <p className="text-sm text-gray-600">
+                Question {currentQuestionIndex + 1} of {questions.length}
+              </p>
+              <div className="flex items-center gap-2">
+                {Array.from({ length: questions.length }).map((_, index) => (
               <button
                 key={index}
                 onClick={() => {
-                  if (index < currentQuestionIndex) {
+                  if (index <= currentQuestionIndex || completedQuestions.has(index)) {
                     setCurrentQuestionIndex(index)
                   }
                 }}
-                disabled={index > currentQuestionIndex}
+                disabled={!completedQuestions.has(index) && index > currentQuestionIndex}
                 className={`h-2 rounded-full transition-all ${
                   index === currentQuestionIndex
                     ? 'w-8 bg-[#30B859]'
-                    : index < currentQuestionIndex
+                    : completedQuestions.has(index) || index < currentQuestionIndex
                     ? 'w-2 bg-[#30B859]/50 hover:bg-[#30B859]/70 cursor-pointer'
                     : 'w-2 bg-gray-300 cursor-not-allowed'
                 }`}
                 aria-label={`Go to question ${index + 1}`}
               />
             ))}
+              </div>
+            </div>
           </div>
         </div>
         

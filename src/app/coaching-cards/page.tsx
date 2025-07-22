@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowRight, ArrowLeft, Download, Share2, X, Lightbulb, Users, Building2, Heart, Brain, TrendingUp, Sparkles, ShieldCheck, Target } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Download, Share2, X, Lightbulb, Users, Building2, Heart, Brain, TrendingUp, Sparkles, ShieldCheck, Target, Printer } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -962,23 +962,62 @@ export default function CoachingCardsTool() {
         const area = focusAreas[selectedCategory as keyof typeof focusAreas]?.find(a => a.id === selectedFocusArea)
         
         return (
-          <div className="min-h-screen bg-gray-50 p-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="mb-8">
-                <Link href="/" className="text-gray-600 hover:text-gray-800 flex items-center gap-2 mb-4">
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to tools
-                </Link>
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-gray-900">Your Coaching Reflection Summary</h2>
-                  <div className="flex gap-3">
+          <>
+            <style jsx>{`
+              @media print {
+                body * {
+                  visibility: hidden;
+                }
+                .print-section, .print-section * {
+                  visibility: visible;
+                }
+                .print-section {
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  width: 100%;
+                }
+                .no-print {
+                  display: none !important;
+                }
+                @page {
+                  margin: 0.5in;
+                  size: letter;
+                }
+              }
+            `}</style>
+            <div className="min-h-screen bg-gray-50 p-4 print-section">
+              <div className="max-w-4xl mx-auto">
+              <div className="mb-8 no-print">
+                <div className="flex justify-between items-center">
+                  <button
+                    onClick={() => {
+                      setCurrentStage(stages.length - 2)
+                    }}
+                    className="text-[#8AB307] hover:text-[#7A9F06] flex items-center gap-2 font-medium"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    BACK
+                  </button>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => window.print()}
+                      className="p-3 border-2 border-[#8AB307]/50 text-[#8AB307] rounded-lg hover:border-[#8AB307] hover:bg-[#8AB307]/10 transition-all"
+                      title="Print results"
+                    >
+                      <Printer className="w-5 h-5" />
+                    </button>
                     <ShareButton
                       onShare={handleShare}
-                      variant="secondary"
-                    />
+                      className="bg-[#8AB307] hover:bg-[#7A9F06]"
+                    >
+                      SHARE
+                    </ShareButton>
                   </div>
                 </div>
               </div>
+              
+              <h2 className="text-2xl font-bold text-gray-900 mb-8">Your Coaching Reflection Summary</h2>
 
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <div className="space-y-8">
@@ -1022,7 +1061,7 @@ export default function CoachingCardsTool() {
                 </div>
               </div>
 
-              <div className="mt-8 text-center">
+              <div className="mt-8 text-center no-print">
                 <p className="text-gray-600 mb-4">Ready to continue your growth journey?</p>
                 <div className="flex justify-center gap-4">
                   <button
@@ -1041,6 +1080,7 @@ export default function CoachingCardsTool() {
               </div>
             </div>
           </div>
+          </>
         )
 
       default:

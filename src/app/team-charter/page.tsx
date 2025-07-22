@@ -1,13 +1,12 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { ArrowRight, Users, Target, Heart, Zap, TrendingUp, Shield, Trophy, Sparkles, ArrowLeft, Download, Share2, X, Plus } from 'lucide-react'
+import { ArrowRight, Users, Target, Heart, Zap, TrendingUp, Shield, Trophy, Sparkles, ArrowLeft, Download, Share2, X, Plus, Lightbulb, Printer } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import jsPDF from 'jspdf'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import ShareButton from '@/components/ShareButton'
-import NavigationHeader from '@/components/NavigationHeader'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
 
 interface TeamData {
@@ -98,6 +97,7 @@ export default function TeamCanvasTool() {
   const [startTime] = useState(Date.now())
   const [userEmail, setUserEmail] = useState('')
   const [isEmailValid, setIsEmailValid] = useState(false)
+  const [completedStages, setCompletedStages] = useState<Set<number>>(new Set())
 
   useEffect(() => {
     if (hasStoredEmail && email) {
@@ -145,12 +145,19 @@ export default function TeamCanvasTool() {
   }, [currentStage])
 
   const handleNext = () => {
+    // Mark current stage as completed
+    setCompletedStages(prev => new Set([...prev, currentStage]))
+    
     if (currentStage < stages.length - 1) {
       setCurrentStage(currentStage + 1)
     }
     
     // Track completion when reaching results
     if (currentStage === stages.length - 2) {
+      // Mark all stages as completed when reaching results
+      const allStages = new Set(stages.map((_, index) => index).filter(i => i > 0))
+      setCompletedStages(allStages)
+      
       const timeSpent = Math.round((Date.now() - startTime) / 1000)
       analytics.trackToolComplete('Team Canvas', {
         teamName: teamData.teamName,
@@ -506,22 +513,22 @@ export default function TeamCanvasTool() {
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
                     <p className="text-sm text-gray-600">
-                      Step {currentStage} of {stages.length - 1}
+                      Step {currentStage} of {stages.length - 2}
                     </p>
                     <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
                       <button
                         key={s.id}
                         onClick={() => {
-                          if (index < currentStage && index > 0) {
+                          if ((index <= currentStage || completedStages.has(index)) && index > 0) {
                             setCurrentStage(index)
                           }
                         }}
-                        disabled={index > currentStage || index === 0}
+                        disabled={index === 0 || (!completedStages.has(index) && index > currentStage)}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#FFA851]'
-                            : index < currentStage
+                            : completedStages.has(index) || index < currentStage
                             ? 'w-2 bg-[#FFA851]/50 hover:bg-[#FFA851]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
@@ -620,22 +627,22 @@ export default function TeamCanvasTool() {
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
                     <p className="text-sm text-gray-600">
-                      Step {currentStage} of {stages.length - 1}
+                      Step {currentStage} of {stages.length - 2}
                     </p>
                     <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
                       <button
                         key={s.id}
                         onClick={() => {
-                          if (index < currentStage && index > 0) {
+                          if ((index <= currentStage || completedStages.has(index)) && index > 0) {
                             setCurrentStage(index)
                           }
                         }}
-                        disabled={index > currentStage || index === 0}
+                        disabled={index === 0 || (!completedStages.has(index) && index > currentStage)}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#FFA851]'
-                            : index < currentStage
+                            : completedStages.has(index) || index < currentStage
                             ? 'w-2 bg-[#FFA851]/50 hover:bg-[#FFA851]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
@@ -740,22 +747,22 @@ export default function TeamCanvasTool() {
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
                     <p className="text-sm text-gray-600">
-                      Step {currentStage} of {stages.length - 1}
+                      Step {currentStage} of {stages.length - 2}
                     </p>
                     <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
                       <button
                         key={s.id}
                         onClick={() => {
-                          if (index < currentStage && index > 0) {
+                          if ((index <= currentStage || completedStages.has(index)) && index > 0) {
                             setCurrentStage(index)
                           }
                         }}
-                        disabled={index > currentStage || index === 0}
+                        disabled={index === 0 || (!completedStages.has(index) && index > currentStage)}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#FFA851]'
-                            : index < currentStage
+                            : completedStages.has(index) || index < currentStage
                             ? 'w-2 bg-[#FFA851]/50 hover:bg-[#FFA851]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
@@ -855,22 +862,22 @@ export default function TeamCanvasTool() {
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
                     <p className="text-sm text-gray-600">
-                      Step {currentStage} of {stages.length - 1}
+                      Step {currentStage} of {stages.length - 2}
                     </p>
                     <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
                       <button
                         key={s.id}
                         onClick={() => {
-                          if (index < currentStage && index > 0) {
+                          if ((index <= currentStage || completedStages.has(index)) && index > 0) {
                             setCurrentStage(index)
                           }
                         }}
-                        disabled={index > currentStage || index === 0}
+                        disabled={index === 0 || (!completedStages.has(index) && index > currentStage)}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#FFA851]'
-                            : index < currentStage
+                            : completedStages.has(index) || index < currentStage
                             ? 'w-2 bg-[#FFA851]/50 hover:bg-[#FFA851]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
@@ -960,22 +967,22 @@ export default function TeamCanvasTool() {
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
                     <p className="text-sm text-gray-600">
-                      Step {currentStage} of {stages.length - 1}
+                      Step {currentStage} of {stages.length - 2}
                     </p>
                     <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
                       <button
                         key={s.id}
                         onClick={() => {
-                          if (index < currentStage && index > 0) {
+                          if ((index <= currentStage || completedStages.has(index)) && index > 0) {
                             setCurrentStage(index)
                           }
                         }}
-                        disabled={index > currentStage || index === 0}
+                        disabled={index === 0 || (!completedStages.has(index) && index > currentStage)}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#FFA851]'
-                            : index < currentStage
+                            : completedStages.has(index) || index < currentStage
                             ? 'w-2 bg-[#FFA851]/50 hover:bg-[#FFA851]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
@@ -1059,22 +1066,22 @@ export default function TeamCanvasTool() {
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
                     <p className="text-sm text-gray-600">
-                      Step {currentStage} of {stages.length - 1}
+                      Step {currentStage} of {stages.length - 2}
                     </p>
                     <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
                       <button
                         key={s.id}
                         onClick={() => {
-                          if (index < currentStage && index > 0) {
+                          if ((index <= currentStage || completedStages.has(index)) && index > 0) {
                             setCurrentStage(index)
                           }
                         }}
-                        disabled={index > currentStage || index === 0}
+                        disabled={index === 0 || (!completedStages.has(index) && index > currentStage)}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#FFA851]'
-                            : index < currentStage
+                            : completedStages.has(index) || index < currentStage
                             ? 'w-2 bg-[#FFA851]/50 hover:bg-[#FFA851]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
@@ -1184,22 +1191,22 @@ export default function TeamCanvasTool() {
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
                     <p className="text-sm text-gray-600">
-                      Step {currentStage} of {stages.length - 1}
+                      Step {currentStage} of {stages.length - 2}
                     </p>
                     <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
                       <button
                         key={s.id}
                         onClick={() => {
-                          if (index < currentStage && index > 0) {
+                          if ((index <= currentStage || completedStages.has(index)) && index > 0) {
                             setCurrentStage(index)
                           }
                         }}
-                        disabled={index > currentStage || index === 0}
+                        disabled={index === 0 || (!completedStages.has(index) && index > currentStage)}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#FFA851]'
-                            : index < currentStage
+                            : completedStages.has(index) || index < currentStage
                             ? 'w-2 bg-[#FFA851]/50 hover:bg-[#FFA851]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
@@ -1309,22 +1316,22 @@ export default function TeamCanvasTool() {
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
                     <p className="text-sm text-gray-600">
-                      Step {currentStage} of {stages.length - 1}
+                      Step {currentStage} of {stages.length - 2}
                     </p>
                     <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
                       <button
                         key={s.id}
                         onClick={() => {
-                          if (index < currentStage && index > 0) {
+                          if ((index <= currentStage || completedStages.has(index)) && index > 0) {
                             setCurrentStage(index)
                           }
                         }}
-                        disabled={index > currentStage || index === 0}
+                        disabled={index === 0 || (!completedStages.has(index) && index > currentStage)}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#FFA851]'
-                            : index < currentStage
+                            : completedStages.has(index) || index < currentStage
                             ? 'w-2 bg-[#FFA851]/50 hover:bg-[#FFA851]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
@@ -1418,22 +1425,22 @@ export default function TeamCanvasTool() {
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
                     <p className="text-sm text-gray-600">
-                      Step {currentStage} of {stages.length - 1}
+                      Step {currentStage} of {stages.length - 2}
                     </p>
                     <div className="flex items-center gap-2">
                     {stages.map((s, index) => (
                       <button
                         key={s.id}
                         onClick={() => {
-                          if (index < currentStage && index > 0) {
+                          if ((index <= currentStage || completedStages.has(index)) && index > 0) {
                             setCurrentStage(index)
                           }
                         }}
-                        disabled={index > currentStage || index === 0}
+                        disabled={index === 0 || (!completedStages.has(index) && index > currentStage)}
                         className={`h-2 rounded-full transition-all ${
                           index === currentStage
                             ? 'w-8 bg-[#FFA851]'
-                            : index < currentStage
+                            : completedStages.has(index) || index < currentStage
                             ? 'w-2 bg-[#FFA851]/50 hover:bg-[#FFA851]/70 cursor-pointer'
                             : 'w-2 bg-gray-300 cursor-not-allowed'
                         }`}
@@ -1516,157 +1523,8 @@ export default function TeamCanvasTool() {
 
       case 'results':
         return (
-          <div className="min-h-screen bg-gray-50">
-            <NavigationHeader
-              backTo="/toolkit"
-              backLabel="Back to Tools"
-              variant="dark"
-              rightActions={[
-                {
-                  type: 'share',
-                  onClick: handleShare,
-                  variant: 'secondary'
-                },
-                {
-                  type: 'custom',
-                  label: 'Download PDF',
-                  onClick: generatePDF,
-                  variant: 'primary'
-                }
-              ]}
-            />
-            
-            <div className="max-w-4xl mx-auto p-4">
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900">Your Team Canvas Complete!</h2>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-                <div className="space-y-8">
-                  <div>
-                    <h3 className="text-3xl font-bold text-gray-900 mb-2">{teamData.teamName}</h3>
-                    <p className="text-lg text-gray-600">{teamData.purpose.exists}</p>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-8">
-                    <div className="space-y-6">
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                          <Target className="w-5 h-5 text-[#FFA851]" />
-                          Most Important Outcome
-                        </h4>
-                        <p className="text-gray-700 pl-7">{teamData.purpose.outcome}</p>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                          <TrendingUp className="w-5 h-5 text-[#FFA851]" />
-                          Primary Impact: {teamData.impact}
-                        </h4>
-                        <p className="text-gray-700 pl-7">{teamData.impactExplanation}</p>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                          <Users className="w-5 h-5 text-[#FFA851]" />
-                          Team Members
-                        </h4>
-                        <div className="space-y-1 pl-7">
-                          {teamData.people.filter(p => p.name).map((person, index) => (
-                            <p key={index} className="text-gray-700">
-                              <span className="font-medium">{person.name}</span> - {person.role}
-                            </p>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                          <Heart className="w-5 h-5 text-[#FFA851]" />
-                          Core Values
-                        </h4>
-                        <div className="flex flex-wrap gap-2 pl-7">
-                          {teamData.values.map((value) => (
-                            <span key={value} className="px-3 py-1 bg-[#FFA851]/10 text-gray-700 rounded-full text-sm">
-                              {value}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-6">
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                          <Zap className="w-5 h-5 text-[#FFA851]" />
-                          Key Activities
-                        </h4>
-                        <ol className="space-y-1 pl-7">
-                          {teamData.activities.filter(a => a).map((activity, index) => (
-                            <li key={index} className="text-gray-700 list-decimal list-inside">
-                              {activity}
-                            </li>
-                          ))}
-                        </ol>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                          <Sparkles className="w-5 h-5 text-[#FFA851]" />
-                          Top Strengths
-                        </h4>
-                        <ul className="space-y-1 pl-7">
-                          {teamData.strengths.map((strength) => (
-                            <li key={strength} className="text-gray-700">• {strength}</li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                          <Shield className="w-5 h-5 text-[#FFA851]" />
-                          Key Risks
-                        </h4>
-                        <ul className="space-y-1 pl-7">
-                          {teamData.weaknesses.map((weakness) => (
-                            <li key={weakness} className="text-gray-700">• {weakness}</li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                          <Trophy className="w-5 h-5 text-[#FFA851]" />
-                          Recognition Methods
-                        </h4>
-                        <div className="space-y-2 pl-7">
-                          <p className="text-sm text-gray-600">Individual: {teamData.soloWins.join(', ')}</p>
-                          <p className="text-sm text-gray-600">Team: {teamData.teamWins.join(', ')}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 text-center">
-                <p className="text-gray-600 mb-4">What's next for your team?</p>
-                <div className="flex justify-center gap-4">
-                  <button
-                    onClick={() => router.push('/')}
-                    className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    Explore More Tools
-                  </button>
-                  <button
-                    onClick={() => window.location.reload()}
-                    className="px-6 py-3 bg-[#FFA851] text-white rounded-lg hover:bg-[#FF9741] transition-colors"
-                  >
-                    Create Another Canvas
-                  </button>
-                </div>
-              </div>
-            </div>
+          <div>
+            <h1>Results page</h1>
           </div>
         )
 

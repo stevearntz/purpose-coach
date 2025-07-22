@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowRight, ArrowLeft, Download, Share2, X, TrendingUp, Sparkles, Target, Heart, Shield, Globe, Lightbulb, Users, Zap, Palette, Trophy, Brain, Briefcase, Star, Gift, MessageCircle, GripVertical } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Download, Share2, X, TrendingUp, Sparkles, Target, Heart, Shield, Globe, Lightbulb, Users, Zap, Palette, Trophy, Brain, Briefcase, Star, Gift, MessageCircle, GripVertical, Printer } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import jsPDF from 'jspdf'
@@ -851,30 +851,62 @@ export default function CareerDriversTool() {
 
       case 'results':
         return (
-          <div className="min-h-screen bg-gray-50 p-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="mb-8">
-                <Link href="/" className="text-gray-600 hover:text-gray-800 flex items-center gap-2 mb-4">
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to tools
-                </Link>
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-gray-900">Your Career Drivers Map</h2>
-                  <div className="flex gap-3">
+          <>
+            <style jsx>{`
+              @media print {
+                body * {
+                  visibility: hidden;
+                }
+                .print-section, .print-section * {
+                  visibility: visible;
+                }
+                .print-section {
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  width: 100%;
+                }
+                .no-print {
+                  display: none !important;
+                }
+                @page {
+                  margin: 0.5in;
+                  size: letter;
+                }
+              }
+            `}</style>
+            <div className="min-h-screen bg-gray-50 p-4 print-section">
+              <div className="max-w-4xl mx-auto">
+              <div className="mb-8 no-print">
+                <div className="flex justify-between items-center">
+                  <button
+                    onClick={() => {
+                      setCurrentStage(stages.length - 2)
+                    }}
+                    className="text-[#30B859] hover:text-[#2AA34F] flex items-center gap-2 font-medium"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    BACK
+                  </button>
+                  <div className="flex gap-4">
                     <button
-                      onClick={generatePDF}
-                      className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                      onClick={() => window.print()}
+                      className="p-3 border-2 border-[#30B859]/50 text-[#30B859] rounded-lg hover:border-[#30B859] hover:bg-[#30B859]/10 transition-all"
+                      title="Print results"
                     >
-                      <Download className="w-4 h-4" />
-                      Download PDF
+                      <Printer className="w-5 h-5" />
                     </button>
                     <ShareButton
                       onShare={handleShare}
-                      variant="secondary"
-                    />
+                      className="bg-[#30B859] hover:bg-[#2AA34F]"
+                    >
+                      SHARE
+                    </ShareButton>
                   </div>
                 </div>
               </div>
+              
+              <h2 className="text-2xl font-bold text-gray-900 mb-8">Your Career Drivers Map</h2>
 
               <div className="space-y-6">
                 {/* Primary Driver Highlight */}
@@ -994,7 +1026,7 @@ export default function CareerDriversTool() {
                 </div>
               </div>
 
-              <div className="mt-8 text-center">
+              <div className="mt-8 text-center no-print">
                 <p className="text-gray-600 mb-4">Ready to continue your career journey?</p>
                 <div className="flex justify-center gap-4">
                   <button
@@ -1013,6 +1045,7 @@ export default function CareerDriversTool() {
               </div>
             </div>
           </div>
+          </>
         )
 
       default:

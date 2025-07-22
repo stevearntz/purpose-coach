@@ -604,7 +604,7 @@ export default function CareerDriversTool() {
 
                 <div className="mt-8 flex justify-between items-center">
                   <button
-                    onClick={handlePrevious}
+                    onClick={handleBack}
                     disabled={currentStage === 0}
                     className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                       currentStage === 0
@@ -738,7 +738,7 @@ export default function CareerDriversTool() {
 
                 <div className="mt-8 flex justify-between items-center">
                   <button
-                    onClick={handlePrevious}
+                    onClick={handleBack}
                     disabled={currentStage === 0}
                     className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                       currentStage === 0

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { ArrowRight, Users, Target, Heart, Zap, TrendingUp, Shield, Trophy, Sparkles, ArrowLeft, Download, Share2, X, Plus, Lightbulb, Printer } from 'lucide-react'
+import { ArrowRight, Users, Target, Heart, Zap, TrendingUp, Shield, Trophy, Sparkles, ArrowLeft, Download, Share2, X, Plus, Lightbulb, Printer, AlertCircle, Star } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import jsPDF from 'jspdf'
@@ -1626,9 +1626,264 @@ export default function TeamCanvasTool() {
 
       case 'results':
         return (
-          <div>
-            <h1>Results page</h1>
-          </div>
+          <>
+            <style jsx>{`
+              @media print {
+                body * {
+                  visibility: hidden;
+                }
+                .print-section, .print-section * {
+                  visibility: visible;
+                }
+                .print-section {
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  width: 100%;
+                }
+                .no-print {
+                  display: none !important;
+                }
+                @page {
+                  margin: 0.5in;
+                  size: letter;
+                }
+              }
+            `}</style>
+            <div className="min-h-screen bg-gray-50 p-4 print-section">
+              <div className="max-w-4xl mx-auto">
+                <div className="mb-8 no-print">
+                  <div className="flex justify-between items-center">
+                    <button
+                      onClick={() => {
+                        setCurrentStage(stages.length - 2)
+                      }}
+                      className="text-[#30B859] hover:text-[#2AA34F] flex items-center gap-2 font-medium text-sm sm:text-base"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      <span className="uppercase tracking-wider">Back</span>
+                    </button>
+                    <div className="flex gap-2 sm:gap-4">
+                      <button
+                        onClick={() => window.print()}
+                        className="hidden sm:block p-2.5 sm:p-3 border-2 border-[#30B859]/50 text-[#30B859] rounded-lg hover:border-[#30B859] hover:bg-[#30B859]/10 transition-all"
+                        title="Print results"
+                      >
+                        <Printer className="w-5 h-5" />
+                      </button>
+                      <ShareButton
+                        onShare={handleShare}
+                        className="px-3 sm:px-6 py-2.5 bg-[#30B859] hover:bg-[#2AA34F] text-white rounded-lg font-semibold transition-colors"
+                      >
+                        <Share2 className="w-5 h-5 inline sm:hidden" />
+                        <span className="hidden sm:inline uppercase tracking-wider">Share</span>
+                      </ShareButton>
+                    </div>
+                  </div>
+                </div>
+                
+                <h2 className="text-2xl font-bold text-gray-900 mb-8">Team Charter Summary</h2>
+
+                <div className="space-y-6">
+                  {/* Team Purpose Highlight */}
+                  <div className="bg-gradient-to-br from-[#BADA54] to-[#30B859] rounded-2xl p-8 text-white">
+                    <div className="flex items-start gap-4">
+                      <div className="inline-flex p-3 bg-white/20 rounded-full">
+                        <Target className="w-8 h-8 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-2xl font-bold mb-2">{teamData.teamName}</h3>
+                        <p className="text-xl mb-4">Our Purpose</p>
+                        <p className="text-lg italic">"{teamData.purpose.exists} so that {teamData.purpose.outcome}"</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Team Members */}
+                  <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                    <h3 className="text-xl font-bold text-gray-900 mb-6">Our Team</h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {teamData.people.filter(p => p.name.trim()).map((member, index) => (
+                        <div
+                          key={`member-${index}`}
+                          className="flex items-center gap-3 p-4 rounded-lg bg-gray-50"
+                        >
+                          <div className="w-10 h-10 bg-[#30B859] text-white rounded-full flex items-center justify-center font-bold">
+                            {member.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold text-gray-900">{member.name}</p>
+                            <p className="text-sm text-gray-600">{member.role}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Core Values */}
+                  <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="inline-flex p-2 bg-green-100 rounded-lg">
+                        <Heart className="w-6 h-6 text-green-600" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900">Our Core Values</h3>
+                    </div>
+                    <div className="grid sm:grid-cols-3 gap-4">
+                      {teamData.values.map((value, index) => (
+                        <div
+                          key={`value-${index}`}
+                          className="p-4 rounded-lg border-2 border-[#30B859]/30 bg-[#30B859]/5"
+                        >
+                          <p className="font-semibold text-gray-900 text-center">{value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Primary Impact & Key Activities */}
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Primary Impact */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="inline-flex p-2 bg-green-100 rounded-lg">
+                          <Lightbulb className="w-6 h-6 text-green-600" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900">Primary Impact</h3>
+                      </div>
+                      <p className="text-gray-700 font-medium">{teamData.impact}</p>
+                    </div>
+
+                    {/* Key Activities */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="inline-flex p-2 bg-green-100 rounded-lg">
+                          <Star className="w-6 h-6 text-green-600" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900">Key Activities</h3>
+                      </div>
+                      <ul className="space-y-2">
+                        {teamData.activities.filter(a => a.trim()).map((activity, index) => (
+                          <li key={`activity-${index}`} className="flex items-start gap-2">
+                            <span className="text-green-600 font-bold">•</span>
+                            <span className="text-gray-700">{activity}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Strengths & Weaknesses */}
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Strengths */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="inline-flex p-2 bg-green-100 rounded-lg">
+                          <TrendingUp className="w-6 h-6 text-green-600" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900">Our Strengths</h3>
+                      </div>
+                      <ul className="space-y-2">
+                        {teamData.strengths.map((strength, index) => (
+                          <li key={`strength-${index}`} className="flex items-start gap-2">
+                            <span className="text-green-600 font-bold">+</span>
+                            <span className="text-gray-700">{strength}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Weaknesses */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="inline-flex p-2 bg-amber-100 rounded-lg">
+                          <AlertCircle className="w-6 h-6 text-amber-600" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900">Areas to Improve</h3>
+                      </div>
+                      <ul className="space-y-2">
+                        {teamData.weaknesses.map((weakness, index) => (
+                          <li key={`weakness-${index}`} className="flex items-start gap-2">
+                            <span className="text-amber-600 font-bold">!</span>
+                            <span className="text-gray-700">{weakness}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Recognition Methods */}
+                  <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="inline-flex p-2 bg-green-100 rounded-lg">
+                        <Trophy className="w-6 h-6 text-green-600" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900">How We Celebrate Success</h3>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-3">Individual Recognition</h4>
+                        <p className="text-gray-700">{teamData.soloWins.join(', ')}</p>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-3">Team Recognition</h4>
+                        <p className="text-gray-700">{teamData.teamWins.join(', ')}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Next Steps */}
+                  <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="inline-flex p-2 bg-green-100 rounded-lg">
+                        <ArrowRight className="w-6 h-6 text-green-600" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900">Next Steps</h3>
+                    </div>
+                    <ol className="space-y-3 text-gray-600">
+                      <li className="flex gap-3">
+                        <span className="font-bold text-green-600">1.</span>
+                        <span>Share this charter with all team members</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <span className="font-bold text-green-600">2.</span>
+                        <span>Schedule regular team meetings to live out these values</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <span className="font-bold text-green-600">3.</span>
+                        <span>Create action plans to address identified weaknesses</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <span className="font-bold text-green-600">4.</span>
+                        <span>Implement the recognition strategies for both individuals and the team</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <span className="font-bold text-green-600">5.</span>
+                        <span>Review and update this charter quarterly</span>
+                      </li>
+                    </ol>
+                  </div>
+                </div>
+
+                <div className="mt-8 text-center no-print">
+                  <p className="text-gray-600 mb-4">Ready to build an amazing team culture?</p>
+                  <div className="flex justify-center gap-4">
+                    <button
+                      onClick={() => router.push('/')}
+                      className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Explore More Tools
+                    </button>
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="px-6 py-3 bg-[#30B859] text-white rounded-lg hover:bg-[#2AA34F] transition-colors"
+                    >
+                      Start Over
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
         )
 
       default:

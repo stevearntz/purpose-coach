@@ -209,8 +209,7 @@ function ToolsPage() {
   const roles = [
     { id: 'People Leader', name: 'Manager', icon: Users },
     { id: 'Talent Leader', name: 'Talent/HR Leader', icon: Briefcase },
-    { id: 'Individual Contributor', name: 'Individual Contributor', icon: User },
-    { id: 'CEO/Executive', name: 'Executive', icon: Building }
+    { id: 'Individual Contributor', name: 'Individual Contributor', icon: User }
   ];
 
   const allChallenges = [
@@ -245,18 +244,7 @@ function ToolsPage() {
     { id: 'p3-c6', persona: 'Individual Contributor', title: 'Well-Being + Resilience', description: 'Learn to manage stress, avoid burnout, and stay grounded under pressure while maintaining performance.' },
     { id: 'p3-c7', persona: 'Individual Contributor', title: 'Communication + Collaboration', description: 'Communicate clearly, participate effectively in meetings, and build strong working relationships with your team.' },
     { id: 'p3-c8', persona: 'Individual Contributor', title: 'Expectations + Role Clarity', description: 'Get clear on goals, understand your responsibilities, and navigate any confusion or overlap in your role.' },
-    { id: 'p3-c9', persona: 'Individual Contributor', title: 'Growth + Development', description: 'Pursue feedback, seek stretch opportunities, and create your own development plan to advance your career.' },
-    
-    // CEO/Executive challenges
-    { id: 'p4-c1', persona: 'CEO/Executive', title: 'Purpose + Alignment', description: 'Unite the entire organization around a clear vision and ensure every team stays focused on strategic priorities.' },
-    { id: 'p4-c2', persona: 'CEO/Executive', title: 'Navigating Change', description: 'Lead the organization through transformation, market shifts, and strategic pivots with confidence and clarity.' },
-    { id: 'p4-c3', persona: 'CEO/Executive', title: 'Building Trust', description: 'Model and scale a culture of trust through authentic leadership, transparency, and organizational integrity.' },
-    { id: 'p4-c4', persona: 'CEO/Executive', title: 'Coaching Others', description: 'Develop leaders who coach by asking powerful questions and empowering (not micromanaging) their teams.' },
-    { id: 'p4-c5', persona: 'CEO/Executive', title: 'Decision Making', description: 'Create decision-making frameworks that enable smart, timely, and strategically aligned choices at scale.' },
-    { id: 'p4-c6', persona: 'CEO/Executive', title: 'Well-Being + Resilience', description: 'Champion organizational health by addressing burnout, promoting balance, and modeling sustainable leadership.' },
-    { id: 'p4-c7', persona: 'CEO/Executive', title: 'Communication + Collaboration', description: 'Drive clarity in strategic communication, optimize executive meetings, and break down organizational silos.' },
-    { id: 'p4-c8', persona: 'CEO/Executive', title: 'Expectations + Role Clarity', description: 'Establish clear accountability, define leadership responsibilities, and eliminate organizational confusion.' },
-    { id: 'p4-c9', persona: 'CEO/Executive', title: 'Growth + Development', description: 'Build a learning organization through strategic talent development, succession planning, and leadership pipelines.' },
+    { id: 'p3-c9', persona: 'Individual Contributor', title: 'Growth + Development', description: 'Pursue feedback, seek stretch opportunities, and create your own development plan to advance your career.' }
   ];
 
   const challenges = allChallenges.filter(challenge => challenge.persona === userProfile.role);
@@ -899,34 +887,67 @@ function ToolsPage() {
             <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/20">
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8">What is your role?</h2>
               
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                {roles.map((role) => {
-                  const Icon = role.icon;
-                  const isSelected = userProfile.role === role.id;
-                  return (
-                    <button
-                      key={role.id}
-                      onClick={() => {
-                        setUserProfile(prev => ({ ...prev, role: role.id }));
-                        analytics.trackAction('Role Selected', { role: role.id });
-                      }}
-                      className={`p-6 rounded-xl border-2 transition-all ${
-                        isSelected
-                          ? 'bg-white/30 border-white shadow-lg'
-                          : 'bg-white/10 border-white/30 hover:bg-white/20 hover:border-white/50'
-                      }`}
-                    >
-                      <div className="flex flex-col items-center gap-3">
-                        <div className={`p-3 rounded-full ${
-                          isSelected ? 'bg-white/30' : 'bg-white/20'
-                        }`}>
-                          <Icon className="w-8 h-8 text-white" />
+              <div className="flex flex-col gap-4 mb-8">
+                {/* Top row - Manager centered */}
+                <div className="flex justify-center">
+                  {roles.slice(0, 1).map((role) => {
+                    const Icon = role.icon;
+                    const isSelected = userProfile.role === role.id;
+                    return (
+                      <button
+                        key={role.id}
+                        onClick={() => {
+                          setUserProfile(prev => ({ ...prev, role: role.id }));
+                          analytics.trackAction('Role Selected', { role: role.id });
+                        }}
+                        className={`p-6 rounded-xl border-2 transition-all w-full max-w-[240px] ${
+                          isSelected
+                            ? 'bg-white/30 border-white shadow-lg'
+                            : 'bg-white/10 border-white/30 hover:bg-white/20 hover:border-white/50'
+                        }`}
+                      >
+                        <div className="flex flex-col items-center gap-3">
+                          <div className={`p-3 rounded-full ${
+                            isSelected ? 'bg-white/30' : 'bg-white/20'
+                          }`}>
+                            <Icon className="w-8 h-8 text-white" />
+                          </div>
+                          <h3 className="font-semibold text-white text-lg">{role.name}</h3>
                         </div>
-                        <h3 className="font-semibold text-white text-lg">{role.name}</h3>
-                      </div>
-                    </button>
-                  );
-                })}
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* Bottom row - Two roles */}
+                <div className="grid grid-cols-2 gap-4">
+                  {roles.slice(1).map((role) => {
+                    const Icon = role.icon;
+                    const isSelected = userProfile.role === role.id;
+                    return (
+                      <button
+                        key={role.id}
+                        onClick={() => {
+                          setUserProfile(prev => ({ ...prev, role: role.id }));
+                          analytics.trackAction('Role Selected', { role: role.id });
+                        }}
+                        className={`p-6 rounded-xl border-2 transition-all ${
+                          isSelected
+                            ? 'bg-white/30 border-white shadow-lg'
+                            : 'bg-white/10 border-white/30 hover:bg-white/20 hover:border-white/50'
+                        }`}
+                      >
+                        <div className="flex flex-col items-center gap-3">
+                          <div className={`p-3 rounded-full ${
+                            isSelected ? 'bg-white/30' : 'bg-white/20'
+                          }`}>
+                            <Icon className="w-8 h-8 text-white" />
+                          </div>
+                          <h3 className="font-semibold text-white text-lg">{role.name}</h3>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               
               <div className="flex flex-col gap-4">

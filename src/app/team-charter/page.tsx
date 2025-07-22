@@ -22,7 +22,9 @@ interface TeamData {
   impactExplanation: string
   activities: string[]
   strengths: string[]
+  strengthsExplanation: string
   weaknesses: string[]
+  weaknessesExplanation: string
   soloWins: string[]
   teamWins: string[]
 }
@@ -134,7 +136,9 @@ export default function TeamCanvasTool() {
     impactExplanation: '',
     activities: ['', '', ''],
     strengths: [],
+    strengthsExplanation: '',
     weaknesses: [],
+    weaknessesExplanation: '',
     soloWins: [],
     teamWins: []
   })
@@ -1228,6 +1232,8 @@ export default function TeamCanvasTool() {
                       </p>
                       <input
                         type="text"
+                        value={teamData.strengthsExplanation}
+                        onChange={(e) => setTeamData({ ...teamData, strengthsExplanation: e.target.value })}
                         placeholder="Explain your biggest team asset..."
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFA851]"
                       />
@@ -1360,6 +1366,8 @@ export default function TeamCanvasTool() {
                       </p>
                       <input
                         type="text"
+                        value={teamData.weaknessesExplanation}
+                        onChange={(e) => setTeamData({ ...teamData, weaknessesExplanation: e.target.value })}
                         placeholder="Explain the key risks to watch out for..."
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFA851]"
                       />
@@ -1445,6 +1453,23 @@ export default function TeamCanvasTool() {
                       <h3 className="text-xl font-semibold text-gray-900">Solo Wins</h3>
                       <p className="text-gray-600">How do you call out individual accomplishments?</p>
                     </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-3 mb-6">
+                    {teamData.soloWins.map((win, index) => (
+                      <div
+                        key={`selected-${index}`}
+                        className="px-4 py-2 bg-[#FFA851]/10 border border-[#FFA851] rounded-full flex items-center gap-2"
+                      >
+                        <span className="text-gray-700 font-medium">{win}</span>
+                        <button
+                          onClick={() => toggleSoloWin(win)}
+                          className="text-[#FFA851] hover:text-[#FF9741]"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
 
                   <p className="text-sm text-gray-600">Select all that apply:</p>
@@ -1561,6 +1586,23 @@ export default function TeamCanvasTool() {
                       <h3 className="text-xl font-semibold text-gray-900">Team Wins</h3>
                       <p className="text-gray-600">How do you celebrate team accomplishments?</p>
                     </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-3 mb-6">
+                    {teamData.teamWins.map((win, index) => (
+                      <div
+                        key={`selected-${index}`}
+                        className="px-4 py-2 bg-[#FFA851]/10 border border-[#FFA851] rounded-full flex items-center gap-2"
+                      >
+                        <span className="text-gray-700 font-medium">{win}</span>
+                        <button
+                          onClick={() => toggleTeamWin(win)}
+                          className="text-[#FFA851] hover:text-[#FF9741]"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
 
                   <p className="text-sm text-gray-600">Select all that apply:</p>

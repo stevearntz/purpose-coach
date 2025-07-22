@@ -312,8 +312,8 @@ export default function CoachingCardsTool() {
               </Link>
 
               <div className="text-center space-y-8">
-                <div className="inline-flex p-6 bg-white/20 backdrop-blur-sm rounded-full">
-                  <Lightbulb className="w-20 h-20 text-white" />
+                <div className="inline-flex p-4 sm:p-6 bg-white/20 backdrop-blur-sm rounded-full">
+                  <Lightbulb className="w-12 h-12 sm:w-20 sm:h-20 text-white" />
                 </div>
                 
                 <div className="space-y-4">
@@ -732,7 +732,7 @@ export default function CoachingCardsTool() {
                     return (
                       <div key={idx} className="space-y-4">
                         <div className="flex items-start gap-4">
-                          <div className="relative h-32 w-24 flex-shrink-0">
+                          <div className="relative h-32 w-24 flex-shrink-0 hidden sm:block">
                             <Image
                               src={`/coaching-cards/${imageName}`}
                               alt={question}
@@ -1002,7 +1002,7 @@ export default function CoachingCardsTool() {
                   <div className="flex gap-2 sm:gap-4">
                     <button
                       onClick={() => window.print()}
-                      className="p-2.5 sm:p-3 border-2 border-[#8AB307]/50 text-[#8AB307] rounded-lg hover:border-[#8AB307] hover:bg-[#8AB307]/10 transition-all"
+                      className="hidden sm:block p-2.5 sm:p-3 border-2 border-[#8AB307]/50 text-[#8AB307] rounded-lg hover:border-[#8AB307] hover:bg-[#8AB307]/10 transition-all"
                       title="Print results"
                     >
                       <Printer className="w-5 h-5" />

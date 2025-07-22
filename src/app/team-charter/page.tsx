@@ -447,8 +447,8 @@ export default function TeamCanvasTool() {
               </Link>
 
               <div className="text-center space-y-8">
-                <div className="inline-flex p-6 bg-white/20 backdrop-blur-sm rounded-full">
-                  <Users className="w-20 h-20 text-white" />
+                <div className="inline-flex p-4 sm:p-6 bg-white/20 backdrop-blur-sm rounded-full">
+                  <Users className="w-12 h-12 sm:w-20 sm:h-20 text-white" />
                 </div>
                 
                 <div className="space-y-4">

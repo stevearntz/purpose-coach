@@ -292,8 +292,8 @@ export default function TrustAuditPage() {
         </Link>
         
         <div className="text-center text-white mb-12 max-w-3xl">
-          <div className="inline-flex p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
-            <Shield className="w-20 h-20 text-white" />
+          <div className="inline-flex p-4 sm:p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
+            <Shield className="w-12 h-12 sm:w-20 sm:h-20 text-white" />
           </div>
           <h1 className="text-5xl font-bold mb-6">{toolConfigs.trustAudit.title}</h1>
           <h2 className="text-3xl mb-8">{toolConfigs.trustAudit.subtitle}</h2>
@@ -471,7 +471,7 @@ export default function TrustAuditPage() {
                       analytics.trackDownload('Print', 'Trust Audit')
                       window.print()
                     }}
-                    className="p-2.5 sm:p-3 border-2 border-[#DB4839]/50 text-[#DB4839] rounded-lg hover:border-[#DB4839] hover:bg-[#DB4839]/10 transition-all"
+                    className="hidden sm:block p-2.5 sm:p-3 border-2 border-[#DB4839]/50 text-[#DB4839] rounded-lg hover:border-[#DB4839] hover:bg-[#DB4839]/10 transition-all"
                     title="Print results"
                   >
                     <Printer className="w-5 h-5" />

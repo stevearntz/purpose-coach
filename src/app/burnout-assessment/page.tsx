@@ -330,8 +330,8 @@ export default function BurnoutAssessmentPage() {
         </Link>
         
         <div className="text-center text-white mb-12 max-w-3xl">
-          <div className="inline-flex p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
-            <Heart className="w-20 h-20 text-white" />
+          <div className="inline-flex p-4 sm:p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
+            <Heart className="w-12 h-12 sm:w-20 sm:h-20 text-white" />
           </div>
           <h1 className="text-5xl font-bold mb-6">{config.title}</h1>
           <h2 className="text-3xl mb-8">{config.subtitle}</h2>
@@ -510,7 +510,7 @@ export default function BurnoutAssessmentPage() {
                       analytics.trackDownload('Print', 'Burnout Assessment')
                       window.print()
                     }}
-                    className="p-2.5 sm:p-3 border-2 border-[#30B859]/50 text-[#30B859] rounded-lg hover:border-[#30B859] hover:bg-[#30B859]/10 transition-all"
+                    className="hidden sm:block p-2.5 sm:p-3 border-2 border-[#30B859]/50 text-[#30B859] rounded-lg hover:border-[#30B859] hover:bg-[#30B859]/10 transition-all"
                     title="Print results"
                   >
                     <Printer className="w-5 h-5" />

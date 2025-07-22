@@ -188,8 +188,8 @@ export default function ChangeReadinessPage() {
         </Link>
         
         <div className="text-center text-white mb-12 max-w-3xl">
-          <div className="inline-flex p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
-            <ArrowRight className="w-20 h-20 text-white" />
+          <div className="inline-flex p-4 sm:p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
+            <ArrowRight className="w-12 h-12 sm:w-20 sm:h-20 text-white" />
           </div>
           <h1 className="text-5xl font-bold mb-6">{config.title}</h1>
           <h2 className="text-3xl mb-8">{config.subtitle}</h2>
@@ -369,7 +369,7 @@ export default function ChangeReadinessPage() {
                 <div className="flex gap-2 sm:gap-4">
                   <button
                     onClick={() => window.print()}
-                    className="p-2.5 sm:p-3 border-2 border-[#BF4C74]/50 text-[#BF4C74] rounded-lg hover:border-[#BF4C74] hover:bg-[#BF4C74]/10 transition-all"
+                    className="hidden sm:block p-2.5 sm:p-3 border-2 border-[#BF4C74]/50 text-[#BF4C74] rounded-lg hover:border-[#BF4C74] hover:bg-[#BF4C74]/10 transition-all"
                     title="Print results"
                   >
                     <Printer className="w-5 h-5" />

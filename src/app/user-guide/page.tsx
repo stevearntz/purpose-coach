@@ -210,8 +210,8 @@ export default function UserGuidePage() {
         </Link>
         
         <div className="text-center text-white mb-12 max-w-3xl">
-          <div className="inline-flex p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
-            <Lightbulb className="w-20 h-20 text-white" />
+          <div className="inline-flex p-4 sm:p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
+            <Lightbulb className="w-12 h-12 sm:w-20 sm:h-20 text-white" />
           </div>
           <h1 className="text-5xl font-bold mb-6">{config.title}</h1>
           <h2 className="text-3xl mb-8">{config.subtitle}</h2>
@@ -393,7 +393,7 @@ export default function UserGuidePage() {
                 <div className="flex gap-2 sm:gap-4">
                   <button
                     onClick={() => window.print()}
-                    className="p-2.5 sm:p-3 border-2 border-[#2A74B9]/50 text-[#2A74B9] rounded-lg hover:border-[#2A74B9] hover:bg-[#2A74B9]/10 transition-all"
+                    className="hidden sm:block p-2.5 sm:p-3 border-2 border-[#2A74B9]/50 text-[#2A74B9] rounded-lg hover:border-[#2A74B9] hover:bg-[#2A74B9]/10 transition-all"
                     title="Print guide"
                   >
                     <Printer className="w-5 h-5" />

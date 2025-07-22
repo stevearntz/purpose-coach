@@ -86,7 +86,7 @@ export default function NavigationHeader({
       <button
         key={index}
         onClick={action.onClick}
-        className={`${baseClass} flex items-center gap-2`}
+        className={`${baseClass} flex items-center gap-2 ${action.type === 'print' ? 'hidden sm:flex' : ''}`}
       >
         {icon}
         {action.type === 'print' ? (

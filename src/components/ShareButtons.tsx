@@ -20,7 +20,7 @@ export default function ShareButtons() {
     <div className="flex gap-4">
       <button
         onClick={handlePrint}
-        className="p-3 border-2 border-gray-400 text-gray-700 rounded-lg hover:border-gray-600 hover:bg-gray-100 transition-all"
+        className="hidden sm:block p-3 border-2 border-gray-400 text-gray-700 rounded-lg hover:border-gray-600 hover:bg-gray-100 transition-all"
         title="Print results"
       >
         <Printer className="w-5 h-5" />

@@ -92,6 +92,78 @@ const personas = [
   { name: "The Navigator", code: "navigator", questions: [26, 28, 30] }
 ]
 
+interface PersonaCompatibility {
+  worksWellWith: string[]
+  beAwareOf: string[]
+}
+
+const personaCompatibility: Record<string, PersonaCompatibility> = {
+  champion: {
+    worksWellWith: ['energizer', 'adapter', 'navigator'],
+    beAwareOf: ['skeptic', 'reactor', 'ghost']
+  },
+  reactor: {
+    worksWellWith: ['therapist', 'stabilizer', 'protector'],
+    beAwareOf: ['champion', 'energizer', 'analyzer']
+  },
+  therapist: {
+    worksWellWith: ['reactor', 'whiner', 'protector'],
+    beAwareOf: ['analyzer', 'ghost', 'adapter']
+  },
+  skeptic: {
+    worksWellWith: ['analyzer', 'ghost', 'adapter'],
+    beAwareOf: ['champion', 'energizer', 'reactor']
+  },
+  analyzer: {
+    worksWellWith: ['skeptic', 'navigator', 'stabilizer'],
+    beAwareOf: ['reactor', 'whiner', 'therapist']
+  },
+  ghost: {
+    worksWellWith: ['adapter', 'analyzer', 'stabilizer'],
+    beAwareOf: ['champion', 'energizer', 'therapist']
+  },
+  energizer: {
+    worksWellWith: ['champion', 'adapter', 'navigator'],
+    beAwareOf: ['skeptic', 'ghost', 'reactor']
+  },
+  stabilizer: {
+    worksWellWith: ['analyzer', 'protector', 'navigator'],
+    beAwareOf: ['champion', 'energizer', 'whiner']
+  },
+  whiner: {
+    worksWellWith: ['therapist', 'protector', 'skeptic'],
+    beAwareOf: ['champion', 'energizer', 'adapter']
+  },
+  adapter: {
+    worksWellWith: ['energizer', 'champion', 'ghost'],
+    beAwareOf: ['whiner', 'reactor', 'therapist']
+  },
+  protector: {
+    worksWellWith: ['therapist', 'stabilizer', 'reactor'],
+    beAwareOf: ['champion', 'energizer', 'ghost']
+  },
+  navigator: {
+    worksWellWith: ['champion', 'analyzer', 'energizer'],
+    beAwareOf: ['reactor', 'whiner', 'ghost']
+  }
+}
+
+// Character illustrations for each persona
+const personaCharacters: Record<string, string> = {
+  champion: "🦸‍♂️", // Superhero with cape
+  reactor: "🌋", // Volcano erupting
+  therapist: "🧸", // Teddy bear (comforting)
+  skeptic: "🦉", // Owl (wise but questioning)
+  analyzer: "🤖", // Robot (logical)
+  ghost: "👻", // Ghost (invisible/withdrawn)
+  energizer: "⚡", // Lightning bolt
+  stabilizer: "🗿", // Stone statue (steady)
+  whiner: "🌧️", // Rain cloud
+  adapter: "🦎", // Chameleon
+  protector: "🛡️", // Shield
+  navigator: "🧭" // Compass
+}
+
 const personaReadouts: Record<string, PersonaReadout> = {
   champion: {
     label: "🏆 The Champion",
@@ -575,7 +647,9 @@ export default function ChangeStylePage() {
             {/* Primary Persona */}
             <div className="bg-gradient-to-br from-[#F595B6] to-[#BF4C74] rounded-2xl p-8 text-white mb-8">
               <div className="text-center mb-6">
-                <p className="text-5xl mb-4">{primaryReadout.label.split(' ')[0]}</p>
+                <div className="inline-flex items-center justify-center w-32 h-32 bg-white/20 backdrop-blur-sm rounded-full mb-4">
+                  <span className="text-7xl">{personaCharacters[primary.code]}</span>
+                </div>
                 <h2 className="text-3xl font-bold mb-2">{primaryReadout.label}</h2>
                 <p className="text-xl text-white/90">{primaryReadout.title}</p>
               </div>
@@ -604,6 +678,60 @@ export default function ChangeStylePage() {
               </div>
             </div>
 
+            {/* Compatibility Section */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
+              <h3 className="text-xl font-bold text-gray-900 mb-6">How You Work With Others</h3>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-green-50 rounded-xl p-6 border border-green-200">
+                  <h4 className="font-semibold text-green-900 mb-4 flex items-center gap-2">
+                    <span className="text-2xl">✨</span>
+                    Works Well With
+                  </h4>
+                  <div className="space-y-3">
+                    {personaCompatibility[primary.code].worksWellWith.map(code => {
+                      const persona = personas.find(p => p.code === code)!
+                      const readout = personaReadouts[code]
+                      return (
+                        <div key={code} className="flex items-center gap-3">
+                          <span className="text-3xl">{personaCharacters[code]}</span>
+                          <div>
+                            <p className="font-medium text-gray-900">{persona.name}</p>
+                            <p className="text-sm text-gray-600">{readout.title}</p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+                
+                <div className="bg-amber-50 rounded-xl p-6 border border-amber-200">
+                  <h4 className="font-semibold text-amber-900 mb-4 flex items-center gap-2">
+                    <span className="text-2xl">⚠️</span>
+                    Be Aware Of
+                  </h4>
+                  <p className="text-sm text-amber-700 mb-4">
+                    These styles may require extra effort to understand each other:
+                  </p>
+                  <div className="space-y-3">
+                    {personaCompatibility[primary.code].beAwareOf.map(code => {
+                      const persona = personas.find(p => p.code === code)!
+                      const readout = personaReadouts[code]
+                      return (
+                        <div key={code} className="flex items-center gap-3">
+                          <span className="text-3xl">{personaCharacters[code]}</span>
+                          <div>
+                            <p className="font-medium text-gray-900">{persona.name}</p>
+                            <p className="text-sm text-gray-600">{readout.title}</p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Secondary Personas */}
             {secondary.length > 0 && (
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
@@ -619,7 +747,9 @@ export default function ChangeStylePage() {
                     return (
                       <div key={persona.code} className="border border-gray-200 rounded-lg p-6">
                         <div className="flex items-start gap-4">
-                          <span className="text-3xl">{readout.label.split(' ')[0]}</span>
+                          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-3xl">{personaCharacters[persona.code]}</span>
+                          </div>
                           <div className="flex-1">
                             <h4 className="text-lg font-semibold text-gray-900 mb-1">
                               {readout.label}
@@ -672,26 +802,47 @@ export default function ChangeStylePage() {
               </div>
             </div>
 
-            {/* Action Steps */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">Put This Into Practice</h3>
-              <div className="space-y-4">
-                <div className="flex gap-3">
-                  <span className="text-[#BF4C74] font-bold">1.</span>
-                  <p className="text-gray-700">Share your change style with your team and manager</p>
+            {/* Action Steps - Enhanced Visual Design */}
+            <div className="relative bg-gradient-to-br from-[#BF4C74]/10 via-[#E37A75]/10 to-[#F595B6]/10 rounded-2xl p-8 mb-8 border-2 border-[#BF4C74]/20 shadow-lg">
+              <div className="absolute -top-3 -right-3 w-12 h-12 bg-[#BF4C74] rounded-full flex items-center justify-center shadow-md">
+                <span className="text-2xl">🎯</span>
+              </div>
+              <h3 className="text-2xl font-bold text-[#BF4C74] mb-6 flex items-center gap-3">
+                <RefreshCw className="w-6 h-6" />
+                Put This Into Practice
+              </h3>
+              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6">
+                <div className="space-y-5">
+                  <div className="flex gap-4 items-start">
+                    <div className="w-8 h-8 bg-[#BF4C74] rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-sm">1</span>
+                    </div>
+                    <p className="text-gray-800 font-medium">Share your change style with your team and manager</p>
+                  </div>
+                  <div className="flex gap-4 items-start">
+                    <div className="w-8 h-8 bg-[#BF4C74] rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-sm">2</span>
+                    </div>
+                    <p className="text-gray-800 font-medium">Notice when your style shows up during the next change</p>
+                  </div>
+                  <div className="flex gap-4 items-start">
+                    <div className="w-8 h-8 bg-[#BF4C74] rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-sm">3</span>
+                    </div>
+                    <p className="text-gray-800 font-medium">Practice the "Try This" suggestion for your primary style</p>
+                  </div>
+                  <div className="flex gap-4 items-start">
+                    <div className="w-8 h-8 bg-[#BF4C74] rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-sm">4</span>
+                    </div>
+                    <p className="text-gray-800 font-medium">Learn about your teammates' change styles to work better together</p>
+                  </div>
                 </div>
-                <div className="flex gap-3">
-                  <span className="text-[#BF4C74] font-bold">2.</span>
-                  <p className="text-gray-700">Notice when your style shows up during the next change</p>
-                </div>
-                <div className="flex gap-3">
-                  <span className="text-[#BF4C74] font-bold">3.</span>
-                  <p className="text-gray-700">Practice the "Try This" suggestion for your primary style</p>
-                </div>
-                <div className="flex gap-3">
-                  <span className="text-[#BF4C74] font-bold">4.</span>
-                  <p className="text-gray-700">Learn about your teammates' change styles to work better together</p>
-                </div>
+              </div>
+              <div className="mt-4 text-center">
+                <p className="text-sm text-[#BF4C74]/80 font-medium">
+                  💡 Pro tip: Have your whole team take this assessment for better collaboration
+                </p>
               </div>
             </div>
 

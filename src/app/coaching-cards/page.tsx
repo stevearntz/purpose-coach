@@ -460,13 +460,7 @@ export default function CoachingCardsTool() {
                   </p>
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={!selectedCategory}
@@ -556,13 +550,7 @@ export default function CoachingCardsTool() {
                   })}
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={!selectedFocusArea}
@@ -658,13 +646,7 @@ export default function CoachingCardsTool() {
                   })}
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={selectedQuestions.length !== 2}
@@ -760,13 +742,7 @@ export default function CoachingCardsTool() {
                   })}
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={selectedQuestions.some(idx => !reflections[idx])}
@@ -851,13 +827,7 @@ export default function CoachingCardsTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={!challengeSolution}
@@ -937,13 +907,7 @@ export default function CoachingCardsTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={!nextStep}

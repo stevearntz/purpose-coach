@@ -599,13 +599,7 @@ export default function CareerDriversTool() {
                   })}
                 </div>
 
-                <div className="mt-8 flex justify-between">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="mt-8 flex justify-end">
                   <button
                     onClick={handleNext}
                     disabled={sectionDriverSelection.length !== 2}
@@ -725,13 +719,7 @@ export default function CareerDriversTool() {
                   ))}
                 </div>
 
-                <div className="mt-8 flex justify-between">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="mt-8 flex justify-end">
                   <button
                     onClick={handleNext}
                     className="px-6 py-3 bg-[#30B859] text-white rounded-lg font-medium hover:bg-[#2AA34F] transition-colors"
@@ -830,13 +818,7 @@ export default function CareerDriversTool() {
                   </div>
                 </div>
 
-                <div className="mt-8 flex justify-between">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="mt-8 flex justify-end">
                   <button
                     onClick={handleNext}
                     disabled={!focusDriver.meaning || !focusDriver.why}

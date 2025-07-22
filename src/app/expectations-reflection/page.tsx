@@ -565,13 +565,7 @@ export default function HopesFearsTool() {
                   })}
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={!selectedContext}
@@ -669,13 +663,7 @@ export default function HopesFearsTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={!hopes.some(h => h.trim())}
@@ -772,13 +760,7 @@ export default function HopesFearsTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={!fears.some(f => f.trim())}
@@ -875,13 +857,7 @@ export default function HopesFearsTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={!expectations.some(e => e.trim())}

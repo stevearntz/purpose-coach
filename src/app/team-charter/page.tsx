@@ -378,6 +378,14 @@ export default function TeamCanvasTool() {
                 </Link>
 
                 <div className="text-center space-y-8">
+                  <button
+                    onClick={() => setShowTeamNameInput(false)}
+                    className="text-white/80 hover:text-white flex items-center gap-2 mb-4 transition-colors"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    Back
+                  </button>
+                  
                   <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
                     <h3 className="text-3xl font-bold text-white mb-6">Let's start with your team name</h3>
                     
@@ -401,20 +409,14 @@ export default function TeamCanvasTool() {
                         autoFocus
                       />
                       
-                      <div className="flex gap-4">
-                        <button
-                          onClick={() => setShowTeamNameInput(false)}
-                          className="px-6 py-4 text-white/80 hover:text-white font-medium transition-colors"
-                        >
-                          Back
-                        </button>
+                      <div className="flex justify-end">
                         <button
                           onClick={() => {
                             setShowTeamNameInput(false);
                             handleNext();
                           }}
                           disabled={!teamData.teamName.trim()}
-                          className="flex-1 py-4 bg-white text-[#FFA851] rounded-xl font-semibold text-lg hover:bg-white/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed uppercase"
+                          className="py-4 px-8 bg-white text-[#FFA851] rounded-xl font-semibold text-lg hover:bg-white/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed uppercase"
                         >
                           Continue
                         </button>
@@ -715,13 +717,7 @@ export default function TeamCanvasTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={!teamData.people.some(p => p.name)}
@@ -830,13 +826,7 @@ export default function TeamCanvasTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={teamData.values.length === 0}
@@ -935,13 +925,7 @@ export default function TeamCanvasTool() {
                   )}
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={!teamData.impact}
@@ -1034,13 +1018,7 @@ export default function TeamCanvasTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={!teamData.activities.some(a => a)}
@@ -1159,13 +1137,7 @@ export default function TeamCanvasTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={teamData.strengths.length !== 3}
@@ -1284,13 +1256,7 @@ export default function TeamCanvasTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={teamData.weaknesses.length !== 3}
@@ -1393,13 +1359,7 @@ export default function TeamCanvasTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={teamData.soloWins.length === 0}
@@ -1502,13 +1462,7 @@ export default function TeamCanvasTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <button
-                    onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium"
-                  >
-                    Back
-                  </button>
+                <div className="flex justify-end mt-8">
                   <button
                     onClick={handleNext}
                     disabled={teamData.teamWins.length === 0}

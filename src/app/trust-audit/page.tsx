@@ -371,43 +371,45 @@ export default function TrustAuditPage() {
           <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
         </Link>
         
-        <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20 max-w-2xl w-full">
-          <h3 className="text-3xl font-bold text-white text-center mb-6">Pick a relationship</h3>
+        <div className="max-w-2xl w-full">
+          <button
+            onClick={() => {
+              setShowRelationshipInput(false);
+              setShowIntro(true);
+            }}
+            className="text-white/80 hover:text-white flex items-center gap-2 mb-4 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
           
-          <div className="space-y-6">
-            <div className="text-xl text-white/90 text-center">
-              <p>This audit focuses on your relationship with one person.</p>
-              <p>Who would you like to build trust with?</p>
-            </div>
+          <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+            <h3 className="text-3xl font-bold text-white text-center mb-6">Pick a relationship</h3>
             
-            <input
-              type="text"
-              value={relationshipName}
-              onChange={(e) => setRelationshipName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && relationshipName.trim()) {
-                  setShowRelationshipInput(false);
-                }
-              }}
-              placeholder="Enter their first name..."
-              className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
-              autoFocus
-            />
-            
-            <div className="flex gap-4">
-              <button
-                onClick={() => {
-                  setShowRelationshipInput(false);
-                  setShowIntro(true);
+            <div className="space-y-6">
+              <div className="text-xl text-white/90 text-center">
+                <p>This audit focuses on your relationship with one person.</p>
+                <p>Who would you like to build trust with?</p>
+              </div>
+              
+              <input
+                type="text"
+                value={relationshipName}
+                onChange={(e) => setRelationshipName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && relationshipName.trim()) {
+                    setShowRelationshipInput(false);
+                  }
                 }}
-                className="px-6 py-4 text-white/80 hover:text-white font-medium transition-colors"
-              >
-                Back
-              </button>
+                placeholder="Enter their first name..."
+                className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                autoFocus
+              />
+              
               <button
                 onClick={() => setShowRelationshipInput(false)}
                 disabled={!relationshipName.trim()}
-                className={`flex-1 py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
+                className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
                   relationshipName.trim()
                     ? 'bg-white text-[#DB4839] hover:bg-white/90'
                     : 'bg-white/50 text-[#DB4839]/50 cursor-not-allowed'

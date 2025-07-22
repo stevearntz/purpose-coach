@@ -26,7 +26,7 @@ export const toolConfigs = {
   },
   workingWithMe: {
     gradient: "from-[#30C7C7] to-[#2A74B9]",
-    title: "Working with Me",
+    title: "User Guide",
     subtitle: "Create your personal user guide.",
     description: "Build a shareable guide that helps others understand your work style, communication preferences, and how to collaborate effectively with you."
   },

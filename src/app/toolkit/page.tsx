@@ -94,9 +94,9 @@ const challenges: Challenge[] = [
 
 const tools: Tool[] = [
   {
-    id: 'team-canvas',
-    path: '/team-canvas',
-    title: 'Team Canvas',
+    id: 'team-charter',
+    path: '/team-charter',
+    title: 'Team Charter',
     subtitle: 'Align your team',
     description: 'Create clarity and alignment on your team\'s purpose, values, and ways of working.',
     gradient: 'from-[#FF6B6B] to-[#4ECDC4]',
@@ -136,7 +136,7 @@ const tools: Tool[] = [
   {
     id: 'change-readiness',
     path: '/change-readiness',
-    title: 'Change Readiness',
+    title: 'Change Readiness Assessment',
     subtitle: 'Navigate change confidently',
     description: 'Assess your readiness for change and identify where you need support.',
     gradient: 'from-[#FCA376] to-[#BF4C74]',
@@ -146,7 +146,7 @@ const tools: Tool[] = [
   {
     id: 'working-with-me',
     path: '/user-guide',
-    title: 'Working with Me',
+    title: 'User Guide',
     subtitle: 'Create your user guide',
     description: 'Build a shareable guide that helps others collaborate effectively with you.',
     gradient: 'from-[#30C7C7] to-[#2A74B9]',
@@ -154,9 +154,9 @@ const tools: Tool[] = [
     challenges: ['communication', 'alignment']
   },
   {
-    id: 'hopes-fears',
-    path: '/hopes-fears-expectations',
-    title: 'Hopes, Fears & Expectations',
+    id: 'expectations-reflection',
+    path: '/expectations-reflection',
+    title: 'Expectations Reflection',
     subtitle: 'Surface team dynamics',
     description: 'Create psychological safety by sharing hopes, fears, and expectations.',
     gradient: 'from-[#F687B3] to-[#9333EA]',
@@ -164,9 +164,9 @@ const tools: Tool[] = [
     challenges: ['trust-feedback', 'navigating-change', 'communication']
   },
   {
-    id: 'career-drivers',
-    path: '/career-drivers',
-    title: 'Career Drivers',
+    id: 'drivers-reflection',
+    path: '/drivers-reflection',
+    title: 'Drivers Reflection',
     subtitle: 'Understand motivations',
     description: 'Identify and prioritize what truly drives you in your career.',
     gradient: 'from-[#FBBF24] to-[#F59E0B]',

@@ -7,8 +7,8 @@ interface ToolMetadataConfig {
 }
 
 export const toolsMetadata: Record<string, ToolMetadataConfig> = {
-  'team-canvas': {
-    name: 'Team Canvas',
+  'team-charter': {
+    name: 'Team Charter',
     description: 'Create a visual map of your team\'s purpose, values, activities, and goals to align everyone around what matters most.',
     ogImage: '/og-team-canvas.png'
   },
@@ -23,22 +23,22 @@ export const toolsMetadata: Record<string, ToolMetadataConfig> = {
     ogImage: '/og-trust-audit.png'
   },
   'change-readiness': {
-    name: 'Change Readiness',
+    name: 'Change Readiness Assessment',
     description: 'Evaluate your preparedness for change and develop strategies to navigate transitions with confidence.',
     ogImage: '/og-change-readiness.png'
   },
   'coaching-cards': {
-    name: 'Coaching Reflection',
+    name: 'Coaching Cards',
     description: 'Explore powerful coaching questions to gain clarity, overcome challenges, and accelerate your growth.',
     ogImage: '/og-coaching-cards.png'
   },
-  'career-drivers': {
-    name: 'Career Drivers',
+  'drivers-reflection': {
+    name: 'Drivers Reflection',
     description: 'Discover what truly motivates you and create a personalized career map aligned with your core drivers.',
     ogImage: '/og-career-drivers.png'
   },
-  'hopes-fears-expectations': {
-    name: 'Hopes, Fears & Expectations',
+  'expectations-reflection': {
+    name: 'Expectations Reflection',
     description: 'Surface and align team expectations to build trust and set the foundation for success.',
     ogImage: '/og-hopes-fears.png'
   },

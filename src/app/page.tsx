@@ -42,32 +42,32 @@ interface Course {
 
 const getToolVisual = (toolId: string): React.ReactElement => {
   const visuals: { [key: string]: React.ReactElement } = {
-    't1': ( // Team Canvas
-      <img src="/tool-icons/map-icon.png" alt="Team Canvas" className="w-full h-full object-contain p-2" />
+    't1': ( // Team Charter
+      <img src="/tool-icons/map-icon.png" alt="Team Charter" className="w-full h-full object-contain p-2" />
     ),
-    't2': ( // Change Readiness Reflection
-      <img src="/tool-icons/kite-icon.png" alt="Change Readiness" className="w-full h-full object-contain p-2" />
+    't2': ( // Change Readiness Assessment
+      <img src="/tool-icons/kite-icon.png" alt="Change Readiness Assessment" className="w-full h-full object-contain p-2" />
     ),
-    't3': ( // Team Trust Audit
+    't3': ( // Trust Audit
       <img src="/tool-icons/compass-icon.png" alt="Trust Audit" className="w-full h-full object-contain p-2" />
     ),
-    't4': ( // Coaching Questions Card Deck
-      <img src="/tool-icons/tools-icon.png" alt="Coaching Questions" className="w-full h-full object-contain p-2" />
+    't4': ( // Coaching Cards
+      <img src="/tool-icons/tools-icon.png" alt="Coaching Cards" className="w-full h-full object-contain p-2" />
     ),
-    't5': ( // Decision Filter Framework
-      <img src="/tool-icons/submarine-icon.png" alt="Decision Filter" className="w-full h-full object-contain p-2" />
+    't5': ( // Decision Making Audit
+      <img src="/tool-icons/submarine-icon.png" alt="Decision Making Audit" className="w-full h-full object-contain p-2" />
     ),
     't6': ( // Burnout Assessment
       <img src="/tool-icons/lantern-icon.png" alt="Burnout Assessment" className="w-full h-full object-contain p-2" />
     ),
-    't7': ( // Working with Me Guide
-      <img src="/tool-icons/hammock-icon.png" alt="Working with Me" className="w-full h-full object-contain p-2" />
+    't7': ( // User Guide
+      <img src="/tool-icons/hammock-icon.png" alt="User Guide" className="w-full h-full object-contain p-2" />
     ),
-    't8': ( // Hopes, Fears, Expectations Template
-      <img src="/tool-icons/plant-icon.png" alt="Hopes Fears Expectations" className="w-full h-full object-contain p-2" />
+    't8': ( // Expectations Reflection
+      <img src="/tool-icons/plant-icon.png" alt="Expectations Reflection" className="w-full h-full object-contain p-2" />
     ),
-    't9': ( // Career Drivers Exercise
-      <img src="/tool-icons/moon-icon.png" alt="Career Drivers" className="w-full h-full object-contain p-2" />
+    't9': ( // Drivers Reflection
+      <img src="/tool-icons/moon-icon.png" alt="Drivers Reflection" className="w-full h-full object-contain p-2" />
     )
   };
   
@@ -265,15 +265,15 @@ function ToolsPage() {
     }
     
     const toolMappings: { [key: string]: Tool } = {
-      'c1': { id: 't1', name: 'Team Canvas', type: 'guide', description: 'Map your team\'s purpose, composition, and growth opportunities' },
+      'c1': { id: 't1', name: 'Team Charter', type: 'guide', description: 'Map your team\'s purpose, composition, and growth opportunities' },
       'c2': { id: 't2', name: 'Change Readiness Assessment', type: 'assessment', description: 'Assess and build readiness for navigating change' },
-      'c3': { id: 't3', name: 'Team Trust Audit', type: 'assessment', description: 'Evaluate and strengthen trust within your team' },
-      'c4': { id: 't4', name: 'Coaching Questions Card Deck', type: 'guide', description: 'Powerful questions to empower and develop others' },
-      'c5': { id: 't5', name: 'Decision Filter Framework', type: 'guide', description: 'Make better decisions with a structured approach' },
+      'c3': { id: 't3', name: 'Trust Audit', type: 'assessment', description: 'Evaluate and strengthen trust within your team' },
+      'c4': { id: 't4', name: 'Coaching Cards', type: 'guide', description: 'Powerful questions to empower and develop others' },
+      'c5': { id: 't5', name: 'Decision Making Audit', type: 'guide', description: 'Make better decisions with a structured approach' },
       'c6': { id: 't6', name: 'Burnout Assessment', type: 'assessment', description: 'Identify and address signs of burnout' },
-      'c7': { id: 't7', name: 'Working with Me Guide', type: 'guide', description: 'Share your work style and improve collaboration' },
-      'c8': { id: 't8', name: 'Hopes, Fears, Expectations Template', type: 'guide', description: 'Create clarity through open dialogue about expectations' },
-      'c9': { id: 't9', name: 'Career Drivers Exercise', type: 'reflection', description: 'Explore what motivates your team members and support the ways they want to grow in their role.' }
+      'c7': { id: 't7', name: 'User Guide', type: 'guide', description: 'Share your work style and improve collaboration' },
+      'c8': { id: 't8', name: 'Expectations Reflection', type: 'guide', description: 'Create clarity through open dialogue about expectations' },
+      'c9': { id: 't9', name: 'Drivers Reflection', type: 'reflection', description: 'Explore what motivates your team members and support the ways they want to grow in their role.' }
     };
 
     // Use the shared course mappings
@@ -1148,7 +1148,7 @@ function ToolsPage() {
             <div className="grid gap-4">
                 {recommendations.tools.map((tool, index) => {
                   const isClickable = tool.id === 't3' || tool.id === 't1' || tool.id === 't6' || tool.id === 't5' || tool.id === 't2' || tool.id === 't7' || tool.id === 't4' || tool.id === 't9' || tool.id === 't8'; // Trust Audit, Team Canvas, Burnout Assessment, Decision Making Audit, Change Readiness, Working with Me, Coaching Cards, Career Drivers, and Hopes Fears Expectations tools
-                  const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/team-canvas' : tool.id === 't6' ? '/burnout-assessment' : tool.id === 't5' ? '/decision-making-audit' : tool.id === 't2' ? '/change-readiness' : tool.id === 't7' ? '/user-guide' : tool.id === 't4' ? '/coaching-cards' : tool.id === 't9' ? '/career-drivers' : tool.id === 't8' ? '/hopes-fears-expectations' : '';
+                  const toolPath = tool.id === 't3' ? '/trust-audit' : tool.id === 't1' ? '/team-charter' : tool.id === 't6' ? '/burnout-assessment' : tool.id === 't5' ? '/decision-making-audit' : tool.id === 't2' ? '/change-readiness' : tool.id === 't7' ? '/user-guide' : tool.id === 't4' ? '/coaching-cards' : tool.id === 't9' ? '/drivers-reflection' : tool.id === 't8' ? '/expectations-reflection' : '';
                   
                   const toolContent = (
                     <>

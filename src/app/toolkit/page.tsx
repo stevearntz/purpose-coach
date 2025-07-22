@@ -135,6 +135,16 @@ const tools: Tool[] = [
     challenges: ['decision-making']
   },
   {
+    id: 'change-style',
+    path: '/change-style',
+    title: 'Change Style Assessment',
+    subtitle: 'Discover your change persona',
+    description: 'Understand how you naturally respond to change and get strategies for navigating transitions.',
+    gradient: 'from-[#F595B6] to-[#BF4C74]',
+    icon: <ArrowRight className="w-8 h-8" />,
+    challenges: ['navigating-change', 'skill-building']
+  },
+  {
     id: 'change-readiness-assessment',
     path: '/change-readiness-assessment',
     title: 'Change Readiness Assessment',

@@ -10,6 +10,7 @@ import ShareButton from '@/components/ShareButton'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
 import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
+import ToolNavigation from '@/components/ToolNavigation'
 
 const likertOptions = [
   { value: 1, label: 'Strongly Disagree' },
@@ -186,21 +187,7 @@ export default function DecisionMakingAuditPage() {
   if (showIntro) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#6DC7FF] to-[#3C36FF] flex flex-col items-center justify-center p-4">
-        <Link 
-          href="/?screen=4" 
-          className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Back to Plan
-        </Link>
-        
-        <Link 
-          href="/toolkit" 
-          className="absolute top-8 right-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
-        >
-          All Tools
-          <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
-        </Link>
+        <ToolNavigation />
         
         <div className="text-center text-white mb-12 max-w-3xl">
           <div className="inline-flex p-4 sm:p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
@@ -293,21 +280,7 @@ export default function DecisionMakingAuditPage() {
   if (showDecisionContext) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#6DC7FF] via-[#5581FF] to-[#3C36FF] flex flex-col items-center justify-center p-4">
-        <Link 
-          href="/?screen=4" 
-          className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Back to Plan
-        </Link>
-        
-        <Link 
-          href="/toolkit" 
-          className="absolute top-8 right-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
-        >
-          All Tools
-          <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
-        </Link>
+        <ToolNavigation />
         
         <div className="max-w-2xl w-full">
           <button

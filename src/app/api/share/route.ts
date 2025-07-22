@@ -297,6 +297,7 @@ export async function POST(request: NextRequest) {
       'trust-audit',
       'decision-making-audit',
       'change-readiness-assessment',
+      'change-style',
       'user-guide'
     ];
     

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import jsPDF from 'jspdf'
 import ShareButton from '@/components/ShareButton'
+import ToolNavigation from '@/components/ToolNavigation'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
 import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
@@ -428,21 +429,7 @@ export default function CareerDriversTool() {
         return (
           <div className="min-h-screen bg-gradient-to-br from-[#BADA54] to-[#30B859] flex items-center justify-center p-4">
             <div className="w-full max-w-2xl">
-              <Link 
-                href="/" 
-                className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 mr-2" />
-                Back to tools
-              </Link>
-
-              <Link
-                href="/"
-                className="absolute top-8 right-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
-              >
-                All Tools
-                <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
-              </Link>
+              <ToolNavigation />
 
               <div className="text-center space-y-8">
                 <div className="inline-flex p-4 sm:p-6 bg-white/20 backdrop-blur-sm rounded-full">

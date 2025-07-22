@@ -7,6 +7,7 @@ import Link from 'next/link'
 import jsPDF from 'jspdf'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import ShareButton from '@/components/ShareButton'
+import ToolNavigation from '@/components/ToolNavigation'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
 import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
 

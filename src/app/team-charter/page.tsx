@@ -9,6 +9,7 @@ import { useAnalytics } from '@/hooks/useAnalytics'
 import ShareButton from '@/components/ShareButton'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
 import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
+import ToolNavigation from '@/components/ToolNavigation'
 
 interface TeamData {
   teamName: string
@@ -373,21 +374,7 @@ export default function TeamCanvasTool() {
           return (
             <div className="min-h-screen bg-gradient-to-br from-[#FFA851] via-[#FF8FA3] to-[#EB6593] flex items-center justify-center p-4">
               <div className="w-full max-w-2xl">
-                <Link 
-                  href="/?screen=4" 
-                  className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
-                >
-                  <ArrowLeft className="w-5 h-5 mr-2" />
-                  Back to Plan
-                </Link>
-                
-                <Link 
-                  href="/toolkit" 
-                  className="absolute top-8 right-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
-                >
-                  All Tools
-                  <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
-                </Link>
+        <ToolNavigation />
 
                 <div className="text-center space-y-8">
                   <button
@@ -444,21 +431,7 @@ export default function TeamCanvasTool() {
         return (
           <div className="min-h-screen bg-gradient-to-br from-[#FFA851] via-[#FF8FA3] to-[#EB6593] flex items-center justify-center p-4">
             <div className="w-full max-w-2xl">
-              <Link 
-                href="/?screen=4" 
-                className="absolute top-8 left-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 mr-2" />
-                Back to Plan
-              </Link>
-              
-              <Link 
-                href="/toolkit" 
-                className="absolute top-8 right-8 inline-flex items-center text-white/70 hover:text-white transition-colors"
-              >
-                All Tools
-                <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
-              </Link>
+        <ToolNavigation />
 
               <div className="text-center space-y-8">
                 <div className="inline-flex p-4 sm:p-6 bg-white/20 backdrop-blur-sm rounded-full">

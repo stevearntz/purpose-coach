@@ -42,6 +42,12 @@ export const toolConfigs = {
     subtitle: "Prepare for meaningful conversations.",
     description: "Prepare for meaningful conversations by clarifying what you hope for, what concerns you, and what you need to succeed."
   },
+  changeStyle: {
+    gradient: "from-[#F595B6] to-[#BF4C74]",
+    title: "Change Style Assessment",
+    subtitle: "Discover your change persona.",
+    description: "Understand how you naturally respond to change at work and get personalized strategies for navigating transitions more effectively."
+  },
   // Add more tools here as you create them
 }
 

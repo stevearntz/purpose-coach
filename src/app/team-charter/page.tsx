@@ -508,10 +508,13 @@ export default function TeamCanvasTool() {
           <div className="min-h-screen bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
-                <Link href="/" className="text-gray-600 hover:text-gray-800 flex items-center gap-2 mb-4">
+                <button
+                  onClick={() => setShowIntro(true)}
+                  className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
+                >
                   <ArrowLeft className="w-4 h-4" />
-                  Back to tools
-                </Link>
+                  Start Over
+                </button>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
@@ -622,10 +625,13 @@ export default function TeamCanvasTool() {
           <div className="min-h-screen bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
-                <Link href="/" className="text-gray-600 hover:text-gray-800 flex items-center gap-2 mb-4">
+                <button
+                  onClick={() => setShowIntro(true)}
+                  className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
+                >
                   <ArrowLeft className="w-4 h-4" />
-                  Back to tools
-                </Link>
+                  Start Over
+                </button>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
@@ -716,7 +722,18 @@ export default function TeamCanvasTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-end mt-8">
+                <div className="flex justify-between items-center mt-8">
+                  <button
+                    onClick={handlePrevious}
+                    disabled={currentStage === 0}
+                    className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                      currentStage === 0
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                    }`}
+                  >
+                    Back
+                  </button>
                   <button
                     onClick={handleNext}
                     disabled={!teamData.people.some(p => p.name)}
@@ -735,10 +752,13 @@ export default function TeamCanvasTool() {
           <div className="min-h-screen bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
-                <Link href="/" className="text-gray-600 hover:text-gray-800 flex items-center gap-2 mb-4">
+                <button
+                  onClick={() => setShowIntro(true)}
+                  className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
+                >
                   <ArrowLeft className="w-4 h-4" />
-                  Back to tools
-                </Link>
+                  Start Over
+                </button>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
@@ -824,7 +844,18 @@ export default function TeamCanvasTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-end mt-8">
+                <div className="flex justify-between items-center mt-8">
+                  <button
+                    onClick={handlePrevious}
+                    disabled={currentStage === 0}
+                    className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                      currentStage === 0
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                    }`}
+                  >
+                    Back
+                  </button>
                   <button
                     onClick={handleNext}
                     disabled={teamData.values.length === 0}
@@ -843,10 +874,13 @@ export default function TeamCanvasTool() {
           <div className="min-h-screen bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
-                <Link href="/" className="text-gray-600 hover:text-gray-800 flex items-center gap-2 mb-4">
+                <button
+                  onClick={() => setShowIntro(true)}
+                  className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
+                >
                   <ArrowLeft className="w-4 h-4" />
-                  Back to tools
-                </Link>
+                  Start Over
+                </button>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
@@ -922,7 +956,18 @@ export default function TeamCanvasTool() {
                   )}
                 </div>
 
-                <div className="flex justify-end mt-8">
+                <div className="flex justify-between items-center mt-8">
+                  <button
+                    onClick={handlePrevious}
+                    disabled={currentStage === 0}
+                    className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                      currentStage === 0
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                    }`}
+                  >
+                    Back
+                  </button>
                   <button
                     onClick={handleNext}
                     disabled={!teamData.impact}
@@ -941,10 +986,13 @@ export default function TeamCanvasTool() {
           <div className="min-h-screen bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
-                <Link href="/" className="text-gray-600 hover:text-gray-800 flex items-center gap-2 mb-4">
+                <button
+                  onClick={() => setShowIntro(true)}
+                  className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
+                >
                   <ArrowLeft className="w-4 h-4" />
-                  Back to tools
-                </Link>
+                  Start Over
+                </button>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
@@ -1014,7 +1062,18 @@ export default function TeamCanvasTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-end mt-8">
+                <div className="flex justify-between items-center mt-8">
+                  <button
+                    onClick={handlePrevious}
+                    disabled={currentStage === 0}
+                    className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                      currentStage === 0
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                    }`}
+                  >
+                    Back
+                  </button>
                   <button
                     onClick={handleNext}
                     disabled={!teamData.activities.some(a => a)}
@@ -1033,10 +1092,13 @@ export default function TeamCanvasTool() {
           <div className="min-h-screen bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
-                <Link href="/" className="text-gray-600 hover:text-gray-800 flex items-center gap-2 mb-4">
+                <button
+                  onClick={() => setShowIntro(true)}
+                  className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
+                >
                   <ArrowLeft className="w-4 h-4" />
-                  Back to tools
-                </Link>
+                  Start Over
+                </button>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
@@ -1132,7 +1194,18 @@ export default function TeamCanvasTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-end mt-8">
+                <div className="flex justify-between items-center mt-8">
+                  <button
+                    onClick={handlePrevious}
+                    disabled={currentStage === 0}
+                    className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                      currentStage === 0
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                    }`}
+                  >
+                    Back
+                  </button>
                   <button
                     onClick={handleNext}
                     disabled={teamData.strengths.length !== 3}
@@ -1151,10 +1224,13 @@ export default function TeamCanvasTool() {
           <div className="min-h-screen bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
-                <Link href="/" className="text-gray-600 hover:text-gray-800 flex items-center gap-2 mb-4">
+                <button
+                  onClick={() => setShowIntro(true)}
+                  className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
+                >
                   <ArrowLeft className="w-4 h-4" />
-                  Back to tools
-                </Link>
+                  Start Over
+                </button>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
@@ -1250,7 +1326,18 @@ export default function TeamCanvasTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-end mt-8">
+                <div className="flex justify-between items-center mt-8">
+                  <button
+                    onClick={handlePrevious}
+                    disabled={currentStage === 0}
+                    className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                      currentStage === 0
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                    }`}
+                  >
+                    Back
+                  </button>
                   <button
                     onClick={handleNext}
                     disabled={teamData.weaknesses.length !== 3}
@@ -1269,10 +1356,13 @@ export default function TeamCanvasTool() {
           <div className="min-h-screen bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
-                <Link href="/" className="text-gray-600 hover:text-gray-800 flex items-center gap-2 mb-4">
+                <button
+                  onClick={() => setShowIntro(true)}
+                  className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
+                >
                   <ArrowLeft className="w-4 h-4" />
-                  Back to tools
-                </Link>
+                  Start Over
+                </button>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
@@ -1352,7 +1442,18 @@ export default function TeamCanvasTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-end mt-8">
+                <div className="flex justify-between items-center mt-8">
+                  <button
+                    onClick={handlePrevious}
+                    disabled={currentStage === 0}
+                    className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                      currentStage === 0
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                    }`}
+                  >
+                    Back
+                  </button>
                   <button
                     onClick={handleNext}
                     disabled={teamData.soloWins.length === 0}
@@ -1371,10 +1472,13 @@ export default function TeamCanvasTool() {
           <div className="min-h-screen bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">
               <div className="mb-8">
-                <Link href="/" className="text-gray-600 hover:text-gray-800 flex items-center gap-2 mb-4">
+                <button
+                  onClick={() => setShowIntro(true)}
+                  className="text-[#FFA851] hover:text-[#FF9741] flex items-center gap-2 mb-4 font-medium transition-colors"
+                >
                   <ArrowLeft className="w-4 h-4" />
-                  Back to tools
-                </Link>
+                  Start Over
+                </button>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">{teamData.teamName}</h2>
                   <div className="flex flex-col items-end gap-1">
@@ -1454,7 +1558,18 @@ export default function TeamCanvasTool() {
                   </div>
                 </div>
 
-                <div className="flex justify-end mt-8">
+                <div className="flex justify-between items-center mt-8">
+                  <button
+                    onClick={handlePrevious}
+                    disabled={currentStage === 0}
+                    className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                      currentStage === 0
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                    }`}
+                  >
+                    Back
+                  </button>
                   <button
                     onClick={handleNext}
                     disabled={teamData.teamWins.length === 0}

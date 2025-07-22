@@ -687,13 +687,16 @@ export default function UserGuidePage() {
   // Main Form Screen
   if (!showIntro && !showNameInput && !showResults) {
     return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 p-4" data-bg style={{WebkitBackgroundClip: 'border-box'}}>
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
-          <Link href="/?screen=4" className="text-gray-600 hover:text-gray-800 flex items-center gap-2 mb-4">
+          <button
+            onClick={() => setShowIntro(true)}
+            className="text-[#2A74B9] hover:text-[#215A91] flex items-center gap-2 mb-4 font-medium transition-colors"
+          >
             <ArrowLeft className="w-4 h-4" />
-            Back to tools
-          </Link>
+            Start Over
+          </button>
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-gray-900">User Guide</h2>
             <div className="flex flex-col items-end gap-1">
@@ -728,7 +731,18 @@ export default function UserGuidePage() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           {renderSection()}
           
-          <div className="flex justify-end mt-8">
+          <div className="flex justify-between items-center mt-8">
+            <button
+              onClick={handlePrevious}
+              disabled={currentSectionIndex === 0}
+              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                currentSectionIndex === 0
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+              }`}
+            >
+              Back
+            </button>
             <button
               onClick={handleNext}
               className="px-6 py-3 bg-[#2A74B9] text-white rounded-lg font-medium hover:bg-[#215A91] transition-colors"

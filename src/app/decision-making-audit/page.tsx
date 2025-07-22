@@ -497,7 +497,7 @@ export default function DecisionMakingAuditPage() {
   // Main Assessment Screen
   if (!showIntro && !showDecisionContext && !showResults) {
     return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 p-4" data-bg style={{WebkitBackgroundClip: 'border-box'}}>
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
@@ -506,7 +506,7 @@ export default function DecisionMakingAuditPage() {
               className="inline-flex items-center text-[#3C36FF] hover:text-[#302CC6] transition-colors font-medium"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
-              Back
+              Start Over
             </button>
             <div className="flex flex-col items-end gap-1">
               <p className="text-sm text-gray-600">
@@ -591,7 +591,18 @@ export default function DecisionMakingAuditPage() {
             </div>
           </div>
           
-          <div className="flex justify-end mt-8">
+          <div className="flex justify-between items-center mt-8">
+            <button
+              onClick={handlePrevious}
+              disabled={currentQuestionIndex === 0}
+              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                currentQuestionIndex === 0
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+              }`}
+            >
+              Back
+            </button>
             <button
               onClick={handleNext}
               disabled={!getCurrentAnswer()}

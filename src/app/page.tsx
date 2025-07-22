@@ -1158,8 +1158,8 @@ function ToolsPage() {
                         {index + 1}
                       </div>
                       
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
-                        <div className="flex items-center gap-3 sm:gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                        <div className="flex items-center gap-3 sm:gap-4 sm:flex-1">
                           <div className="w-16 h-16 sm:w-24 sm:h-20 bg-white rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
                             {getToolVisual(tool.id)}
                           </div>

@@ -77,7 +77,7 @@ export default function NavigationHeader({
           onClick={action.onClick}
           className={baseClass}
         >
-          <span className="uppercase text-xs tracking-wider"><span className="sm:hidden">DEMO</span><span className="hidden sm:inline">{action.label}</span></span>
+          <span className="sm:hidden uppercase">DEMO</span><span className="hidden sm:inline uppercase">{action.label}</span>
         </button>
       );
     }

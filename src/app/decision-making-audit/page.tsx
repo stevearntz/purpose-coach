@@ -9,6 +9,7 @@ import { Question, Answer, questions, dimensionInfo, getDecisionRecommendations 
 import ShareButton from '@/components/ShareButton'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
+import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
 
 const likertOptions = [
   { value: 1, label: 'Strongly Disagree' },
@@ -29,7 +30,8 @@ export default function DecisionMakingAuditPage() {
   const [showResults, setShowResults] = useState(false)
   const [decisionContext, setDecisionContext] = useState('')
   const [userEmail, setUserEmail] = useState('')
-  const [isEmailValid, setIsEmailValid] = useState(false)
+  const [emailValidation, setEmailValidation] = useState<EmailValidationResult>({ isValid: true })
+  const [showSuggestion, setShowSuggestion] = useState(false)
   const [startTime] = useState(Date.now())
   const [completedQuestions, setCompletedQuestions] = useState<Set<number>>(new Set())
   
@@ -44,19 +46,25 @@ export default function DecisionMakingAuditPage() {
   useEffect(() => {
     if (hasStoredEmail && email) {
       setUserEmail(email)
-      setIsEmailValid(true)
+      setEmailValidation({ isValid: true })
     }
   }, [email, hasStoredEmail])
-
-  const validateEmail = (email: string) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return re.test(email)
-  }
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newEmail = e.target.value
     setUserEmail(newEmail)
-    setIsEmailValid(validateEmail(newEmail))
+    
+    const validation = validateEmailRealtime(newEmail)
+    setEmailValidation(validation)
+    setShowSuggestion(!!validation.suggestion)
+  }
+
+  const handleSuggestionClick = () => {
+    if (emailValidation.suggestion) {
+      setUserEmail(emailValidation.suggestion)
+      setEmailValidation({ isValid: true })
+      setShowSuggestion(false)
+    }
   }
 
   const currentQuestion = questions[currentQuestionIndex]
@@ -135,8 +143,16 @@ export default function DecisionMakingAuditPage() {
       }
       
       // Enter key for starting the assessment on intro
-      if (e.key === 'Enter' && showIntro && isEmailValid) {
-        if (isEmailValid && userEmail) {
+      if (e.key === 'Enter' && showIntro && emailValidation.isValid && userEmail) {
+        const finalValidation = validateEmail(userEmail)
+        setEmailValidation(finalValidation)
+        
+        if (!finalValidation.isValid) {
+          setShowSuggestion(!!finalValidation.suggestion)
+          return
+        }
+        
+        if (userEmail) {
           captureEmailForTool(userEmail, 'Decision Making Audit', 'dma');
         }
         setShowIntro(false)
@@ -147,7 +163,7 @@ export default function DecisionMakingAuditPage() {
     
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [showIntro, showDecisionContext, showResults, currentQuestionIndex, decisionContext, isEmailValid, userEmail, captureEmailForTool])
+  }, [showIntro, showDecisionContext, showResults, currentQuestionIndex, decisionContext, emailValidation, userEmail, captureEmailForTool])
   
   const calculateScores = () => {
     const dimensions = ['people', 'purpose', 'principles', 'outcomes'] as const
@@ -198,49 +214,76 @@ export default function DecisionMakingAuditPage() {
         </div>
         
         <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20 max-w-2xl w-full">
-          <div className="space-y-6">
-            <div className="space-y-4">
-              <label className="block text-lg font-medium text-white/90">
-                What's your email?
-              </label>
+          <div className="space-y-4">
+            <label className="block text-lg font-medium text-white/90">
+              What's your email?
+            </label>
+            <div className="relative">
               <input
                 type="email"
                 value={userEmail}
                 onChange={handleEmailChange}
                 placeholder="you@company.com"
-                className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                className={`w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg ${
+                  emailValidation.isValid ? 'border-white/30' : 'border-red-300/50'
+                }`}
                 autoComplete="email"
               />
-              {hasStoredEmail && (
-                <p className="text-white/70 text-sm text-center">
-                  Welcome back! We've pre-filled your email.
-                </p>
-              )}
             </div>
             
-            <button
-              onClick={async () => {
-                if (isEmailValid && userEmail) {
-                  await captureEmailForTool(userEmail, 'Decision Making Audit', 'dma');
-                }
-                setShowIntro(false);
-                setShowDecisionContext(true);
-              }}
-              disabled={!isEmailValid}
-              className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
-                isEmailValid
-                  ? 'bg-white text-[#3C36FF] hover:bg-white/90'
-                  : 'bg-white/50 text-[#3C36FF]/50 cursor-not-allowed'
-              }`}
-            >
-              <span className="sm:hidden">Start Audit</span>
-              <span className="hidden sm:inline">Start Decision Making Audit</span>
-            </button>
+            {!emailValidation.isValid && emailValidation.error && (
+              <div className="text-sm text-red-200 mt-1">
+                {emailValidation.error}
+              </div>
+            )}
             
-            <p className="text-white/70 text-sm text-center">
-              This will take about 5-7 minutes to complete
-            </p>
+            {showSuggestion && emailValidation.suggestion && (
+              <button
+                type="button"
+                onClick={handleSuggestionClick}
+                className="text-sm text-white/80 hover:text-white mt-1 underline"
+              >
+                Use suggested email: {emailValidation.suggestion}
+              </button>
+            )}
+            
+            {hasStoredEmail && (
+              <p className="text-white/70 text-sm text-center">
+                Welcome back! We've pre-filled your email.
+              </p>
+            )}
           </div>
+          
+          <button
+            onClick={async () => {
+              const finalValidation = validateEmail(userEmail)
+              setEmailValidation(finalValidation)
+              
+              if (!finalValidation.isValid) {
+                setShowSuggestion(!!finalValidation.suggestion)
+                return
+              }
+              
+              if (userEmail) {
+                await captureEmailForTool(userEmail, 'Decision Making Audit', 'dma');
+              }
+              setShowIntro(false);
+              setShowDecisionContext(true);
+            }}
+            disabled={!emailValidation.isValid || !userEmail}
+            className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
+              emailValidation.isValid && userEmail
+                ? 'bg-white text-[#3C36FF] hover:bg-white/90'
+                : 'bg-white/50 text-[#3C36FF]/50 cursor-not-allowed'
+            }`}
+          >
+            <span className="sm:hidden">Start Audit</span>
+            <span className="hidden sm:inline">Start Decision Making Audit</span>
+          </button>
+          
+          <p className="text-white/70 text-sm text-center">
+            This will take about 5-7 minutes to complete
+          </p>
         </div>
       </div>
     )

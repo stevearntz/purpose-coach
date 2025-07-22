@@ -8,6 +8,7 @@ import jsPDF from 'jspdf'
 import ShareButton from '@/components/ShareButton'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
+import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
 
 interface DriverSelection {
   section: number
@@ -153,7 +154,8 @@ export default function CareerDriversTool() {
     why: ''
   })
   const [userEmail, setUserEmail] = useState('')
-  const [isEmailValid, setIsEmailValid] = useState(false)
+  const [emailValidation, setEmailValidation] = useState<EmailValidationResult>({ isValid: true })
+  const [showSuggestion, setShowSuggestion] = useState(false)
   const [startTime] = useState(Date.now())
 
   // Track tool start
@@ -165,19 +167,25 @@ export default function CareerDriversTool() {
   useEffect(() => {
     if (hasStoredEmail && email) {
       setUserEmail(email)
-      setIsEmailValid(true)
+      setEmailValidation({ isValid: true })
     }
   }, [email, hasStoredEmail])
-
-  const validateEmail = (email: string) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return re.test(email)
-  }
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newEmail = e.target.value
     setUserEmail(newEmail)
-    setIsEmailValid(validateEmail(newEmail))
+    
+    const validation = validateEmailRealtime(newEmail)
+    setEmailValidation(validation)
+    setShowSuggestion(!!validation.suggestion)
+  }
+
+  const handleSuggestionClick = () => {
+    if (emailValidation.suggestion) {
+      setUserEmail(emailValidation.suggestion)
+      setEmailValidation({ isValid: true })
+      setShowSuggestion(false)
+    }
   }
 
   // Track progress
@@ -459,20 +467,41 @@ export default function CareerDriversTool() {
                 </div>
 
                 <div className="space-y-4 max-w-md mx-auto">
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     <label className="block text-lg font-medium text-white/90">
                       What's your email?
                     </label>
-                    <input
-                      type="email"
-                      value={userEmail}
-                      onChange={handleEmailChange}
-                      placeholder="you@company.com"
-                      className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
-                      autoComplete="email"
-                    />
+                    <div className="relative">
+                      <input
+                        type="email"
+                        value={userEmail}
+                        onChange={handleEmailChange}
+                        placeholder="you@company.com"
+                        className={`w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg ${
+                          emailValidation.isValid ? 'border-white/30' : 'border-red-300/50'
+                        }`}
+                        autoComplete="email"
+                      />
+                    </div>
+                    
+                    {!emailValidation.isValid && emailValidation.error && (
+                      <div className="text-sm text-red-200 mt-1">
+                        {emailValidation.error}
+                      </div>
+                    )}
+                    
+                    {showSuggestion && emailValidation.suggestion && (
+                      <button
+                        type="button"
+                        onClick={handleSuggestionClick}
+                        className="text-sm text-white/80 hover:text-white mt-1 underline"
+                      >
+                        Use suggested email: {emailValidation.suggestion}
+                      </button>
+                    )}
+                    
                     {hasStoredEmail && (
-                      <p className="text-white/70 text-sm">
+                      <p className="text-white/70 text-sm text-center">
                         Welcome back! We've pre-filled your email.
                       </p>
                     )}
@@ -480,14 +509,22 @@ export default function CareerDriversTool() {
                   
                   <button
                     onClick={async () => {
-                      if (isEmailValid && userEmail) {
+                      const finalValidation = validateEmail(userEmail)
+                      setEmailValidation(finalValidation)
+                      
+                      if (!finalValidation.isValid) {
+                        setShowSuggestion(!!finalValidation.suggestion)
+                        return
+                      }
+                      
+                      if (userEmail) {
                         await captureEmailForTool(userEmail, 'Career Drivers', 'cd');
                       }
                       handleNext();
                     }}
-                    disabled={!isEmailValid}
+                    disabled={!emailValidation.isValid || !userEmail}
                     className={`w-full px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 ${
-                      isEmailValid
+                      emailValidation.isValid && userEmail
                         ? 'bg-white text-[#30B859] hover:bg-white/90'
                         : 'bg-white/50 text-[#30B859]/50 cursor-not-allowed'
                     }`}

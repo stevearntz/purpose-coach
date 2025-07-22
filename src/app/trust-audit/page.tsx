@@ -10,6 +10,7 @@ import { toolConfigs, toolStyles } from '@/lib/toolConfigs'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import ShareButton from '@/components/ShareButton'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
+import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
 
 interface Question {
   id: string
@@ -85,7 +86,8 @@ export default function TrustAuditPage() {
   const [showRelationshipInput, setShowRelationshipInput] = useState(false)
   const [startTime] = useState(Date.now())
   const [userEmail, setUserEmail] = useState('')
-  const [isEmailValid, setIsEmailValid] = useState(false)
+  const [emailValidation, setEmailValidation] = useState<EmailValidationResult>({ isValid: true })
+  const [showSuggestion, setShowSuggestion] = useState(false)
   const [completedQuestions, setCompletedQuestions] = useState<Set<number>>(new Set())
 
   // Track tool start
@@ -97,19 +99,26 @@ export default function TrustAuditPage() {
   useEffect(() => {
     if (hasStoredEmail && email) {
       setUserEmail(email)
-      setIsEmailValid(true)
+      setEmailValidation({ isValid: true })
     }
   }, [email, hasStoredEmail])
-
-  const validateEmail = (email: string) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return re.test(email)
-  }
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newEmail = e.target.value
     setUserEmail(newEmail)
-    setIsEmailValid(validateEmail(newEmail))
+    
+    // Real-time validation
+    const validation = validateEmailRealtime(newEmail)
+    setEmailValidation(validation)
+    setShowSuggestion(!!validation.suggestion)
+  }
+
+  const handleSuggestionClick = () => {
+    if (emailValidation.suggestion) {
+      setUserEmail(emailValidation.suggestion)
+      setEmailValidation({ isValid: true })
+      setShowSuggestion(false)
+    }
   }
 
   // Track progress
@@ -197,12 +206,16 @@ export default function TrustAuditPage() {
       }
       
       // Enter key for starting the assessment on intro
-      if (e.key === 'Enter' && showIntro && isEmailValid) {
-        if (isEmailValid && userEmail) {
-          captureEmailForTool(userEmail, 'Trust Audit', 'ta');
+      if (e.key === 'Enter' && showIntro && emailValidation.isValid && userEmail) {
+        // Final validation and start
+        const finalValidation = validateEmail(userEmail)
+        setEmailValidation(finalValidation)
+        
+        if (finalValidation.isValid && userEmail) {
+          captureEmailForTool(userEmail, 'Trust Audit', 'ta')
+          setShowIntro(false)
+          setShowRelationshipInput(true)
         }
-        setShowIntro(false)
-        setShowRelationshipInput(true)
       }
       
       // Enter key for continuing from relationship input
@@ -213,7 +226,7 @@ export default function TrustAuditPage() {
     
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [showIntro, showRelationshipInput, showResults, currentQuestionIndex, relationshipName, isEmailValid, userEmail, captureEmailForTool])
+  }, [showIntro, showRelationshipInput, showResults, currentQuestionIndex, relationshipName, emailValidation.isValid, userEmail, captureEmailForTool])
 
   const calculateScores = () => {
     const sections = ['integrity', 'competence', 'empathy'] as const
@@ -308,14 +321,38 @@ export default function TrustAuditPage() {
               <label className="block text-lg font-medium text-white/90">
                 What's your email?
               </label>
-              <input
-                type="email"
-                value={userEmail}
-                onChange={handleEmailChange}
-                placeholder="you@company.com"
-                className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
-                autoComplete="email"
-              />
+              <div className="relative">
+                <input
+                  type="email"
+                  value={userEmail}
+                  onChange={handleEmailChange}
+                  placeholder="you@company.com"
+                  className={`w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg ${
+                    emailValidation.isValid 
+                      ? 'border-white/30' 
+                      : 'border-red-300/50'
+                  }`}
+                  autoComplete="email"
+                />
+              </div>
+              
+              {/* Validation feedback */}
+              {!emailValidation.isValid && emailValidation.error && (
+                <div className="text-sm text-red-200 mt-1">
+                  {emailValidation.error}
+                </div>
+              )}
+              
+              {/* Suggestion button */}
+              {showSuggestion && emailValidation.suggestion && (
+                <button
+                  type="button"
+                  onClick={handleSuggestionClick}
+                  className="text-sm text-white/80 hover:text-white mt-1 underline"
+                >
+                  Use suggested email: {emailValidation.suggestion}
+                </button>
+              )}
               {hasStoredEmail && (
                 <p className="text-white/70 text-sm text-center">
                   Welcome back! We've pre-filled your email.
@@ -325,15 +362,24 @@ export default function TrustAuditPage() {
             
             <button
               onClick={async () => {
-                if (isEmailValid && userEmail) {
-                  await captureEmailForTool(userEmail, 'Trust Audit', 'ta');
+                // Final validation before starting
+                const finalValidation = validateEmail(userEmail)
+                setEmailValidation(finalValidation)
+                
+                if (!finalValidation.isValid) {
+                  setShowSuggestion(!!finalValidation.suggestion)
+                  return
                 }
-                setShowIntro(false);
-                setShowRelationshipInput(true);
+                
+                if (userEmail) {
+                  await captureEmailForTool(userEmail, 'Trust Audit', 'ta')
+                }
+                setShowIntro(false)
+                setShowRelationshipInput(true)
               }}
-              disabled={!isEmailValid}
+              disabled={!emailValidation.isValid || !userEmail}
               className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
-                isEmailValid
+                emailValidation.isValid && userEmail
                   ? 'bg-white text-[#DB4839] hover:bg-white/90'
                   : 'bg-white/50 text-[#DB4839]/50 cursor-not-allowed'
               }`}

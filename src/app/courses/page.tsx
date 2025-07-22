@@ -311,7 +311,7 @@ export default function CoursesPage() {
           onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}
           className="px-8 py-3 bg-iris text-white rounded-lg font-semibold hover:bg-iris-dark transition-colors"
         >
-          BOOK A DEMO
+          <span className="sm:hidden">DEMO</span><span className="hidden sm:inline">BOOK A DEMO</span>
         </button>
       </div>
 

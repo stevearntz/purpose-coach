@@ -3,6 +3,7 @@ import { League_Spartan } from 'next/font/google'
 import './globals.css'
 import '../styles/print.css'
 import AmplitudeProvider from '@/components/AmplitudeProvider'
+import ScrollToTop from '@/components/ScrollToTop'
 
 const leagueSpartan = League_Spartan({ 
   subsets: ['latin'],
@@ -66,6 +67,7 @@ export default function RootLayout({
       </head>
       <body className={`${leagueSpartan.className} antialiased`}>
         <AmplitudeProvider>
+          <ScrollToTop />
           {children}
         </AmplitudeProvider>
       </body>

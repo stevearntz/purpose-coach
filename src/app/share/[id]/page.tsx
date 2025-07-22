@@ -591,13 +591,13 @@ export default function SharePage() {
                   onClick={() => window.location.href = '/courses'}
                   className="px-8 py-3 border border-iris-500 text-iris-500 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
                 >
-                  EXPLORE CATALOG
+                  <span className="sm:hidden">CATALOG</span><span className="hidden sm:inline">EXPLORE CATALOG</span>
                 </button>
                 <button 
                   onClick={() => window.open('https://calendly.com/getcampfire/demo', '_blank')}
                   className="px-8 py-3 border border-iris-500 text-iris-500 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
                 >
-                  BOOK A DEMO
+                  <span className="sm:hidden">DEMO</span><span className="hidden sm:inline">BOOK A DEMO</span>
                 </button>
               </div>
             </div>

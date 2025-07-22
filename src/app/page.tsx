@@ -1274,7 +1274,7 @@ function ToolsPage() {
                 }}
                 className="px-8 py-3 border border-iris-500 text-iris-500 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
               >
-                EXPLORE CATALOG
+                <span className="sm:hidden">CATALOG</span><span className="hidden sm:inline">EXPLORE CATALOG</span>
               </button>
               <button 
                 onClick={() => {
@@ -1286,7 +1286,7 @@ function ToolsPage() {
                 }}
                 className="px-8 py-3 bg-iris-500 text-white rounded-lg font-semibold hover:bg-iris-700 transition-colors"
               >
-                BOOK A DEMO
+                <span className="sm:hidden">DEMO</span><span className="hidden sm:inline">BOOK A DEMO</span>
               </button>
               </div>
             </div>

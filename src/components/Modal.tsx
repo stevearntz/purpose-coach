@@ -50,9 +50,9 @@ export default function Modal({ isOpen, onClose, children, className = '' }: Mod
       >
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 z-10 p-2 rounded-full hover:bg-gray-100 transition-colors"
+          className="absolute top-6 right-6 z-10 p-2 rounded-full bg-black/20 hover:bg-black/30 transition-colors"
         >
-          <X className="w-6 h-6 text-gray-500" />
+          <X className="w-6 h-6 text-white" strokeWidth={3} />
         </button>
         
         <div className="overflow-y-auto max-h-[90vh]">

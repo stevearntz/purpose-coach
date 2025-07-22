@@ -880,7 +880,7 @@ function ToolsPage() {
   if (currentScreen === 1) {
     return (
       <div className="bg-custom-gradient-diagonal">
-        <div className="min-h-screen flex items-center justify-center px-4 py-8">
+        <div className="min-h-screen flex items-center justify-center px-4 py-8 pb-24 sm:pb-8">
           <div className="w-full max-w-2xl mx-auto text-center text-white">
             <div className="flex items-center justify-center gap-3 mb-6">
               <img 

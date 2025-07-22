@@ -12,13 +12,23 @@ export default function ScrollToTop() {
       return
     }
 
-    // Scroll to top when pathname changes
-    // Use setTimeout to ensure DOM is ready
-    const timer = setTimeout(() => {
+    // Immediately try to scroll
+    window.scrollTo(0, 0)
+    
+    // Also scroll after a short delay to handle dynamic content
+    const timer1 = setTimeout(() => {
       window.scrollTo(0, 0)
     }, 0)
+    
+    // And once more after a slightly longer delay for slower content
+    const timer2 = setTimeout(() => {
+      window.scrollTo(0, 0)
+    }, 100)
 
-    return () => clearTimeout(timer)
+    return () => {
+      clearTimeout(timer1)
+      clearTimeout(timer2)
+    }
   }, [pathname])
 
   return null

@@ -298,6 +298,11 @@ export default function UserGuidePage() {
               type="text"
               value={userData.name}
               onChange={(e) => setUserData({...userData, name: e.target.value})}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && userData.name.trim()) {
+                  setShowNameInput(false);
+                }
+              }}
               placeholder="Enter your full name..."
               className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
               autoFocus
@@ -309,17 +314,28 @@ export default function UserGuidePage() {
               </p>
             </div>
             
-            <button
-              onClick={() => setShowNameInput(false)}
-              disabled={!userData.name.trim()}
-              className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
-                userData.name.trim()
-                  ? 'bg-white text-[#2A74B9] hover:bg-white/90'
-                  : 'bg-white/50 text-[#2A74B9]/50 cursor-not-allowed'
-              }`}
-            >
-              Continue
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setShowNameInput(false);
+                  setShowIntro(true);
+                }}
+                className="px-6 py-4 text-white/80 hover:text-white font-medium transition-colors"
+              >
+                Back
+              </button>
+              <button
+                onClick={() => setShowNameInput(false)}
+                disabled={!userData.name.trim()}
+                className={`flex-1 py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
+                  userData.name.trim()
+                    ? 'bg-white text-[#2A74B9] hover:bg-white/90'
+                    : 'bg-white/50 text-[#2A74B9]/50 cursor-not-allowed'
+                }`}
+              >
+                Continue
+              </button>
+            </div>
           </div>
         </div>
       </div>

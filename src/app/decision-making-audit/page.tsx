@@ -139,10 +139,6 @@ export default function DecisionMakingAuditPage() {
         setShowDecisionContext(true)
       }
       
-      // Enter key for continuing from decision context
-      if (e.key === 'Enter' && showDecisionContext && decisionContext.trim()) {
-        setShowDecisionContext(false)
-      }
     }
     
     window.addEventListener('keydown', handleKeyPress)
@@ -276,22 +272,44 @@ export default function DecisionMakingAuditPage() {
             <textarea
               value={decisionContext}
               onChange={(e) => setDecisionContext(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && e.ctrlKey && decisionContext.trim()) {
+                  setShowDecisionContext(false);
+                }
+              }}
               placeholder="e.g., Should we expand into a new market? Which vendor should we choose?"
               className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg min-h-[100px] resize-y"
               autoFocus
             />
             
-            <button
-              onClick={() => setShowDecisionContext(false)}
-              disabled={!decisionContext.trim()}
-              className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
-                decisionContext.trim()
-                  ? 'bg-white text-[#3C36FF] hover:bg-white/90'
-                  : 'bg-white/50 text-[#3C36FF]/50 cursor-not-allowed'
-              }`}
-            >
-              Continue
-            </button>
+            <div className="bg-white/10 backdrop-blur-sm p-3 rounded-lg border border-white/20">
+              <p className="text-sm text-white/90 text-center">
+                💡 Tip: Press Ctrl+Enter to continue
+              </p>
+            </div>
+            
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setShowDecisionContext(false);
+                  setShowIntro(true);
+                }}
+                className="px-6 py-4 text-white/80 hover:text-white font-medium transition-colors"
+              >
+                Back
+              </button>
+              <button
+                onClick={() => setShowDecisionContext(false)}
+                disabled={!decisionContext.trim()}
+                className={`flex-1 py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
+                  decisionContext.trim()
+                    ? 'bg-white text-[#3C36FF] hover:bg-white/90'
+                    : 'bg-white/50 text-[#3C36FF]/50 cursor-not-allowed'
+                }`}
+              >
+                Continue
+              </button>
+            </div>
           </div>
         </div>
       </div>

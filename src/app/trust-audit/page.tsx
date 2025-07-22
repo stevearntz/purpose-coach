@@ -379,22 +379,38 @@ export default function TrustAuditPage() {
               type="text"
               value={relationshipName}
               onChange={(e) => setRelationshipName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && relationshipName.trim()) {
+                  setShowRelationshipInput(false);
+                }
+              }}
               placeholder="Enter their first name..."
               className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
               autoFocus
             />
             
-            <button
-              onClick={() => setShowRelationshipInput(false)}
-              disabled={!relationshipName.trim()}
-              className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
-                relationshipName.trim()
-                  ? 'bg-white text-[#DB4839] hover:bg-white/90'
-                  : 'bg-white/50 text-[#DB4839]/50 cursor-not-allowed'
-              }`}
-            >
-              Continue
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setShowRelationshipInput(false);
+                  setShowIntro(true);
+                }}
+                className="px-6 py-4 text-white/80 hover:text-white font-medium transition-colors"
+              >
+                Back
+              </button>
+              <button
+                onClick={() => setShowRelationshipInput(false)}
+                disabled={!relationshipName.trim()}
+                className={`flex-1 py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
+                  relationshipName.trim()
+                    ? 'bg-white text-[#DB4839] hover:bg-white/90'
+                    : 'bg-white/50 text-[#DB4839]/50 cursor-not-allowed'
+                }`}
+              >
+                Continue
+              </button>
+            </div>
           </div>
         </div>
       </div>

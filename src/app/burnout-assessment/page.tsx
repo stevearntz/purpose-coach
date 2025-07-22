@@ -416,22 +416,38 @@ export default function BurnoutAssessmentPage() {
               type="text"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && userName.trim()) {
+                  setShowNameInput(false);
+                }
+              }}
               placeholder="Enter your first name..."
               className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
               autoFocus
             />
             
-            <button
-              onClick={() => setShowNameInput(false)}
-              disabled={!userName.trim()}
-              className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
-                userName.trim()
-                  ? 'bg-white text-[#30B859] hover:bg-white/90'
-                  : 'bg-white/50 text-[#30B859]/50 cursor-not-allowed'
-              }`}
-            >
-              Continue
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setShowNameInput(false);
+                  setShowIntro(true);
+                }}
+                className="px-6 py-4 text-white/80 hover:text-white font-medium transition-colors"
+              >
+                Back
+              </button>
+              <button
+                onClick={() => setShowNameInput(false)}
+                disabled={!userName.trim()}
+                className={`flex-1 py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
+                  userName.trim()
+                    ? 'bg-white text-[#30B859] hover:bg-white/90'
+                    : 'bg-white/50 text-[#30B859]/50 cursor-not-allowed'
+                }`}
+              >
+                Continue
+              </button>
+            </div>
           </div>
         </div>
       </div>

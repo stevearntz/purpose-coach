@@ -383,21 +383,35 @@ export default function TeamCanvasTool() {
                         type="text"
                         value={teamData.teamName}
                         onChange={(e) => setTeamData({ ...teamData, teamName: e.target.value })}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && teamData.teamName.trim()) {
+                            setShowTeamNameInput(false);
+                            handleNext();
+                          }
+                        }}
                         placeholder="Enter your team name..."
                         className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
                         autoFocus
                       />
                       
-                      <button
-                        onClick={() => {
-                          setShowTeamNameInput(false);
-                          handleNext();
-                        }}
-                        disabled={!teamData.teamName.trim()}
-                        className="w-full py-4 bg-white text-[#FFA851] rounded-xl font-semibold text-lg hover:bg-white/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed uppercase"
-                      >
-                        Continue
-                      </button>
+                      <div className="flex gap-4">
+                        <button
+                          onClick={() => setShowTeamNameInput(false)}
+                          className="px-6 py-4 text-white/80 hover:text-white font-medium transition-colors"
+                        >
+                          Back
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowTeamNameInput(false);
+                            handleNext();
+                          }}
+                          disabled={!teamData.teamName.trim()}
+                          className="flex-1 py-4 bg-white text-[#FFA851] rounded-xl font-semibold text-lg hover:bg-white/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed uppercase"
+                        >
+                          Continue
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

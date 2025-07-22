@@ -140,10 +140,6 @@ export default function ChangeReadinessPage() {
         setShowChangeContext(true)
       }
       
-      // Enter key for continuing from change context
-      if (e.key === 'Enter' && showChangeContext && changeContext.trim()) {
-        setShowChangeContext(false)
-      }
     }
     
     window.addEventListener('keydown', handleKeyPress)
@@ -276,22 +272,44 @@ export default function ChangeReadinessPage() {
             <textarea
               value={changeContext}
               onChange={(e) => setChangeContext(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && e.ctrlKey && changeContext.trim()) {
+                  setShowChangeContext(false);
+                }
+              }}
               placeholder="e.g., Team restructuring, new technology implementation, role transition..."
               className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg min-h-[100px] resize-y"
               autoFocus
             />
             
-            <button
-              onClick={() => setShowChangeContext(false)}
-              disabled={!changeContext.trim()}
-              className={`w-full py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
-                changeContext.trim()
-                  ? 'bg-white text-[#BF4C74] hover:bg-white/90'
-                  : 'bg-white/50 text-[#BF4C74]/50 cursor-not-allowed'
-              }`}
-            >
-              Continue
-            </button>
+            <div className="bg-white/10 backdrop-blur-sm p-3 rounded-lg border border-white/20">
+              <p className="text-sm text-white/90 text-center">
+                💡 Tip: Press Ctrl+Enter to continue
+              </p>
+            </div>
+            
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setShowChangeContext(false);
+                  setShowIntro(true);
+                }}
+                className="px-6 py-4 text-white/80 hover:text-white font-medium transition-colors"
+              >
+                Back
+              </button>
+              <button
+                onClick={() => setShowChangeContext(false)}
+                disabled={!changeContext.trim()}
+                className={`flex-1 py-4 rounded-xl font-semibold text-lg uppercase transition-colors ${
+                  changeContext.trim()
+                    ? 'bg-white text-[#BF4C74] hover:bg-white/90'
+                    : 'bg-white/50 text-[#BF4C74]/50 cursor-not-allowed'
+                }`}
+              >
+                Continue
+              </button>
+            </div>
           </div>
         </div>
       </div>

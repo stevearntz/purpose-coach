@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Download, RefreshCw, Mail, Calendar, Target, Lock } from 'lucide-react'
+import { Download, RefreshCw, Mail, Calendar, Target, Lock, Trash2, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 
 interface Lead {
@@ -38,6 +38,9 @@ export default function LeadsPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteConfirmation, setDeleteConfirmation] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const fetchLeads = async () => {
     setLoading(true)
@@ -93,6 +96,36 @@ export default function LeadsPage() {
     a.href = url
     a.download = `leads-${new Date().toISOString().split('T')[0]}.csv`
     a.click()
+  }
+
+  const deleteAllLeads = async () => {
+    if (deleteConfirmation.toLowerCase() !== 'delete') {
+      return
+    }
+
+    setIsDeleting(true)
+    try {
+      const response = await fetch('/api/leads', {
+        method: 'DELETE',
+        headers: {
+          'x-admin-key': process.env.NEXT_PUBLIC_ADMIN_KEY || 'your-admin-key-here'
+        }
+      })
+
+      if (response.ok) {
+        setShowDeleteModal(false)
+        setDeleteConfirmation('')
+        await fetchLeads() // Refresh to show empty state
+      } else {
+        const error = await response.json()
+        alert(`Failed to delete leads: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Failed to delete leads:', error)
+      alert('Failed to delete leads. Please try again.')
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   if (!isAuthenticated) {
@@ -226,13 +259,25 @@ export default function LeadsPage() {
               </button>
             </div>
             
-            <button
-              onClick={exportCSV}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Download className="w-4 h-4" />
-              Export CSV
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={exportCSV}
+                disabled={leads.length === 0}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download className="w-4 h-4" />
+                Export CSV
+              </button>
+              
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                disabled={leads.length === 0}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete All
+              </button>
+            </div>
           </div>
         </div>
 
@@ -314,6 +359,64 @@ export default function LeadsPage() {
             Logout
           </button>
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black/50" onClick={() => setShowDeleteModal(false)} />
+            
+            <div className="relative bg-white rounded-lg max-w-md w-full p-6 shadow-xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 bg-red-100 rounded-full">
+                  <AlertTriangle className="w-6 h-6 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Delete All Leads</h3>
+                  <p className="text-sm text-gray-600">This action cannot be undone</p>
+                </div>
+              </div>
+              
+              <div className="mb-6">
+                <p className="text-gray-700 mb-4">
+                  You are about to permanently delete all {leads.length} leads from the database. 
+                  This action cannot be reversed.
+                </p>
+                
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Type "delete" to confirm
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmation}
+                  onChange={(e) => setDeleteConfirmation(e.target.value)}
+                  placeholder="Type delete here"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                  autoFocus
+                />
+              </div>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false)
+                    setDeleteConfirmation('')
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                
+                <button
+                  onClick={deleteAllLeads}
+                  disabled={deleteConfirmation.toLowerCase() !== 'delete' || isDeleting}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete All Leads'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

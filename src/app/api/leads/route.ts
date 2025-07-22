@@ -333,3 +333,79 @@ async function sendToExternalServices(lead: Lead) {
   
   console.log('Lead sent to external services:', lead.email);
 }
+
+// DELETE - Clear all leads (admin endpoint - add auth in production!)
+export async function DELETE(request: NextRequest) {
+  let redis: Redis | null = null;
+  
+  try {
+    // Check for a secret key in headers for basic protection
+    const authHeader = request.headers.get('x-admin-key');
+    if (authHeader !== process.env.ADMIN_KEY && process.env.NODE_ENV === 'production') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
+    redis = getRedisClient();
+    
+    // Get all lead IDs
+    const leadIds = await redis.zrange('leads:all', 0, -1);
+    
+    if (leadIds.length === 0) {
+      return NextResponse.json({
+        success: true,
+        message: 'No leads to delete',
+        deletedCount: 0
+      });
+    }
+    
+    // Delete all lead data
+    const pipeline = redis.pipeline();
+    
+    // Delete individual lead records
+    leadIds.forEach(id => {
+      pipeline.del(`lead:${id}`);
+    });
+    
+    // Get all email indices to delete
+    const emailKeys = await redis.keys('lead:email:*');
+    emailKeys.forEach(key => {
+      pipeline.del(key);
+    });
+    
+    // Clear the main leads set
+    pipeline.del('leads:all');
+    
+    // Clear daily sets
+    const dailyKeys = await redis.keys('leads:daily:*');
+    dailyKeys.forEach(key => {
+      pipeline.del(key);
+    });
+    
+    // Reset counters
+    pipeline.del('leads:total');
+    pipeline.del('leads:source:personal-development-plan');
+    pipeline.del('leads:source:tool');
+    
+    await pipeline.exec();
+    
+    return NextResponse.json({
+      success: true,
+      message: 'All leads deleted successfully',
+      deletedCount: leadIds.length
+    });
+    
+  } catch (error) {
+    console.error('Error deleting leads:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete leads', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  } finally {
+    if (redis) {
+      redis.disconnect();
+    }
+  }
+}

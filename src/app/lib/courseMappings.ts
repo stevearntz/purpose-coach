@@ -17,7 +17,6 @@ export const challengeCourseMappings: { [key: string]: Course[] } = {
     { id: 's11', title: 'The Art of Recognition', description: 'Create shared understanding of organizational direction', duration: '2 weeks' },
     { id: 's29', title: 'Campfire Storytelling', description: 'Establish your unique leadership identity and story', duration: '2 weeks' },
     { id: 's23', title: 'Set The Tone', description: 'Learn to set and cascade meaningful goals', duration: '2 weeks' },
-    { id: 's40', title: 'Curiosity in Sales', description: 'Build alignment and maintain momentum', duration: '2 weeks' },
     { id: 's41', title: 'Leading with Compassion', description: 'Develop strategic thinking capabilities', duration: '3 weeks' }
   ],
   'c2': [ // Navigating Change
@@ -45,7 +44,6 @@ export const challengeCourseMappings: { [key: string]: Course[] } = {
     { id: 's17', title: 'Coaching Essentials', description: 'Develop coaching skills that empower others', duration: '3 weeks' },
     { id: 's21', title: 'Magnify Strengths', description: 'Identify and develop team strengths', duration: '3 weeks' },
     { id: 's19', title: 'Develop Your Team', description: 'Build capability across your team', duration: '3 weeks' },
-    { id: 's42', title: 'Manager Essentials Kickoff', description: 'Foundation for empowering leadership', duration: '2 weeks' },
     { id: 's22', title: 'Performance Discussions', description: 'Navigate performance conversations effectively', duration: '2 weeks' },
     { id: 's30', title: 'Career Mapping', description: 'Create clear career development paths', duration: '3 weeks' }
   ],
@@ -55,7 +53,6 @@ export const challengeCourseMappings: { [key: string]: Course[] } = {
     { id: 's9', title: 'Self-Awareness', description: 'Develop deeper self-awareness', duration: '2 weeks' },
     { id: 's26', title: 'Lead Effective Meetings', description: 'Run meetings that drive decisions', duration: '2 weeks' },
     { id: 's31', title: 'Conscious Communication', description: 'Communicate with intention and clarity', duration: '2 weeks' },
-    { id: 's40', title: 'Curiosity in Sales', description: 'Make decisions through strategic questioning', duration: '2 weeks' },
     { id: 's25', title: 'Setting and Achieving Goals', description: 'Learn to set and cascade meaningful goals', duration: '2 weeks' },
   ],
   'c6': [ // Well-Being
@@ -75,15 +72,13 @@ export const challengeCourseMappings: { [key: string]: Course[] } = {
     { id: 's3', title: 'Constructive Conflict', description: 'Navigate conflict productively', duration: '2 weeks' },
     { id: 's4', title: 'Deliberate Listening', description: 'Listen with intention and presence', duration: '2 weeks' },
     { id: 's39', title: 'Connected Leadership', description: 'Build connections that matter', duration: '3 weeks' },
-    { id: 's40', title: 'Curiosity in Sales', description: 'Communicate with curiosity and influence', duration: '2 weeks' }
   ],
   'c8': [ // Skill Building
-    { id: 's13', title: 'Making the Most of 1:1\'s', description: 'Have impactful one-on-one conversations', duration: '2 weeks' },
+    { id: 's13', title: 'Make the Most of 1-on-1s', description: 'Have impactful one-on-one conversations', duration: '2 weeks' },
     { id: 's34', title: 'Hopes Fears and Expectations', description: 'Create clarity through open dialogue', duration: '2 weeks' },
     { id: 's22', title: 'Performance Discussions', description: 'Navigate performance conversations effectively', duration: '2 weeks' },
     { id: 's23', title: 'Set The Tone', description: 'Establish clear team culture and norms', duration: '2 weeks' },
     { id: 's28', title: 'Deliver Feedback', description: 'Give feedback that drives growth', duration: '2 weeks' },
-    { id: 's42', title: 'Manager Essentials Kickoff', description: 'Build foundational management skills', duration: '2 weeks' },
     { id: 's12', title: 'Lead Through Change', description: 'Master the art of change management', duration: '4 weeks' },
     { id: 's6', title: 'Inspire with Vision', description: 'Create shared understanding of organizational direction', duration: '2 weeks' }
   ],

@@ -9,6 +9,7 @@ import { getCourseIdsForChallenges } from '@/app/lib/courseMappings';
 import { allCourses } from '@/app/lib/coursesData';
 import { courseDetails } from '@/app/lib/courseDetails';
 import { courseDetailsFromCSV } from '@/app/lib/courseDetailsFromCSV';
+import { getCoursePreviewUrl } from '@/app/lib/coursePreviewUrls';
 import { courseImageMapping } from '@/app/lib/courseImages';
 import Footer from '@/components/Footer';
 import Modal from '@/components/Modal';
@@ -333,9 +334,11 @@ export default function CoursesPage() {
                     <Image
                       src={courseImageMapping[selectedCourse]}
                       alt={courseDetailsFromCSV[selectedCourse].title}
-                      width={800}
-                      height={600}
+                      width={600}
+                      height={450}
                       className="w-full h-auto"
+                      priority={true}
+                      sizes="(max-width: 768px) 100vw, 50vw"
                     />
                   )}
                 </div>
@@ -346,7 +349,7 @@ export default function CoursesPage() {
                     See how the slides, script notes, and activities from this template come alive in our custom virtual classroom!
                   </p>
                   <a 
-                    href={`https://meet.getcampfire.com/lessons/${courseDetailsFromCSV[selectedCourse].title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}/preview`}
+                    href={getCoursePreviewUrl(selectedCourse, courseDetailsFromCSV[selectedCourse].title)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-6 py-3 bg-iris text-white rounded-lg hover:bg-iris-dark transition-colors"

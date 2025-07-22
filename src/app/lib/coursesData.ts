@@ -19,7 +19,7 @@ export const allCourses: CourseData[] = [
   { id: 's10', title: 'Successful Delegation' },
   { id: 's11', title: 'The Art of Recognition' },
   { id: 's12', title: 'Lead Through Change' },
-  { id: 's13', title: 'Making the Most of 1:1\'s' },
+  { id: 's13', title: 'Make the Most of 1-on-1s' },
   { id: 's14', title: 'Build Trust on Your Team' },
   { id: 's15', title: 'Define Your Leadership Brand' },
   { id: 's16', title: 'Activate Autonomy' },
@@ -43,8 +43,6 @@ export const allCourses: CourseData[] = [
   { id: 's35', title: 'Collaborate Intentionally' },
   { id: 's36', title: 'Candid Communication' },
   { id: 's39', title: 'Connected Leadership' },
-  { id: 's40', title: 'Curiosity in Sales' },
   { id: 's41', title: 'Leading with Compassion' },
-  { id: 's42', title: 'Manager Essentials Kickoff' },
   { id: 's43', title: 'Live Group Coaching' }
 ];

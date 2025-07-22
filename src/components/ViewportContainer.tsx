@@ -20,9 +20,7 @@ export default function ViewportContainer({ children, className = '' }: Viewport
         ${className}
       `}
       style={{
-        minHeight: '100vh',
-        minHeight: '100dvh', // Dynamic viewport height - supported in newer browsers
-        height: '100%'
+        minHeight: '100dvh' // Dynamic viewport height - falls back to min-h-screen class if not supported
       }}
     >
       {children}

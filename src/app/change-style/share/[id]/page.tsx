@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
 import Footer from '@/components/Footer'
+import { headers } from 'next/headers'
 
 interface PersonaReadout {
   label: string
@@ -130,18 +131,16 @@ const personaReadouts: Record<string, PersonaReadout> = {
 
 async function getSharedResult(id: string) {
   try {
-    // In server components, we need to construct the full URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
-                   process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
-                   'http://localhost:3000'
+    // Get the host from headers in server component - same as ToolSharePage
+    const headersList = await headers()
+    const host = headersList.get('host') || 'localhost:3000'
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
+    const baseUrl = `${protocol}://${host}`
     
     console.log('Fetching share data from:', `${baseUrl}/api/share?id=${id}`)
     
     const response = await fetch(`${baseUrl}/api/share?id=${id}`, {
-      next: { revalidate: 60 },
-      headers: {
-        'Content-Type': 'application/json',
-      }
+      cache: 'no-store'
     })
     
     if (!response.ok) {

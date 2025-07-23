@@ -48,6 +48,12 @@ export const toolConfigs = {
     subtitle: "Discover your change persona.",
     description: "Understand how you naturally respond to change at work and get personalized strategies for navigating transitions more effectively."
   },
+  accountabilityBuilder: {
+    gradient: "from-[#C67AF4] to-[#3E37FF]",
+    title: "Top of Mind",
+    subtitle: "5-minute weekly check-in.",
+    description: "A rapid weekly reflection to surface what really matters. Focus on outcomes, people, and priorities—not just tasks. Perfect for Friday afternoons or Monday mornings."
+  },
   // Add more tools here as you create them
 }
 

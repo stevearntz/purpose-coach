@@ -568,7 +568,7 @@ export default function BurnoutAssessmentPage() {
                     }}
                     className="px-3 sm:px-6 py-2.5 bg-[#30B859] hover:bg-[#289A4D] text-white rounded-lg font-semibold transition-colors"
                   >
-                    <Share2 className="w-5 h-5" />
+                    <Share2 className="w-5 h-5 inline sm:hidden" />
                     <span className="hidden sm:inline uppercase tracking-wider">Share</span>
                   </ShareButton>
                 </div>

@@ -1446,8 +1446,8 @@ export default function ChangeReflectionPage() {
                     onShare={handleShare}
                     className="px-3 sm:px-6 py-2.5 bg-[#BF4C74] hover:bg-[#A63D5F] text-white rounded-lg font-semibold transition-colors"
                   >
-                    <Share2 className="w-5 h-5" />
-                    <span className="hidden sm:inline ml-2">Share</span>
+                    <Share2 className="w-5 h-5 inline sm:hidden" />
+                    <span className="hidden sm:inline uppercase tracking-wider">Share</span>
                   </ShareButton>
                 </div>
               </div>

@@ -47,8 +47,8 @@ const getToolVisual = (toolId: string): React.ReactElement => {
     't1': ( // Team Charter
       <img src="/tool-icons/map-icon.png" alt="Team Charter" className="w-full h-full object-contain p-2" />
     ),
-    't2': ( // Change Style Assessment (primary change tool)
-      <img src="/tool-icons/kite-icon.png" alt="Change Style Assessment" className="w-full h-full object-contain p-2" />
+    't2': ( // Change Style Profile (primary change tool)
+      <img src="/tool-icons/kite-icon.png" alt="Change Style Profile" className="w-full h-full object-contain p-2" />
     ),
     't2b': ( // Change Readiness Assessment (secondary change tool)
       <img src="/tool-icons/kite-icon.png" alt="Change Readiness Assessment" className="w-full h-full object-contain p-2" />
@@ -264,7 +264,7 @@ function ToolsPage() {
     const toolMappings: { [key: string]: Tool[] } = {
       'c1': [{ id: 't1', name: 'Team Charter', type: 'guide', description: 'Map your team\'s purpose, composition, and growth opportunities' }],
       'c2': [
-        { id: 't2', name: 'Change Style Assessment', type: 'assessment', description: 'Discover how you naturally respond to change and get personalized strategies' },
+        { id: 't2', name: 'Change Style Profile', type: 'assessment', description: 'Discover how you naturally respond to change and get personalized strategies' },
         { id: 't2b', name: 'Change Readiness Assessment', type: 'assessment', description: 'Assess and build readiness for navigating change' },
         { id: 't2c', name: 'Change Reflection', type: 'guide', description: 'Prepare for meaningful conversations about change with your team' }
       ],

@@ -44,7 +44,7 @@ export const toolConfigs = {
   },
   changeStyle: {
     gradient: "from-[#F595B6] to-[#BF4C74]",
-    title: "Change Style Assessment",
+    title: "Change Style Profile",
     subtitle: "Discover your change persona.",
     description: "Understand how you naturally respond to change at work and get personalized strategies for navigating transitions more effectively."
   },

@@ -1,14 +1,6 @@
-import { Metadata } from 'next'
+import { generateToolMetadata } from '@/lib/toolMetadata'
 
-export const metadata: Metadata = {
-  title: 'Change Style Assessment - Discover Your Change Persona',
-  description: 'Understand how you naturally respond to change at work and get personalized strategies for navigating transitions more effectively.',
-  openGraph: {
-    title: 'Change Style Assessment - Discover Your Change Persona',
-    description: 'Understand how you naturally respond to change at work and get personalized strategies for navigating transitions more effectively.',
-    images: ['/og-image.png'],
-  },
-}
+export const metadata = generateToolMetadata('change-style')
 
 export default function ChangeStyleLayout({
   children,

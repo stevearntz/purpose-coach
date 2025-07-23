@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
 import Footer from '@/components/Footer'
 import { headers } from 'next/headers'
+import type { Metadata } from 'next'
 
 interface PersonaReadout {
   label: string
@@ -164,7 +165,45 @@ async function getSharedResult(id: string) {
   }
 }
 
-export default async function SharePage({ params }: { params: Promise<{ id: string }> }) {
+interface Props {
+  params: Promise<{ id: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params
+  const baseUrl = 'https://tools.getcampfire.com'
+  
+  return {
+    title: 'My Change Style Profile Results - Campfire',
+    description: 'View my change style profile to understand how I navigate change and get personalized strategies for transitions.',
+    openGraph: {
+      title: 'My Change Style Profile Results - Campfire',
+      description: 'View my change style profile to understand how I navigate change and get personalized strategies for transitions.',
+      url: `${baseUrl}/change-style/share/${id}`,
+      siteName: 'Campfire',
+      images: [
+        {
+          url: `${baseUrl}/og-change-readiness-share.png`,
+          width: 1200,
+          height: 630,
+          alt: 'Change Style Profile Results - Campfire',
+        },
+      ],
+      locale: 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'My Change Style Profile Results - Campfire',
+      description: 'View my change style profile to understand how I navigate change and get personalized strategies for transitions.',
+      images: [`${baseUrl}/og-change-readiness-share.png`],
+      site: '@campfire',
+    },
+    metadataBase: new URL(baseUrl),
+  }
+}
+
+export default async function SharePage({ params }: Props) {
   const { id } = await params
   const sharedData = await getSharedResult(id)
   
@@ -181,7 +220,7 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
         <div className="max-w-3xl mx-auto px-4">
           <div className="text-center mb-12">
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Shared Change Style Results
+              Shared Change Style Profile Results
             </h1>
             <p className="text-lg text-gray-600">
               Here's how this person navigates change

@@ -278,7 +278,7 @@ export default function ChangeStylePage() {
   
   // Track tool start
   useEffect(() => {
-    analytics.trackToolStart('Change Style Assessment')
+    analytics.trackToolStart('Change Style Profile')
   }, [analytics])
 
   // Pre-populate email if available
@@ -316,7 +316,7 @@ export default function ChangeStylePage() {
     }
     
     if (userEmail) {
-      await captureEmailForTool(userEmail, 'Change Style Assessment', 'change-style')
+      await captureEmailForTool(userEmail, 'Change Style Profile', 'change-style')
     }
     setShowIntro(false)
   }
@@ -347,7 +347,7 @@ export default function ChangeStylePage() {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
       const progress = ((currentQuestionIndex + 1) / questions.length) * 100
-      analytics.trackToolProgress('Change Style Assessment', `Question ${currentQuestionIndex + 1}`, progress)
+      analytics.trackToolProgress('Change Style Profile', `Question ${currentQuestionIndex + 1}`, progress)
     } else {
       calculateResults()
     }
@@ -391,7 +391,7 @@ export default function ChangeStylePage() {
 
     // Store results in state or analytics
     const timeSpent = Math.round((Date.now() - startTime) / 1000)
-    analytics.trackToolComplete('Change Style Assessment', {
+    analytics.trackToolComplete('Change Style Profile', {
       primary_persona: primaryPersona.code,
       secondary_personas: secondaryPersonas.map(p => p.code),
       completion_time: timeSpent
@@ -446,7 +446,7 @@ export default function ChangeStylePage() {
       const { id } = await response.json()
       const shareUrl = `${window.location.origin}/change-style/share/${id}`
       
-      analytics.trackShare('Change Style Assessment')
+      analytics.trackShare('Change Style Profile')
       
       return shareUrl
     } catch (error) {
@@ -495,7 +495,7 @@ export default function ChangeStylePage() {
           </div>
           
           <h1 className="text-4xl sm:text-5xl font-bold mb-6">
-            Change Style Assessment
+            Change Style Profile
           </h1>
           <p className="text-xl sm:text-2xl mb-8 text-white/90">
             Discover how you naturally respond to change at work
@@ -624,7 +624,7 @@ export default function ChangeStylePage() {
 
             <div className="mb-8 no-print flex justify-between items-center">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Your Change Style Results
+                Your Change Style Profile Results
               </h1>
               <div className="flex gap-2">
                 <button
@@ -911,7 +911,7 @@ export default function ChangeStylePage() {
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
               {/* Determine which section we're in */}
-              {currentQuestionIndex === 0 ? 'Change Style' : ''}
+              {currentQuestionIndex === 0 ? 'Change Style Profile' : ''}
             </h2>
             {currentQuestionIndex === 0 && (
               <p className="text-gray-600">

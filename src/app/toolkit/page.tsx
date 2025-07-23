@@ -137,7 +137,7 @@ const tools: Tool[] = [
   {
     id: 'change-style',
     path: '/change-style',
-    title: 'Change Style Assessment',
+    title: 'Change Style Profile',
     subtitle: 'Discover your change persona',
     description: 'Understand how you naturally respond to change and get strategies for navigating transitions.',
     gradient: 'from-[#F595B6] to-[#BF4C74]',

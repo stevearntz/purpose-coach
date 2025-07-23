@@ -27,6 +27,11 @@ export const toolsMetadata: Record<string, ToolMetadataConfig> = {
     description: 'Evaluate your preparedness for change and develop strategies to navigate transitions with confidence.',
     ogImage: '/og-change-readiness.png'
   },
+  'change-style': {
+    name: 'Change Style Profile',
+    description: 'Discover how you naturally respond to change and get personalized strategies for navigating transitions.',
+    ogImage: '/og-change-readiness.png'
+  },
   'coaching-cards': {
     name: 'Coaching Cards',
     description: 'Explore powerful coaching questions to gain clarity, overcome challenges, and accelerate your growth.',

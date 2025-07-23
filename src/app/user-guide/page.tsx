@@ -437,7 +437,13 @@ export default function UserGuidePage() {
                 ))}
               </div>
             
-            <div className="flex justify-center mt-8 no-print">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8 no-print">
+              <Link
+                href="/"
+                className="text-[#2A74B9] hover:text-[#215A91] transition-colors font-medium"
+              >
+                Explore all Tools
+              </Link>
               <button
                 onClick={() => {
                   setShowResults(false)

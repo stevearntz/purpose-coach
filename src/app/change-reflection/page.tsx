@@ -1,7 +1,20 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, ArrowRight, Printer, Share2, RefreshCw, Plus, X, Calendar, Mail, Users } from 'lucide-react'
+import { 
+  ArrowLeft, ArrowRight, Printer, Share2, RefreshCw, Plus, X, Calendar, Mail, Users,
+  Smile, Zap, MessageCircle, BookOpen, Heart, Shield, ListOrdered, Reply,
+  Clock, Battery, Activity, ClipboardList, Brain, Play, MessageSquare, Target,
+  Sparkles, Sun, Rocket, Zap as Energy, Trophy,
+  Frown, HeartCrack, UserX, Home, Lock,
+  Flame, AlertCircle, ThumbsDown, Bomb, Coffee,
+  Gauge, Cloud, AlertTriangle, HelpCircle, ShieldX,
+  ZapOff, Meh, Star, Lightbulb, CircleX,
+  XCircle, Ghost, Pause,
+  GitBranch, Package, UserCheck, ArrowRightLeft, DollarSign,
+  UserCog, Compass, Building2, UserMinus, FileCheck,
+  FileText, Users2, Globe2, TrendingUp, CheckCircle
+} from 'lucide-react'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
 import ViewportContainer from '@/components/ViewportContainer'
@@ -28,9 +41,9 @@ interface ChangeReflectionData {
 
 // Change types
 const changeTypes = [
-  'Re-organization', 'Launch', 'Leadership Change', 'Migration', 'Budget Cuts',
-  'Role Changes', 'Strategic Shift', 'Merger or Acquisition', 'Layoffs',
-  'Compliance Change', 'Policy Change', 'Culture Shift', 'External Crisis', 'Market Change'
+  'Re-organization', 'Launch', 'Leadership', 'Migration', 'Budget',
+  'Roles', 'Strategic Shift', 'Merger or Acquisition', 'Layoffs',
+  'Compliance', 'Policy', 'Culture Shift', 'External Crisis', 'Market'
 ]
 
 // Top emotions from emotion wheel
@@ -46,7 +59,7 @@ const emotionOptions = [
   // Surprised
   'Shocked', 'Confused', 'Amazed', 'Startled', 'Dismayed',
   // Disgusted
-  'Disapproving', 'Disappointed', 'Awful', 'Repelled', 'Hesitant'
+  'Disapproving', 'Disgusted', 'Awful', 'Repelled', 'Hesitant'
 ]
 
 // Potential changes
@@ -60,11 +73,91 @@ const potentialPositiveChanges = [
   'Stronger team', 'Career growth', 'Increased visibility', 'New connections'
 ]
 
-// Control options
+// Control options - updated to work with "I can control my..."
 const controlOptions = [
-  'My attitude', 'My effort', 'My communication', 'My learning',
-  'My relationships', 'My boundaries', 'My priorities', 'My response'
+  'attitude', 'effort', 'communication', 'learning',
+  'relationships', 'boundaries', 'priorities', 'response',
+  'time', 'energy', 'reactions', 'preparation',
+  'mindset', 'actions', 'words', 'focus'
 ]
+
+// Icon mapping for control options
+const controlIcons: Record<string, any> = {
+  'attitude': Smile,
+  'effort': Zap,
+  'communication': MessageCircle,
+  'learning': BookOpen,
+  'relationships': Heart,
+  'boundaries': Shield,
+  'priorities': ListOrdered,
+  'response': Reply,
+  'time': Clock,
+  'energy': Battery,
+  'reactions': Activity,
+  'preparation': ClipboardList,
+  'mindset': Brain,
+  'actions': Play,
+  'words': MessageSquare,
+  'focus': Target
+}
+
+// Icon mapping for change types
+const changeTypeIcons: Record<string, any> = {
+  'Re-organization': GitBranch,
+  'Launch': Rocket,
+  'Leadership': UserCheck,
+  'Migration': ArrowRightLeft,
+  'Budget': DollarSign,
+  'Roles': UserCog,
+  'Strategic Shift': Compass,
+  'Merger or Acquisition': Building2,
+  'Layoffs': UserMinus,
+  'Compliance': FileCheck,
+  'Policy': FileText,
+  'Culture Shift': Users2,
+  'External Crisis': AlertTriangle,
+  'Market': TrendingUp
+}
+
+// Icon mapping for emotions
+const emotionIcons: Record<string, any> = {
+  // Happy
+  'Optimistic': Sparkles,
+  'Hopeful': Sun,
+  'Excited': Rocket,
+  'Energized': Energy,
+  'Confident': Trophy,
+  // Sad
+  'Disappointed': Frown,
+  'Hurt': HeartCrack,
+  'Vulnerable': ShieldX,
+  'Lonely': UserX,
+  'Isolated': Home,
+  // Angry
+  'Frustrated': Flame,
+  'Irritated': AlertCircle,
+  'Resentful': ThumbsDown,
+  'Furious': Bomb,
+  'Bitter': Coffee,
+  // Fearful
+  'Anxious': Gauge,
+  'Worried': Cloud,
+  'Overwhelmed': AlertTriangle,
+  'Insecure': HelpCircle,
+  'Helpless': Lock,
+  // Surprised
+  'Shocked': ZapOff,
+  'Confused': HelpCircle,
+  'Amazed': Star,
+  'Startled': Lightbulb,
+  'Dismayed': CircleX,
+  // Disgusted
+  'Disapproving': XCircle,
+  'Disgusted': Meh,
+  'Awful': Ghost,
+  'Repelled': CircleX,
+  'Hesitant': Pause
+}
 
 export default function ChangeReflectionPage() {
   const analytics = useAnalytics()
@@ -96,6 +189,7 @@ export default function ChangeReflectionPage() {
   const [customPositive, setCustomPositive] = useState('')
   const [customControl, setCustomControl] = useState('')
   const [newPersonName, setNewPersonName] = useState('')
+  const [customAnticipatedEmotion, setCustomAnticipatedEmotion] = useState('')
 
   // Track tool start
   useEffect(() => {
@@ -143,12 +237,14 @@ export default function ChangeReflectionPage() {
   }
 
   const handleNext = () => {
-    if (currentStage < 11) {
+    if (currentStage < 9) {
       setCurrentStage(currentStage + 1)
-      const progress = ((currentStage + 1) / 11) * 100
+      const progress = ((currentStage + 1) / 10) * 100
       analytics.trackToolProgress('Change Reflection', `Stage ${currentStage + 1}`, progress)
-    } else {
-      // Complete
+    } else if (currentStage === 9) {
+      // Going to final stage (10)
+      setCurrentStage(10)
+      // Track completion
       const timeSpent = Math.round((Date.now() - startTime) / 1000)
       analytics.trackToolComplete('Change Reflection', {
         change_types: data.changeTypes,
@@ -235,6 +331,23 @@ export default function ChangeReflectionPage() {
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [currentStage, emailValidation.isValid, userEmail])
 
+  // Helper function to check if a stage has data
+  const stageHasData = (stageNum: number): boolean => {
+    switch (stageNum) {
+      case 1: return data.changeTypes.length > 0
+      case 2: return data.changeDescription.trim() !== ''
+      case 3: return data.currentEmotions.length > 0
+      case 4: return data.negativeChanges.length > 0 || data.positiveChanges.length > 0
+      case 5: return data.staysSame.trim() !== ''
+      case 6: return data.whatsNew.trim() !== ''
+      case 7: return data.inControl.length > 0
+      case 8: return data.impactedPeople.length > 0
+      case 9: return data.selectedPerson !== ''
+      case 10: return data.anticipatedEmotions.length > 0
+      default: return false
+    }
+  }
+
   // Helper function for consistent navigation header
   const renderNavigationHeader = (stage: number) => (
     <div className="mb-8 flex justify-between items-center">
@@ -255,28 +368,43 @@ export default function ChangeReflectionPage() {
             anticipatedEmotions: []
           })
         }}
-        className="text-[#BF4C74] hover:text-[#A63D5F] transition-colors font-medium"
+        className="inline-flex items-center text-[#BF4C74] hover:text-[#A63D5F] transition-colors font-medium"
       >
-        ← Start Over
+        <ArrowLeft className="w-5 h-5 mr-2" />
+        Start Over
       </button>
       
       <div className="flex items-center gap-4">
         <div className="text-sm text-gray-600">
-          Step {stage} of 11
+          Step {stage} of 10
         </div>
         <div className="flex items-center gap-1">
-          {[...Array(11)].map((_, i) => (
-            <div
-              key={i}
-              className={`h-2 rounded-full transition-all ${
-                i === stage - 1
-                  ? 'w-8 bg-[#BF4C74]'
-                  : i < stage - 1
-                  ? 'w-2 bg-[#BF4C74]'
-                  : 'w-2 bg-gray-300'
-              }`}
-            />
-          ))}
+          {[...Array(10)].map((_, i) => {
+            const stageNum = i + 1
+            const isClickable = stageNum < stage || (stageNum > stage && stageHasData(stageNum))
+            
+            return (
+              <button
+                key={i}
+                onClick={() => {
+                  if (isClickable) {
+                    setCurrentStage(stageNum)
+                  }
+                }}
+                disabled={!isClickable}
+                className={`h-2 rounded-full transition-all ${
+                  i === stage - 1
+                    ? 'w-8 bg-[#BF4C74]'
+                    : i < stage - 1
+                    ? 'w-2 bg-[#BF4C74] hover:w-3 cursor-pointer'
+                    : stageHasData(stageNum)
+                    ? 'w-2 bg-[#BF4C74]/50 hover:w-3 cursor-pointer'
+                    : 'w-2 bg-gray-300 cursor-not-allowed'
+                }`}
+                aria-label={`Go to step ${stageNum}`}
+              />
+            )
+          })}
         </div>
       </div>
     </div>
@@ -343,12 +471,7 @@ export default function ChangeReflectionPage() {
                   
                   <button
                     onClick={handleStartAssessment}
-                    disabled={!userEmail || !emailValidation.isValid}
-                    className={`w-full py-4 rounded-lg font-semibold text-lg transition-all ${
-                      userEmail && emailValidation.isValid
-                        ? 'bg-white text-[#BF4C74] hover:bg-white/90'
-                        : 'bg-white/50 text-[#BF4C74]/50 cursor-not-allowed'
-                    }`}
+                    className="w-full py-4 rounded-lg font-semibold text-lg transition-all bg-white text-[#BF4C74] hover:bg-white/90"
                   >
                     Begin Reflection
                   </button>
@@ -370,35 +493,40 @@ export default function ChangeReflectionPage() {
                   What type of change are you experiencing?
                 </h2>
                 <p className="text-gray-600 text-center mb-8">
-                  Select the change that best describes your situation
+                  Select the type of change that best describes your situation
                 </p>
                 
                 <div className="flex flex-wrap gap-3 justify-center mb-8">
-                  {changeTypes.map((change) => (
-                    <button
-                      key={change}
-                      onClick={() => {
-                        const newTypes = data.changeTypes.includes(change)
-                          ? data.changeTypes.filter(t => t !== change)
-                          : [...data.changeTypes, change]
-                        setData({ ...data, changeTypes: newTypes })
-                      }}
-                      className={`px-6 py-3 rounded-full border-2 transition-all ${
-                        data.changeTypes.includes(change)
-                          ? 'bg-[#BF4C74] text-white border-[#BF4C74]'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-[#BF4C74]/50'
-                      }`}
-                    >
-                      {change}
-                    </button>
-                  ))}
+                  {changeTypes.map((change) => {
+                    const IconComponent = changeTypeIcons[change]
+                    return (
+                      <button
+                        key={change}
+                        onClick={() => {
+                          const newTypes = data.changeTypes.includes(change)
+                            ? data.changeTypes.filter(t => t !== change)
+                            : [...data.changeTypes, change]
+                          setData({ ...data, changeTypes: newTypes })
+                        }}
+                        className={`px-6 py-3 rounded-full border-2 transition-all flex items-center gap-2 ${
+                          data.changeTypes.includes(change)
+                            ? 'bg-[#BF4C74] text-white border-[#BF4C74]'
+                            : 'bg-white text-gray-700 border-gray-300 hover:border-[#BF4C74]/50'
+                        }`}
+                      >
+                        {IconComponent && <IconComponent className="w-4 h-4" />}
+                        {change}
+                      </button>
+                    )
+                  })}
                 </div>
                 
                 {/* Buttons inside the white box */}
                 <div className="flex justify-between">
                   <button
                     onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                    disabled
+                    className="px-6 py-3 bg-gray-100 text-gray-400 rounded-lg font-medium transition-colors cursor-not-allowed"
                   >
                     Back
                   </button>
@@ -431,10 +559,33 @@ export default function ChangeReflectionPage() {
                   Tell us more about what's changing
                 </h2>
                 
+                {/* Display selected change types */}
+                {data.changeTypes.length > 0 && (
+                  <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm font-medium text-gray-600">Types of change:</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {data.changeTypes.map((change, index) => {
+                        const IconComponent = changeTypeIcons[change]
+                        return (
+                          <span
+                            key={index}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#BF4C74]/10 text-[#BF4C74] rounded-full text-sm font-medium"
+                          >
+                            {IconComponent && <IconComponent className="w-3.5 h-3.5" />}
+                            {change}
+                          </span>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+                
                 <textarea
                   value={data.changeDescription}
                   onChange={(e) => setData({ ...data, changeDescription: e.target.value })}
-                  placeholder="Explain..."
+                  placeholder="Describe what's happening..."
                   className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#BF4C74]/50 min-h-[150px] resize-y"
                   autoFocus
                 />
@@ -443,7 +594,7 @@ export default function ChangeReflectionPage() {
                 <div className="flex justify-between mt-6">
                   <button
                     onClick={handleBack}
-                    className="px-6 py-3 text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition-colors"
                   >
                     Back
                   </button>
@@ -469,20 +620,7 @@ export default function ChangeReflectionPage() {
         return (
           <ViewportContainer className="bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">
-              <div className="mb-8">
-                <div className="flex justify-between items-center mb-4">
-                  <button
-                    onClick={handleBack}
-                    className="inline-flex items-center text-[#BF4C74] hover:text-[#A63D5F] transition-colors font-medium"
-                  >
-                    <ArrowLeft className="w-5 h-5 mr-2" />
-                    Back
-                  </button>
-                  <div className="text-sm text-gray-600">
-                    Step 3 of 11
-                  </div>
-                </div>
-              </div>
+              {renderNavigationHeader(3)}
               
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">
@@ -493,31 +631,62 @@ export default function ChangeReflectionPage() {
                 </p>
                 
                 <div className="flex flex-wrap gap-3 justify-center mb-6">
-                  {emotionOptions.map((emotion) => (
-                    <button
-                      key={emotion}
-                      onClick={() => {
-                        const newEmotions = data.currentEmotions.includes(emotion)
-                          ? data.currentEmotions.filter(e => e !== emotion)
-                          : [...data.currentEmotions, emotion]
-                        setData({ ...data, currentEmotions: newEmotions })
-                      }}
-                      className={`px-4 py-2 rounded-full border-2 transition-all text-sm ${
-                        data.currentEmotions.includes(emotion)
-                          ? 'bg-[#BF4C74] text-white border-[#BF4C74]'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-[#BF4C74]/50'
-                      }`}
-                    >
-                      {emotion}
-                    </button>
-                  ))}
+                  {/* Pre-defined emotions */}
+                  {emotionOptions.map((emotion) => {
+                    const IconComponent = emotionIcons[emotion]
+                    return (
+                      <button
+                        key={emotion}
+                        onClick={() => {
+                          const newEmotions = data.currentEmotions.includes(emotion)
+                            ? data.currentEmotions.filter(e => e !== emotion)
+                            : [...data.currentEmotions, emotion]
+                          setData({ ...data, currentEmotions: newEmotions })
+                        }}
+                        className={`px-4 py-2 rounded-full border-2 transition-all text-sm flex items-center gap-2 ${
+                          data.currentEmotions.includes(emotion)
+                            ? 'bg-[#BF4C74] text-white border-[#BF4C74]'
+                            : 'bg-white text-gray-700 border-gray-300 hover:border-[#BF4C74]/50'
+                        }`}
+                      >
+                        {IconComponent && <IconComponent className="w-4 h-4" />}
+                        {emotion}
+                      </button>
+                    )
+                  })}
+                  
+                  {/* Custom emotions added by user */}
+                  {data.currentEmotions
+                    .filter(emotion => !emotionOptions.includes(emotion))
+                    .map((emotion, index) => (
+                      <button
+                        key={`custom-${index}`}
+                        onClick={() => {
+                          setData({
+                            ...data,
+                            currentEmotions: data.currentEmotions.filter(e => e !== emotion)
+                          })
+                        }}
+                        className="px-4 py-2 rounded-full border-2 bg-[#BF4C74] text-white border-[#BF4C74] transition-all text-sm flex items-center gap-2"
+                      >
+                        {emotion}
+                        <X className="w-3 h-3" />
+                      </button>
+                    ))}
                 </div>
                 
-                <div className="flex gap-2 mb-6">
+                <div className="flex gap-2">
                   <input
                     type="text"
                     value={customEmotion}
                     onChange={(e) => setCustomEmotion(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && customEmotion.trim()) {
+                        e.preventDefault()
+                        setData({ ...data, currentEmotions: [...data.currentEmotions, customEmotion.trim()] })
+                        setCustomEmotion('')
+                      }
+                    }}
                     placeholder="Add your own..."
                     className="flex-1 px-4 py-2 bg-gray-50 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#BF4C74]/50"
                   />
@@ -539,17 +708,26 @@ export default function ChangeReflectionPage() {
                   </button>
                 </div>
                 
-                <button
-                  onClick={handleNext}
-                  disabled={data.currentEmotions.length === 0}
-                  className={`w-full py-3 rounded-lg font-medium transition-colors ${
-                    data.currentEmotions.length > 0
-                      ? 'bg-[#BF4C74] text-white hover:bg-[#A63D5F]'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  }`}
-                >
-                  Continue
-                </button>
+                {/* Buttons inside the white box */}
+                <div className="flex justify-between mt-6">
+                  <button
+                    onClick={handleBack}
+                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    disabled={data.currentEmotions.length === 0}
+                    className={`px-8 py-3 rounded-lg font-medium transition-colors ${
+                      data.currentEmotions.length > 0
+                        ? 'bg-[#BF4C74] text-white hover:bg-[#A63D5F]'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    Continue
+                  </button>
+                </div>
               </div>
             </div>
           </ViewportContainer>
@@ -560,20 +738,7 @@ export default function ChangeReflectionPage() {
         return (
           <ViewportContainer className="bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">
-              <div className="mb-8">
-                <div className="flex justify-between items-center mb-4">
-                  <button
-                    onClick={handleBack}
-                    className="inline-flex items-center text-[#BF4C74] hover:text-[#A63D5F] transition-colors font-medium"
-                  >
-                    <ArrowLeft className="w-5 h-5 mr-2" />
-                    Back
-                  </button>
-                  <div className="text-sm text-gray-600">
-                    Step 4 of 11
-                  </div>
-                </div>
-              </div>
+              {renderNavigationHeader(4)}
               
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
@@ -600,6 +765,25 @@ export default function ChangeReflectionPage() {
                           <span className="text-gray-700">{change}</span>
                         </label>
                       ))}
+                      {/* Custom negative changes */}
+                      {data.negativeChanges
+                        .filter(change => !potentialNegativeChanges.includes(change))
+                        .map((change, index) => (
+                          <label key={`custom-neg-${index}`} className="flex items-center gap-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={true}
+                              onChange={() => {
+                                setData({
+                                  ...data,
+                                  negativeChanges: data.negativeChanges.filter(c => c !== change)
+                                })
+                              }}
+                              className="w-5 h-5 text-[#BF4C74] rounded border-gray-300 focus:ring-[#BF4C74]"
+                            />
+                            <span className="text-gray-700">{change}</span>
+                          </label>
+                        ))}
                     </div>
                     
                     <div className="flex gap-2 mt-4">
@@ -607,6 +791,13 @@ export default function ChangeReflectionPage() {
                         type="text"
                         value={customNegative}
                         onChange={(e) => setCustomNegative(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && customNegative.trim()) {
+                            e.preventDefault()
+                            setData({ ...data, negativeChanges: [...data.negativeChanges, customNegative.trim()] })
+                            setCustomNegative('')
+                          }
+                        }}
                         placeholder="Add your own..."
                         className="flex-1 px-3 py-2 bg-gray-50 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#BF4C74]/50 text-sm"
                       />
@@ -648,6 +839,25 @@ export default function ChangeReflectionPage() {
                           <span className="text-gray-700">{change}</span>
                         </label>
                       ))}
+                      {/* Custom positive changes */}
+                      {data.positiveChanges
+                        .filter(change => !potentialPositiveChanges.includes(change))
+                        .map((change, index) => (
+                          <label key={`custom-pos-${index}`} className="flex items-center gap-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={true}
+                              onChange={() => {
+                                setData({
+                                  ...data,
+                                  positiveChanges: data.positiveChanges.filter(c => c !== change)
+                                })
+                              }}
+                              className="w-5 h-5 text-[#BF4C74] rounded border-gray-300 focus:ring-[#BF4C74]"
+                            />
+                            <span className="text-gray-700">{change}</span>
+                          </label>
+                        ))}
                     </div>
                     
                     <div className="flex gap-2 mt-4">
@@ -655,6 +865,13 @@ export default function ChangeReflectionPage() {
                         type="text"
                         value={customPositive}
                         onChange={(e) => setCustomPositive(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && customPositive.trim()) {
+                            e.preventDefault()
+                            setData({ ...data, positiveChanges: [...data.positiveChanges, customPositive.trim()] })
+                            setCustomPositive('')
+                          }
+                        }}
                         placeholder="Add your own..."
                         className="flex-1 px-3 py-2 bg-gray-50 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#BF4C74]/50 text-sm"
                       />
@@ -678,17 +895,26 @@ export default function ChangeReflectionPage() {
                   </div>
                 </div>
                 
-                <button
-                  onClick={handleNext}
-                  disabled={data.negativeChanges.length === 0 && data.positiveChanges.length === 0}
-                  className={`w-full mt-8 py-3 rounded-lg font-medium transition-colors ${
-                    (data.negativeChanges.length > 0 || data.positiveChanges.length > 0)
-                      ? 'bg-[#BF4C74] text-white hover:bg-[#A63D5F]'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  }`}
-                >
-                  Continue
-                </button>
+                {/* Buttons inside the white box */}
+                <div className="flex justify-between mt-8">
+                  <button
+                    onClick={handleBack}
+                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    disabled={data.negativeChanges.length === 0 && data.positiveChanges.length === 0}
+                    className={`px-8 py-3 rounded-lg font-medium transition-colors ${
+                      (data.negativeChanges.length > 0 || data.positiveChanges.length > 0)
+                        ? 'bg-[#BF4C74] text-white hover:bg-[#A63D5F]'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    Continue
+                  </button>
+                </div>
               </div>
             </div>
           </ViewportContainer>
@@ -699,20 +925,7 @@ export default function ChangeReflectionPage() {
         return (
           <ViewportContainer className="bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">
-              <div className="mb-8">
-                <div className="flex justify-between items-center mb-4">
-                  <button
-                    onClick={handleBack}
-                    className="inline-flex items-center text-[#BF4C74] hover:text-[#A63D5F] transition-colors font-medium"
-                  >
-                    <ArrowLeft className="w-5 h-5 mr-2" />
-                    Back
-                  </button>
-                  <div className="text-sm text-gray-600">
-                    Step 5 of 11
-                  </div>
-                </div>
-              </div>
+              {renderNavigationHeader(5)}
               
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
@@ -745,17 +958,26 @@ export default function ChangeReflectionPage() {
                   </div>
                 </div>
                 
-                <button
-                  onClick={handleNext}
-                  disabled={!data.staysSame.trim() || !data.whatsNew.trim()}
-                  className={`w-full mt-6 py-3 rounded-lg font-medium transition-colors ${
-                    (data.staysSame.trim() && data.whatsNew.trim())
-                      ? 'bg-[#BF4C74] text-white hover:bg-[#A63D5F]'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  }`}
-                >
-                  Continue
-                </button>
+                {/* Buttons inside the white box */}
+                <div className="flex justify-between mt-6">
+                  <button
+                    onClick={handleBack}
+                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    disabled={!data.staysSame.trim() || !data.whatsNew.trim()}
+                    className={`px-8 py-3 rounded-lg font-medium transition-colors ${
+                      (data.staysSame.trim() && data.whatsNew.trim())
+                        ? 'bg-[#BF4C74] text-white hover:bg-[#A63D5F]'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    Continue
+                  </button>
+                </div>
               </div>
             </div>
           </ViewportContainer>
@@ -766,55 +988,76 @@ export default function ChangeReflectionPage() {
         return (
           <ViewportContainer className="bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">
-              <div className="mb-8">
-                <div className="flex justify-between items-center mb-4">
-                  <button
-                    onClick={handleBack}
-                    className="inline-flex items-center text-[#BF4C74] hover:text-[#A63D5F] transition-colors font-medium"
-                  >
-                    <ArrowLeft className="w-5 h-5 mr-2" />
-                    Back
-                  </button>
-                  <div className="text-sm text-gray-600">
-                    Step 6 of 11
-                  </div>
-                </div>
-              </div>
+              {renderNavigationHeader(6)}
               
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">
                   What can you control?
                 </h2>
                 <p className="text-gray-600 text-center mb-8">
-                  Focus on what's within your influence
+                  I can control my...
                 </p>
                 
-                <div className="space-y-3">
-                  {controlOptions.map((option) => (
-                    <label key={option} className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={data.inControl.includes(option)}
-                        onChange={(e) => {
-                          const newControl = e.target.checked
-                            ? [...data.inControl, option]
-                            : data.inControl.filter(c => c !== option)
+                <div className="flex flex-wrap gap-3 justify-center mb-6">
+                  {/* Pre-defined control options */}
+                  {controlOptions.map((option) => {
+                    const IconComponent = controlIcons[option]
+                    return (
+                      <button
+                        key={option}
+                        onClick={() => {
+                          const newControl = data.inControl.includes(option)
+                            ? data.inControl.filter(c => c !== option)
+                            : [...data.inControl, option]
                           setData({ ...data, inControl: newControl })
                         }}
-                        className="w-5 h-5 text-[#BF4C74] rounded border-gray-300 focus:ring-[#BF4C74]"
-                      />
-                      <span className="text-gray-700">{option}</span>
-                    </label>
-                  ))}
+                        className={`px-4 py-2 rounded-full border-2 transition-all text-sm flex items-center gap-2 ${
+                          data.inControl.includes(option)
+                            ? 'bg-[#BF4C74] text-white border-[#BF4C74]'
+                            : 'bg-white text-gray-700 border-gray-300 hover:border-[#BF4C74]/50'
+                        }`}
+                      >
+                        {IconComponent && <IconComponent className="w-4 h-4" />}
+                        {option}
+                      </button>
+                    )
+                  })}
+                  
+                  {/* Custom control options */}
+                  {data.inControl
+                    .filter(option => !controlOptions.includes(option))
+                    .map((option, index) => (
+                      <button
+                        key={`custom-${index}`}
+                        onClick={() => {
+                          setData({
+                            ...data,
+                            inControl: data.inControl.filter(c => c !== option)
+                          })
+                        }}
+                        className="px-4 py-2 rounded-full border-2 bg-[#BF4C74] text-white border-[#BF4C74] transition-all text-sm flex items-center gap-2"
+                      >
+                        <Target className="w-4 h-4" />
+                        {option}
+                        <X className="w-3 h-3" />
+                      </button>
+                    ))}
                 </div>
                 
-                <div className="flex gap-2 mt-6">
+                <div className="flex gap-2">
                   <input
                     type="text"
                     value={customControl}
                     onChange={(e) => setCustomControl(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && customControl.trim()) {
+                        e.preventDefault()
+                        setData({ ...data, inControl: [...data.inControl, customControl.trim()] })
+                        setCustomControl('')
+                      }
+                    }}
                     placeholder="Add your own..."
-                    className="flex-1 px-4 py-3 bg-gray-50 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#BF4C74]/50"
+                    className="flex-1 px-4 py-2 bg-gray-50 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#BF4C74]/50"
                   />
                   <button
                     onClick={() => {
@@ -824,7 +1067,7 @@ export default function ChangeReflectionPage() {
                       }
                     }}
                     disabled={!customControl.trim()}
-                    className={`px-4 py-3 rounded-lg transition-colors ${
+                    className={`px-4 py-2 rounded-lg transition-colors ${
                       customControl.trim()
                         ? 'bg-[#BF4C74] text-white hover:bg-[#A63D5F]'
                         : 'bg-gray-200 text-gray-400 cursor-not-allowed'
@@ -834,17 +1077,26 @@ export default function ChangeReflectionPage() {
                   </button>
                 </div>
                 
-                <button
-                  onClick={handleNext}
-                  disabled={data.inControl.length === 0}
-                  className={`w-full mt-6 py-3 rounded-lg font-medium transition-colors ${
-                    data.inControl.length > 0
-                      ? 'bg-[#BF4C74] text-white hover:bg-[#A63D5F]'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  }`}
-                >
-                  Continue
-                </button>
+                {/* Buttons inside the white box */}
+                <div className="flex justify-between mt-6">
+                  <button
+                    onClick={handleBack}
+                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    disabled={data.inControl.length === 0}
+                    className={`px-8 py-3 rounded-lg font-medium transition-colors ${
+                      data.inControl.length > 0
+                        ? 'bg-[#BF4C74] text-white hover:bg-[#A63D5F]'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    Continue
+                  </button>
+                </div>
               </div>
             </div>
           </ViewportContainer>
@@ -855,20 +1107,7 @@ export default function ChangeReflectionPage() {
         return (
           <ViewportContainer className="bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">
-              <div className="mb-8">
-                <div className="flex justify-between items-center mb-4">
-                  <button
-                    onClick={handleBack}
-                    className="inline-flex items-center text-[#BF4C74] hover:text-[#A63D5F] transition-colors font-medium"
-                  >
-                    <ArrowLeft className="w-5 h-5 mr-2" />
-                    Back
-                  </button>
-                  <div className="text-sm text-gray-600">
-                    Step 7 of 11
-                  </div>
-                </div>
-              </div>
+              {renderNavigationHeader(7)}
               
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
@@ -880,6 +1119,13 @@ export default function ChangeReflectionPage() {
                     type="text"
                     value={newPersonName}
                     onChange={(e) => setNewPersonName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && newPersonName.trim()) {
+                        e.preventDefault()
+                        setData({ ...data, impactedPeople: [...data.impactedPeople, newPersonName.trim()] })
+                        setNewPersonName('')
+                      }
+                    }}
                     placeholder="Add a name..."
                     className="flex-1 px-4 py-3 bg-gray-50 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#BF4C74]/50"
                     autoFocus
@@ -924,17 +1170,26 @@ export default function ChangeReflectionPage() {
                   ))}
                 </div>
                 
-                <button
-                  onClick={handleNext}
-                  disabled={data.impactedPeople.length === 0}
-                  className={`w-full py-3 rounded-lg font-medium transition-colors ${
-                    data.impactedPeople.length > 0
-                      ? 'bg-[#BF4C74] text-white hover:bg-[#A63D5F]'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  }`}
-                >
-                  Continue
-                </button>
+                {/* Buttons inside the white box */}
+                <div className="flex justify-between mt-6">
+                  <button
+                    onClick={handleBack}
+                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    disabled={data.impactedPeople.length === 0}
+                    className={`px-8 py-3 rounded-lg font-medium transition-colors ${
+                      data.impactedPeople.length > 0
+                        ? 'bg-[#BF4C74] text-white hover:bg-[#A63D5F]'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    Continue
+                  </button>
+                </div>
               </div>
             </div>
           </ViewportContainer>
@@ -945,20 +1200,7 @@ export default function ChangeReflectionPage() {
         return (
           <ViewportContainer className="bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">
-              <div className="mb-8">
-                <div className="flex justify-between items-center mb-4">
-                  <button
-                    onClick={handleBack}
-                    className="inline-flex items-center text-[#BF4C74] hover:text-[#A63D5F] transition-colors font-medium"
-                  >
-                    <ArrowLeft className="w-5 h-5 mr-2" />
-                    Back
-                  </button>
-                  <div className="text-sm text-gray-600">
-                    Step 8 of 11
-                  </div>
-                </div>
-              </div>
+              {renderNavigationHeader(8)}
               
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">
@@ -974,7 +1216,6 @@ export default function ChangeReflectionPage() {
                       key={index}
                       onClick={() => {
                         setData({ ...data, selectedPerson: person })
-                        handleNext()
                       }}
                       className={`w-24 h-24 rounded-full border-2 flex items-center justify-center transition-all ${
                         data.selectedPerson === person
@@ -986,6 +1227,27 @@ export default function ChangeReflectionPage() {
                     </button>
                   ))}
                 </div>
+                
+                {/* Buttons inside the white box */}
+                <div className="flex justify-between mt-8">
+                  <button
+                    onClick={handleBack}
+                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    disabled={!data.selectedPerson}
+                    className={`px-8 py-3 rounded-lg font-medium transition-colors ${
+                      data.selectedPerson
+                        ? 'bg-[#BF4C74] text-white hover:bg-[#A63D5F]'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    Continue
+                  </button>
+                </div>
               </div>
             </div>
           </ViewportContainer>
@@ -996,20 +1258,7 @@ export default function ChangeReflectionPage() {
         return (
           <ViewportContainer className="bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">
-              <div className="mb-8">
-                <div className="flex justify-between items-center mb-4">
-                  <button
-                    onClick={handleBack}
-                    className="inline-flex items-center text-[#BF4C74] hover:text-[#A63D5F] transition-colors font-medium"
-                  >
-                    <ArrowLeft className="w-5 h-5 mr-2" />
-                    Back
-                  </button>
-                  <div className="text-sm text-gray-600">
-                    Step 9 of 11
-                  </div>
-                </div>
-              </div>
+              {renderNavigationHeader(9)}
               
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">
@@ -1019,197 +1268,408 @@ export default function ChangeReflectionPage() {
                   Consider how {data.selectedPerson} might react to this change
                 </p>
                 
-                <div className="flex flex-wrap gap-3 justify-center">
-                  {emotionOptions.map((emotion) => (
-                    <button
-                      key={emotion}
-                      onClick={() => {
-                        const newEmotions = data.anticipatedEmotions.includes(emotion)
-                          ? data.anticipatedEmotions.filter(e => e !== emotion)
-                          : [...data.anticipatedEmotions, emotion]
-                        setData({ ...data, anticipatedEmotions: newEmotions })
-                      }}
-                      className={`px-4 py-2 rounded-full border-2 transition-all text-sm ${
-                        data.anticipatedEmotions.includes(emotion)
-                          ? 'bg-[#BF4C74] text-white border-[#BF4C74]'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-[#BF4C74]/50'
-                      }`}
-                    >
-                      {emotion}
-                    </button>
-                  ))}
+                <div className="flex flex-wrap gap-3 justify-center mb-6">
+                  {/* Pre-defined emotions */}
+                  {emotionOptions.map((emotion) => {
+                    const IconComponent = emotionIcons[emotion]
+                    return (
+                      <button
+                        key={emotion}
+                        onClick={() => {
+                          const newEmotions = data.anticipatedEmotions.includes(emotion)
+                            ? data.anticipatedEmotions.filter(e => e !== emotion)
+                            : [...data.anticipatedEmotions, emotion]
+                          setData({ ...data, anticipatedEmotions: newEmotions })
+                        }}
+                        className={`px-4 py-2 rounded-full border-2 transition-all text-sm flex items-center gap-2 ${
+                          data.anticipatedEmotions.includes(emotion)
+                            ? 'bg-[#BF4C74] text-white border-[#BF4C74]'
+                            : 'bg-white text-gray-700 border-gray-300 hover:border-[#BF4C74]/50'
+                        }`}
+                      >
+                        {IconComponent && <IconComponent className="w-4 h-4" />}
+                        {emotion}
+                      </button>
+                    )
+                  })}
+                  
+                  {/* Custom emotions added by user */}
+                  {data.anticipatedEmotions
+                    .filter(emotion => !emotionOptions.includes(emotion))
+                    .map((emotion, index) => (
+                      <button
+                        key={`custom-${index}`}
+                        onClick={() => {
+                          setData({
+                            ...data,
+                            anticipatedEmotions: data.anticipatedEmotions.filter(e => e !== emotion)
+                          })
+                        }}
+                        className="px-4 py-2 rounded-full border-2 bg-[#BF4C74] text-white border-[#BF4C74] transition-all text-sm flex items-center gap-2"
+                      >
+                        {emotion}
+                        <X className="w-3 h-3" />
+                      </button>
+                    ))}
                 </div>
                 
-                <button
-                  onClick={handleNext}
-                  disabled={data.anticipatedEmotions.length === 0}
-                  className={`w-full mt-8 py-3 rounded-lg font-medium transition-colors ${
-                    data.anticipatedEmotions.length > 0
-                      ? 'bg-[#BF4C74] text-white hover:bg-[#A63D5F]'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  }`}
-                >
-                  Continue
-                </button>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={customAnticipatedEmotion}
+                    onChange={(e) => setCustomAnticipatedEmotion(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && customAnticipatedEmotion.trim()) {
+                        e.preventDefault()
+                        setData({ ...data, anticipatedEmotions: [...data.anticipatedEmotions, customAnticipatedEmotion.trim()] })
+                        setCustomAnticipatedEmotion('')
+                      }
+                    }}
+                    placeholder="Add your own..."
+                    className="flex-1 px-4 py-2 bg-gray-50 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#BF4C74]/50"
+                  />
+                  <button
+                    onClick={() => {
+                      if (customAnticipatedEmotion.trim()) {
+                        setData({ ...data, anticipatedEmotions: [...data.anticipatedEmotions, customAnticipatedEmotion.trim()] })
+                        setCustomAnticipatedEmotion('')
+                      }
+                    }}
+                    disabled={!customAnticipatedEmotion.trim()}
+                    className={`px-4 py-2 rounded-lg transition-colors ${
+                      customAnticipatedEmotion.trim()
+                        ? 'bg-[#BF4C74] text-white hover:bg-[#A63D5F]'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <Plus className="w-5 h-5" />
+                  </button>
+                </div>
+                
+                {/* Buttons inside the white box */}
+                <div className="flex justify-between mt-6">
+                  <button
+                    onClick={handleBack}
+                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    disabled={data.anticipatedEmotions.length === 0}
+                    className={`px-8 py-3 rounded-lg font-medium transition-colors ${
+                      data.anticipatedEmotions.length > 0
+                        ? 'bg-[#BF4C74] text-white hover:bg-[#A63D5F]'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    Continue
+                  </button>
+                </div>
               </div>
             </div>
           </ViewportContainer>
         )
 
-      // Stage 10: Review Conversation Guide
+      // Stage 10: Change Reflection Summary (Final Stage)
       case 10:
-        const guide = generateConversationGuide()
         return (
-          <ViewportContainer className="bg-gray-50 p-4">
-            <div className="max-w-3xl mx-auto">
-              <div className="mb-8">
-                <div className="flex justify-between items-center mb-4">
-                  <button
-                    onClick={handleBack}
-                    className="inline-flex items-center text-[#BF4C74] hover:text-[#A63D5F] transition-colors font-medium"
-                  >
-                    <ArrowLeft className="w-5 h-5 mr-2" />
-                    Back
-                  </button>
-                  <div className="text-sm text-gray-600">
-                    Step 10 of 11
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                  Review Your Conversation Guide
-                </h2>
+          <ViewportContainer className="bg-gradient-to-br from-[#F595B6]/20 to-[#BF4C74]/20 min-h-screen p-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="mb-8 flex justify-between items-center">
+                <button
+                  onClick={() => {
+                    setCurrentStage(0)
+                    setData({
+                      changeTypes: [],
+                      changeDescription: '',
+                      currentEmotions: [],
+                      negativeChanges: [],
+                      positiveChanges: [],
+                      staysSame: '',
+                      whatsNew: '',
+                      inControl: [],
+                      impactedPeople: [],
+                      selectedPerson: '',
+                      anticipatedEmotions: []
+                    })
+                  }}
+                  className="inline-flex items-center text-[#BF4C74] hover:text-[#A63D5F] transition-colors font-medium"
+                >
+                  <ArrowLeft className="w-5 h-5 mr-2" />
+                  Start Over
+                </button>
                 
-                <div className="bg-gray-50 rounded-xl p-6 space-y-4">
-                  <div className="text-sm text-gray-500 mb-4">
-                    SHARE: Overview of the change what's changing vs. not.
-                    Impact this might have.
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <p className="text-gray-700">{guide.opening}</p>
-                    {guide.context && <p className="text-gray-700">{guide.context}</p>}
-                    <p className="text-gray-700">{guide.feelings}</p>
-                    {guide.concerns && <p className="text-gray-700">{guide.concerns}</p>}
-                    {guide.opportunities && <p className="text-gray-700">{guide.opportunities}</p>}
-                    <p className="text-gray-700">{guide.control}</p>
-                  </div>
-                  
-                  <div className="pt-4 border-t border-gray-200">
-                    <div className="text-sm text-gray-500 mb-2">
-                      LISTEN: What are you feeling?
-                      What questions do you have?
-                      What can you control?
-                      What would make this better/easier?
-                    </div>
-                    <p className="text-gray-700">{guide.ask}</p>
-                  </div>
-                  
-                  <div className="pt-4 border-t border-gray-200">
-                    <div className="text-sm text-gray-500 mb-2">
-                      PLAN: Commit to a few things to improve the situation.
-                      Plan a check-in.
-                    </div>
-                    <p className="text-gray-700">{guide.close}</p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-4 mt-6">
+                <div className="flex gap-2 sm:gap-4">
                   <button
-                    onClick={() => window.print()}
-                    className="flex-1 py-3 bg-white border-2 border-[#BF4C74] text-[#BF4C74] rounded-lg font-medium hover:bg-[#BF4C74]/5 transition-colors flex items-center justify-center gap-2"
+                    onClick={() => {
+                      analytics.trackDownload('Print', 'Change Reflection')
+                      window.print()
+                    }}
+                    className="p-2.5 sm:p-3 border-2 border-[#BF4C74]/50 text-[#BF4C74] rounded-lg hover:border-[#BF4C74] hover:bg-[#BF4C74]/10 transition-all"
+                    title="Print summary"
                   >
                     <Printer className="w-5 h-5" />
-                    Print Guide
                   </button>
                   <ShareButton
                     onShare={handleShare}
-                    className="flex-1 py-3 bg-white border-2 border-[#BF4C74] text-[#BF4C74] rounded-lg font-medium hover:bg-[#BF4C74]/5 transition-colors"
+                    className="px-3 sm:px-6 py-2.5 bg-[#BF4C74] hover:bg-[#A63D5F] text-white rounded-lg font-semibold transition-colors"
                   >
-                    <Share2 className="w-5 h-5 inline mr-2" />
-                    Share Guide
+                    <Share2 className="w-5 h-5" />
+                    <span className="hidden sm:inline ml-2">Share</span>
                   </ShareButton>
                 </div>
+              </div>
+              
+              <h1 className="text-4xl font-bold text-gray-900 mb-2 text-center">
+                Change Reflection Summary
+              </h1>
+              <p className="text-gray-600 mb-8 text-center">
+                Your complete reflection on this change journey
+              </p>
+              
+              <div className="space-y-6">
+                {/* Change Types */}
+                <div className="bg-white rounded-2xl shadow-sm border border-[#BF4C74]/20 p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#F595B6] to-[#BF4C74] rounded-full flex items-center justify-center">
+                      <RefreshCw className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">Type of Change</h3>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {data.changeTypes.map((change, index) => {
+                      const IconComponent = changeTypeIcons[change]
+                      return (
+                        <span
+                          key={index}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#BF4C74]/10 text-[#BF4C74] rounded-full text-sm font-medium"
+                        >
+                          {IconComponent && <IconComponent className="w-4 h-4" />}
+                          {change}
+                        </span>
+                      )
+                    })}
+                  </div>
+                </div>
                 
-                <button
-                  onClick={handleNext}
-                  className="w-full mt-4 py-3 bg-[#BF4C74] text-white rounded-lg font-medium hover:bg-[#A63D5F] transition-colors"
+                {/* What's Happening */}
+                {data.changeDescription && (
+                  <div className="bg-white rounded-2xl shadow-sm border border-[#BF4C74]/20 p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-[#F595B6] to-[#BF4C74] rounded-full flex items-center justify-center">
+                        <FileText className="w-5 h-5 text-white" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900">What's Happening</h3>
+                    </div>
+                    <p className="text-gray-700">{data.changeDescription}</p>
+                  </div>
+                )}
+                
+                {/* My Emotions */}
+                <div className="bg-white rounded-2xl shadow-sm border border-[#BF4C74]/20 p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#F595B6] to-[#BF4C74] rounded-full flex items-center justify-center">
+                      <Heart className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">How I'm Feeling</h3>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {data.currentEmotions.map((emotion, index) => {
+                      const IconComponent = emotionIcons[emotion]
+                      return (
+                        <span
+                          key={index}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#BF4C74]/10 text-[#BF4C74] rounded-full text-sm font-medium"
+                        >
+                          {IconComponent && <IconComponent className="w-4 h-4" />}
+                          {emotion}
+                        </span>
+                      )
+                    })}
+                  </div>
+                </div>
+                
+                {/* Impact Grid */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Negative Changes */}
+                  {data.negativeChanges.length > 0 && (
+                    <div className="bg-white rounded-2xl shadow-sm border border-[#BF4C74]/20 p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#F595B6] to-[#BF4C74] rounded-full flex items-center justify-center">
+                          <AlertTriangle className="w-5 h-5 text-white" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900">Concerns</h3>
+                      </div>
+                      <div className="space-y-2">
+                        {data.negativeChanges.map((change, index) => (
+                          <div key={index} className="flex items-start gap-2">
+                            <span className="text-[#BF4C74] mt-0.5">•</span>
+                            <span className="text-gray-700">{change}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Positive Changes */}
+                  {data.positiveChanges.length > 0 && (
+                    <div className="bg-white rounded-2xl shadow-sm border border-[#BF4C74]/20 p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#F595B6] to-[#BF4C74] rounded-full flex items-center justify-center">
+                          <Sparkles className="w-5 h-5 text-white" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900">Opportunities</h3>
+                      </div>
+                      <div className="space-y-2">
+                        {data.positiveChanges.map((change, index) => (
+                          <div key={index} className="flex items-start gap-2">
+                            <span className="text-[#BF4C74] mt-0.5">•</span>
+                            <span className="text-gray-700">{change}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* What Stays & What's New */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  {data.staysSame && (
+                    <div className="bg-white rounded-2xl shadow-sm border border-[#BF4C74]/20 p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#F595B6] to-[#BF4C74] rounded-full flex items-center justify-center">
+                          <Shield className="w-5 h-5 text-white" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900">What Stays the Same</h3>
+                      </div>
+                      <p className="text-gray-700">{data.staysSame}</p>
+                    </div>
+                  )}
+                  
+                  {data.whatsNew && (
+                    <div className="bg-white rounded-2xl shadow-sm border border-[#BF4C74]/20 p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#F595B6] to-[#BF4C74] rounded-full flex items-center justify-center">
+                          <Star className="w-5 h-5 text-white" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900">What's New</h3>
+                      </div>
+                      <p className="text-gray-700">{data.whatsNew}</p>
+                    </div>
+                  )}
+                </div>
+                
+                {/* What I Can Control */}
+                <div className="bg-white rounded-2xl shadow-sm border border-[#BF4C74]/20 p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#F595B6] to-[#BF4C74] rounded-full flex items-center justify-center">
+                      <Target className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">I Can Control My...</h3>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {data.inControl.map((item, index) => {
+                      const IconComponent = controlIcons[item]
+                      return (
+                        <span
+                          key={index}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#BF4C74]/10 text-[#BF4C74] rounded-full text-sm font-medium"
+                        >
+                          {IconComponent && <IconComponent className="w-4 h-4" />}
+                          {item}
+                        </span>
+                      )
+                    })}
+                  </div>
+                </div>
+                
+                {/* People Impacted */}
+                <div className="bg-white rounded-2xl shadow-sm border border-[#BF4C74]/20 p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#F595B6] to-[#BF4C74] rounded-full flex items-center justify-center">
+                      <Users className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">People Impacted</h3>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {data.impactedPeople.map((person, index) => (
+                      <div
+                        key={index}
+                        className={`px-4 py-2 rounded-full text-sm font-medium ${
+                          person === data.selectedPerson
+                            ? 'bg-[#BF4C74] text-white'
+                            : 'bg-[#BF4C74]/10 text-[#BF4C74]'
+                        }`}
+                      >
+                        {person}
+                        {person === data.selectedPerson && <span className="ml-2 text-xs">(Selected)</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Their Anticipated Emotions */}
+                {data.selectedPerson && data.anticipatedEmotions.length > 0 && (
+                  <div className="bg-white rounded-2xl shadow-sm border border-[#BF4C74]/20 p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-[#F595B6] to-[#BF4C74] rounded-full flex items-center justify-center">
+                        <MessageSquare className="w-5 h-5 text-white" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900">How {data.selectedPerson} Might Feel</h3>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {data.anticipatedEmotions.map((emotion, index) => {
+                        const IconComponent = emotionIcons[emotion]
+                        return (
+                          <span
+                            key={index}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#BF4C74]/10 text-[#BF4C74] rounded-full text-sm font-medium"
+                          >
+                            {IconComponent && <IconComponent className="w-4 h-4" />}
+                            {emotion}
+                          </span>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Link
+                  href="/"
+                  className="text-[#BF4C74] hover:text-[#A63D5F] transition-colors font-medium"
                 >
-                  Continue
+                  Explore all Tools
+                </Link>
+                <button
+                  onClick={() => {
+                    setCurrentStage(0)
+                    setData({
+                      changeTypes: [],
+                      changeDescription: '',
+                      currentEmotions: [],
+                      negativeChanges: [],
+                      positiveChanges: [],
+                      staysSame: '',
+                      whatsNew: '',
+                      inControl: [],
+                      impactedPeople: [],
+                      selectedPerson: '',
+                      anticipatedEmotions: []
+                    })
+                  }}
+                  className="px-8 py-3 bg-[#BF4C74] text-white rounded-lg font-semibold hover:bg-[#A63D5F] transition-colors"
+                >
+                  NEW REFLECTION
                 </button>
               </div>
             </div>
           </ViewportContainer>
         )
 
-      // Stage 11: Schedule Conversation
-      case 11:
-        return (
-          <ViewportContainer className="bg-gray-50 p-4">
-            <div className="max-w-3xl mx-auto">
-              <div className="mb-8">
-                <div className="flex justify-between items-center mb-4">
-                  <button
-                    onClick={handleBack}
-                    className="inline-flex items-center text-[#BF4C74] hover:text-[#A63D5F] transition-colors font-medium"
-                  >
-                    <ArrowLeft className="w-5 h-5 mr-2" />
-                    Back
-                  </button>
-                  <div className="text-sm text-gray-600">
-                    Step 11 of 11
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                  Take the next steps:
-                </h2>
-                
-                <div className="space-y-4">
-                  <button
-                    onClick={() => {
-                      // TODO: Implement calendar integration
-                      alert('Calendar integration coming soon!')
-                    }}
-                    className="w-full py-4 bg-white border-2 border-[#BF4C74] text-[#BF4C74] rounded-lg font-medium hover:bg-[#BF4C74]/5 transition-colors flex items-center justify-center gap-3"
-                  >
-                    <Calendar className="w-5 h-5" />
-                    Schedule your conversation
-                  </button>
-                  
-                  <button
-                    onClick={() => {
-                      const changeTypesText = data.changeTypes.length === 1 
-                        ? data.changeTypes[0]
-                        : data.changeTypes.slice(0, -1).join(', ') + ' and ' + data.changeTypes[data.changeTypes.length - 1]
-                      const subject = `Let's talk about the ${changeTypesText}`
-                      const body = `Hi ${data.selectedPerson},\n\nI'd like to schedule some time to talk with you about the ${changeTypesText.toLowerCase()} that's happening. When would be a good time for you?\n\nBest,\n[Your name]`
-                      window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-                    }}
-                    className="w-full py-4 bg-white border-2 border-[#BF4C74] text-[#BF4C74] rounded-lg font-medium hover:bg-[#BF4C74]/5 transition-colors flex items-center justify-center gap-3"
-                  >
-                    <Mail className="w-5 h-5" />
-                    Send invite: Invite Email
-                  </button>
-                </div>
-                
-                <div className="mt-8 text-center">
-                  <Link
-                    href="/"
-                    className="inline-flex items-center text-[#BF4C74] hover:text-[#A63D5F] transition-colors font-medium"
-                  >
-                    Back to Home
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </ViewportContainer>
-        )
 
       default:
         return null
@@ -1219,7 +1679,7 @@ export default function ChangeReflectionPage() {
   return (
     <>
       {renderStage()}
-      {currentStage === 11 && <Footer />}
+      {currentStage === 10 && <Footer />}
     </>
   )
 }

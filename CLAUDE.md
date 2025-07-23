@@ -97,6 +97,92 @@ import ToolNavigation from '@/components/ToolNavigation'
 
 ### 4. Standard Utilities
 - **Email Validation**: Use `validateEmail` and `validateEmailRealtime` from `/src/utils/emailValidation`
+
+## Common UI Patterns
+
+### Email Input on Intro Screens
+- **DO NOT** disable the start button based on email validation
+- **DO** allow clicking the button always and show validation errors
+- **DO** handle validation in the click handler
+
+```typescript
+// CORRECT PATTERN
+const handleStartAssessment = async () => {
+  const finalValidation = validateEmail(userEmail)
+  setEmailValidation(finalValidation)
+  
+  if (!finalValidation.isValid) {
+    setShowSuggestion(!!finalValidation.suggestion)
+    return // Stop here, don't proceed
+  }
+  
+  // Continue with valid email
+  if (userEmail) {
+    await captureEmailForTool(userEmail, 'Tool Name', 'tool-id')
+  }
+  setCurrentStage(1)
+}
+
+// Button is ALWAYS clickable
+<button
+  onClick={handleStartAssessment}
+  className="w-full py-4 rounded-lg font-semibold text-lg transition-all bg-white text-[#BF4C74] hover:bg-white/90"
+>
+  Begin Assessment
+</button>
+```
+
+### Navigation Pattern for Multi-Stage Tools
+- Use a `renderNavigationHeader` function for consistent "Start Over" and progress pills
+- Place Back/Continue buttons INSIDE the white content box
+- Back button style: `px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300`
+- Continue button style: `px-8 py-3 bg-[#BF4C74] text-white rounded-lg hover:bg-[#A63D5F]`
+- **Stage 1 Rule**: Disable the Back button on the first stage (only Start Over applies)
+  ```typescript
+  // Stage 1 Back button should be disabled
+  <button
+    onClick={handleBack}
+    disabled
+    className="px-6 py-3 bg-gray-100 text-gray-400 rounded-lg font-medium transition-colors cursor-not-allowed"
+  >
+    Back
+  </button>
+  ```
+
+### Selection Pills Pattern
+- Use pills instead of checkboxes for multi-select options
+- Allow custom additions with "Add your own" input + Enter key or Plus button
+- Custom items show with an X to remove them
+```typescript
+// Pills for selection
+<button
+  onClick={() => toggleSelection(item)}
+  className={`px-4 py-2 rounded-full border-2 transition-all text-sm ${
+    isSelected
+      ? 'bg-[#BF4C74] text-white border-[#BF4C74]'
+      : 'bg-white text-gray-700 border-gray-300 hover:border-[#BF4C74]/50'
+  }`}
+>
+  {item}
+</button>
+
+// Custom items with X
+<button className="... flex items-center gap-2">
+  {customItem}
+  <X className="w-3 h-3" />
+</button>
+
+// Add your own input
+<input
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' && value.trim()) {
+      e.preventDefault()
+      addItem(value.trim())
+      setValue('')
+    }
+  }}
+/>
+```
 - **Analytics**: Use `useAnalytics` hook from `/src/hooks/useAnalytics`
 - **Email Capture**: Use `useEmailCapture` hook from `/src/hooks/useEmailCapture`
 

@@ -13,6 +13,22 @@ interface PersonaReadout {
   try_this: string
 }
 
+// Character illustrations for each persona
+const personaCharacters: Record<string, string> = {
+  champion: "🦸‍♂️", // Superhero with cape
+  reactor: "🌋", // Volcano erupting
+  therapist: "🧸", // Teddy bear (comforting)
+  skeptic: "🦉", // Owl (wise but questioning)
+  analyzer: "🤖", // Robot (logical)
+  ghost: "👻", // Ghost (invisible/withdrawn)
+  energizer: "⚡", // Lightning bolt
+  stabilizer: "🗿", // Stone statue (steady)
+  whiner: "🌧️", // Rain cloud
+  adapter: "🦎", // Chameleon
+  protector: "🛡️", // Shield
+  navigator: "🧭" // Compass
+}
+
 const personaReadouts: Record<string, PersonaReadout> = {
   champion: {
     label: "🏆 The Champion",
@@ -114,18 +130,31 @@ const personaReadouts: Record<string, PersonaReadout> = {
 
 async function getSharedResult(id: string) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/share?id=${id}`, {
-      next: { revalidate: 60 }
+    // In server components, we need to construct the full URL
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+                   process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
+                   'http://localhost:3000'
+    
+    console.log('Fetching share data from:', `${baseUrl}/api/share?id=${id}`)
+    
+    const response = await fetch(`${baseUrl}/api/share?id=${id}`, {
+      next: { revalidate: 60 },
+      headers: {
+        'Content-Type': 'application/json',
+      }
     })
     
     if (!response.ok) {
+      console.error('Share fetch failed with status:', response.status)
       return null
     }
     
     const result = await response.json()
+    console.log('Share data retrieved:', result)
     
     // Handle both old format (with toolId) and new format (with type)
     if (result.toolId !== 'change-style' && result.type !== 'change-style') {
+      console.error('Invalid tool type:', result.toolId || result.type)
       return null
     }
     
@@ -163,7 +192,9 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
           {/* Primary Persona */}
           <div className="bg-gradient-to-br from-[#F595B6] to-[#BF4C74] rounded-2xl p-8 text-white mb-8">
             <div className="text-center mb-6">
-              <p className="text-5xl mb-4">{primaryReadout.label.split(' ')[0]}</p>
+              <div className="inline-flex items-center justify-center w-32 h-32 bg-white/20 backdrop-blur-sm rounded-full mb-4">
+                <span className="text-7xl">{personaCharacters[sharedData.primaryPersona]}</span>
+              </div>
               <h2 className="text-3xl font-bold mb-2">{primaryReadout.label}</h2>
               <p className="text-xl text-white/90">{primaryReadout.title}</p>
             </div>
@@ -202,20 +233,25 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
                 These styles also show up strongly:
               </p>
               <div className="space-y-4">
-                {secondaryReadouts.map((readout: PersonaReadout, index: number) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-start gap-4">
-                      <span className="text-3xl">{readout.label.split(' ')[0]}</span>
-                      <div className="flex-1">
-                        <h4 className="text-lg font-semibold text-gray-900 mb-1">
-                          {readout.label}
-                        </h4>
-                        <p className="text-gray-600 mb-3">{readout.title}</p>
-                        <p className="text-gray-700 text-sm">{readout.description}</p>
+                {sharedData.secondaryPersonas.map((personaCode: string, index: number) => {
+                  const readout = secondaryReadouts[index]
+                  return (
+                    <div key={index} className="border border-gray-200 rounded-lg p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-3xl">{personaCharacters[personaCode]}</span>
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-lg font-semibold text-gray-900 mb-1">
+                            {readout.label}
+                          </h4>
+                          <p className="text-gray-600 mb-3">{readout.title}</p>
+                          <p className="text-gray-700 text-sm">{readout.description}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           )}

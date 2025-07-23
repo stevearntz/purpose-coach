@@ -488,9 +488,9 @@ export default function ChangeStylePage() {
         <ToolNavigation />
         
         <div className="w-full max-w-2xl mx-auto text-center text-white">
-          <div className="mb-6">
-            <div className="inline-flex p-4 bg-white/20 rounded-full mb-4">
-              <RefreshCw className="w-12 h-12 text-white" />
+          <div className="mb-8 sm:mb-12">
+            <div className="inline-flex p-4 bg-white/20 rounded-full">
+              <RefreshCw className="w-12 h-12 sm:w-16 sm:h-16 text-white" />
             </div>
           </div>
           
@@ -538,7 +538,8 @@ export default function ChangeStylePage() {
                     }
                   }}
                   placeholder="Enter your email to start"
-                  className="w-full px-4 py-3 bg-white/20 backdrop-blur-md rounded-lg border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50"
+                  className="w-full px-6 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                  autoComplete="email"
                   autoFocus
                 />
                 {emailValidation.error && (
@@ -561,13 +562,14 @@ export default function ChangeStylePage() {
               <button
                 onClick={handleStartAssessment}
                 disabled={!userEmail || !emailValidation.isValid}
-                className={`w-full py-4 rounded-lg font-semibold text-lg transition-all ${
+                className={`w-full py-4 rounded-xl font-semibold text-lg transition-all ${
                   userEmail && emailValidation.isValid
                     ? 'bg-white text-[#BF4C74] hover:bg-white/90'
                     : 'bg-white/50 text-[#BF4C74]/50 cursor-not-allowed'
                 }`}
               >
-                Begin Assessment
+                <span className="sm:hidden">Start</span>
+                <span className="hidden sm:inline">Begin Assessment</span>
               </button>
             </div>
           </div>
@@ -645,45 +647,45 @@ export default function ChangeStylePage() {
             </div>
 
             {/* Primary Persona */}
-            <div className="bg-gradient-to-br from-[#F595B6] to-[#BF4C74] rounded-2xl p-8 text-white mb-8">
+            <div className="bg-gradient-to-br from-[#F595B6] to-[#BF4C74] rounded-2xl p-6 sm:p-8 text-white mb-8">
               <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-32 h-32 bg-white/20 backdrop-blur-sm rounded-full mb-4">
-                  <span className="text-7xl">{personaCharacters[primary.code]}</span>
+                <div className="inline-flex items-center justify-center w-24 h-24 sm:w-32 sm:h-32 bg-white/20 backdrop-blur-sm rounded-full mb-4">
+                  <span className="text-5xl sm:text-7xl">{personaCharacters[primary.code]}</span>
                 </div>
-                <h2 className="text-3xl font-bold mb-2">{primaryReadout.label}</h2>
-                <p className="text-xl text-white/90">{primaryReadout.title}</p>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-2">{primaryReadout.label}</h2>
+                <p className="text-lg sm:text-xl text-white/90">{primaryReadout.title}</p>
               </div>
               
               <div className="space-y-6 max-w-2xl mx-auto">
                 <div>
-                  <p className="text-lg leading-relaxed">{primaryReadout.description}</p>
+                  <p className="text-base sm:text-lg leading-relaxed">{primaryReadout.description}</p>
                 </div>
                 
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-6">
                     <h3 className="font-semibold mb-2 text-white/90">Your Superpower</h3>
                     <p className="text-white/90">{primaryReadout.superpower}</p>
                   </div>
                   
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-6">
                     <h3 className="font-semibold mb-2 text-white/90">Watch Out For</h3>
                     <p className="text-white/90">{primaryReadout.watch_out_for}</p>
                   </div>
                 </div>
                 
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-6">
                   <h3 className="font-semibold mb-2 text-white/90">Try This</h3>
-                  <p className="text-lg">{primaryReadout.try_this}</p>
+                  <p className="text-base sm:text-lg">{primaryReadout.try_this}</p>
                 </div>
               </div>
             </div>
 
             {/* Compatibility Section */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">How You Work With Others</h3>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-8">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">How You Work With Others</h3>
               
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-green-50 rounded-xl p-6 border border-green-200">
+              <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+                <div className="bg-green-50 rounded-xl p-4 sm:p-6 border border-green-200">
                   <h4 className="font-semibold text-green-900 mb-4 flex items-center gap-2">
                     <span className="text-2xl">✨</span>
                     Works Well With
@@ -734,7 +736,7 @@ export default function ChangeStylePage() {
 
             {/* Secondary Personas */}
             {secondary.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-8">
                 <h3 className="text-xl font-bold text-gray-900 mb-6">
                   Your Secondary Style{secondary.length > 1 ? 's' : ''}
                 </h3>
@@ -766,7 +768,7 @@ export default function ChangeStylePage() {
             )}
 
             {/* All Scores */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-8">
               <h3 className="text-xl font-bold text-gray-900 mb-6">Your Complete Profile</h3>
               <div className="space-y-3">
                 {all.map(persona => {
@@ -803,39 +805,39 @@ export default function ChangeStylePage() {
             </div>
 
             {/* Action Steps - Enhanced Visual Design */}
-            <div className="relative bg-gradient-to-br from-[#BF4C74]/10 via-[#E37A75]/10 to-[#F595B6]/10 rounded-2xl p-8 mb-8 border-2 border-[#BF4C74]/20 shadow-lg">
-              <div className="absolute -top-3 -right-3 w-12 h-12 bg-[#BF4C74] rounded-full flex items-center justify-center shadow-md">
-                <span className="text-2xl">🎯</span>
+            <div className="relative bg-gradient-to-br from-[#BF4C74]/10 via-[#E37A75]/10 to-[#F595B6]/10 rounded-2xl p-6 sm:p-8 mb-8 border-2 border-[#BF4C74]/20 shadow-lg">
+              <div className="absolute -top-3 -right-3 w-10 h-10 sm:w-12 sm:h-12 bg-[#BF4C74] rounded-full flex items-center justify-center shadow-md">
+                <span className="text-xl sm:text-2xl">🎯</span>
               </div>
-              <h3 className="text-2xl font-bold text-[#BF4C74] mb-6 flex items-center gap-3">
-                <RefreshCw className="w-6 h-6" />
+              <h3 className="text-xl sm:text-2xl font-bold text-[#BF4C74] mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
+                <RefreshCw className="w-5 h-5 sm:w-6 sm:h-6" />
                 Put This Into Practice
               </h3>
-              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6">
+              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6">
                 <div className="space-y-5">
                   <div className="flex gap-4 items-start">
                     <div className="w-8 h-8 bg-[#BF4C74] rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-white font-bold text-sm">1</span>
                     </div>
-                    <p className="text-gray-800 font-medium">Share your change style with your team and manager</p>
+                    <p className="text-gray-800 font-medium text-sm sm:text-base">Share your change style with your team and manager</p>
                   </div>
                   <div className="flex gap-4 items-start">
                     <div className="w-8 h-8 bg-[#BF4C74] rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-white font-bold text-sm">2</span>
                     </div>
-                    <p className="text-gray-800 font-medium">Notice when your style shows up during the next change</p>
+                    <p className="text-gray-800 font-medium text-sm sm:text-base">Notice when your style shows up during the next change</p>
                   </div>
                   <div className="flex gap-4 items-start">
                     <div className="w-8 h-8 bg-[#BF4C74] rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-white font-bold text-sm">3</span>
                     </div>
-                    <p className="text-gray-800 font-medium">Practice the "Try This" suggestion for your primary style</p>
+                    <p className="text-gray-800 font-medium text-sm sm:text-base">Practice the "Try This" suggestion for your primary style</p>
                   </div>
                   <div className="flex gap-4 items-start">
                     <div className="w-8 h-8 bg-[#BF4C74] rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-white font-bold text-sm">4</span>
                     </div>
-                    <p className="text-gray-800 font-medium">Learn about your teammates' change styles to work better together</p>
+                    <p className="text-gray-800 font-medium text-sm sm:text-base">Learn about your teammates' change styles to work better together</p>
                   </div>
                 </div>
               </div>
@@ -867,19 +869,19 @@ export default function ChangeStylePage() {
   const currentAnswer = getCurrentAnswer()
 
   return (
-    <ViewportContainer className="bg-gray-50 p-4">
+    <ViewportContainer className="bg-gray-50 p-4 sm:p-6">
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
             <button
               onClick={() => setShowIntro(true)}
-              className="inline-flex items-center text-[#BF4C74] hover:text-[#A63D5F] transition-colors font-medium"
+              className="inline-flex items-center text-[#BF4C74] hover:text-[#A63D5F] transition-colors font-medium text-sm sm:text-base"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
               Start Over
             </button>
             <div className="flex flex-col items-end gap-1">
-              <p className="text-sm text-gray-600">
+              <p className="text-xs sm:text-sm text-gray-600">
                 Question {currentQuestionIndex + 1} of {questions.length}
               </p>
               <div className="flex items-center gap-2">
@@ -894,7 +896,7 @@ export default function ChangeStylePage() {
                     disabled={!completedQuestions.has(index) && index > currentQuestionIndex}
                     className={`h-2 rounded-full transition-all ${
                       index === currentQuestionIndex
-                        ? 'w-8 bg-[#BF4C74]'
+                        ? 'w-6 sm:w-8 bg-[#BF4C74]'
                         : completedQuestions.has(index) || index < currentQuestionIndex
                         ? 'w-2 bg-[#BF4C74]/50 hover:bg-[#BF4C74]/70 cursor-pointer'
                         : 'w-2 bg-gray-300 cursor-not-allowed'
@@ -920,7 +922,7 @@ export default function ChangeStylePage() {
             )}
           </div>
 
-          <h3 className="text-xl font-semibold text-gray-900 mb-8 text-center">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6 sm:mb-8 text-center">
             {currentQuestion.text}
           </h3>
 
@@ -929,7 +931,7 @@ export default function ChangeStylePage() {
               <button
                 key={option.value}
                 onClick={() => handleAnswer(option.value, false)} // No auto-advance on click
-                className={`w-full p-4 rounded-xl text-left transition-all duration-200 border-2 ${
+                className={`w-full p-3 sm:p-4 rounded-xl text-left transition-all duration-200 border-2 ${
                   currentAnswer === option.value
                     ? 'bg-gradient-to-r from-[#F595B6] to-[#BF4C74] text-white border-[#BF4C74] shadow-lg'
                     : 'bg-white text-nightfall border-gray-200 hover:border-[#F595B6]/50'
@@ -944,7 +946,7 @@ export default function ChangeStylePage() {
                     }`}>
                       {option.value}
                     </span>
-                    <span className="font-medium">{option.label}</span>
+                    <span className="font-medium text-sm sm:text-base">{option.label}</span>
                   </div>
                   <div className={`w-5 h-5 rounded-full border-2 ${
                     currentAnswer === option.value
@@ -961,10 +963,10 @@ export default function ChangeStylePage() {
             <button
               onClick={handlePrevious}
               disabled={currentQuestionIndex === 0}
-              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+              className={`px-4 sm:px-6 py-3 rounded-lg font-medium transition-colors text-sm sm:text-base ${
                 currentQuestionIndex === 0
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300 active:bg-gray-400'
               }`}
             >
               Back
@@ -973,9 +975,9 @@ export default function ChangeStylePage() {
             <button
               onClick={handleNext}
               disabled={!currentAnswer}
-              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+              className={`px-4 sm:px-6 py-3 rounded-lg font-medium transition-colors text-sm sm:text-base ${
                 currentAnswer
-                  ? 'bg-[#BF4C74] text-white hover:bg-[#A63D5F]'
+                  ? 'bg-[#BF4C74] text-white hover:bg-[#A63D5F] active:bg-[#8E2E49]'
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
               }`}
             >

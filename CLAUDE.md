@@ -55,3 +55,74 @@ npm run lint   # Run ESLint
 - Maintain consistent Tailwind class ordering
 - Keep API logic in route handlers, not in components
 - Use the existing UI patterns (glass morphism cards, gradient backgrounds)
+
+## CRITICAL: Reusable Components (ALWAYS USE THESE - NEVER RECREATE)
+
+### 1. ToolSharePage Component
+**Location**: `/src/components/ToolSharePage.tsx`
+**Usage**: ALWAYS use for share pages, NEVER create custom share implementations
+```typescript
+// Example: trust-audit/share/[id]/page.tsx
+import ToolSharePage from '@/components/ToolSharePage'
+
+export default async function SharePage({ params }: Props) {
+  const { id } = await params
+  return (
+    <ToolSharePage
+      shareId={id}
+      toolPath="/tool-path"
+      toolConfig={config}
+      renderResults={renderResults}
+    />
+  )
+}
+```
+
+### 2. ToolNavigation Component
+**Location**: `/src/components/ToolNavigation.tsx`
+**Usage**: ALWAYS use for "Back to Plan" and "All Tools" navigation links
+```typescript
+import ToolNavigation from '@/components/ToolNavigation'
+// Place at top of ViewportContainer
+<ToolNavigation />
+```
+
+### 3. Other Standard Components
+- **ViewportContainer** - Standard container wrapper for all pages
+- **ShareButton** - Standard share functionality with loading states
+- **Footer** - Consistent footer across all pages
+- **NavigationHeader** - For page navigation with back buttons
+- **EmailGateModal** - For email capture modals
+- **Modal** - Base modal component
+
+### 4. Standard Utilities
+- **Email Validation**: Use `validateEmail` and `validateEmailRealtime` from `/src/utils/emailValidation`
+- **Analytics**: Use `useAnalytics` hook from `/src/hooks/useAnalytics`
+- **Email Capture**: Use `useEmailCapture` hook from `/src/hooks/useEmailCapture`
+
+## Tool Development Checklist
+
+When building ANY new tool:
+- [ ] Check existing tools for patterns (trust-audit, burnout-assessment, team-charter are good examples)
+- [ ] Use ToolNavigation component for navigation (NOT custom buttons)
+- [ ] Use existing email validation utilities (NOT custom validation)
+- [ ] Use analytics hooks consistently
+- [ ] Create share page using ToolSharePage component (NOT custom implementation)
+- [ ] Follow multi-stage pattern from existing tools
+- [ ] Add to toolkit page (`/src/app/toolkit/page.tsx`)
+- [ ] Add to homepage tool mappings (`/src/app/page.tsx`)
+- [ ] Create layout.tsx with metadata
+- [ ] Use consistent color schemes for tool families
+
+## Common Mistakes to Avoid
+1. **Creating custom share pages** - Always use ToolSharePage
+2. **Custom navigation buttons** - Always use ToolNavigation
+3. **Inline navigation URLs** - Use centralized navigationConfig
+4. **Custom email validation** - Use existing utilities
+5. **Forgetting to add tools to toolkit and homepage**
+6. **Not following established multi-stage patterns**
+
+## Navigation URLs
+- Back to Plan: `/?screen=4`
+- All Tools: `/toolkit`
+- These are centralized in `/src/lib/navigationConfig.ts`

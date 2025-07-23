@@ -288,10 +288,17 @@ export default function ChangeReflectionPage() {
     const shareData = {
       type: 'change-reflection',
       toolName: 'Change Reflection',
-      results: {
-        data,
-        guide,
-        selectedPerson: data.selectedPerson
+      data: {
+        changeTypes: data.changeTypes,
+        changeDescription: data.changeDescription,
+        currentEmotions: data.currentEmotions,
+        concerns: data.negativeChanges,
+        positiveChanges: data.positiveChanges,
+        copingStrategies: data.inControl,
+        supportNeeds: data.whatsNew,
+        peopleImpacted: data.impactedPeople,
+        selectedPerson: data.selectedPerson,
+        anticipatedEmotions: data.anticipatedEmotions
       }
     }
     
@@ -1374,9 +1381,33 @@ export default function ChangeReflectionPage() {
       // Stage 10: Change Reflection Summary (Final Stage)
       case 10:
         return (
-          <ViewportContainer className="bg-gradient-to-br from-[#F595B6]/20 to-[#BF4C74]/20 min-h-screen p-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="mb-8 flex justify-between items-center">
+          <>
+            <style jsx>{`
+              @media print {
+                body * {
+                  visibility: hidden;
+                }
+                .print-section, .print-section * {
+                  visibility: visible;
+                }
+                .print-section {
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  width: 100%;
+                }
+                .no-print {
+                  display: none !important;
+                }
+                @page {
+                  margin: 0.5in;
+                  size: letter;
+                }
+              }
+            `}</style>
+            <ViewportContainer className="bg-gradient-to-br from-[#F595B6]/20 to-[#BF4C74]/20 min-h-screen p-4 print-section">
+              <div className="max-w-4xl mx-auto">
+                <div className="mb-8 flex justify-between items-center no-print">
                 <button
                   onClick={() => {
                     setCurrentStage(0)
@@ -1637,7 +1668,7 @@ export default function ChangeReflectionPage() {
               </div>
               
               {/* Action Buttons */}
-              <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center no-print">
                 <Link
                   href="/"
                   className="text-[#BF4C74] hover:text-[#A63D5F] transition-colors font-medium"
@@ -1668,6 +1699,7 @@ export default function ChangeReflectionPage() {
               </div>
             </div>
           </ViewportContainer>
+          </>
         )
 
 

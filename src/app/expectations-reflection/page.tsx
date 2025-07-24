@@ -560,7 +560,6 @@ export default function HopesFearsTool() {
                     color="#3E37FF"
                     stepLabel="Stage"
                   />
-                  </div>
                 </div>
               </div>
 
@@ -658,7 +657,6 @@ export default function HopesFearsTool() {
                     color="#3E37FF"
                     stepLabel="Stage"
                   />
-                  </div>
                 </div>
               </div>
 
@@ -756,7 +754,6 @@ export default function HopesFearsTool() {
                     color="#3E37FF"
                     stepLabel="Stage"
                   />
-                  </div>
                 </div>
               </div>
 
@@ -854,7 +851,6 @@ export default function HopesFearsTool() {
                     color="#3E37FF"
                     stepLabel="Stage"
                   />
-                  </div>
                 </div>
               </div>
 

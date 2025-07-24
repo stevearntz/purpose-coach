@@ -125,7 +125,7 @@ export default function TopOfMindPage() {
   const [showSuggestion, setShowSuggestion] = useState(false)
   const [startTime] = useState(Date.now())
   const [customArea, setCustomArea] = useState('')
-  const [showAddNote, setShowAddNote] = useState<string | null>(null)
+  const [showAddNote, setShowAddNote] = useState<number | null>(null)
   const [outcomeNote, setOutcomeNote] = useState('')
   const [teamMemberInput, setTeamMemberInput] = useState('')
   const [outcomeInput, setOutcomeInput] = useState('')
@@ -925,9 +925,9 @@ export default function TopOfMindPage() {
                                 {option.type === 'outcome' && <Flag className="w-4 h-4 text-gray-500" />}
                                 <span className="text-gray-700 font-medium">{option.value}</span>
                               </div>
-                              {option.type === 'person' && option.data.reasons && option.data.reasons.length > 0 && (
+                              {option.type === 'person' && (option.data as TeamMember).reasons && (option.data as TeamMember).reasons!.length > 0 && (
                                 <div className="flex gap-1 ml-6">
-                                  {option.data.reasons.map((reasonId: string) => {
+                                  {(option.data as TeamMember).reasons!.map((reasonId: string) => {
                                     const tag = memberTags.find(t => t.id === reasonId)
                                     return tag ? (
                                       <span key={reasonId} className="text-xs inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded-full">

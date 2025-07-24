@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowRight, Target, Users, AlertCircle, Calendar, Flag, BarChart3, Heart, MessageSquare, Rocket, UserCheck, Building2, DollarSign, Package, UserPlus, Shuffle, Settings, PiggyBank, RefreshCw, Brain, Clock, Timer } from 'lucide-react'
+import { ArrowRight, Target, Users, AlertCircle, Calendar, Flag, BarChart3, Heart, MessageSquare, Rocket, UserCheck, Building2, DollarSign, Package, UserPlus, Shuffle, Settings, PiggyBank, RefreshCw, Brain, Clock, Timer, Shield, Trophy, Zap, Plus } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
 import Footer from '@/components/Footer'
 import { headers } from 'next/headers'
@@ -31,18 +31,22 @@ const statusLabels: Record<string, string> = {
 // Member tag mappings
 const memberTagEmojis: Record<string, string> = {
   'help': '🚩',
-  'growth': '🌱',
-  'performance': '🎯',
-  'recognition': '⭐',
-  'transition': '🔄'
+  'grow': '🌱',
+  'check-in': '🎯',
+  'recognize': '⭐',
+  'align': '🤝',
+  'delegate': '📋',
+  'unblock': '🚧'
 }
 
 const memberTagLabels: Record<string, string> = {
-  'help': 'Needs help',
-  'growth': 'Growth focus',
-  'performance': 'Performance check-in',
-  'recognition': 'Recognition due',
-  'transition': 'Role transition'
+  'help': 'Help',
+  'grow': 'Grow',
+  'check-in': 'Check-in',
+  'recognize': 'Recognize',
+  'align': 'Align',
+  'delegate': 'Delegate',
+  'unblock': 'Unblock'
 }
 
 // Area icons
@@ -57,11 +61,12 @@ const areaIcons: Record<string, any> = {
   budget: PiggyBank,
   strategy: Target,
   change: RefreshCw,
-  focus: Brain
+  focus: Brain,
+  risk: Shield
 }
 
 const areaLabels: Record<string, string> = {
-  revenue: 'Revenue or sales targets',
+  revenue: 'Revenue, sales, or growth targets',
   customer: 'Customer success or retention',
   product: 'Product or delivery milestones',
   team: 'Team performance or growth',
@@ -71,7 +76,8 @@ const areaLabels: Record<string, string> = {
   budget: 'Budget or cost management',
   strategy: 'Strategy or planning',
   change: 'Change or transformation efforts',
-  focus: 'My own focus / effectiveness'
+  focus: 'My own focus / effectiveness',
+  risk: 'Risk management or compliance'
 }
 
 // Weekly need icons
@@ -80,10 +86,9 @@ const weeklyNeedIcons: Record<string, any> = {
   priorities: Target,
   support: Users,
   meetings: Calendar,
-  communication: MessageSquare,
-  thinking: Brain,
-  break: Heart,
-  clarity: AlertCircle
+  recognition: Trophy,
+  energy: Zap,
+  custom: Plus
 }
 
 async function getSharedResult(id: string) {
@@ -187,12 +192,16 @@ export default async function SharePage({ params }: Props) {
       { id: 'priorities', label: 'Clear priorities' },
       { id: 'support', label: 'Support from a teammate' },
       { id: 'meetings', label: 'Fewer meetings' },
-      { id: 'communication', label: 'Better communication' },
-      { id: 'thinking', label: 'Thinking partner' },
-      { id: 'break', label: 'A break' },
-      { id: 'clarity', label: 'Clarity on direction' }
-    ].find(item => item.label === need)
-    return standardNeed ? weeklyNeedIcons[standardNeed.id] : Heart
+      { id: 'recognition', label: 'Recognition or motivation' },
+      { id: 'energy', label: 'An energy reset' }
+    ].find(item => item.id === need || item.label === need)
+    
+    if (standardNeed) {
+      return weeklyNeedIcons[standardNeed.id]
+    }
+    
+    // For custom needs or legacy data
+    return weeklyNeedIcons.custom || Plus
   }
 
   return (
@@ -255,6 +264,23 @@ export default async function SharePage({ params }: Props) {
                         {item.reason && (
                           <p className="text-sm text-gray-600 mt-1">Why: {item.reason}</p>
                         )}
+                        {item.note && (
+                          <p className="text-sm text-gray-600 mt-1 italic">"{item.note}"</p>
+                        )}
+                        {item.supportPeople && item.supportPeople.length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            <p className="text-xs font-medium text-gray-700 flex items-center gap-1">
+                              <UserCheck className="w-3 h-3 text-[#3E37FF]" />
+                              Support Network
+                            </p>
+                            {item.supportPeople.map((support: any, idx: number) => (
+                              <div key={idx} className="p-2 bg-gray-50 rounded-lg">
+                                <p className="font-medium text-gray-800 text-sm">{support.name}</p>
+                                <p className="text-gray-600 text-xs mt-0.5">{support.how}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -302,12 +328,17 @@ export default async function SharePage({ params }: Props) {
                   </div>
                   <div className="space-y-3">
                     {data.teamMembers.map((member: any, index: number) => (
-                      <div key={index} className="flex items-center justify-between">
-                        <span className="text-gray-700">{member.name}</span>
-                        {member.reason && (
-                          <span className="text-sm">
-                            {memberTagEmojis[member.reason]} {memberTagLabels[member.reason]}
-                          </span>
+                      <div key={index} className="space-y-2">
+                        <span className="text-gray-700 font-medium">{member.name}</span>
+                        {member.reasons && member.reasons.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {member.reasons.map((reason: string) => (
+                              <span key={reason} className="text-xs inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full">
+                                <span>{memberTagEmojis[reason]}</span>
+                                <span>{memberTagLabels[reason]}</span>
+                              </span>
+                            ))}
+                          </div>
                         )}
                       </div>
                     ))}
@@ -329,13 +360,15 @@ export default async function SharePage({ params }: Props) {
                     <div className="flex-1 bg-gray-200 rounded-full h-3 relative overflow-hidden">
                       <div 
                         className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#C67AF4] to-[#3E37FF] transition-all duration-300"
-                        style={{ width: `${(data.focusLevel / 5) * 100}%` }}
+                        style={{ width: `${data.focusLevel}%` }}
                       />
                     </div>
-                    <span className="text-2xl font-bold text-gray-900">{data.focusLevel}/5</span>
+                    <span className="text-2xl font-bold text-gray-900">{data.focusLevel}%</span>
                   </div>
                   <p className="text-sm text-gray-600 mt-2">
-                    {data.focusLevel <= 2 ? 'Feeling scattered' : data.focusLevel >= 4 ? 'Highly focused' : 'Moderately focused'}
+                    {data.focusLevel < 30 ? '🌀 Feeling scattered' : 
+                     data.focusLevel < 70 ? '⚡ Getting there' : 
+                     '🎯 Laser focused'}
                   </p>
                 </div>
 
@@ -348,12 +381,26 @@ export default async function SharePage({ params }: Props) {
                       </div>
                       <h2 className="text-xl font-bold text-gray-900">What I Need Most</h2>
                     </div>
-                    <div className="flex items-center gap-3">
-                      {(() => {
-                        const NeedIcon = getWeeklyNeedIcon(data.weeklyNeed)
-                        return <NeedIcon className="w-6 h-6 text-[#3E37FF]" />
-                      })()}
-                      <span className="text-lg text-gray-700">{data.weeklyNeed}</span>
+                    <div>
+                      <div className="flex items-center gap-3">
+                        {(() => {
+                          const NeedIcon = getWeeklyNeedIcon(data.weeklyNeed)
+                          return <NeedIcon className="w-6 h-6 text-[#3E37FF]" />
+                        })()}
+                        <span className="text-lg text-gray-700">
+                          {[
+                            { id: 'time', label: 'Time to think' },
+                            { id: 'priorities', label: 'Clear priorities' },
+                            { id: 'support', label: 'Support from a teammate' },
+                            { id: 'meetings', label: 'Fewer meetings' },
+                            { id: 'recognition', label: 'Recognition or motivation' },
+                            { id: 'energy', label: 'An energy reset' }
+                          ].find(item => item.id === data.weeklyNeed)?.label || data.weeklyNeed}
+                        </span>
+                      </div>
+                      {data.needDescription && (
+                        <p className="text-gray-600 mt-3 italic">"{data.needDescription}"</p>
+                      )}
                     </div>
                   </div>
                 )}

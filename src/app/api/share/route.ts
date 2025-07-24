@@ -298,12 +298,21 @@ export async function POST(request: NextRequest) {
       'decision-making-audit',
       'change-readiness-assessment',
       'change-style',
-      'user-guide'
+      'user-guide',
+      'top-of-mind',
+      'accountability-builder'
     ];
     
+    // Map tool types to their actual routes
+    const toolRouteMap: Record<string, string> = {
+      'top-of-mind': 'accountability-builder',
+      'accountability-builder': 'accountability-builder'
+    };
+    
     // Use tool-specific share route only if the tool has its own share page
+    const actualRoute = toolRouteMap[toolType] || toolType;
     const urlPath = toolsWithSharePages.includes(toolType)
-      ? `/${toolType}/share/${id}`
+      ? `/${actualRoute}/share/${id}`
       : `/share/${id}`;
     
     return NextResponse.json({ id, url: urlPath });

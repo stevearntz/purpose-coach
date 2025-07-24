@@ -20,6 +20,7 @@ import Footer from '@/components/Footer'
 import ViewportContainer from '@/components/ViewportContainer'
 import ShareButton from '@/components/ShareButton'
 import ToolNavigation from '@/components/ToolNavigation'
+import ToolProgressIndicator from '@/components/ToolProgressIndicator'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
 import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
@@ -381,39 +382,23 @@ export default function ChangeReflectionPage() {
         Start Over
       </button>
       
-      <div className="flex items-center gap-4">
-        <div className="text-sm text-gray-600">
-          Step {stage} of 10
-        </div>
-        <div className="flex items-center gap-1">
-          {[...Array(10)].map((_, i) => {
-            const stageNum = i + 1
-            const isClickable = stageNum < stage || (stageNum > stage && stageHasData(stageNum))
-            
-            return (
-              <button
-                key={i}
-                onClick={() => {
-                  if (isClickable) {
-                    setCurrentStage(stageNum)
-                  }
-                }}
-                disabled={!isClickable}
-                className={`h-2 rounded-full transition-all ${
-                  i === stage - 1
-                    ? 'w-8 bg-[#BF4C74]'
-                    : i < stage - 1
-                    ? 'w-2 bg-[#BF4C74] hover:w-3 cursor-pointer'
-                    : stageHasData(stageNum)
-                    ? 'w-2 bg-[#BF4C74]/50 hover:w-3 cursor-pointer'
-                    : 'w-2 bg-gray-300 cursor-not-allowed'
-                }`}
-                aria-label={`Go to step ${stageNum}`}
-              />
-            )
-          })}
-        </div>
-      </div>
+      <ToolProgressIndicator
+        currentStep={stage - 1}
+        totalSteps={10}
+        completedSteps={new Set(
+          [...Array(10)].map((_, i) => i + 1)
+            .filter(stageNum => stageNum < stage || stageHasData(stageNum))
+            .map(stageNum => stageNum - 1)
+        )}
+        onStepClick={(index) => {
+          const stageNum = index + 1
+          if (stageNum < stage || (stageNum > stage && stageHasData(stageNum))) {
+            setCurrentStage(stageNum)
+          }
+        }}
+        color="#BF4C74"
+        stepLabel="Step"
+      />
     </div>
   )
 

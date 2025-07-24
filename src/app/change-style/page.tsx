@@ -7,6 +7,7 @@ import Footer from '@/components/Footer'
 import ViewportContainer from '@/components/ViewportContainer'
 import ShareButton from '@/components/ShareButton'
 import ToolNavigation from '@/components/ToolNavigation'
+import ToolProgressIndicator from '@/components/ToolProgressIndicator'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
 import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
@@ -880,32 +881,14 @@ export default function ChangeStylePage() {
               <ArrowLeft className="w-5 h-5 mr-2" />
               Start Over
             </button>
-            <div className="flex flex-col items-end gap-1">
-              <p className="text-xs sm:text-sm text-gray-600">
-                Question {currentQuestionIndex + 1} of {questions.length}
-              </p>
-              <div className="flex items-center gap-2">
-                {questions.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      if (index <= currentQuestionIndex || completedQuestions.has(index)) {
-                        setCurrentQuestionIndex(index)
-                      }
-                    }}
-                    disabled={!completedQuestions.has(index) && index > currentQuestionIndex}
-                    className={`h-2 rounded-full transition-all ${
-                      index === currentQuestionIndex
-                        ? 'w-6 sm:w-8 bg-[#BF4C74]'
-                        : completedQuestions.has(index) || index < currentQuestionIndex
-                        ? 'w-2 bg-[#BF4C74]/50 hover:bg-[#BF4C74]/70 cursor-pointer'
-                        : 'w-2 bg-gray-300 cursor-not-allowed'
-                    }`}
-                    aria-label={`Go to question ${index + 1}`}
-                  />
-                ))}
-              </div>
-            </div>
+            <ToolProgressIndicator
+              currentStep={currentQuestionIndex}
+              totalSteps={questions.length}
+              completedSteps={completedQuestions}
+              onStepClick={(index) => setCurrentQuestionIndex(index)}
+              color="#BF4C74"
+              stepLabel="Question"
+            />
           </div>
         </div>
 

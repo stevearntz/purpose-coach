@@ -11,6 +11,7 @@ import ShareButton from '@/components/ShareButton'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
 import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
 import ToolNavigation from '@/components/ToolNavigation'
+import ToolProgressIndicator from '@/components/ToolProgressIndicator'
 
 interface Question {
   id: string
@@ -672,32 +673,14 @@ export default function BurnoutAssessmentPage() {
               <ArrowLeft className="w-5 h-5 mr-2" />
               Start Over
             </button>
-            <div className="flex flex-col items-end gap-1">
-              <p className="text-sm text-gray-600">
-                Question {currentQuestionIndex + 1} of {questions.length}
-              </p>
-              <div className="flex items-center gap-2">
-                {Array.from({ length: questions.length }).map((_, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  if (index <= currentQuestionIndex || completedQuestions.has(index)) {
-                    setCurrentQuestionIndex(index)
-                  }
-                }}
-                disabled={!completedQuestions.has(index) && index > currentQuestionIndex}
-                className={`h-2 rounded-full transition-all ${
-                  index === currentQuestionIndex
-                    ? 'w-8 bg-[#30B859]'
-                    : completedQuestions.has(index) || index < currentQuestionIndex
-                    ? 'w-2 bg-[#30B859]/50 hover:bg-[#30B859]/70 cursor-pointer'
-                    : 'w-2 bg-gray-300 cursor-not-allowed'
-                }`}
-                aria-label={`Go to question ${index + 1}`}
-              />
-            ))}
-              </div>
-            </div>
+            <ToolProgressIndicator
+              currentStep={currentQuestionIndex}
+              totalSteps={questions.length}
+              completedSteps={completedQuestions}
+              onStepClick={(index) => setCurrentQuestionIndex(index)}
+              color="#30B859"
+              stepLabel="Question"
+            />
           </div>
         </div>
         

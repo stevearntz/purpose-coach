@@ -8,6 +8,7 @@ import jsPDF from 'jspdf'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import ShareButton from '@/components/ShareButton'
 import ToolNavigation from '@/components/ToolNavigation'
+import ToolProgressIndicator from '@/components/ToolProgressIndicator'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
 import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
 
@@ -547,31 +548,18 @@ export default function HopesFearsTool() {
                 </button>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">What's Your Context?</h2>
-                  <div className="flex flex-col items-end gap-1">
-                    <p className="text-sm text-gray-600">
-                      Stage {currentStage + 1} of {stages.length}
-                    </p>
-                    <div className="flex items-center gap-2">
-                    {stages.map((s, index) => (
-                      <button
-                        key={s.id}
-                        onClick={() => {
-                          if (index < currentStage && index > 0) {
-                            setCurrentStage(index)
-                          }
-                        }}
-                        disabled={index > currentStage || index === 0}
-                        className={`h-2 rounded-full transition-all ${
-                          index === currentStage
-                            ? 'w-8 bg-[#3E37FF]'
-                            : index < currentStage
-                            ? 'w-2 bg-[#3E37FF]/50 hover:bg-[#3E37FF]/70 cursor-pointer'
-                            : 'w-2 bg-gray-300 cursor-not-allowed'
-                        }`}
-                        aria-label={`Go to ${s.title}`}
-                      />
-                    ))}
-                  </div>
+                  <ToolProgressIndicator
+                    currentStep={currentStage}
+                    totalSteps={stages.length}
+                    completedSteps={new Set(Array.from({length: currentStage}, (_, i) => i).filter(i => i > 0))}
+                    onStepClick={(index) => {
+                      if (index < currentStage && index > 0) {
+                        setCurrentStage(index)
+                      }
+                    }}
+                    color="#3E37FF"
+                    stepLabel="Stage"
+                  />
                   </div>
                 </div>
               </div>
@@ -658,31 +646,18 @@ export default function HopesFearsTool() {
                 </button>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">What Are Your Hopes?</h2>
-                  <div className="flex flex-col items-end gap-1">
-                    <p className="text-sm text-gray-600">
-                      Stage {currentStage + 1} of {stages.length}
-                    </p>
-                    <div className="flex items-center gap-2">
-                    {stages.map((s, index) => (
-                      <button
-                        key={s.id}
-                        onClick={() => {
-                          if (index < currentStage && index > 0) {
-                            setCurrentStage(index)
-                          }
-                        }}
-                        disabled={index > currentStage || index === 0}
-                        className={`h-2 rounded-full transition-all ${
-                          index === currentStage
-                            ? 'w-8 bg-[#3E37FF]'
-                            : index < currentStage
-                            ? 'w-2 bg-[#3E37FF]/50 hover:bg-[#3E37FF]/70 cursor-pointer'
-                            : 'w-2 bg-gray-300 cursor-not-allowed'
-                        }`}
-                        aria-label={`Go to ${s.title}`}
-                      />
-                    ))}
-                  </div>
+                  <ToolProgressIndicator
+                    currentStep={currentStage}
+                    totalSteps={stages.length}
+                    completedSteps={new Set(Array.from({length: currentStage}, (_, i) => i).filter(i => i > 0))}
+                    onStepClick={(index) => {
+                      if (index < currentStage && index > 0) {
+                        setCurrentStage(index)
+                      }
+                    }}
+                    color="#3E37FF"
+                    stepLabel="Stage"
+                  />
                   </div>
                 </div>
               </div>
@@ -769,31 +744,18 @@ export default function HopesFearsTool() {
                 </button>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">What Are Your Fears?</h2>
-                  <div className="flex flex-col items-end gap-1">
-                    <p className="text-sm text-gray-600">
-                      Stage {currentStage + 1} of {stages.length}
-                    </p>
-                    <div className="flex items-center gap-2">
-                    {stages.map((s, index) => (
-                      <button
-                        key={s.id}
-                        onClick={() => {
-                          if (index < currentStage && index > 0) {
-                            setCurrentStage(index)
-                          }
-                        }}
-                        disabled={index > currentStage || index === 0}
-                        className={`h-2 rounded-full transition-all ${
-                          index === currentStage
-                            ? 'w-8 bg-[#3E37FF]'
-                            : index < currentStage
-                            ? 'w-2 bg-[#3E37FF]/50 hover:bg-[#3E37FF]/70 cursor-pointer'
-                            : 'w-2 bg-gray-300 cursor-not-allowed'
-                        }`}
-                        aria-label={`Go to ${s.title}`}
-                      />
-                    ))}
-                  </div>
+                  <ToolProgressIndicator
+                    currentStep={currentStage}
+                    totalSteps={stages.length}
+                    completedSteps={new Set(Array.from({length: currentStage}, (_, i) => i).filter(i => i > 0))}
+                    onStepClick={(index) => {
+                      if (index < currentStage && index > 0) {
+                        setCurrentStage(index)
+                      }
+                    }}
+                    color="#3E37FF"
+                    stepLabel="Stage"
+                  />
                   </div>
                 </div>
               </div>
@@ -880,31 +842,18 @@ export default function HopesFearsTool() {
                 </button>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">What Are Your Expectations?</h2>
-                  <div className="flex flex-col items-end gap-1">
-                    <p className="text-sm text-gray-600">
-                      Stage {currentStage + 1} of {stages.length}
-                    </p>
-                    <div className="flex items-center gap-2">
-                    {stages.map((s, index) => (
-                      <button
-                        key={s.id}
-                        onClick={() => {
-                          if (index < currentStage && index > 0) {
-                            setCurrentStage(index)
-                          }
-                        }}
-                        disabled={index > currentStage || index === 0}
-                        className={`h-2 rounded-full transition-all ${
-                          index === currentStage
-                            ? 'w-8 bg-[#3E37FF]'
-                            : index < currentStage
-                            ? 'w-2 bg-[#3E37FF]/50 hover:bg-[#3E37FF]/70 cursor-pointer'
-                            : 'w-2 bg-gray-300 cursor-not-allowed'
-                        }`}
-                        aria-label={`Go to ${s.title}`}
-                      />
-                    ))}
-                  </div>
+                  <ToolProgressIndicator
+                    currentStep={currentStage}
+                    totalSteps={stages.length}
+                    completedSteps={new Set(Array.from({length: currentStage}, (_, i) => i).filter(i => i > 0))}
+                    onStepClick={(index) => {
+                      if (index < currentStage && index > 0) {
+                        setCurrentStage(index)
+                      }
+                    }}
+                    color="#3E37FF"
+                    stepLabel="Stage"
+                  />
                   </div>
                 </div>
               </div>

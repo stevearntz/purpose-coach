@@ -119,7 +119,7 @@ async function getSharedResult(id: string) {
       return null
     }
     
-    return result.data || result
+    return result
   } catch (error) {
     console.error('Error fetching shared result:', error)
     return null
@@ -168,11 +168,12 @@ export default async function SharePage({ params }: Props) {
   const { id } = await params
   const sharedData = await getSharedResult(id)
   
-  if (!sharedData || !sharedData.data) {
+  if (!sharedData) {
     notFound()
   }
 
-  const data = sharedData.data
+  // Handle both nested and non-nested data structures
+  const data = sharedData.data || sharedData
   const weekOf = data.weekOf ? new Date(data.weekOf) : new Date()
   const formatDate = (date: Date) => {
     const options: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric', year: 'numeric' }

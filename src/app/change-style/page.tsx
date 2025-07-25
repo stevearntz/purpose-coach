@@ -428,28 +428,32 @@ export default function ChangeStylePage() {
   const handleShare = async () => {
     const { primary, secondary } = getPersonaScores()
     const shareData = {
-      primaryPersona: primary.code,
-      secondaryPersonas: secondary.map(p => p.code),
-      timestamp: Date.now()
+      type: 'change-style',
+      toolName: 'Change Style Profile',
+      data: {
+        primaryPersona: primary.code,
+        secondaryPersonas: secondary.map(p => p.code),
+        timestamp: Date.now()
+      }
     }
     
     try {
       const response = await fetch('/api/share', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          type: 'change-style',
-          data: shareData,
-          toolId: 'change-style'
-        })
+        body: JSON.stringify(shareData)
       })
       
-      const { id } = await response.json()
-      const shareUrl = `${window.location.origin}/change-style/share/${id}`
+      if (!response.ok) {
+        throw new Error('Failed to create share link')
+      }
+      
+      const { url } = await response.json()
+      const fullUrl = `${window.location.origin}${url}`
       
       analytics.trackShare('Change Style Profile')
       
-      return shareUrl
+      return fullUrl
     } catch (error) {
       console.error('Error sharing:', error)
       return ''

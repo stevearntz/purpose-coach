@@ -152,13 +152,13 @@ async function getSharedResult(id: string) {
     const result = await response.json()
     console.log('Share data retrieved:', result)
     
-    // Handle both old format (with toolId) and new format (with type)
-    if (result.toolId !== 'change-style' && result.type !== 'change-style') {
-      console.error('Invalid tool type:', result.toolId || result.type)
+    // Check if this is a change-style share
+    if (result.type !== 'change-style') {
+      console.error('Invalid tool type:', result.type)
       return null
     }
     
-    return result.data || result
+    return result
   } catch (error) {
     console.error('Error fetching shared result:', error)
     return null
@@ -205,12 +205,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function SharePage({ params }: Props) {
   const { id } = await params
-  const sharedData = await getSharedResult(id)
+  const result = await getSharedResult(id)
   
-  if (!sharedData) {
+  if (!result || !result.data) {
     notFound()
   }
 
+  const sharedData = result.data
   const primaryReadout = personaReadouts[sharedData.primaryPersona]
   const secondaryReadouts = sharedData.secondaryPersonas?.map((code: string) => personaReadouts[code]) || []
 

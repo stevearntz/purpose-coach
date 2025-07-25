@@ -2017,7 +2017,7 @@ export default function TopOfMindPage() {
                                                 key={s.id}
                                                 onClick={() => {
                                                   const updatedOutcomes = data.outcomes.map((o, i) => 
-                                                    i === index ? { ...o, status: s.id } : o
+                                                    i === index ? { ...o, status: s.id as 'at-risk' | 'needs-push' | 'on-track' | 'figuring-out' } : o
                                                   )
                                                   setData({ ...data, outcomes: updatedOutcomes })
                                                   setEditingStatusIndex(null)

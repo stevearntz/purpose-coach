@@ -50,7 +50,7 @@ export const toolConfigs = {
   },
   accountabilityBuilder: {
     gradient: "from-[#C67AF4] to-[#3E37FF]",
-    title: "Top of Mind",
+    title: "Focus Finder",
     subtitle: "5-minute weekly check-in.",
     description: "A rapid weekly reflection to surface what really matters. Focus on outcomes, people, and priorities—not just tasks. Perfect for Friday afternoons or Monday mornings."
   },

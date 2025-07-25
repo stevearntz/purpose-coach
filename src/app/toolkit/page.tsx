@@ -203,6 +203,16 @@ const tools: Tool[] = [
     gradient: 'from-[#F595B6] to-[#BF4C74]',
     icon: <RefreshCw className="w-8 h-8" />,
     challenges: ['navigating-change', 'empowering-others', 'communication']
+  },
+  {
+    id: 'focus-finder',
+    path: '/accountability-builder',
+    title: 'Focus Finder',
+    subtitle: '5-minute weekly check-in',
+    description: 'A rapid weekly reflection to surface what really matters. Focus on outcomes, people, and priorities—not just tasks.',
+    gradient: 'from-[#C67AF4] to-[#3E37FF]',
+    icon: <Target className="w-8 h-8" />,
+    challenges: ['purpose-direction', 'alignment', 'skill-building']
   }
 ]
 

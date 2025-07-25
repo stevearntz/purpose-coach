@@ -135,19 +135,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const baseUrl = 'https://tools.getcampfire.com'
   
   return {
-    title: 'Top of Mind - Weekly Snapshot | Campfire',
+    title: 'Focus Finder - Weekly Snapshot | Campfire',
     description: 'My weekly focus snapshot - what matters most this week.',
     openGraph: {
-      title: 'Top of Mind - Weekly Snapshot | Campfire',
+      title: 'Focus Finder - Weekly Snapshot | Campfire',
       description: 'My weekly focus snapshot - what matters most this week.',
       url: `${baseUrl}/accountability-builder/share/${id}`,
       siteName: 'Campfire',
       images: [
         {
-          url: `${baseUrl}/og-top-of-mind-share.png`,
+          url: `${baseUrl}/og-accountability-builder-share.png`,
           width: 1200,
           height: 630,
-          alt: 'Top of Mind - Weekly Snapshot | Campfire',
+          alt: 'Focus Finder - Weekly Snapshot | Campfire',
         },
       ],
       locale: 'en_US',
@@ -155,9 +155,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Top of Mind - Weekly Snapshot | Campfire',
+      title: 'Focus Finder - Weekly Snapshot | Campfire',
       description: 'My weekly focus snapshot - what matters most this week.',
-      images: [`${baseUrl}/og-top-of-mind-share.png`],
+      images: [`${baseUrl}/og-accountability-builder-share.png`],
       site: '@campfire',
     },
     metadataBase: new URL(baseUrl),
@@ -210,7 +210,7 @@ export default async function SharePage({ params }: Props) {
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Top of Mind
+              Focus Finder
             </h1>
             <p className="text-lg text-gray-600 mb-2">
               Weekly Snapshot for {formatDate(weekOf)}
@@ -264,8 +264,12 @@ export default async function SharePage({ params }: Props) {
                         {item.reason && (
                           <p className="text-sm text-gray-600 mt-1">Why: {item.reason}</p>
                         )}
-                        {item.note && (
-                          <p className="text-sm text-gray-600 mt-1 italic">"{item.note}"</p>
+                        {item.notes && item.notes.length > 0 && (
+                          <div className="space-y-0.5 mt-1">
+                            {item.notes.map((note: string, noteIndex: number) => (
+                              <p key={noteIndex} className="text-sm text-gray-600 italic">• {note}</p>
+                            ))}
+                          </div>
                         )}
                         {item.supportPeople && item.supportPeople.length > 0 && (
                           <div className="mt-3 space-y-2">
@@ -324,7 +328,7 @@ export default async function SharePage({ params }: Props) {
                     <div className="w-12 h-12 bg-gradient-to-br from-[#C67AF4] to-[#3E37FF] rounded-xl flex items-center justify-center">
                       <Users className="w-6 h-6 text-white" />
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900">People on My Mind</h2>
+                    <h2 className="text-xl font-bold text-gray-900">People & Teams on My Mind</h2>
                   </div>
                   <div className="space-y-3">
                     {data.teamMembers.map((member: any, index: number) => (

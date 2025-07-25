@@ -7,7 +7,8 @@ import {
   ClipboardList, GitBranch, BarChart3, Clock, Shield, Star, Heart,
   Brain, Rocket, Package, UserCheck, Building2, Briefcase, Award,
   TrendingUp, DollarSign, UserPlus, Shuffle, Settings, PiggyBank,
-  Layers, RefreshCw, Activity, CircleDot, AlertTriangle, Timer, X, Plus
+  Layers, RefreshCw, Activity, CircleDot, AlertTriangle, Timer, X, Plus,
+  ArrowUpDown, Edit
 } from 'lucide-react'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
@@ -41,18 +42,107 @@ interface OutcomeStatus {
   status: 'at-risk' | 'needs-push' | 'on-track' | 'figuring-out'
   note?: string
   relatedAreas?: string[]
+  focusArea?: string  // Track which focus area this outcome belongs to
 }
 
 interface FocusItem {
   item: string
   reason: string
-  note?: string
+  notes?: string[]
   supportPeople?: SupportPerson[]
 }
 
 interface SupportPerson {
   name: string
   how: string
+}
+
+// Example outcomes for each area
+const outcomeExamples: Record<string, string[]> = {
+  'revenue': [
+    'Close 3 deals from pipeline',
+    'Hit $500K monthly target', 
+    'Schedule 10 sales demos',
+    'Launch referral program',
+    'Sign 2 expansion contracts'
+  ],
+  'customer': [
+    'Resolve 5 support escalations',
+    'Ship self-service feature',
+    'Call 10 at-risk customers',
+    'Update help documentation',
+    'Run customer feedback session'
+  ],
+  'product': [
+    'Ship user dashboard update',
+    'Fix top 3 bug reports',
+    'Complete design review',
+    'Launch A/B test',
+    'Release mobile app update'
+  ],
+  'team': [
+    'Complete 1-on-1s with everyone',
+    'Post 2 job openings',
+    'Finish performance reviews',
+    'Plan team lunch',
+    'Onboard new team member'
+  ],
+  'collaboration': [
+    'Align with marketing on launch',
+    'Review project timeline',
+    'Schedule stakeholder update',
+    'Resolve blocker with IT',
+    'Share weekly progress report'
+  ],
+  'culture': [
+    'Recognize 3 team wins',
+    'Host all-hands meeting',
+    'Send team survey',
+    'Plan volunteer day',
+    'Update team handbook'
+  ],
+  'efficiency': [
+    'Automate weekly report',
+    'Clean up project backlog',
+    'Reduce meetings by 2 hours',
+    'Document key processes',
+    'Upgrade team tools'
+  ],
+  'budget': [
+    'Review monthly spend',
+    'Cut unnecessary subscriptions',
+    'Approve team expenses',
+    'Negotiate vendor renewal',
+    'Submit budget forecast'
+  ],
+  'strategy': [
+    'Finish board meeting slides',
+    'Update company OKRs',
+    'Research competitor moves',
+    'Draft partnership proposal',
+    'Review market analysis'
+  ],
+  'change': [
+    'Communicate timeline update',
+    'Address team concerns',
+    'Complete training modules',
+    'Update project plan',
+    'Gather feedback round'
+  ],
+  'focus': [
+    'Block deep work time',
+    'Delegate 3 tasks',
+    'Clear inbox to zero',
+    'Take strategic planning day',
+    'Finish online course'
+  ],
+  'risk': [
+    'Review security policies',
+    'Update risk register',
+    'Complete compliance training',
+    'Test backup systems',
+    'Document procedures'
+  ]
 }
 
 // Major ownership areas
@@ -96,14 +186,12 @@ const outcomeStatuses = [
   { id: 'figuring-out', emoji: '🧠', label: 'Still figuring it out', color: 'text-purple-600 bg-purple-100' }
 ]
 
-// Focus reasons
+// Focus reasons with icons
 const focusReasons = [
-  'Deadline',
-  'Visibility',
-  'Friction',
-  'Impact',
-  'Urgency',
-  'Importance'
+  { id: 'deadline', label: 'Deadline', icon: Calendar },
+  { id: 'impact', label: 'Impact', icon: Target },
+  { id: 'urgency', label: 'Urgency', icon: AlertCircle },
+  { id: 'importance', label: 'Importance', icon: Star }
 ]
 
 // Weekly needs
@@ -113,7 +201,9 @@ const weeklyNeeds = [
   { id: 'support', label: 'Support from a teammate', icon: Users },
   { id: 'meetings', label: 'Fewer meetings', icon: Calendar },
   { id: 'recognition', label: 'Recognition or motivation', icon: Trophy },
-  { id: 'energy', label: 'An energy reset', icon: Zap }
+  { id: 'energy', label: 'An energy reset', icon: Zap },
+  { id: 'focus', label: 'Better focus time', icon: Brain },
+  { id: 'alignment', label: 'Team alignment', icon: GitBranch }
 ]
 
 export default function TopOfMindPage() {
@@ -136,6 +226,15 @@ export default function TopOfMindPage() {
   const [supportPersonInput, setSupportPersonInput] = useState('')
   const [supportHowInput, setSupportHowInput] = useState('')
   const [editingSupportIndex, setEditingSupportIndex] = useState<number | null>(null)
+  const [currentFocusAreaIndex, setCurrentFocusAreaIndex] = useState(0)
+  const [customReasonInput, setCustomReasonInput] = useState('')
+  const [showCustomReason, setShowCustomReason] = useState<number | null>(null)
+  const [topPriorityIndex, setTopPriorityIndex] = useState<number | null>(null)
+  const [editingNoteIndex, setEditingNoteIndex] = useState<{itemIndex: number, noteIndex: number} | null>(null)
+  const [editingNoteText, setEditingNoteText] = useState('')
+  const [editingStatusIndex, setEditingStatusIndex] = useState<number | null>(null)
+  const [editingOutcomeIndex, setEditingOutcomeIndex] = useState<number | null>(null)
+  const [editingOutcomeText, setEditingOutcomeText] = useState('')
   
   const [data, setData] = useState<TopOfMindData>({
     majorAreas: [],
@@ -150,7 +249,7 @@ export default function TopOfMindPage() {
 
   // Track tool start
   useEffect(() => {
-    analytics.trackToolStart('Top of Mind')
+    analytics.trackToolStart('Accountability Builder')
   }, [])
 
   // Pre-populate email if available
@@ -188,26 +287,38 @@ export default function TopOfMindPage() {
     }
     
     if (userEmail) {
-      await captureEmailForTool(userEmail, 'Top of Mind', 'top-of-mind')
+      await captureEmailForTool(userEmail, 'Accountability Builder', 'accountability-builder')
     }
     setCurrentStage(1)
   }
 
   const handleNext = () => {
-    if (currentStage < 6) {
+    // Special handling for outcome screens (stage 2)
+    if (currentStage === 2) {
+      if (currentFocusAreaIndex < data.majorAreas.length - 1) {
+        // Move to next focus area
+        setCurrentFocusAreaIndex(currentFocusAreaIndex + 1)
+        return
+      } else {
+        // Finished all focus areas, proceed to next stage
+        setCurrentFocusAreaIndex(0) // Reset for potential back navigation
+      }
+    }
+    
+    if (currentStage < 5) {
       // Mark current stage as completed
       setCompletedStages(prev => new Set([...prev, currentStage]))
       setCurrentStage(currentStage + 1)
-      const progress = ((currentStage + 1) / 7) * 100
-      analytics.trackToolProgress('Top of Mind', `Step ${currentStage + 1}`, progress)
-    } else if (currentStage === 6) {
-      // Mark stage 6 as completed
-      setCompletedStages(prev => new Set([...prev, 6]))
-      // Going to final stage (7)
-      setCurrentStage(7)
+      const progress = ((currentStage + 1) / 6) * 100
+      analytics.trackToolProgress('Accountability Builder', `Step ${currentStage + 1}`, progress)
+    } else if (currentStage === 5) {
+      // Mark stage 5 as completed
+      setCompletedStages(prev => new Set([...prev, 5]))
+      // Going to final stage (6)
+      setCurrentStage(6)
       // Track completion
       const timeSpent = Math.round((Date.now() - startTime) / 1000)
-      analytics.trackToolComplete('Top of Mind', {
+      analytics.trackToolComplete('Accountability Builder', {
         areas_count: data.majorAreas.length,
         team_members: data.teamMembers.length,
         top_three: data.topThree.length,
@@ -217,18 +328,31 @@ export default function TopOfMindPage() {
   }
 
   const handleBack = () => {
+    // Special handling for outcome screens (stage 2)
+    if (currentStage === 2) {
+      if (currentFocusAreaIndex > 0) {
+        // Go back to previous focus area
+        setCurrentFocusAreaIndex(currentFocusAreaIndex - 1)
+        return
+      }
+    }
+    
     if (currentStage > 0) {
       setCurrentStage(currentStage - 1)
+      // If going back to stage 2, set to last focus area
+      if (currentStage - 1 === 2 && data.majorAreas.length > 0) {
+        setCurrentFocusAreaIndex(data.majorAreas.length - 1)
+      }
     }
   }
 
   const handleShare = async () => {
     const shareData = {
-      type: 'top-of-mind',
-      toolName: 'Top of Mind',
+      type: 'accountability-builder',
+      toolName: 'Accountability Builder',
       data: {
         majorAreas: data.majorAreas,
-        teamMembers: data.teamMembers,
+        // teamMembers: data.teamMembers, // Commented out since Step 2 is disabled
         outcomes: data.outcomes,
         topThree: data.topThree,
         focusLevel: data.focusLevel,
@@ -254,7 +378,7 @@ export default function TopOfMindPage() {
     const fullUrl = `${window.location.origin}${url}`
     
     // Track share event
-    analytics.trackShare('Top of Mind', 'link', {
+    analytics.trackShare('Accountability Builder', 'link', {
       areas_count: data.majorAreas.length,
       completion_time: Math.round((Date.now() - startTime) / 1000)
     })
@@ -286,7 +410,7 @@ export default function TopOfMindPage() {
       </button>
       <ToolProgressIndicator
         currentStep={step - 1}
-        totalSteps={6}
+        totalSteps={5}
         completedSteps={new Set([...completedStages].map(s => s - 1))}
         onStepClick={(index) => {
           const targetStage = index + 1
@@ -323,10 +447,10 @@ export default function TopOfMindPage() {
             
             <div className="text-center text-white mb-12 max-w-3xl">
               <div className="inline-flex p-4 sm:p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
-                <Brain className="w-12 h-12 sm:w-20 sm:h-20 text-white" />
+                <Target className="w-12 h-12 sm:w-20 sm:h-20 text-white" />
               </div>
-              <h1 className="text-5xl font-bold mb-6">Top of Mind</h1>
-              <h2 className="text-3xl mb-8">Your weekly 5-minute focus ritual</h2>
+              <h1 className="text-5xl font-bold mb-6">Focus Finder</h1>
+              <h2 className="text-3xl mb-8">A powerful 5-minute focus ritual</h2>
               <p className="text-xl text-white/90 leading-relaxed">
                 Start your week with clarity. Quickly capture what matters most across 
                 your people, responsibilities, and goals. Perfect for Monday mornings 
@@ -404,11 +528,10 @@ export default function TopOfMindPage() {
               
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <div className="text-center mb-8">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">What's Big Right Now?</h2>
-                  <p className="text-gray-600">Let's ground you in the big stuff you own.</p>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Where should your focus be?</h2>
+                  <p className="text-gray-600">Pick up to three areas that need your attention.</p>
                 </div>
                 
-                <p className="text-gray-700 mb-6">Which of these are your major areas of ownership right now?</p>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                   {ownershipAreas.map((area) => {
@@ -420,7 +543,7 @@ export default function TopOfMindPage() {
                         onClick={() => {
                           if (isSelected) {
                             setData({ ...data, majorAreas: data.majorAreas.filter(a => a !== area.label) })
-                          } else {
+                          } else if (data.majorAreas.length < 3) {
                             setData({ ...data, majorAreas: [...data.majorAreas, area.label] })
                           }
                         }}
@@ -439,6 +562,11 @@ export default function TopOfMindPage() {
                   })}
                 </div>
                 
+                {/* Show selected count or max message */}
+                {data.majorAreas.length === 3 && (
+                  <p className="text-center text-gray-500 text-sm mb-4">Maximum 3 areas selected</p>
+                )}
+                
                 {/* Custom area input */}
                 <div className="flex gap-2">
                   <input
@@ -446,7 +574,7 @@ export default function TopOfMindPage() {
                     value={customArea}
                     onChange={(e) => setCustomArea(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' && customArea.trim()) {
+                      if (e.key === 'Enter' && customArea.trim() && data.majorAreas.length < 3) {
                         e.preventDefault()
                         setData({ ...data, majorAreas: [...data.majorAreas, customArea.trim()] })
                         setCustomArea('')
@@ -457,14 +585,14 @@ export default function TopOfMindPage() {
                   />
                   <button
                     onClick={() => {
-                      if (customArea.trim()) {
+                      if (customArea.trim() && data.majorAreas.length < 3) {
                         setData({ ...data, majorAreas: [...data.majorAreas, customArea.trim()] })
                         setCustomArea('')
                       }
                     }}
-                    disabled={!customArea.trim()}
+                    disabled={!customArea.trim() || data.majorAreas.length >= 3}
                     className={`px-4 py-2 rounded-lg transition-colors ${
-                      customArea.trim()
+                      customArea.trim() && data.majorAreas.length < 3
                         ? 'bg-[#3E37FF] text-white hover:bg-[#2E27EF]'
                         : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     }`}
@@ -497,18 +625,18 @@ export default function TopOfMindPage() {
           </ViewportContainer>
         )
 
-      // Step 2: Who's On Your Mind?
-      case 2:
+      // COMMENTED OUT FOR FUTURE USE - Step 2: Who's On Your Mind?
+      // Temporarily disabled by making it case 99
+      case 99:
         return (
           <ViewportContainer className="bg-gray-50 min-h-screen p-4">
             <div className="max-w-3xl mx-auto">
-              {/* Progress Pills */}
               {renderNavigationHeader(2)}
               
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <div className="text-center mb-8">
                   <h2 className="text-3xl font-bold text-gray-900 mb-2">Who's On Your Mind?</h2>
-                  <p className="text-gray-600">Add up to 5 people you're thinking about this week</p>
+                  <p className="text-gray-600">Add up to 5 people or teams you're thinking about this week</p>
                 </div>
                 
                 {/* Input field */}
@@ -527,7 +655,7 @@ export default function TopOfMindPage() {
                         setTeamMemberInput('')
                       }
                     }}
-                    placeholder={data.teamMembers.length >= 5 ? "Maximum reached" : "Add a name..."}
+                    placeholder={data.teamMembers.length >= 5 ? "Maximum reached" : "Add a person or team..."}
                     className="w-full px-6 py-4 pr-12 bg-white rounded-xl border-2 border-[#C67AF4]/30 focus:border-[#3E37FF] focus:outline-none text-lg placeholder-gray-400 transition-colors disabled:bg-gray-50 disabled:border-gray-200"
                     disabled={data.teamMembers.length >= 5}
                   />
@@ -609,11 +737,11 @@ export default function TopOfMindPage() {
                 )}
                 
                 {data.teamMembers.length === 5 && (
-                  <p className="text-center text-gray-500 text-sm mb-4">Maximum 5 people selected</p>
+                  <p className="text-center text-gray-500 text-sm mb-4">Maximum 5 people or teams selected</p>
                 )}
                 
                 {data.teamMembers.length > 0 && data.teamMembers.length < 5 && (
-                  <p className="text-center text-gray-500 text-sm mb-4">You can add {5 - data.teamMembers.length} more {data.teamMembers.length === 4 ? 'person' : 'people'}</p>
+                  <p className="text-center text-gray-500 text-sm mb-4">You can add {5 - data.teamMembers.length} more</p>
                 )}
                 
                 <div className="flex justify-between mt-8">
@@ -635,41 +763,50 @@ export default function TopOfMindPage() {
           </ViewportContainer>
         )
 
-      // Step 3: Which outcomes need you most?
-      case 3:
+      // Step 2 (was Step 3): Which outcomes need you most?
+      case 2:
+        const currentArea = data.majorAreas[currentFocusAreaIndex]
+        const currentAreaConfig = ownershipAreas.find(a => a.label === currentArea)
+        const AreaIcon = currentAreaConfig?.icon || Target
+        const areaId = currentAreaConfig?.id
+        const areaExamples = areaId && outcomeExamples[areaId] ? outcomeExamples[areaId].slice(0, 3) : []
+        
+        // Get outcomes for the current focus area
+        const currentAreaOutcomes = data.outcomes.filter(o => o.focusArea === currentArea)
+        
         return (
           <ViewportContainer className="bg-gray-50 min-h-screen p-4">
             <div className="max-w-3xl mx-auto">
               {/* Progress Pills */}
-              {renderNavigationHeader(3)}
+              {renderNavigationHeader(2)}
               
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-                <div className="text-center mb-8">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Which outcomes need you most?</h2>
-                  <p className="text-gray-600">Not everything needs your attention. But something does.</p>
+                <div className="mb-8">
+                  {/* Focus area at top level with counter */}
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-2xl font-bold text-gray-900">Focus Area:</h2>
+                      <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#C67AF4]/20 to-[#3E37FF]/20 rounded-full">
+                        <AreaIcon className="w-5 h-5 text-[#3E37FF]" />
+                        <span className="font-medium text-gray-900">{currentArea}</span>
+                      </div>
+                    </div>
+                    {data.majorAreas.length > 1 && (
+                      <p className="text-sm text-gray-500">
+                        {currentFocusAreaIndex + 1} of {data.majorAreas.length} areas
+                      </p>
+                    )}
+                  </div>
+                  
+                  {/* Question */}
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">What needs to happen next?</h3>
+                  
+                  {/* Instruction above input */}
+                  <p className="text-sm text-gray-600 mb-3">Add outcomes or projects that need your attention right now.</p>
                 </div>
                 
-                {/* Show major areas as reference */}
-                {data.majorAreas.length > 0 && (
-                  <div className="mb-6">
-                    <p className="text-sm text-gray-600 mb-2">Your areas of focus:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {data.majorAreas.map((area, index) => {
-                        const areaConfig = ownershipAreas.find(a => a.label === area)
-                        const Icon = areaConfig?.icon || Target
-                        return (
-                          <div key={index} className="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full text-sm">
-                            <Icon className="w-4 h-4 text-gray-600" />
-                            <span className="text-gray-700">{area}</span>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
-                
                 {/* Input field */}
-                <div className="relative mb-8">
+                <div className="flex items-center mb-6">
                   <input
                     type="text"
                     value={outcomeInput}
@@ -679,185 +816,109 @@ export default function TopOfMindPage() {
                         e.preventDefault()
                         setData({ 
                           ...data, 
-                          outcomes: [...data.outcomes, { outcome: outcomeInput.trim(), status: 'on-track' }] 
+                          outcomes: [...data.outcomes, { 
+                            outcome: outcomeInput.trim(), 
+                            status: 'on-track',
+                            focusArea: currentArea
+                          }] 
                         })
                         setOutcomeInput('')
                       }
                     }}
-                    placeholder="Add an outcome..."
-                    className="w-full px-6 py-4 pr-12 bg-white rounded-xl border-2 border-[#C67AF4]/30 focus:border-[#3E37FF] focus:outline-none text-lg placeholder-gray-400 transition-colors"
+                    placeholder="Add an outcome or project..."
+                    className="flex-1 px-6 py-3 bg-white rounded-xl border-2 border-[#C67AF4]/30 focus:border-[#3E37FF] focus:outline-none text-lg placeholder-gray-400 transition-colors"
                   />
                   <button
                     onClick={() => {
                       if (outcomeInput.trim()) {
                         setData({ 
                           ...data, 
-                          outcomes: [...data.outcomes, { outcome: outcomeInput.trim(), status: 'on-track' }] 
+                          outcomes: [...data.outcomes, { 
+                            outcome: outcomeInput.trim(), 
+                            status: 'on-track',
+                            focusArea: currentArea
+                          }] 
                         })
                         setOutcomeInput('')
                       }
                     }}
                     disabled={!outcomeInput.trim()}
-                    className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+                    className={`ml-2 h-[52px] w-[52px] rounded-lg flex items-center justify-center transition-colors ${
                       outcomeInput.trim()
                         ? 'bg-[#3E37FF] text-white hover:bg-[#2E27EF]'
-                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-gray-200 text-gray-400'
                     }`}
                   >
-                    <Flag className="w-5 h-5" />
+                    <Plus className="w-5 h-5" />
                   </button>
                 </div>
                 
-                {/* Added outcomes */}
-                {data.outcomes.length > 0 && (
-                  <div className="space-y-3 mb-8">
-                    {data.outcomes.map((outcome, index) => (
-                      <div key={index} className="space-y-2">
-                        <div className="flex items-start justify-between p-4 bg-gradient-to-r from-[#C67AF4]/10 to-[#3E37FF]/10 rounded-xl border border-[#3E37FF]/20">
-                          <div className="flex-1">
-                            <span className="font-medium text-gray-900">{outcome.outcome}</span>
-                            {outcome.note && (
-                              <p className="text-sm text-gray-600 mt-1 italic">"{outcome.note}"</p>
-                            )}
-                          </div>
-                          <button
-                            onClick={() => {
-                              setData({ 
-                                ...data, 
-                                outcomes: data.outcomes.filter((_, i) => i !== index) 
-                              })
-                            }}
-                            className="text-gray-500 hover:text-red-500 transition-colors ml-2"
-                          >
-                            <X className="w-5 h-5" />
-                          </button>
-                        </div>
-                        
-                        {/* Status tags */}
-                        <div className="flex gap-2 ml-4">
-                          {outcomeStatuses.map((status) => (
-                            <button
-                              key={status.id}
-                              onClick={() => {
-                                const updatedOutcomes = data.outcomes.map((o, i) => 
-                                  i === index 
-                                    ? { ...o, status: status.id as any }
-                                    : o
-                                )
-                                setData({ ...data, outcomes: updatedOutcomes })
-                              }}
-                              className={`px-3 py-1 rounded-full text-sm transition-all ${
-                                outcome.status === status.id
-                                  ? status.color
-                                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                              }`}
-                            >
-                              {status.emoji} {status.label}
-                            </button>
-                          ))}
-                        </div>
-                        
-                        {/* Related areas tags */}
-                        {data.majorAreas.length > 0 && (
-                          <div className="ml-4">
-                            <p className="text-xs text-gray-600 mb-1">Related to:</p>
-                            <div className="flex flex-wrap gap-1">
-                              {data.majorAreas.map((area) => {
-                                const areaId = ownershipAreas.find(a => a.label === area)?.id
-                                const isRelated = outcome.relatedAreas?.includes(areaId || '')
-                                return (
-                                  <button
-                                    key={area}
-                                    onClick={() => {
-                                      const updatedOutcomes = data.outcomes.map((o, i) => {
-                                        if (i === index) {
-                                          const currentRelated = o.relatedAreas || []
-                                          const areaKey = areaId || area
-                                          return {
-                                            ...o,
-                                            relatedAreas: isRelated
-                                              ? currentRelated.filter(a => a !== areaKey)
-                                              : [...currentRelated, areaKey]
-                                          }
-                                        }
-                                        return o
-                                      })
-                                      setData({ ...data, outcomes: updatedOutcomes })
-                                    }}
-                                    className={`px-2 py-0.5 rounded-full text-xs transition-all ${
-                                      isRelated
-                                        ? 'bg-[#3E37FF] text-white'
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                    }`}
-                                  >
-                                    {ownershipAreas.find(a => a.label === area)?.shortLabel || area}
-                                  </button>
-                                )
-                              })}
-                            </div>
-                          </div>
-                        )}
-                        
-                        {/* Note */}
-                        {showAddNote === index ? (
-                          <div className="flex gap-2 ml-4">
-                            <input
-                              type="text"
-                              value={outcomeNote}
-                              onChange={(e) => setOutcomeNote(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter' && outcomeNote.trim()) {
-                                  const updatedOutcomes = data.outcomes.map((o, i) => 
-                                    i === index 
-                                      ? { ...o, note: outcomeNote.trim() }
-                                      : o
-                                  )
-                                  setData({ ...data, outcomes: updatedOutcomes })
-                                  setOutcomeNote('')
-                                  setShowAddNote(null)
-                                }
-                              }}
-                              placeholder="Quick note..."
-                              className="flex-1 px-3 py-1 text-sm bg-gray-50 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#3E37FF]/50"
-                              autoFocus
-                            />
-                            <button
-                              onClick={() => {
-                                if (outcomeNote.trim()) {
-                                  const updatedOutcomes = data.outcomes.map((o, i) => 
-                                    i === index 
-                                      ? { ...o, note: outcomeNote.trim() }
-                                      : o
-                                  )
-                                  setData({ ...data, outcomes: updatedOutcomes })
-                                }
-                                setOutcomeNote('')
-                                setShowAddNote(null)
-                              }}
-                              className="px-3 py-1 text-sm bg-[#3E37FF] text-white rounded hover:bg-[#2E27EF]"
-                            >
-                              Save
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => {
-                              setShowAddNote(index)
-                              setOutcomeNote(outcome.note || '')
-                            }}
-                            className="text-sm text-[#3E37FF] hover:text-[#2E27EF] ml-4"
-                          >
-                            {outcome.note ? '✏️ Edit note' : '📝 Add note (optional)'}
-                          </button>
-                        )}
-                      </div>
-                    ))}
+                {/* Example outcomes for current focus area - show always */}
+                {areaExamples.length > 0 && (
+                  <div className="mb-6">
+                    <div className="text-sm text-gray-500 pl-4">
+                      <span className="text-gray-400 mr-2">examples:</span>
+                      {areaExamples.join(', ')}
+                    </div>
+                    <p className="text-xs text-gray-400 mt-3 text-center">Press Enter to add more outcomes</p>
                   </div>
                 )}
                 
-                {data.outcomes.length === 0 && (
-                  <p className="text-center text-gray-400 text-sm mb-8">Add outcomes that need your attention this week</p>
+                {/* Added outcomes for current focus area */}
+                {currentAreaOutcomes.length > 0 && (
+                  <div className="space-y-3 mb-8">
+                    {currentAreaOutcomes.map((outcome) => {
+                      const originalIndex = data.outcomes.findIndex(o => o === outcome)
+                      return (
+                      <div key={originalIndex}>
+                        <div className="p-4 bg-gradient-to-r from-[#C67AF4]/10 to-[#3E37FF]/10 rounded-xl border border-[#3E37FF]/20">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <span className="font-medium text-gray-900">{outcome.outcome}</span>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setData({ 
+                                  ...data, 
+                                  outcomes: data.outcomes.filter((_, i) => i !== originalIndex) 
+                                })
+                              }}
+                              className="text-gray-400 hover:text-red-500 transition-colors ml-2 p-1 flex-shrink-0"
+                            >
+                              <X className="w-6 h-6" />
+                            </button>
+                          </div>
+                          
+                          {/* Status tags */}
+                          <div className="flex flex-wrap gap-2">
+                            {outcomeStatuses.map((status) => (
+                              <button
+                                key={status.id}
+                                onClick={() => {
+                                  const updatedOutcomes = data.outcomes.map((o, i) => 
+                                    i === originalIndex 
+                                      ? { ...o, status: status.id as any }
+                                      : o
+                                  )
+                                  setData({ ...data, outcomes: updatedOutcomes })
+                                }}
+                                className={`px-3 py-1.5 rounded-full text-sm transition-all cursor-pointer ${
+                                  outcome.status === status.id
+                                    ? status.color
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                }`}
+                              >
+                                {status.emoji} {status.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                    })}
+                  </div>
                 )}
+                
                 
                 <div className="flex justify-between mt-8">
                   <button
@@ -870,7 +931,9 @@ export default function TopOfMindPage() {
                     onClick={handleNext}
                     className="px-8 py-3 bg-[#3E37FF] text-white rounded-lg font-medium hover:bg-[#2E27EF] transition-colors"
                   >
-                    {data.outcomes.length === 0 ? 'Skip' : 'Continue'}
+                    {currentFocusAreaIndex < data.majorAreas.length - 1 
+                      ? (currentAreaOutcomes.length === 0 ? 'Skip' : 'Next Area')
+                      : (data.outcomes.length === 0 ? 'Skip All' : 'Continue')}
                   </button>
                 </div>
               </div>
@@ -878,10 +941,10 @@ export default function TopOfMindPage() {
           </ViewportContainer>
         )
 
-      // Step 4: Your Focus Filter
-      case 4:
+      // Step 3 (was Step 4): Your Focus Filter
+      case 3:
         const allFocusOptions = [
-          ...data.teamMembers.map(tm => ({ type: 'person', value: tm.name, data: tm })),
+          // Removed teamMembers since Step 2 is commented out
           ...data.outcomes.map(o => ({ type: 'outcome', value: o.outcome, data: o }))
         ]
         
@@ -889,161 +952,250 @@ export default function TopOfMindPage() {
           <ViewportContainer className="bg-gray-50 min-h-screen p-4">
             <div className="max-w-3xl mx-auto">
               {/* Progress Pills */}
-              {renderNavigationHeader(4)}
+              {renderNavigationHeader(3)}
               
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <div className="text-center mb-8">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Your Focus Filter</h2>
-                  <p className="text-gray-600">You only get to pick three.</p>
-                  <p className="text-gray-500 text-sm mt-2">If you could only make progress on THREE things this week... what would they be?</p>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Pick your top 3 outcomes</h2>
+                  <p className="text-gray-600">If you could only make progress on THREE things this week... what would they be?</p>
                 </div>
                 
-                {data.topThree.length < 3 && allFocusOptions.length > 0 && (
+                {/* Completion message and undo button if all 3 are selected */}
+                {data.topThree.length === 3 && (
                   <div className="mb-6">
-                    <p className="text-sm text-gray-600 mb-3">Choose from your earlier selections:</p>
-                    <div className="space-y-2">
-                      {allFocusOptions.map((option, index) => {
-                        const isSelected = data.topThree.some(t => t.item === option.value)
-                        if (isSelected) return null
-                        
-                        return (
-                          <button
-                            key={index}
-                            onClick={() => {
-                              if (data.topThree.length < 3) {
-                                setData({
-                                  ...data,
-                                  topThree: [...data.topThree, { item: option.value, reason: '' }]
-                                })
-                              }
-                            }}
-                            className="w-full p-3 rounded-lg border border-gray-200 hover:border-[#3E37FF]/50 text-left transition-all"
-                          >
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-2">
-                                {option.type === 'person' && <Users className="w-4 h-4 text-gray-500" />}
-                                {option.type === 'outcome' && <Flag className="w-4 h-4 text-gray-500" />}
-                                <span className="text-gray-700 font-medium">{option.value}</span>
-                              </div>
-                              {option.type === 'person' && (option.data as TeamMember).reasons && (option.data as TeamMember).reasons!.length > 0 && (
-                                <div className="flex gap-1 ml-6">
-                                  {(option.data as TeamMember).reasons!.map((reasonId: string) => {
-                                    const tag = memberTags.find(t => t.id === reasonId)
-                                    return tag ? (
-                                      <span key={reasonId} className="text-xs inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded-full">
-                                        <span>{tag.emoji}</span>
-                                        <span>{tag.label}</span>
-                                      </span>
-                                    ) : null
-                                  })}
-                                </div>
-                              )}
-                            </div>
-                          </button>
-                        )
-                      })}
+                    <div className="flex items-center justify-center gap-2 mb-4">
+                      <CheckCircle2 className="w-5 h-5 text-green-600" />
+                      <p className="text-green-600 font-medium">Great choices! {topPriorityIndex !== null && 'You\'ve even marked your top priority.'}</p>
+                    </div>
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => {
+                          setData({ ...data, topThree: [] })
+                          setTopPriorityIndex(null)
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                        Change my picks
+                      </button>
                     </div>
                   </div>
                 )}
                 
-                <div className="space-y-4 mb-6">
-                  {[0, 1, 2].map((index) => {
-                    const focusItem = data.topThree[index]
+                {/* Custom priority input - show when no items or when items exist */}
+                {data.topThree.length < 3 && (
+                  <div className="mb-6">
+                    <div className="flex items-center">
+                      <input
+                        type="text"
+                        placeholder="Type a custom priority..."
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                            setData({
+                              ...data,
+                              topThree: [...data.topThree, { item: e.currentTarget.value.trim(), reason: '' }]
+                            })
+                            e.currentTarget.value = ''
+                          }
+                        }}
+                        className="flex-1 px-4 py-3 bg-gray-50 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#3E37FF]/50"
+                      />
+                      <button
+                        onClick={() => {
+                          const input = document.querySelector('input[placeholder="Type a custom priority..."]') as HTMLInputElement
+                          if (input && input.value.trim()) {
+                            setData({
+                              ...data,
+                              topThree: [...data.topThree, { item: input.value.trim(), reason: '' }]
+                            })
+                            input.value = ''
+                          }
+                        }}
+                        className="ml-2 h-[48px] w-[48px] rounded-lg bg-gray-200 text-gray-400 hover:bg-gray-300 hover:text-gray-600 flex items-center justify-center transition-colors"
+                      >
+                        <Plus className="w-5 h-5" />
+                      </button>
+                    </div>
                     
-                    return (
-                      <div key={index} className="space-y-2">
-                        <div className="flex items-center gap-3">
-                          <span className="flex-shrink-0 w-8 h-8 bg-[#3E37FF] text-white rounded-full flex items-center justify-center font-bold">
-                            {index + 1}
-                          </span>
-                          {focusItem ? (
+                    {/* Choose from earlier selections */}
+                    {allFocusOptions.length > 0 && (
+                      <div className="mt-4">
+                        <p className="text-sm text-gray-600 mb-3">Choose from your earlier selections:</p>
+                        <div className="space-y-2">
+                          {allFocusOptions.map((option, index) => {
+                            const isSelected = data.topThree.some(t => t.item === option.value)
+                            if (isSelected) return null
+                            
+                            return (
+                              <button
+                                key={index}
+                                onClick={() => {
+                                  if (data.topThree.length < 3) {
+                                    setData({
+                                      ...data,
+                                      topThree: [...data.topThree, { item: option.value, reason: '' }]
+                                    })
+                                  }
+                                }}
+                                className="w-full p-3 rounded-lg border border-gray-200 hover:border-[#3E37FF]/50 text-left transition-all"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <Flag className="w-4 h-4 text-gray-500" />
+                                  <span className="text-gray-700 font-medium">{option.value}</span>
+                                </div>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {/* Show numbered priorities only when they exist */}
+                {data.topThree.length > 0 && (
+                  <div className="mb-6">
+                    {data.topThree.map((focusItem, index) => {
+                      return (
+                        <div key={index}>
+                          <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                setTopPriorityIndex(topPriorityIndex === index ? null : index)
+                              }}
+                              className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold transition-all ${
+                                topPriorityIndex === index
+                                  ? 'bg-gradient-to-r from-[#C67AF4] to-[#3E37FF] text-white shadow-lg scale-110'
+                                  : 'bg-[#3E37FF] text-white hover:scale-105'
+                              }`}
+                              title={topPriorityIndex === index ? 'Top priority!' : 'Click to mark as top priority'}
+                            >
+                              {topPriorityIndex === index ? '⭐' : index + 1}
+                            </button>
                             <div className="flex-1">
                               <div className="p-3 bg-gradient-to-r from-[#C67AF4]/10 to-[#3E37FF]/10 rounded-lg">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2 flex-1">
-                                    <span className="font-medium text-gray-900">{focusItem.item}</span>
-                                    {/* Show person tags inline */}
-                                    {(() => {
-                                      const personData = data.teamMembers.find(tm => tm.name === focusItem.item)
-                                      if (personData && personData.reasons && personData.reasons.length > 0) {
-                                        return (
-                                          <div className="flex gap-1">
-                                            {personData.reasons.map((reasonId: string) => {
-                                              const tag = memberTags.find(t => t.id === reasonId)
-                                              return tag ? (
-                                                <span key={reasonId} className="text-xs inline-flex items-center gap-1 px-2 py-0.5 bg-white/50 rounded-full">
-                                                  <span>{tag.emoji}</span>
-                                                  <span>{tag.label}</span>
-                                                </span>
-                                              ) : null
-                                            })}
-                                          </div>
-                                        )
-                                      }
-                                      return null
-                                    })()}
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 flex-1">
+                                      <span className="font-medium text-gray-900">{focusItem.item}</span>
+                                    </div>
+                                    <button
+                                      onClick={() => {
+                                        setData({
+                                          ...data,
+                                          topThree: data.topThree.filter((_, i) => i !== index)
+                                        })
+                                        if (topPriorityIndex === index) {
+                                          setTopPriorityIndex(null)
+                                        } else if (topPriorityIndex !== null && topPriorityIndex > index) {
+                                          setTopPriorityIndex(topPriorityIndex - 1)
+                                        }
+                                      }}
+                                      className="text-gray-400 hover:text-red-500 ml-2 p-1"
+                                    >
+                                      <X className="w-5 h-5" />
+                                    </button>
                                   </div>
-                                  <button
-                                    onClick={() => {
-                                      setData({
-                                        ...data,
-                                        topThree: data.topThree.filter(t => t.item !== focusItem.item)
-                                      })
-                                    }}
-                                    className="text-gray-400 hover:text-red-500 ml-2"
-                                  >
-                                    ×
-                                  </button>
+                                  
+                                  {/* Display notes inside the outcome area in italics */}
+                                  {focusItem.notes && focusItem.notes.length > 0 && (
+                                    <div className="space-y-0.5 ml-2 mt-2">
+                                      {focusItem.notes.map((note, noteIndex) => (
+                                        <div key={noteIndex} className="group relative">
+                                          {editingNoteIndex?.itemIndex === index && editingNoteIndex?.noteIndex === noteIndex ? (
+                                            <div className="flex items-center gap-2">
+                                              <input
+                                                type="text"
+                                                value={editingNoteText}
+                                                onChange={(e) => setEditingNoteText(e.target.value)}
+                                                onKeyDown={(e) => {
+                                                  if (e.key === 'Enter' && editingNoteText.trim()) {
+                                                    const updatedTop = data.topThree.map((t, i) => 
+                                                      i === index
+                                                        ? { ...t, notes: t.notes?.map((n, ni) => ni === noteIndex ? editingNoteText.trim() : n) }
+                                                        : t
+                                                    )
+                                                    setData({ ...data, topThree: updatedTop })
+                                                    setEditingNoteIndex(null)
+                                                    setEditingNoteText('')
+                                                  }
+                                                  if (e.key === 'Escape') {
+                                                    setEditingNoteIndex(null)
+                                                    setEditingNoteText('')
+                                                  }
+                                                }}
+                                                onBlur={() => {
+                                                  if (editingNoteText.trim() && editingNoteText.trim() !== note) {
+                                                    const updatedTop = data.topThree.map((t, i) => 
+                                                      i === index
+                                                        ? { ...t, notes: t.notes?.map((n, ni) => ni === noteIndex ? editingNoteText.trim() : n) }
+                                                        : t
+                                                    )
+                                                    setData({ ...data, topThree: updatedTop })
+                                                  }
+                                                  setEditingNoteIndex(null)
+                                                  setEditingNoteText('')
+                                                }}
+                                                className="flex-1 px-2 py-0.5 text-sm bg-gray-50 rounded border border-[#3E37FF]/30 focus:outline-none focus:ring-1 focus:ring-[#3E37FF]/50 italic"
+                                                autoFocus
+                                              />
+                                            </div>
+                                          ) : (
+                                            <div className="flex items-start gap-2">
+                                              <p 
+                                                className="text-sm text-gray-600 italic flex-1 cursor-pointer"
+                                                onClick={() => {
+                                                  setEditingNoteIndex({ itemIndex: index, noteIndex })
+                                                  setEditingNoteText(note)
+                                                }}
+                                              >
+                                                • {note}
+                                              </p>
+                                              <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                                                <button
+                                                  onClick={() => {
+                                                    setEditingNoteIndex({ itemIndex: index, noteIndex })
+                                                    setEditingNoteText(note)
+                                                  }}
+                                                  className="text-gray-400 hover:text-[#3E37FF] p-0.5"
+                                                  title="Edit note"
+                                                >
+                                                  <Edit className="w-3 h-3" />
+                                                </button>
+                                                <button
+                                                  onClick={() => {
+                                                    const updatedTop = data.topThree.map((t, i) => 
+                                                      i === index
+                                                        ? { ...t, notes: t.notes?.filter((_, ni) => ni !== noteIndex) }
+                                                        : t
+                                                    )
+                                                    setData({ ...data, topThree: updatedTop })
+                                                  }}
+                                                  className="text-gray-400 hover:text-red-500 p-0.5"
+                                                  title="Delete note"
+                                                >
+                                                  <X className="w-3 h-3" />
+                                                </button>
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </div>
-                          ) : (
-                            <input
-                              type="text"
-                              placeholder="Type a custom priority..."
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                                  setData({
-                                    ...data,
-                                    topThree: [...data.topThree, { item: e.currentTarget.value.trim(), reason: '' }]
-                                  })
-                                  e.currentTarget.value = ''
-                                }
-                              }}
-                              className="flex-1 px-4 py-3 bg-gray-50 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#3E37FF]/50"
-                            />
-                          )}
-                        </div>
-                        
-                        {focusItem && (
+                          </div>
+                          
+                          
                           <div className="ml-11 space-y-3">
                             <div>
-                              <p className="text-sm text-gray-600 mb-2">Why this?</p>
-                              <div className="flex flex-wrap gap-2">
-                                {focusReasons.map((reason) => (
-                                  <button
-                                    key={reason}
-                                    onClick={() => {
-                                      const updatedTop = data.topThree.map(t => 
-                                        t.item === focusItem.item 
-                                          ? { ...t, reason: t.reason === reason ? '' : reason }
-                                          : t
-                                      )
-                                      setData({ ...data, topThree: updatedTop })
-                                    }}
-                                    className={`px-3 py-1 rounded-full text-sm transition-all ${
-                                      focusItem.reason === reason
-                                        ? 'bg-[#3E37FF] text-white'
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                    }`}
-                                  >
-                                    {reason}
-                                  </button>
-                                ))}
-                              </div>
+                              <p className="text-sm text-gray-600 mb-2">What needs to be done to complete this?</p>
                             </div>
                             
-                            {/* Note for both people and outcomes */}
+                            {/* Add note button/input - now supports multiple notes */}
                             <div>
                               {showAddNote === index ? (
                                 <div className="flex gap-2">
@@ -1055,15 +1207,19 @@ export default function TopOfMindPage() {
                                       if (e.key === 'Enter' && outcomeNote.trim()) {
                                         const updatedTop = data.topThree.map(t => 
                                           t.item === focusItem.item 
-                                            ? { ...t, note: outcomeNote.trim() }
+                                            ? { ...t, notes: [...(t.notes || []), outcomeNote.trim()] }
                                             : t
                                         )
                                         setData({ ...data, topThree: updatedTop })
                                         setOutcomeNote('')
+                                        // Always keep input open for more notes
+                                      }
+                                      if (e.key === 'Escape') {
+                                        setOutcomeNote('')
                                         setShowAddNote(null)
                                       }
                                     }}
-                                    placeholder={data.teamMembers.some(tm => tm.name === focusItem.item) ? "Quick note about this person..." : "Quick note about this outcome..."}
+                                    placeholder="Add as many tasks as you'd like..."
                                     className="flex-1 px-3 py-1 text-sm bg-gray-50 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#3E37FF]/50"
                                     autoFocus
                                   />
@@ -1072,40 +1228,78 @@ export default function TopOfMindPage() {
                                       if (outcomeNote.trim()) {
                                         const updatedTop = data.topThree.map(t => 
                                           t.item === focusItem.item 
-                                            ? { ...t, note: outcomeNote.trim() }
+                                            ? { ...t, notes: [...(t.notes || []), outcomeNote.trim()] }
                                             : t
                                         )
                                         setData({ ...data, topThree: updatedTop })
+                                        setOutcomeNote('')
+                                        // Always keep input open for more notes
                                       }
-                                      setOutcomeNote('')
-                                      setShowAddNote(null)
                                     }}
                                     className="px-3 py-1 text-sm bg-[#3E37FF] text-white rounded hover:bg-[#2E27EF]"
                                   >
-                                    Save
+                                    Add
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setOutcomeNote('')
+                                      setShowAddNote(null)
+                                    }}
+                                    className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                                  >
+                                    Cancel
                                   </button>
                                 </div>
                               ) : (
-                                <button
-                                  onClick={() => {
-                                    setShowAddNote(index)
-                                    setOutcomeNote(focusItem.note || '')
-                                  }}
-                                  className="text-sm text-[#3E37FF] hover:text-[#2E27EF]"
-                                >
-                                  {focusItem.note ? '✏️ Edit note' : '📝 Add note (optional)'}
-                                </button>
+                                (
+                                  <button
+                                    onClick={() => {
+                                      setShowAddNote(index)
+                                      setOutcomeNote('')
+                                    }}
+                                    className="text-sm text-[#3E37FF] hover:text-[#2E27EF] flex items-center gap-2"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                    <span>Add task{focusItem.notes && focusItem.notes.length > 0 ? ` (${focusItem.notes.length})` : ''}</span>
+                                  </button>
+                                )
                               )}
-                              {focusItem.note && showAddNote !== index && (
-                                <p className="text-sm text-gray-600 italic mt-1">"{focusItem.note}"</p>
-                              )}
+                              
                             </div>
+                          </div>
+                          </div>
+                        
+                        {/* Swap buttons between items */}
+                        {index < data.topThree.length - 1 && (
+                          <div className="flex justify-start ml-4 py-2">
+                            <button
+                              onClick={() => {
+                                const newTopThree = [...data.topThree]
+                                const temp = newTopThree[index]
+                                newTopThree[index] = newTopThree[index + 1]
+                                newTopThree[index + 1] = temp
+                                setData({ ...data, topThree: newTopThree })
+                                // Update top priority index if needed
+                                if (topPriorityIndex === index) {
+                                  setTopPriorityIndex(index + 1)
+                                } else if (topPriorityIndex === index + 1) {
+                                  setTopPriorityIndex(index)
+                                }
+                              }}
+                              className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                              title="Swap priorities"
+                            >
+                              <ArrowUpDown className="w-4 h-4" />
+                            </button>
                           </div>
                         )}
                       </div>
                     )
                   })}
-                </div>
+                  </div>
+                )}
                 
                 <div className="flex justify-between mt-8">
                   <button
@@ -1131,13 +1325,13 @@ export default function TopOfMindPage() {
           </ViewportContainer>
         )
 
-      // Step 5: Reflect + Reset
-      case 5:
+      // Step 4 (was Step 5): Reflect + Reset
+      case 4:
         return (
           <ViewportContainer className="bg-gray-50 min-h-screen p-4">
             <div className="max-w-3xl mx-auto">
               {/* Progress Pills */}
-              {renderNavigationHeader(5)}
+              {renderNavigationHeader(4)}
               
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <div className="text-center mb-8">
@@ -1261,7 +1455,7 @@ export default function TopOfMindPage() {
                         : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     }`}
                   >
-                    Complete
+                    Next
                   </button>
                 </div>
               </div>
@@ -1269,18 +1463,18 @@ export default function TopOfMindPage() {
           </ViewportContainer>
         )
 
-      // Step 6: Get Support
-      case 6:
+      // Step 5 (was Step 6): Get Support
+      case 5:
         return (
           <ViewportContainer className="bg-gray-50 min-h-screen p-4">
             <div className="max-w-3xl mx-auto">
               {/* Progress Pills */}
-              {renderNavigationHeader(6)}
+              {renderNavigationHeader(5)}
               
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <div className="text-center mb-8">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Get Support</h2>
-                  <p className="text-gray-600">Who can help you succeed with your top priorities?</p>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Who can help you succeed?</h2>
+                  <p className="text-gray-600">Add people to each outcome.</p>
                 </div>
                 
                 <div className="space-y-6">
@@ -1320,10 +1514,10 @@ export default function TopOfMindPage() {
                                         setSupportPersonInput(support.name)
                                         setSupportHowInput(support.how)
                                       }}
-                                      className="text-gray-400 hover:text-[#3E37FF]"
+                                      className="text-gray-400 hover:text-[#3E37FF] p-1"
                                       title="Edit"
                                     >
-                                      ✏️
+                                      <Edit className="w-4 h-4" />
                                     </button>
                                     <button
                                       onClick={() => {
@@ -1337,10 +1531,10 @@ export default function TopOfMindPage() {
                                         })
                                         setData({ ...data, topThree: updatedTopThree })
                                       }}
-                                      className="text-gray-400 hover:text-red-500"
+                                      className="text-gray-400 hover:text-red-500 p-1"
                                       title="Remove"
                                     >
-                                      ×
+                                      <X className="w-5 h-5" />
                                     </button>
                                   </div>
                                 </div>
@@ -1431,7 +1625,7 @@ export default function TopOfMindPage() {
                               }}
                               className="px-4 py-2 bg-[#3E37FF]/10 text-[#3E37FF] rounded-lg hover:bg-[#3E37FF]/20 font-medium text-sm"
                             >
-                              + Add Support
+                              + Add Person
                             </button>
                           </div>
                         )}
@@ -1451,7 +1645,7 @@ export default function TopOfMindPage() {
                     onClick={handleNext}
                     className="px-8 py-3 bg-[#3E37FF] text-white rounded-lg font-medium hover:bg-[#2E27EF] transition-colors"
                   >
-                    Complete
+                    Next
                   </button>
                 </div>
               </div>
@@ -1459,8 +1653,8 @@ export default function TopOfMindPage() {
           </ViewportContainer>
         )
 
-      // Stage 7: Top of Mind Snapshot (Final)
-      case 7:
+      // Stage 6 (was 7): Accountability Snapshot (Final)
+      case 6:
         const weekOfDate = new Date()
         const weekString = `Week of ${weekOfDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
         const selectedNeed = weeklyNeeds.find(n => n.id === data.weeklyNeed)
@@ -1536,7 +1730,7 @@ export default function TopOfMindPage() {
                   <div className="flex gap-2 sm:gap-4">
                     <button
                       onClick={() => {
-                        analytics.trackDownload('Print', 'Top of Mind')
+                        analytics.trackDownload('Print', 'Accountability Builder')
                         window.print()
                       }}
                       className="p-2.5 sm:p-3 border-2 border-gray-300 text-gray-600 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all"
@@ -1557,9 +1751,9 @@ export default function TopOfMindPage() {
                 {/* Hero Section */}
                 <div className="text-center mb-12">
                   <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-[#C67AF4] to-[#3E37FF] rounded-3xl mb-6 shadow-2xl">
-                    <Brain className="w-12 h-12 text-white" />
+                    <Target className="w-12 h-12 text-white" />
                   </div>
-                  <h1 className="text-5xl font-bold bg-gradient-to-r from-[#C67AF4] to-[#3E37FF] bg-clip-text text-transparent mb-4">Top of Mind</h1>
+                  <h1 className="text-5xl font-bold bg-gradient-to-r from-[#C67AF4] to-[#3E37FF] bg-clip-text text-transparent mb-4">Focus Finder</h1>
                   <p className="text-2xl text-gray-700 font-light">{weekString}</p>
                   <div className="mt-6 flex items-center justify-center gap-2">
                     <div className="h-1 w-20 bg-gradient-to-r from-transparent to-[#C67AF4] rounded-full" />
@@ -1584,15 +1778,13 @@ export default function TopOfMindPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                         {data.majorAreas.map((area, index) => {
                           const AreaIcon = getAreaIcon(area)
-                          const areaObj = ownershipAreas.find(a => a.label === area || a.shortLabel === area)
-                          const shortLabel = areaObj?.shortLabel || area
                           return (
-                            <div key={index} className="group relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100/50 p-4 rounded-xl border border-gray-200 hover:border-[#3E37FF]/30 transition-all hover:shadow-md">
+                            <div key={index} className="group relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100/50 p-4 rounded-xl border border-gray-200 hover:border-[#3E37FF]/30 transition-all hover:shadow-md h-full">
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+                                <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow flex-shrink-0">
                                   <AreaIcon className="w-5 h-5 text-[#3E37FF]" />
                                 </div>
-                                <span className="font-medium text-gray-800">{shortLabel}</span>
+                                <span className="font-medium text-gray-800">{area}</span>
                               </div>
                               <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-[#C67AF4] to-[#3E37FF] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
                             </div>
@@ -1625,13 +1817,32 @@ export default function TopOfMindPage() {
                               <div className="flex-1">
                                 <h4 className="font-semibold text-gray-900 text-lg mb-1">{item.item}</h4>
                                 {item.reason && (
-                                  <p className="text-gray-600 flex items-center gap-2 mb-3">
-                                    <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">Priority</span>
-                                    <span className="text-sm">{item.reason}</span>
-                                  </p>
+                                  <div className="flex flex-wrap gap-2 mb-3">
+                                    {item.reason.split(', ').map((r, idx) => {
+                                      const reasonObj = focusReasons.find(fr => fr.label === r)
+                                      if (reasonObj) {
+                                        const Icon = reasonObj.icon
+                                        return (
+                                          <span key={idx} className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-xs">
+                                            <Icon className="w-3 h-3" />
+                                            {r}
+                                          </span>
+                                        )
+                                      }
+                                      return (
+                                        <span key={idx} className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-xs">
+                                          {r}
+                                        </span>
+                                      )
+                                    })}
+                                  </div>
                                 )}
-                                {item.note && (
-                                  <p className="text-gray-600 text-sm italic mb-3 pl-4 border-l-2 border-gray-200">"{item.note}"</p>
+                                {item.notes && item.notes.length > 0 && (
+                                  <div className="space-y-1 mb-3">
+                                    {item.notes.map((note, noteIndex) => (
+                                      <p key={noteIndex} className="text-gray-600 text-sm italic pl-4 border-l-2 border-gray-200">• {note}</p>
+                                    ))}
+                                  </div>
                                 )}
                                 {item.supportPeople && item.supportPeople.length > 0 && (
                                   <div className="mt-4 space-y-3">
@@ -1655,17 +1866,17 @@ export default function TopOfMindPage() {
                     </div>
                   </div>
                   
-                  {/* Two Column Layout */}
-                  <div className="grid lg:grid-cols-2 gap-8">
-                    {/* People on My Mind */}
-                    {data.teamMembers.length > 0 && (
+                  {/* Single Column Layout (was Two Column) */}
+                  <div className="grid gap-8">
+                    {/* People on My Mind - COMMENTED OUT since Step 2 is disabled */}
+                    {/* data.teamMembers.length > 0 && (
                       <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
                         <div className="flex items-center gap-3 mb-6">
                           <div className="w-14 h-14 bg-gradient-to-br from-[#9333EA] to-[#C084FC] rounded-2xl flex items-center justify-center shadow-lg">
                             <Users className="w-7 h-7 text-white" />
                           </div>
                           <div>
-                            <h3 className="text-2xl font-bold text-gray-900">People on My Mind</h3>
+                            <h3 className="text-2xl font-bold text-gray-900">People & Teams on My Mind</h3>
                             <p className="text-gray-600 text-sm">Relationships that need attention</p>
                           </div>
                         </div>
@@ -1693,7 +1904,7 @@ export default function TopOfMindPage() {
                           })}
                         </div>
                       </div>
-                    )}
+                    ) */}
                   
                     {/* Outcomes Needing Attention */}
                     {data.outcomes.length > 0 && (
@@ -1707,29 +1918,134 @@ export default function TopOfMindPage() {
                             <p className="text-gray-600 text-sm">Key results to track</p>
                           </div>
                         </div>
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           {data.outcomes.map((outcome, index) => {
                             const status = outcomeStatuses.find(s => s.id === outcome.status)
-                            const borderColor = {
-                              'at-risk': 'border-red-400',
-                              'needs-push': 'border-yellow-400',
-                              'on-track': 'border-green-400',
-                              'figuring-out': 'border-purple-400'
-                            }[outcome.status] || 'border-gray-400'
+                            const statusColors = {
+                              'at-risk': 'from-red-500 to-red-600',
+                              'needs-push': 'from-yellow-500 to-yellow-600',
+                              'on-track': 'from-green-500 to-green-600',
+                              'figuring-out': 'from-purple-500 to-purple-600'
+                            }[outcome.status] || 'from-gray-500 to-gray-600'
+                            
+                            const statusTextColors = {
+                              'at-risk': 'text-red-600 bg-red-100 hover:bg-red-200',
+                              'needs-push': 'text-yellow-600 bg-yellow-100 hover:bg-yellow-200',
+                              'on-track': 'text-green-600 bg-green-100 hover:bg-green-200',
+                              'figuring-out': 'text-purple-600 bg-purple-100 hover:bg-purple-200'
+                            }[outcome.status] || 'text-gray-600 bg-gray-100 hover:bg-gray-200'
                             
                             return (
-                              <div key={index} className={`border-l-4 ${borderColor} pl-5 py-3 hover:bg-gray-50 transition-colors rounded-r-lg`}>
-                                <div className="flex items-start justify-between gap-3">
-                                  <div className="flex-1">
-                                    <p className="font-medium text-gray-900">{outcome.outcome}</p>
-                                    {outcome.note && (
-                                      <p className="text-sm text-gray-600 mt-1 italic">"{outcome.note}"</p>
-                                    )}
-                                  </div>
+                              <div key={index} className="rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow bg-white relative group">
+                                {/* Colored header */}
+                                <div className={`h-2 bg-gradient-to-r ${statusColors}`} />
+                                
+                                {/* Delete button */}
+                                <button
+                                  onClick={() => {
+                                    const updatedOutcomes = data.outcomes.filter((_, i) => i !== index)
+                                    setData({ ...data, outcomes: updatedOutcomes })
+                                  }}
+                                  className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500 p-1"
+                                  title="Delete outcome"
+                                >
+                                  <X className="w-5 h-5" />
+                                </button>
+                                
+                                {/* Card content */}
+                                <div className="p-5">
+                                  {editingOutcomeIndex === index ? (
+                                    <input
+                                      type="text"
+                                      value={editingOutcomeText}
+                                      onChange={(e) => setEditingOutcomeText(e.target.value)}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && editingOutcomeText.trim()) {
+                                          const updatedOutcomes = data.outcomes.map((o, i) => 
+                                            i === index ? { ...o, outcome: editingOutcomeText.trim() } : o
+                                          )
+                                          setData({ ...data, outcomes: updatedOutcomes })
+                                          setEditingOutcomeIndex(null)
+                                          setEditingOutcomeText('')
+                                        }
+                                        if (e.key === 'Escape') {
+                                          setEditingOutcomeIndex(null)
+                                          setEditingOutcomeText('')
+                                        }
+                                      }}
+                                      onBlur={() => {
+                                        if (editingOutcomeText.trim() && editingOutcomeText.trim() !== outcome.outcome) {
+                                          const updatedOutcomes = data.outcomes.map((o, i) => 
+                                            i === index ? { ...o, outcome: editingOutcomeText.trim() } : o
+                                          )
+                                          setData({ ...data, outcomes: updatedOutcomes })
+                                        }
+                                        setEditingOutcomeIndex(null)
+                                        setEditingOutcomeText('')
+                                      }}
+                                      className="w-full font-medium text-gray-900 mb-3 px-2 py-1 border border-[#3E37FF]/30 rounded focus:outline-none focus:ring-2 focus:ring-[#3E37FF]/50"
+                                      autoFocus
+                                    />
+                                  ) : (
+                                    <p 
+                                      className="font-medium text-gray-900 mb-3 cursor-pointer hover:text-[#3E37FF]"
+                                      onClick={() => {
+                                        setEditingOutcomeIndex(index)
+                                        setEditingOutcomeText(outcome.outcome)
+                                      }}
+                                    >
+                                      {outcome.outcome}
+                                    </p>
+                                  )}
+                                  
+                                  {/* Status selection */}
                                   {status && (
-                                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${status.color} whitespace-nowrap`}>
-                                      {status.emoji} {status.label}
-                                    </span>
+                                    <div className="mb-3">
+                                      {editingStatusIndex === index ? (
+                                        <div className="flex flex-wrap gap-2">
+                                          {outcomeStatuses.map((s) => {
+                                            const isSelected = s.id === outcome.status
+                                            const pillColors = {
+                                              'at-risk': isSelected ? 'bg-red-100 text-red-600 ring-2 ring-red-600' : 'bg-gray-100 text-gray-600 hover:bg-red-50',
+                                              'needs-push': isSelected ? 'bg-yellow-100 text-yellow-600 ring-2 ring-yellow-600' : 'bg-gray-100 text-gray-600 hover:bg-yellow-50',
+                                              'on-track': isSelected ? 'bg-green-100 text-green-600 ring-2 ring-green-600' : 'bg-gray-100 text-gray-600 hover:bg-green-50',
+                                              'figuring-out': isSelected ? 'bg-purple-100 text-purple-600 ring-2 ring-purple-600' : 'bg-gray-100 text-gray-600 hover:bg-purple-50'
+                                            }[s.id]
+                                            
+                                            return (
+                                              <button
+                                                key={s.id}
+                                                onClick={() => {
+                                                  const updatedOutcomes = data.outcomes.map((o, i) => 
+                                                    i === index ? { ...o, status: s.id } : o
+                                                  )
+                                                  setData({ ...data, outcomes: updatedOutcomes })
+                                                  setEditingStatusIndex(null)
+                                                }}
+                                                className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium transition-all ${pillColors}`}
+                                              >
+                                                <span>{s.emoji}</span>
+                                                <span>{s.label}</span>
+                                              </button>
+                                            )
+                                          })}
+                                        </div>
+                                      ) : (
+                                        <button
+                                          onClick={() => setEditingStatusIndex(index)}
+                                          className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-colors ${statusTextColors}`}
+                                        >
+                                          <span>{status.emoji}</span>
+                                          <span>{status.label}</span>
+                                        </button>
+                                      )}
+                                    </div>
+                                  )}
+                                  
+                                  {outcome.note && (
+                                    <p className="text-sm text-gray-600 italic border-l-2 border-gray-200 pl-3">
+                                      "{outcome.note}"
+                                    </p>
                                   )}
                                 </div>
                               </div>

@@ -176,7 +176,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Get stats
-    const stats = await getAssessmentStats(redis, domain);
+    const stats = await getAssessmentStats(redis, domain || undefined);
     
     return NextResponse.json({
       assessments,

@@ -78,7 +78,7 @@ export default function HRPartnershipResultsPage() {
         setStats(data.stats || null)
         
         // Extract unique domains
-        const uniqueDomains = [...new Set(data.assessments.map((a: HRAssessment) => a.domain))]
+        const uniqueDomains = [...new Set(data.assessments.map((a: HRAssessment) => a.domain))].filter((d): d is string => d !== null)
         setDomains(uniqueDomains.sort())
       }
     } catch (error) {

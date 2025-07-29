@@ -362,15 +362,31 @@ export default function HRPartnershipPage() {
     }
   }
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     const currentIndex = stages.findIndex(s => s.id === currentStage)
     if (currentIndex < stages.length - 1) {
       setCurrentStage(stages[currentIndex + 1].id)
     }
     
-    // Track completion when moving to results
+    // Save assessment and track completion when moving to results
     if (currentStage === 'insights') {
       const completionTime = Math.round((Date.now() - startTime) / 1000)
+      
+      // Save assessment to database
+      try {
+        const response = await fetch('/api/hr-assessments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ managerData })
+        })
+        
+        if (!response.ok) {
+          console.error('Failed to save assessment')
+        }
+      } catch (error) {
+        console.error('Error saving assessment:', error)
+      }
+      
       analytics.trackToolComplete('HR Partnership Assessment', {
         completionTime,
         categoriesSelected: managerData.selectedCategories.length,
@@ -1136,6 +1152,16 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                       </p>
                     </div>
                   </div>
+                </div>
+                
+                {/* Footer buttons */}
+                <div className="flex justify-center mt-8 no-print">
+                  <button
+                    onClick={() => window.location.href = '/toolkit'}
+                    className="px-8 py-3 bg-[#2A74B9] text-white rounded-lg font-semibold hover:bg-[#30C7C7] transition-colors"
+                  >
+                    Explore All Tools
+                  </button>
                 </div>
               </div>
               </>

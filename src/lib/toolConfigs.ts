@@ -54,6 +54,12 @@ export const toolConfigs = {
     subtitle: "5-minute weekly check-in.",
     description: "A rapid weekly reflection to surface what really matters. Focus on outcomes, people, and priorities—not just tasks. Perfect for Friday afternoons or Monday mornings."
   },
+  hrPartnership: {
+    gradient: "from-[#30C7C7] to-[#2A74B9]",
+    title: "HR Partnership Assessment",
+    subtitle: "Bridge the gap between HR and managers.",
+    description: "Help managers articulate their needs for growth, support, strategic direction, and culture building. Creates actionable insights for HR leaders to better support their teams."
+  },
   // Add more tools here as you create them
 }
 

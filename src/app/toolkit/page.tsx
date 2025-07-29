@@ -213,6 +213,16 @@ const tools: Tool[] = [
     gradient: 'from-[#C67AF4] to-[#3E37FF]',
     icon: <Target className="w-8 h-8" />,
     challenges: ['purpose-direction', 'alignment', 'skill-building']
+  },
+  {
+    id: 'hr-partnership',
+    path: '/hr-partnership',
+    title: 'HR Partnership Assessment',
+    subtitle: 'Bridge the gap with HR',
+    description: 'Help managers articulate their needs for growth, support, strategic direction, and culture building to strengthen HR partnerships.',
+    gradient: 'from-[#30C7C7] to-[#2A74B9]',
+    icon: <Lightbulb className="w-8 h-8" />,
+    challenges: ['empowering-others', 'skill-building', 'alignment', 'communication']
   }
 ]
 

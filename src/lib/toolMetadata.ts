@@ -56,6 +56,11 @@ export const toolsMetadata: Record<string, ToolMetadataConfig> = {
     name: 'User Guide',
     description: 'Create a personalized guide to help others understand how to work with you most effectively.',
     ogImage: '/og-user-guide.png'
+  },
+  'hr-partnership': {
+    name: 'HR Partnership Assessment',
+    description: 'Help managers articulate their needs for HR support across growth, development, strategy, and culture to strengthen the HR-manager partnership.',
+    ogImage: '/og-hr-partnership.png'
   }
 }
 

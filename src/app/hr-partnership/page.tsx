@@ -332,16 +332,31 @@ export default function HRPartnershipPage() {
           </button>
           
           <div className="flex gap-2">
-            {stages.map((stage, index) => (
-              <div
-                key={stage.id}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  index <= currentStageIndex
-                    ? 'bg-white'
-                    : 'bg-white/30'
-                }`}
-              />
-            ))}
+            {stages.map((stage, index) => {
+              const isCompleted = index < currentStageIndex
+              const isCurrent = index === currentStageIndex
+              const isClickable = index <= currentStageIndex
+              
+              return (
+                <button
+                  key={stage.id}
+                  onClick={() => {
+                    if (isClickable) {
+                      setCurrentStage(stage.id)
+                    }
+                  }}
+                  disabled={!isClickable}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    isCurrent
+                      ? 'bg-white w-3 h-3'
+                      : isCompleted
+                      ? 'bg-white hover:w-3 hover:h-3'
+                      : 'bg-white/30 cursor-not-allowed'
+                  }`}
+                  title={`${stage.title}${isClickable ? ' (Click to navigate)' : ''}`}
+                />
+              )
+            })}
           </div>
         </div>
         
@@ -544,7 +559,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                 placeholder="Your name"
                 value={managerData.name}
                 onChange={(e) => setManagerData(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               
               <div>
@@ -555,7 +570,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                   onChange={handleEmailChange}
                   className={`w-full p-4 rounded-xl border ${
                     emailValidation.error ? 'border-red-400' : 'border-white/30'
-                  } bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-cyan-400`}
+                  } bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400`}
                 />
                 {emailValidation.error && (
                   <p className="text-red-300 text-sm mt-1">{emailValidation.error}</p>
@@ -575,13 +590,13 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                 placeholder="Your department"
                 value={managerData.department}
                 onChange={(e) => setManagerData(prev => ({ ...prev, department: e.target.value }))}
-                className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               
               <select
                 value={managerData.teamSize}
                 onChange={(e) => setManagerData(prev => ({ ...prev, teamSize: e.target.value }))}
-                className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-cyan-400 appearance-none"
+                className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none"
                 style={{ WebkitAppearance: 'none' }}
               >
                 <option value="" className="text-gray-900">Select team size</option>
@@ -672,10 +687,10 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                     <button
                       key={option}
                       onClick={() => toggleCategoryChallenge(currentStage, option)}
-                      className={`px-4 py-2 rounded-full border-2 transition-all text-sm ${
+                      className={`px-4 py-2 rounded-full border-2 transition-all text-sm shadow-sm ${
                         categoryData?.challenges.includes(option)
-                          ? 'bg-cyan-500 text-white border-cyan-500'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-cyan-500'
+                          ? 'bg-blue-900 text-white border-blue-900 shadow-md'
+                          : 'bg-white/90 text-gray-700 border-white/60 hover:border-blue-900 hover:shadow-md'
                       }`}
                     >
                       {option}
@@ -685,7 +700,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                     <button
                       key={customChallenge}
                       onClick={() => toggleCategoryChallenge(currentStage, customChallenge)}
-                      className="px-4 py-2 rounded-full border-2 bg-cyan-500 text-white border-cyan-500 flex items-center gap-2 text-sm"
+                      className="px-4 py-2 rounded-full border-2 bg-blue-900 text-white border-blue-900 flex items-center gap-2 text-sm shadow-md"
                     >
                       {customChallenge}
                       <X className="w-3 h-3" />
@@ -705,7 +720,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                         handleAddCustomChallenge(currentStage)
                       }
                     }}
-                    className="flex-1 p-3 rounded-lg border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                    className="flex-1 p-3 rounded-lg border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                   <button
                     onClick={() => handleAddCustomChallenge(currentStage)}
@@ -719,7 +734,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                   placeholder={`Tell us more about your ${category?.label.toLowerCase()} challenges...`}
                   value={categoryData?.details || ''}
                   onChange={(e) => updateCategoryDetails(currentStage, e.target.value)}
-                  className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-cyan-400 min-h-[120px]"
+                  className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[120px]"
                 />
               </div>
             </div>
@@ -750,10 +765,10 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                           ...prev,
                           skillGaps: toggleSelection(prev.skillGaps, option)
                         }))}
-                        className={`px-4 py-2 rounded-full border-2 transition-all text-sm ${
+                        className={`px-4 py-2 rounded-full border-2 transition-all text-sm shadow-sm ${
                           managerData.skillGaps.includes(option)
-                            ? 'bg-cyan-500 text-white border-cyan-500'
-                            : 'bg-white text-gray-700 border-gray-300 hover:border-cyan-500'
+                            ? 'bg-blue-900 text-white border-blue-900 shadow-md'
+                            : 'bg-white/90 text-gray-700 border-white/60 hover:border-blue-900 hover:shadow-md'
                         }`}
                       >
                         {option}
@@ -766,7 +781,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                           ...prev,
                           skillGaps: prev.skillGaps.filter(s => s !== customSkill)
                         }))}
-                        className="px-4 py-2 rounded-full border-2 bg-cyan-500 text-white border-cyan-500 flex items-center gap-2 text-sm"
+                        className="px-4 py-2 rounded-full border-2 bg-blue-900 text-white border-blue-900 flex items-center gap-2 text-sm shadow-md"
                       >
                         {customSkill}
                         <X className="w-3 h-3" />
@@ -787,7 +802,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                           setCustomInputs(prev => ({ ...prev, skill: '' }))
                         }
                       }}
-                      className="flex-1 p-3 rounded-lg border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                      className="flex-1 p-3 rounded-lg border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                     <button
                       onClick={() => {
@@ -804,7 +819,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                     placeholder="Why are these skills important for you? How would developing them help you succeed?"
                     value={managerData.skillDetails}
                     onChange={(e) => setManagerData(prev => ({ ...prev, skillDetails: e.target.value }))}
-                    className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-cyan-400 min-h-[120px]"
+                    className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[120px]"
                   />
                 </div>
               </div>
@@ -831,10 +846,10 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                           ...prev,
                           supportNeeds: toggleSelection(prev.supportNeeds, option)
                         }))}
-                        className={`px-4 py-2 rounded-full border-2 transition-all text-sm ${
+                        className={`px-4 py-2 rounded-full border-2 transition-all text-sm shadow-sm ${
                           managerData.supportNeeds.includes(option)
-                            ? 'bg-cyan-500 text-white border-cyan-500'
-                            : 'bg-white text-gray-700 border-gray-300 hover:border-cyan-500'
+                            ? 'bg-blue-900 text-white border-blue-900 shadow-md'
+                            : 'bg-white/90 text-gray-700 border-white/60 hover:border-blue-900 hover:shadow-md'
                         }`}
                       >
                         {option}
@@ -847,7 +862,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                           ...prev,
                           supportNeeds: prev.supportNeeds.filter(n => n !== customNeed)
                         }))}
-                        className="px-4 py-2 rounded-full border-2 bg-cyan-500 text-white border-cyan-500 flex items-center gap-2 text-sm"
+                        className="px-4 py-2 rounded-full border-2 bg-blue-900 text-white border-blue-900 flex items-center gap-2 text-sm shadow-md"
                       >
                         {customNeed}
                         <X className="w-3 h-3" />
@@ -868,7 +883,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                           setCustomInputs(prev => ({ ...prev, support: '' }))
                         }
                       }}
-                      className="flex-1 p-3 rounded-lg border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                      className="flex-1 p-3 rounded-lg border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                     <button
                       onClick={() => {
@@ -885,7 +900,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                     placeholder="Describe specific situations where you need more HR support or guidance..."
                     value={managerData.supportDetails}
                     onChange={(e) => setManagerData(prev => ({ ...prev, supportDetails: e.target.value }))}
-                    className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-cyan-400 min-h-[120px]"
+                    className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[120px]"
                   />
                 </div>
               </div>
@@ -919,10 +934,10 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                             return { ...prev, selectedPriorities: newPriorities }
                           })
                         }}
-                        className={`p-4 rounded-xl border-2 transition-all text-left flex items-center gap-3 ${
+                        className={`p-4 rounded-xl border-2 transition-all text-left flex items-center gap-3 shadow-sm ${
                           managerData.selectedPriorities.includes(priority.id)
-                            ? 'bg-white/20 border-cyan-400 text-white'
-                            : 'bg-white/10 border-white/30 text-white hover:bg-white/15 hover:border-white/40'
+                            ? 'bg-blue-900 border-blue-900 text-white shadow-md'
+                            : 'bg-white/90 border-white/60 text-gray-700 hover:bg-white hover:border-blue-900 hover:shadow-md'
                         }`}
                       >
                         <priority.icon className="w-6 h-6" />
@@ -945,7 +960,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                           setCustomInputs(prev => ({ ...prev, priority: '' }))
                         }
                       }}
-                      className="flex-1 p-3 rounded-lg border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                      className="flex-1 p-3 rounded-lg border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                     <button
                       onClick={() => {
@@ -963,7 +978,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                   {/* Display custom priority if added */}
                   {managerData.customPriority && (
                     <div className="flex items-center gap-2">
-                      <span className="px-4 py-2 bg-cyan-500/20 border border-cyan-400 rounded-full text-white text-sm flex items-center gap-2">
+                      <span className="px-4 py-2 bg-blue-900 border-2 border-blue-900 rounded-full text-white text-sm flex items-center gap-2 shadow-md">
                         {managerData.customPriority}
                         <button
                           onClick={() => setManagerData(prev => ({ ...prev, customPriority: undefined }))}
@@ -984,7 +999,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                       placeholder="Tell us how HR can support your focus areas..."
                       value={managerData.hrSupport}
                       onChange={(e) => setManagerData(prev => ({ ...prev, hrSupport: e.target.value }))}
-                      className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-cyan-400 min-h-[120px]"
+                      className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[120px]"
                     />
                   </div>
                 </div>
@@ -1008,7 +1023,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                     placeholder="Share any other thoughts, concerns, or ideas for how HR can better support you and your team..."
                     value={managerData.additionalInsights}
                     onChange={(e) => setManagerData(prev => ({ ...prev, additionalInsights: e.target.value }))}
-                    className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-cyan-400 min-h-[150px]"
+                    className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[150px]"
                   />
                   
                   {managerData.aiFollowUp && (
@@ -1145,7 +1160,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                   </div>
                   
                   <div className="pt-4 border-t">
-                    <div className="bg-cyan-50 p-4 rounded-lg border border-cyan-200">
+                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                       <p className="text-gray-700 font-medium mb-2">Next Steps:</p>
                       <p className="text-gray-600">
                         We will share these results with your HR/People team. This will help them to understand your specific needs and provide targeted support for you and your team. If you'd like to keep them for yourself, you can print them above.
@@ -1155,10 +1170,18 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                 </div>
                 
                 {/* Footer buttons */}
-                <div className="flex justify-center mt-8 no-print">
+                <div className="flex justify-center gap-4 mt-8 no-print">
+                  <button
+                    onClick={() => {
+                      setCurrentStage('insights')
+                    }}
+                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+                  >
+                    Back
+                  </button>
                   <button
                     onClick={() => window.location.href = '/toolkit'}
-                    className="px-8 py-3 bg-[#2A74B9] text-white rounded-lg font-semibold hover:bg-[#30C7C7] transition-colors"
+                    className="px-8 py-3 bg-[#2A74B9] text-white rounded-lg font-semibold hover:bg-blue-800 transition-colors"
                   >
                     Explore All Tools
                   </button>
@@ -1189,24 +1212,26 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
               <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 md:p-12 border border-white/20">
                 {renderStage()}
                 
-                <div className="flex justify-between mt-8 pt-6 border-t border-white/20">
-                  <button
-                    onClick={handleBack}
-                    disabled={currentStageIndex === 1}
-                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Back
-                  </button>
-                  
-                  <button
-                    onClick={handleContinue}
-                    disabled={!canContinue()}
-                    className="px-8 py-3 bg-[#2A74B9] text-white rounded-lg font-medium hover:bg-[#30C7C7] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                  >
-                    {currentStage === 'insights' ? 'Complete' : 'Continue'}
-                    <ArrowRight className="w-5 h-5" />
-                  </button>
-                </div>
+                {currentStage !== 'results' && (
+                  <div className="flex justify-between mt-8 pt-6 border-t border-white/20">
+                    <button
+                      onClick={handleBack}
+                      disabled={currentStageIndex === 1}
+                      className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Back
+                    </button>
+                    
+                    <button
+                      onClick={handleContinue}
+                      disabled={!canContinue()}
+                      className="px-8 py-3 bg-[#2A74B9] text-white rounded-lg font-medium hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      {currentStage === 'insights' ? 'Complete' : 'Continue'}
+                      <ArrowRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
               </div>
             </>
           )}

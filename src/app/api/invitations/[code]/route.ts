@@ -3,10 +3,10 @@ import invitationStorage from '@/lib/invitationStorage';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { code: string } }
+  { params }: { params: Promise<{ code: string }> }
 ) {
   try {
-    const { code } = params;
+    const { code } = await params;
     
     // Find invitation by code
     const invitation = await invitationStorage.getInvitationByCode(code);

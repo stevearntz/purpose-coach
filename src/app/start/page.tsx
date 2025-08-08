@@ -41,13 +41,30 @@ function StartPageContent() {
   
   const loadInviteData = async (inviteCode: string) => {
     try {
+      console.log('Loading invite data for code:', inviteCode);
       const response = await fetch(`/api/invitations/${inviteCode}`);
+      
       if (response.ok) {
         const data = await response.json();
-        setInviteData(data);
+        console.log('Received invite data:', data);
+        
+        // Only set invite data if we actually got something meaningful
+        if (data && (data.company || data.name || data.email)) {
+          setInviteData(data);
+        } else {
+          console.log('Invite data was empty, using defaults');
+          // Don't set invite data if it's empty - let the UI handle it
+          setInviteData(null);
+        }
+      } else {
+        console.error('Failed to load invite - response not ok:', response.status);
+        // Don't set invite data on error
+        setInviteData(null);
       }
     } catch (error) {
       console.error('Failed to load invite data:', error);
+      // Don't set invite data on error
+      setInviteData(null);
     } finally {
       setLoading(false);
     }
@@ -119,24 +136,24 @@ function StartPageContent() {
           ) : (
             <>
               {/* Personalized Welcome Badge */}
-              {inviteData && (
+              {inviteData && inviteData.company && (
                 <div className="mb-6">
                   <div className="inline-flex flex-col items-center gap-2">
-                    {inviteData.company && (
-                      <div className="px-6 py-2 bg-white/20 backdrop-blur-sm rounded-full">
-                        <span className="text-lg font-semibold">{inviteData.company}</span>
+                    <div className="px-6 py-2 bg-white/20 backdrop-blur-sm rounded-full">
+                      <span className="text-lg font-semibold">{inviteData.company}</span>
+                    </div>
+                    {(inviteData.name || inviteData.email) && (
+                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm">
+                        <User className="w-4 h-4" />
+                        <span>{inviteData.name || inviteData.email}</span>
                       </div>
                     )}
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm">
-                      <User className="w-4 h-4" />
-                      <span>{inviteData.name || inviteData.email}</span>
-                    </div>
                   </div>
                 </div>
               )}
               
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
-                {inviteData?.name ? (
+                {inviteData?.name && inviteData.name.trim() ? (
                   <>Welcome {inviteData.name.split(' ')[0]}!</>
                 ) : (
                   'Welcome to Campfire'
@@ -144,7 +161,8 @@ function StartPageContent() {
               </h1>
               
               <p className="text-lg sm:text-xl md:text-2xl text-purple-100 mb-8 sm:mb-12 md:mb-16 px-2">
-                {inviteData?.personalMessage || 
+                {(inviteData?.personalMessage && inviteData.personalMessage.trim()) ? 
+                  inviteData.personalMessage :
                   "Your personal leadership and team development platform is ready. Let's build stronger teams and better leaders, together."}
               </p>
               

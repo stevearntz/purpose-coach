@@ -61,38 +61,58 @@ function ClaimAccountContent() {
   // Load invitation data on mount
   useEffect(() => {
     const inviteCode = searchParams.get('invite');
+    console.log('[claim-account] URL params:', {
+      inviteCode,
+      fullURL: window.location.href,
+      searchParams: searchParams.toString()
+    });
+    
     if (inviteCode) {
       loadInviteData(inviteCode);
     } else {
+      console.log('[claim-account] No invite code in URL');
       setLoading(false);
     }
   }, [searchParams]);
   
   const loadInviteData = async (inviteCode: string) => {
     try {
+      console.log('[claim-account] Loading invite data for code:', inviteCode);
       const response = await fetch(`/api/invitations/${inviteCode}`);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('[claim-account] Received invite data:', data);
         setInviteData(data);
         
         // Pre-fill form with invitation data
-        if (data.name) {
-          const names = data.name.split(' ');
+        if (data.name && data.name.trim()) {
+          const names = data.name.trim().split(' ');
+          const firstName = names[0] || '';
+          const lastName = names.slice(1).join(' ') || '';
+          
+          console.log('[claim-account] Pre-filling with name:', { firstName, lastName, email: data.email });
+          
           setFormData(prev => ({
             ...prev,
-            firstName: names[0] || '',
-            lastName: names.slice(1).join(' ') || '',
+            firstName: firstName,
+            lastName: lastName,
             email: data.email || ''
           }));
-        } else if (data.email) {
+        } else if (data.email && data.email.trim()) {
+          console.log('[claim-account] Pre-filling with email only:', data.email);
           setFormData(prev => ({
             ...prev,
             email: data.email
           }));
+        } else {
+          console.log('[claim-account] No data to pre-fill');
         }
+      } else {
+        console.error('[claim-account] Failed to load invite - status:', response.status);
       }
     } catch (error) {
-      console.error('Failed to load invite data:', error);
+      console.error('[claim-account] Failed to load invite data:', error);
     } finally {
       setLoading(false);
     }
@@ -172,15 +192,19 @@ function ClaimAccountContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...formData,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password,
           inviteCode,
           company: inviteData?.company
         })
       });
       
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to create account');
+        const errorData = await response.json();
+        console.error('Account creation failed:', errorData);
+        throw new Error(errorData.message || errorData.error || 'Failed to create account');
       }
       
       const result = await response.json();
@@ -211,13 +235,9 @@ function ClaimAccountContent() {
         localStorage.setItem('campfire_user_company', inviteData.company);
       }
       
-      // Redirect to main app after a brief delay
+      // Redirect to dashboard after a brief delay
       setTimeout(() => {
-        if (inviteCode) {
-          router.push(`/?invite=${inviteCode}&claimed=true`);
-        } else {
-          router.push('/?claimed=true');
-        }
+        router.push('/dashboard');
       }, 1500);
       
     } catch (error) {

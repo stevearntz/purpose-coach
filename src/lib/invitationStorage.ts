@@ -38,11 +38,15 @@ class InvitationStorage {
   }
 
   private async initializeRedis() {
+    console.log('Initializing invitation storage...');
+    console.log('Redis URL exists:', !!process.env.REDIS_URL);
+    
     if (process.env.REDIS_URL) {
       try {
         this.redis = new Redis(process.env.REDIS_URL, {
           retryStrategy: (times) => {
             const delay = Math.min(times * 50, 2000);
+            console.log(`Redis retry attempt ${times}, delay: ${delay}ms`);
             return delay;
           },
           connectTimeout: 10000,
@@ -52,11 +56,20 @@ class InvitationStorage {
         });
 
         await this.redis.connect();
-        console.log('Invitation storage: Redis connection established');
+        console.log('Invitation storage: Redis connection established successfully');
 
         this.redis.on('error', (err) => {
           console.error('Invitation storage: Redis error:', err);
           this.useMemoryFallback = true;
+        });
+        
+        this.redis.on('connect', () => {
+          console.log('Invitation storage: Redis connected');
+          this.useMemoryFallback = false;
+        });
+        
+        this.redis.on('ready', () => {
+          console.log('Invitation storage: Redis ready');
         });
       } catch (error) {
         console.error('Invitation storage: Failed to connect to Redis:', error);
@@ -73,6 +86,14 @@ class InvitationStorage {
     const key = `invitation:${invitation.inviteCode}`;
     const indexKey = `invitation:id:${invitation.id}`;
     
+    console.log('Saving invitation:', {
+      code: invitation.inviteCode,
+      email: invitation.email,
+      company: invitation.company,
+      useMemoryFallback: this.useMemoryFallback,
+      redisAvailable: !!this.redis
+    });
+    
     if (this.redis && !this.useMemoryFallback) {
       try {
         // Store by invite code (primary lookup)
@@ -81,6 +102,7 @@ class InvitationStorage {
           60 * 60 * 24 * 90, // 90 days expiry
           JSON.stringify(invitation)
         );
+        console.log('Saved to Redis with key:', key);
         
         // Also store by ID for admin lookup
         await this.redis.setex(
@@ -97,28 +119,57 @@ class InvitationStorage {
         );
       } catch (error) {
         console.error('Failed to save invitation to Redis:', error);
+        console.log('Falling back to memory store');
+        this.useMemoryFallback = true;
         this.memoryStore.set(invitation.inviteCode, invitation);
+        console.log('Saved to memory store after Redis failure');
       }
     } else {
+      console.log('Saving to memory store with code:', invitation.inviteCode);
       this.memoryStore.set(invitation.inviteCode, invitation);
+      console.log('Memory store now has keys:', Array.from(this.memoryStore.keys()));
     }
   }
 
   // Get invitation by code
   async getInvitationByCode(inviteCode: string): Promise<Invitation | null> {
     const key = `invitation:${inviteCode}`;
+    console.log('Getting invitation by code:', inviteCode);
+    console.log('Storage state:', {
+      redisAvailable: !!this.redis,
+      useMemoryFallback: this.useMemoryFallback,
+      memoryStoreSize: this.memoryStore.size,
+      memoryStoreKeys: Array.from(this.memoryStore.keys())
+    });
     
+    // Always check memory store first (in case we saved there during Redis failure)
+    const memData = this.memoryStore.get(inviteCode);
+    if (memData) {
+      console.log('Found invitation in memory store');
+      return memData;
+    }
+    
+    // Then try Redis if available
     if (this.redis && !this.useMemoryFallback) {
       try {
+        console.log('Fetching from Redis with key:', key);
         const data = await this.redis.get(key);
-        return data ? JSON.parse(data) : null;
+        if (data) {
+          console.log('Found invitation in Redis');
+          const invitation = JSON.parse(data);
+          // Cache in memory for faster access
+          this.memoryStore.set(inviteCode, invitation);
+          return invitation;
+        }
+        console.log('Not found in Redis');
       } catch (error) {
         console.error('Failed to get invitation from Redis:', error);
-        return this.memoryStore.get(inviteCode) || null;
+        this.useMemoryFallback = true;
       }
-    } else {
-      return this.memoryStore.get(inviteCode) || null;
     }
+    
+    console.log('Invitation not found in any storage');
+    return null;
   }
 
   // Get invitation by ID
@@ -276,6 +327,15 @@ class InvitationStorage {
 }
 
 // Create singleton instance
-const invitationStorage = new InvitationStorage();
+let invitationStorage: InvitationStorage;
 
-export default invitationStorage;
+// Use a getter to ensure single instance
+function getInvitationStorage(): InvitationStorage {
+  if (!invitationStorage) {
+    console.log('Creating new InvitationStorage instance');
+    invitationStorage = new InvitationStorage();
+  }
+  return invitationStorage;
+}
+
+export default getInvitationStorage();

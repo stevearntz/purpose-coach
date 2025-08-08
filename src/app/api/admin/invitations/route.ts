@@ -1,18 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { nanoid } from 'nanoid';
-import invitationStorage, { type Invitation } from '@/lib/invitationStorage';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    // Get all invitations from storage
-    const allInvitations = await invitationStorage.getAllInvitations();
+    // Get all invitations from database
+    const invitations = await prisma.invitation.findMany({
+      include: {
+        company: true,
+        metadata: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
     
-    // Sort by creation date (newest first)
-    allInvitations.sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    // Transform for compatibility with existing code
+    const transformedInvitations = invitations.map(inv => ({
+      id: inv.id,
+      email: inv.email,
+      name: inv.name,
+      company: inv.company.name,
+      companyLogo: inv.company.logo,
+      inviteCode: inv.inviteCode,
+      inviteUrl: inv.inviteUrl,
+      status: inv.status.toLowerCase(),
+      createdAt: inv.createdAt.toISOString(),
+      sentAt: inv.sentAt?.toISOString(),
+      openedAt: inv.openedAt?.toISOString(),
+      startedAt: inv.startedAt?.toISOString(),
+      completedAt: inv.completedAt?.toISOString(),
+      currentStage: inv.currentStage,
+      personalMessage: inv.personalMessage,
+      resentAt: inv.resentAt?.toISOString(),
+      metadata: inv.metadata ? {
+        role: inv.metadata.role,
+        challenges: inv.metadata.challenges || [],
+        toolsAccessed: inv.metadata.toolsAccessed || [],
+        accountCreated: inv.metadata.accountCreated,
+        accountEmail: inv.metadata.accountEmail,
+        isGenericLink: inv.metadata.isGenericLink
+      } : undefined
+    }));
     
-    return NextResponse.json({ invitations: allInvitations });
+    return NextResponse.json({ invitations: transformedInvitations });
   } catch (error) {
     console.error('Failed to fetch invitations:', error);
     return NextResponse.json({ error: 'Failed to fetch invitations' }, { status: 500 });
@@ -21,46 +52,66 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, name, company, companyLogo, personalMessage, sendImmediately } = await request.json();
+    const { email, name, companyId, personalMessage, sendImmediately } = await request.json();
+    
+    if (!email || !companyId) {
+      return NextResponse.json({ 
+        error: 'Email and company ID are required' 
+      }, { status: 400 });
+    }
     
     // Generate unique invitation code
     const inviteCode = nanoid(10);
-    const inviteId = nanoid();
     
     // Create invitation URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.headers.get('origin') || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
+                   request.headers.get('origin') || 
+                   'http://localhost:3000';
     const inviteUrl = `${baseUrl}/start?invite=${inviteCode}`;
     
-    // Create invitation object
-    const invitation: Invitation = {
-      id: inviteId,
-      email,
-      name,
-      company,
-      companyLogo,
-      inviteCode,
-      inviteUrl,
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-      personalMessage,
-      metadata: {}
-    };
-    
-    // Store invitation in persistent storage
-    await invitationStorage.saveInvitation(invitation);
+    // Create invitation in database
+    const invitation = await prisma.invitation.create({
+      data: {
+        email,
+        name,
+        inviteCode,
+        inviteUrl,
+        personalMessage,
+        companyId,
+        status: sendImmediately ? 'SENT' : 'PENDING',
+        sentAt: sendImmediately ? new Date() : undefined
+      },
+      include: {
+        company: true
+      }
+    });
     
     // Send email if requested
     if (sendImmediately) {
-      // Send invitation email
-      await sendInvitationEmail(invitation);
-      
-      // Update status
-      invitation.status = 'sent';
-      invitation.sentAt = new Date().toISOString();
-      await invitationStorage.saveInvitation(invitation);
+      await sendInvitationEmail({
+        email,
+        name,
+        inviteUrl,
+        company: invitation.company.name
+      });
     }
     
-    return NextResponse.json({ success: true, invitation });
+    // Transform for compatibility
+    const transformedInvitation = {
+      id: invitation.id,
+      email: invitation.email,
+      name: invitation.name,
+      company: invitation.company.name,
+      companyLogo: invitation.company.logo,
+      inviteCode: invitation.inviteCode,
+      inviteUrl: invitation.inviteUrl,
+      status: invitation.status.toLowerCase(),
+      createdAt: invitation.createdAt.toISOString(),
+      sentAt: invitation.sentAt?.toISOString(),
+      personalMessage: invitation.personalMessage
+    };
+    
+    return NextResponse.json({ success: true, invitation: transformedInvitation });
   } catch (error) {
     console.error('Failed to create invitation:', error);
     return NextResponse.json({ error: 'Failed to create invitation' }, { status: 500 });

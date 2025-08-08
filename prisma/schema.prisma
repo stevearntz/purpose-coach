@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  logo        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  admins      Admin[]
+  invitations Invitation[]
+  campaigns   Campaign[]
+}
+
+model Admin {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String?
+  companyId   String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  company     Company  @relation(fields: [companyId], references: [id])
+  invitations Invitation[]
+}
+
+model Invitation {
+  id              String   @id @default(cuid())
+  email           String
+  name            String?
+  inviteCode      String   @unique
+  inviteUrl       String
+  status          InvitationStatus @default(PENDING)
+  personalMessage String?
+  companyId       String
+  adminId         String?
+  createdAt       DateTime @default(now())
+  sentAt          DateTime?
+  openedAt        DateTime?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  resentAt        DateTime?
+  currentStage    String?
+  
+  company         Company  @relation(fields: [companyId], references: [id])
+  admin           Admin?   @relation(fields: [adminId], references: [id])
+  metadata        InvitationMetadata?
+  
+  @@index([email])
+  @@index([companyId])
+  @@index([status])
+}
+
+model InvitationMetadata {
+  id              String   @id @default(cuid())
+  invitationId    String   @unique
+  role            String?
+  challenges      String[] @default([])
+  toolsAccessed   String[] @default([])
+  accountCreated  Boolean  @default(false)
+  accountEmail    String?
+  isGenericLink   Boolean  @default(false)
+  
+  invitation      Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+}
+
+model Campaign {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  companyId   String
+  status      CampaignStatus @default(DRAFT)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  company     Company  @relation(fields: [companyId], references: [id])
+}
+
+enum InvitationStatus {
+  PENDING
+  SENT
+  OPENED
+  STARTED
+  COMPLETED
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+}

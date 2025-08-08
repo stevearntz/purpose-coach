@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Send, Copy, ExternalLink, User, Clock, CheckCircle, AlertCircle, RefreshCw, Mail, Users, X } from 'lucide-react';
+import { Plus, Send, Copy, ExternalLink, User, Clock, CheckCircle, AlertCircle, RefreshCw, Mail, Users, X, Search, Building2, Check } from 'lucide-react';
 import ViewportContainer from '@/components/ViewportContainer';
 import Modal from '@/components/Modal';
 import Footer from '@/components/Footer';
@@ -44,11 +44,42 @@ export default function AdminPage() {
   });
   const [currentUser, setCurrentUser] = useState({ email: '', name: '' });
   const [usersList, setUsersList] = useState<{ email: string; name: string }[]>([]);
+  
+  // Company typeahead state
+  const [companySearch, setCompanySearch] = useState('');
+  const [companies, setCompanies] = useState<{id: string; name: string; logo?: string}[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<{id: string; name: string; logo?: string} | null>(null);
+  const [showCompanyDropdown, setShowCompanyDropdown] = useState(false);
+  const [isNewCompany, setIsNewCompany] = useState(false);
 
   // Load invitations on mount
   useEffect(() => {
     loadInvitations();
   }, []);
+  
+  // Search for companies when user types
+  useEffect(() => {
+    const searchCompanies = async () => {
+      if (companySearch.length < 2) {
+        setCompanies([]);
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/companies/search?q=${encodeURIComponent(companySearch)}`);
+        if (response.ok) {
+          const data = await response.json();
+          setCompanies(data.companies);
+          setShowCompanyDropdown(true);
+        }
+      } catch (error) {
+        console.error('Failed to search companies:', error);
+      }
+    };
+    
+    const debounceTimer = setTimeout(searchCompanies, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [companySearch]);
 
   const loadInvitations = async () => {
     try {
@@ -93,9 +124,30 @@ export default function AdminPage() {
     setUsersList(usersList.filter((_, i) => i !== index));
   };
 
+  const handleCompanySelect = (company: {id: string; name: string; logo?: string}) => {
+    setSelectedCompany(company);
+    setCompanySearch(company.name);
+    setIsNewCompany(false);
+    setShowCompanyDropdown(false);
+    if (company.logo) {
+      setFormData({ ...formData, companyLogo: company.logo });
+    }
+  };
+  
+  const handleCreateNewCompany = () => {
+    setSelectedCompany(null);
+    setIsNewCompany(true);
+    setShowCompanyDropdown(false);
+  };
+  
   const handleCreateInvitation = async () => {
-    if (!formData.company.trim()) {
+    if (!companySearch.trim()) {
       showError('Please enter a company name');
+      return;
+    }
+    
+    if (!selectedCompany && !isNewCompany) {
+      showError('Please select a company or create a new one');
       return;
     }
     
@@ -106,7 +158,38 @@ export default function AdminPage() {
     
     setLoading(true);
     try {
-      // Create invitations for each user
+      // Create or get company
+      let companyId = selectedCompany?.id;
+      let companyName = selectedCompany?.name || companySearch;
+      
+      if (isNewCompany) {
+        // Create new company
+        const companyResponse = await fetch('/api/companies', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            name: companySearch,
+            logo: formData.companyLogo || undefined
+          })
+        });
+        
+        if (!companyResponse.ok) {
+          const error = await companyResponse.json();
+          if (error.company) {
+            // Company already exists, use it
+            companyId = error.company.id;
+            companyName = error.company.name;
+          } else {
+            throw new Error('Failed to create company');
+          }
+        } else {
+          const { company } = await companyResponse.json();
+          companyId = company.id;
+          companyName = company.name;
+        }
+      }
+      
+      // Create invitations for each user using the database API
       const invitationPromises = usersList.map(async (user) => {
         const response = await fetch('/api/admin/invitations', {
           method: 'POST',
@@ -114,8 +197,7 @@ export default function AdminPage() {
           body: JSON.stringify({
             email: user.email,
             name: user.name || undefined,
-            company: formData.company,
-            companyLogo: formData.companyLogo || undefined,
+            companyId,
             personalMessage: formData.personalMessage,
             sendImmediately: formData.sendImmediately
           })
@@ -139,13 +221,17 @@ export default function AdminPage() {
       });
       setUsersList([]);
       setCurrentUser({ email: '', name: '' });
+      setCompanySearch('');
+      setSelectedCompany(null);
+      setIsNewCompany(false);
+      setShowCompanyDropdown(false);
       setShowCreateModal(false);
       
       // Show success message with details
       const userCount = newInvitations.length;
       const userText = userCount === 1 ? '1 invitation' : `${userCount} invitations`;
       showSuccess(
-        `🎉 Successfully created ${userText} for ${formData.company}! ${
+        `Successfully created ${userText} for ${companyName}! ${
           formData.sendImmediately ? 'Emails have been sent.' : 'Ready to send when you are.'
         }`
       );
@@ -393,6 +479,10 @@ export default function AdminPage() {
         setFormData({ company: '', companyLogo: '', personalMessage: '', sendImmediately: true });
         setUsersList([]);
         setCurrentUser({ email: '', name: '' });
+        setCompanySearch('');
+        setSelectedCompany(null);
+        setIsNewCompany(false);
+        setShowCompanyDropdown(false);
       }}>
         <div className="p-6 max-w-2xl">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Create New Invitation</h2>
@@ -400,18 +490,96 @@ export default function AdminPage() {
           <div className="space-y-5">
             {/* Company Fields - First and Required */}
             <div className="space-y-3">
-              <div>
+              <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Company <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  value={formData.company}
-                  onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                  placeholder="Enter company name"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-iris-500"
-                  autoFocus
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={companySearch}
+                    onChange={(e) => {
+                      setCompanySearch(e.target.value);
+                      setSelectedCompany(null);
+                      setIsNewCompany(false);
+                    }}
+                    onFocus={() => {
+                      if (companies.length > 0 || companySearch.length >= 2) {
+                        setShowCompanyDropdown(true);
+                      }
+                    }}
+                    onBlur={() => {
+                      // Delay to allow click on dropdown items
+                      setTimeout(() => setShowCompanyDropdown(false), 200);
+                    }}
+                    placeholder="Start typing to search or create new..."
+                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-iris-500"
+                    autoFocus
+                  />
+                  <Search className="absolute right-3 top-2.5 w-5 h-5 text-gray-400" />
+                </div>
+                
+                {/* Company Dropdown */}
+                {showCompanyDropdown && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    {companies.length > 0 ? (
+                      <>
+                        <div className="p-2 border-b border-gray-100">
+                          <p className="text-xs text-gray-500 uppercase tracking-wider px-2">
+                            Existing Companies
+                          </p>
+                        </div>
+                        {companies.map((company) => (
+                          <button
+                            key={company.id}
+                            type="button"
+                            onClick={() => handleCompanySelect(company)}
+                            className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3"
+                          >
+                            <Building2 className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-900">{company.name}</span>
+                          </button>
+                        ))}
+                      </>
+                    ) : null}
+                    
+                    {companySearch.length >= 2 && (
+                      <button
+                        type="button"
+                        onClick={handleCreateNewCompany}
+                        className="w-full text-left px-4 py-3 border-t border-gray-100 hover:bg-purple-50 flex items-center gap-3"
+                      >
+                        <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                          <Plus className="w-4 h-4 text-purple-600" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            Create "{companySearch}"
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Set up a new company
+                          </div>
+                        </div>
+                      </button>
+                    )}
+                  </div>
+                )}
+                
+                {/* Selected Company Badge */}
+                {(selectedCompany || isNewCompany) && (
+                  <div className="mt-2 p-2 bg-purple-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-purple-600" />
+                      <span className="text-sm text-purple-900">
+                        {isNewCompany ? (
+                          <>Creating new company: <strong>{companySearch}</strong></>
+                        ) : (
+                          <>Selected: <strong>{selectedCompany?.name}</strong></>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div>
@@ -555,6 +723,10 @@ export default function AdminPage() {
                 setFormData({ company: '', companyLogo: '', personalMessage: '', sendImmediately: true });
                 setUsersList([]);
                 setCurrentUser({ email: '', name: '' });
+                setCompanySearch('');
+                setSelectedCompany(null);
+                setIsNewCompany(false);
+                setShowCompanyDropdown(false);
               }}
               className="px-4 py-2 text-gray-700 hover:text-gray-900"
             >
@@ -562,7 +734,7 @@ export default function AdminPage() {
             </button>
             <button
               onClick={handleCreateInvitation}
-              disabled={!formData.company || usersList.length === 0 || loading}
+              disabled={(!selectedCompany && !isNewCompany) || usersList.length === 0 || loading}
               className="flex items-center gap-2 px-6 py-2 bg-iris-500 text-white rounded-lg hover:bg-iris-600 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (

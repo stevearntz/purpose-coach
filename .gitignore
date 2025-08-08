@@ -43,3 +43,5 @@ next-env.d.ts
 
 # local share data
 .share-data/
+
+/src/generated/prisma

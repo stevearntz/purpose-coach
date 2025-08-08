@@ -106,5 +106,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Export users for potential future use
-export { users };
+// Note: users Map is available within this module only

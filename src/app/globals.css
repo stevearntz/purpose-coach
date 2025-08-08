@@ -48,6 +48,22 @@
   .text-iris-dark { color: var(--iris-dark); }
   .text-iris-darker { color: var(--iris-darker); }
   .text-iris-100 { color: var(--iris-100); }
+  
+  /* Toast animations */
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .animate-slide-in-right {
+    animation: slide-in-right 0.3s ease-out;
+  }
   .text-iris-500 { color: var(--iris-500); }
   .text-iris-700 { color: var(--iris-700); }
   .text-iris-light { color: var(--iris-light); }

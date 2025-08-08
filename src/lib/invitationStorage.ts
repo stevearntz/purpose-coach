@@ -23,6 +23,8 @@ export interface Invitation {
     role?: string;
     challenges?: string[];
     toolsAccessed?: string[];
+    accountCreated?: boolean;
+    accountEmail?: string;
   };
 }
 

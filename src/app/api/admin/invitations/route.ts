@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { nanoid } from 'nanoid';
-import invitationStorage from '@/lib/invitationStorage';
+import invitationStorage, { type Invitation } from '@/lib/invitationStorage';
 
 export async function GET(request: NextRequest) {
   try {
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     const inviteUrl = `${baseUrl}/start?invite=${inviteCode}`;
     
     // Create invitation object
-    const invitation = {
+    const invitation: Invitation = {
       id: inviteId,
       email,
       name,
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       companyLogo,
       inviteCode,
       inviteUrl,
-      status: 'pending' as const,
+      status: 'pending',
       createdAt: new Date().toISOString(),
       personalMessage,
       metadata: {}

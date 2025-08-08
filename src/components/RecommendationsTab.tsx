@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { 
   TrendingUp, AlertTriangle, Users, Target, Brain, Shield, 
   Heart, ArrowRight, Sparkles, ChevronRight, Award,
-  BarChart3, Zap, BookOpen, UserPlus, Send
+  BarChart3, Zap, BookOpen, UserPlus, Send, ClipboardCheck, MessageCircle
 } from 'lucide-react'
 
 // Simulated recommendations data
@@ -25,8 +25,9 @@ const recommendations = [
     recommendedTool: {
       name: 'Trust Audit',
       path: '/trust-audit',
+      type: 'conversation-guide',
       gradient: 'from-[#FFA62A] to-[#DB4839]',
-      reason: 'This tool will help identify specific trust gaps and provide personalized strategies for each team member.'
+      reason: 'This conversation guide will help identify specific trust gaps and provide personalized strategies for each team member.'
     },
     suggestedCourses: [
       { name: 'Building Psychological Safety', duration: '2 hours', type: 'workshop' },
@@ -50,8 +51,9 @@ const recommendations = [
     recommendedTool: {
       name: 'Burnout Assessment',
       path: '/burnout-assessment',
+      type: 'assessment',
       gradient: 'from-[#74DEDE] to-[#30B859]',
-      reason: 'Provides personalized recovery strategies and helps identify systemic causes of burnout.'
+      reason: 'This assessment provides personalized recovery strategies and helps identify systemic causes of burnout.'
     },
     suggestedCourses: [
       { name: 'Sustainable Performance', duration: '3 hours', type: 'workshop' },
@@ -76,8 +78,9 @@ const recommendations = [
     recommendedTool: {
       name: 'Change Readiness Assessment',
       path: '/change-readiness-assessment',
+      type: 'assessment',
       gradient: 'from-[#F595B6] to-[#BF4C74]',
-      reason: 'Identifies individual change styles and provides targeted support strategies.'
+      reason: 'This assessment identifies individual change styles and provides targeted support strategies.'
     },
     suggestedCourses: [
       { name: 'Leading Through Change', duration: '4 hours', type: 'workshop' },
@@ -101,8 +104,9 @@ const recommendations = [
     recommendedTool: {
       name: 'Decision Making Audit',
       path: '/decision-making-audit',
+      type: 'reflection',
       gradient: 'from-[#6DC7FF] to-[#3C36FF]',
-      reason: 'Helps new leaders understand their decision-making patterns and blind spots.'
+      reason: 'This reflection tool helps new leaders understand their decision-making patterns and blind spots.'
     },
     suggestedCourses: [
       { name: 'First-Time Manager Bootcamp', duration: '8 hours', type: 'program' },
@@ -126,8 +130,9 @@ const recommendations = [
     recommendedTool: {
       name: 'Team Charter',
       path: '/team-charter',
+      type: 'conversation-guide',
       gradient: 'from-[#FF6B6B] to-[#4ECDC4]',
-      reason: 'Ensures everyone is aligned on team purpose, values, and ways of working.'
+      reason: 'This conversation guide ensures everyone is aligned on team purpose, values, and ways of working.'
     },
     suggestedCourses: [
       { name: 'Team Alignment Workshop', duration: '4 hours', type: 'workshop' }
@@ -336,11 +341,25 @@ export default function RecommendationsTab() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Recommended Tool */}
                   <div>
-                    <h5 className="text-sm font-medium text-white/80 mb-3">Recommended Assessment</h5>
+                    <h5 className="text-sm font-medium text-white/80 mb-3">
+                      Recommended {rec.recommendedTool.type === 'assessment' ? 'Assessment' : 
+                                  rec.recommendedTool.type === 'reflection' ? 'Reflection' : 
+                                  'Conversation Guide'}
+                    </h5>
                     <div className={`bg-gradient-to-br ${rec.recommendedTool.gradient} p-4 rounded-lg`}>
-                      <h6 className="text-lg font-semibold text-white mb-2">
-                        {rec.recommendedTool.name}
-                      </h6>
+                      <div className="flex items-start justify-between mb-2">
+                        <h6 className="text-lg font-semibold text-white">
+                          {rec.recommendedTool.name}
+                        </h6>
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-white/20 text-white border border-white/30`}>
+                          {rec.recommendedTool.type === 'assessment' && <ClipboardCheck className="w-3 h-3" />}
+                          {rec.recommendedTool.type === 'reflection' && <BookOpen className="w-3 h-3" />}
+                          {rec.recommendedTool.type === 'conversation-guide' && <MessageCircle className="w-3 h-3" />}
+                          {rec.recommendedTool.type === 'assessment' && 'Assessment'}
+                          {rec.recommendedTool.type === 'reflection' && 'Reflection'}
+                          {rec.recommendedTool.type === 'conversation-guide' && 'Guide'}
+                        </span>
+                      </div>
                       <p className="text-white/90 text-sm mb-4">
                         {rec.recommendedTool.reason}
                       </p>

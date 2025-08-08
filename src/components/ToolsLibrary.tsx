@@ -1,10 +1,13 @@
 'use client'
 
 import React from 'react'
+import { useRouter } from 'next/navigation'
 import { 
-  Users, Shield, Heart, Brain, ArrowRight, 
-  Lightbulb, Sparkles, Target, RefreshCw 
+  Target, Heart, Briefcase, Brain, Users, ShieldCheck, 
+  Lightbulb, ArrowRight, ClipboardCheck, MessageCircle, BookOpen
 } from 'lucide-react'
+
+export type ToolType = 'assessment' | 'reflection' | 'conversation-guide'
 
 interface Tool {
   id: string
@@ -14,6 +17,7 @@ interface Tool {
   description: string
   gradient: string
   icon: React.ReactNode
+  type: ToolType
 }
 
 const tools: Tool[] = [
@@ -24,7 +28,8 @@ const tools: Tool[] = [
     subtitle: 'Align your team',
     description: 'Create clarity and alignment on your team\'s purpose, values, and ways of working.',
     gradient: 'from-[#FF6B6B] to-[#4ECDC4]',
-    icon: <Users className="w-8 h-8" />
+    icon: <Users className="w-8 h-8" />,
+    type: 'conversation-guide'
   },
   {
     id: 'trust-audit',
@@ -33,7 +38,8 @@ const tools: Tool[] = [
     subtitle: 'Build stronger relationships',
     description: 'Assess trust across key dimensions to strengthen your professional relationships.',
     gradient: 'from-[#FFA62A] to-[#DB4839]',
-    icon: <Shield className="w-8 h-8" />
+    icon: <ShieldCheck className="w-8 h-8" />,
+    type: 'conversation-guide'
   },
   {
     id: 'burnout-assessment',
@@ -42,7 +48,8 @@ const tools: Tool[] = [
     subtitle: 'Check your energy levels',
     description: 'Evaluate your current state and get strategies for maintaining well-being.',
     gradient: 'from-[#74DEDE] to-[#30B859]',
-    icon: <Heart className="w-8 h-8" />
+    icon: <Heart className="w-8 h-8" />,
+    type: 'assessment'
   },
   {
     id: 'decision-audit',
@@ -51,16 +58,18 @@ const tools: Tool[] = [
     subtitle: 'Improve your decisions',
     description: 'Evaluate how you make decisions to identify strengths and growth areas.',
     gradient: 'from-[#6DC7FF] to-[#3C36FF]',
-    icon: <Brain className="w-8 h-8" />
+    icon: <Brain className="w-8 h-8" />,
+    type: 'reflection'
   },
   {
     id: 'change-style',
     path: '/change-style',
     title: 'Change Style Profile',
     subtitle: 'Discover your change persona',
-    description: 'Understand how you naturally respond to change and get strategies for navigating transitions.',
+    description: 'Understand how you naturally respond to change.',
     gradient: 'from-[#F595B6] to-[#BF4C74]',
-    icon: <ArrowRight className="w-8 h-8" />
+    icon: <Target className="w-8 h-8" />,
+    type: 'assessment'
   },
   {
     id: 'change-readiness',
@@ -69,7 +78,8 @@ const tools: Tool[] = [
     subtitle: 'Navigate change confidently',
     description: 'Assess your readiness for change and identify where you need support.',
     gradient: 'from-[#F595B6] to-[#BF4C74]',
-    icon: <ArrowRight className="w-8 h-8" />
+    icon: <Target className="w-8 h-8" />,
+    type: 'assessment'
   },
   {
     id: 'user-guide',
@@ -78,7 +88,8 @@ const tools: Tool[] = [
     subtitle: 'Create your user guide',
     description: 'Build a shareable guide that helps others collaborate effectively with you.',
     gradient: 'from-[#30C7C7] to-[#2A74B9]',
-    icon: <Lightbulb className="w-8 h-8" />
+    icon: <Briefcase className="w-8 h-8" />,
+    type: 'reflection'
   },
   {
     id: 'expectations-reflection',
@@ -87,7 +98,8 @@ const tools: Tool[] = [
     subtitle: 'Surface team dynamics',
     description: 'Create psychological safety by sharing hopes, fears, and expectations.',
     gradient: 'from-[#C67AF4] to-[#3E37FF]',
-    icon: <Heart className="w-8 h-8" />
+    icon: <Target className="w-8 h-8" />,
+    type: 'conversation-guide'
   },
   {
     id: 'drivers-reflection',
@@ -96,7 +108,8 @@ const tools: Tool[] = [
     subtitle: 'Understand motivations',
     description: 'Identify and prioritize what truly drives you in your career.',
     gradient: 'from-[#FBBF24] to-[#F59E0B]',
-    icon: <Sparkles className="w-8 h-8" />
+    icon: <Target className="w-8 h-8" />,
+    type: 'reflection'
   },
   {
     id: 'coaching-cards',
@@ -105,7 +118,8 @@ const tools: Tool[] = [
     subtitle: 'Guided reflection',
     description: 'Use powerful questions to guide self-reflection and growth.',
     gradient: 'from-[#D4F564] to-[#87AE05]',
-    icon: <Lightbulb className="w-8 h-8" />
+    icon: <Target className="w-8 h-8" />,
+    type: 'conversation-guide'
   },
   {
     id: 'change-reflection',
@@ -114,7 +128,8 @@ const tools: Tool[] = [
     subtitle: '1:1 conversation prep',
     description: 'Prepare for meaningful conversations about change with your team members.',
     gradient: 'from-[#F595B6] to-[#BF4C74]',
-    icon: <RefreshCw className="w-8 h-8" />
+    icon: <Target className="w-8 h-8" />,
+    type: 'reflection'
   },
   {
     id: 'focus-finder',
@@ -123,7 +138,8 @@ const tools: Tool[] = [
     subtitle: '5-minute weekly check-in',
     description: 'A rapid weekly reflection to surface what really matters.',
     gradient: 'from-[#C67AF4] to-[#3E37FF]',
-    icon: <Target className="w-8 h-8" />
+    icon: <Target className="w-8 h-8" />,
+    type: 'reflection'
   },
   {
     id: 'hr-partnership',
@@ -132,41 +148,106 @@ const tools: Tool[] = [
     subtitle: 'Bridge the gap with HR',
     description: 'Help managers articulate their needs for growth, support, and strategic direction.',
     gradient: 'from-[#30C7C7] to-[#2A74B9]',
-    icon: <Lightbulb className="w-8 h-8" />
+    icon: <Lightbulb className="w-8 h-8" />,
+    type: 'assessment'
   }
 ]
 
 interface ToolsLibraryProps {
   onToolClick: (toolId: string, toolTitle: string, toolPath: string) => void
+  filterType?: ToolType | 'all'
+  showTypeBadges?: boolean
 }
 
-export default function ToolsLibrary({ onToolClick }: ToolsLibraryProps) {
+export default function ToolsLibrary({ 
+  onToolClick, 
+  filterType = 'assessment', // Default to showing only assessments
+  showTypeBadges = true 
+}: ToolsLibraryProps) {
+  const router = useRouter()
+  
+  // Filter tools based on type
+  const filteredTools = filterType === 'all' 
+    ? tools 
+    : tools.filter(tool => tool.type === filterType)
+
   const handleToolClick = (tool: Tool) => {
-    // Instead of going to the tool directly, go to the invite page for that tool
-    onToolClick(tool.id, tool.title, `/dashboard/tools/${tool.id}/invite`)
+    // Navigate to the campaign creation page for this tool
+    router.push(`/dashboard/tools/${tool.id}/invite`)
+  }
+
+  const getTypeIcon = (type: ToolType) => {
+    switch (type) {
+      case 'assessment':
+        return <ClipboardCheck className="w-3 h-3" />
+      case 'reflection':
+        return <BookOpen className="w-3 h-3" />
+      case 'conversation-guide':
+        return <MessageCircle className="w-3 h-3" />
+    }
+  }
+
+  const getTypeLabel = (type: ToolType) => {
+    switch (type) {
+      case 'assessment':
+        return 'Assessment'
+      case 'reflection':
+        return 'Reflection'
+      case 'conversation-guide':
+        return 'Conversation Guide'
+    }
+  }
+
+  const getTypeColor = (type: ToolType) => {
+    switch (type) {
+      case 'assessment':
+        return 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+      case 'reflection':
+        return 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+      case 'conversation-guide':
+        return 'bg-green-500/20 text-green-400 border-green-500/30'
+    }
   }
 
   return (
     <div>
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-white mb-2">Content Library</h2>
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold text-white mb-2">
+          {filterType === 'assessment' && 'Assessment Tools'}
+          {filterType === 'reflection' && 'Reflection Tools'}
+          {filterType === 'conversation-guide' && 'Conversation Guides'}
+          {filterType === 'all' && 'All Tools'}
+        </h2>
         <p className="text-white/70">
-          Select a tool to invite team members to use it
+          {filterType === 'assessment' && 'Create campaigns to assess your team\'s current state and identify areas for growth.'}
+          {filterType === 'reflection' && 'Tools for personal and team reflection to drive insights and growth.'}
+          {filterType === 'conversation-guide' && 'Structured guides to facilitate meaningful team conversations.'}
+          {filterType === 'all' && 'Choose from our complete library of assessment, reflection, and conversation tools.'}
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {tools.map((tool) => (
+        {filteredTools.map((tool) => (
           <button
             key={tool.id}
             onClick={() => handleToolClick(tool)}
-            className="group relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl text-left"
+            className="group relative bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:border-white/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden text-left"
           >
+            {/* Background gradient overlay */}
             <div className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-10 group-hover:opacity-20 transition-opacity duration-300`} />
             
             <div className="relative p-6">
-              <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${tool.gradient} text-white mb-4 shadow-lg`}>
-                {tool.icon}
+              <div className="flex items-start justify-between mb-4">
+                <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${tool.gradient} text-white shadow-lg`}>
+                  {tool.icon}
+                </div>
+                
+                {showTypeBadges && (
+                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${getTypeColor(tool.type)}`}>
+                    {getTypeIcon(tool.type)}
+                    {getTypeLabel(tool.type)}
+                  </span>
+                )}
               </div>
 
               <h3 className="text-xl font-bold text-white mb-1">
@@ -191,6 +272,15 @@ export default function ToolsLibrary({ onToolClick }: ToolsLibraryProps) {
           </button>
         ))}
       </div>
+
+      {filteredTools.length === 0 && (
+        <div className="text-center py-12 bg-white/5 rounded-xl border border-white/10">
+          <p className="text-white/60">No tools available in this category</p>
+        </div>
+      )}
     </div>
   )
 }
+
+// Export the tools data for use in other components
+export { tools }

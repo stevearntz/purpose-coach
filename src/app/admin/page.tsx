@@ -615,7 +615,7 @@ export default function AdminPage() {
               {/* Add User Input Row */}
               <div className="flex gap-2 mb-3">
                 <input
-                  type="email"
+                  type="text"
                   value={currentUser.email}
                   onChange={(e) => setCurrentUser({ ...currentUser, email: e.target.value })}
                   onKeyDown={(e) => {

@@ -27,8 +27,8 @@ export async function POST(request: NextRequest) {
         // Parse name from email if not provided
         const emailParts = email.trim().split('@')[0];
         // Handle both dot and underscore separators
-        const nameParts = emailParts.split(/[._-]/).filter(p => p.length > 0);
-        const fullName = nameParts.map(part => 
+        const nameParts = emailParts.split(/[._-]/).filter((p: string) => p.length > 0);
+        const fullName = nameParts.map((part: string) => 
           part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
         ).join(' ');
         

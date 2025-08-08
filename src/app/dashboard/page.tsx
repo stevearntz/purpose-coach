@@ -59,7 +59,7 @@ function DashboardContent() {
     setUserData({
       email,
       name: name || email.split('@')[0],
-      company,
+      company: company || undefined,
       role: 'hr_leader' // Default role for now
     })
 

@@ -25,6 +25,8 @@ export interface Invitation {
     toolsAccessed?: string[];
     accountCreated?: boolean;
     accountEmail?: string;
+    isGenericLink?: boolean;
+    companyId?: string;
   };
 }
 

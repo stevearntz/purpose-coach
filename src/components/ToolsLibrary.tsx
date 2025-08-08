@@ -180,8 +180,9 @@ export default function ToolsLibrary({ onToolClick }: ToolsLibraryProps) {
                 {tool.description}
               </p>
 
-              {/* Hover indicator */}
-              <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              {/* Hover indicator with text */}
+              <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-2">
+                <span className="text-xs text-white/80 font-medium">Create Campaign</span>
                 <div className="p-2 bg-white/10 rounded-full backdrop-blur-sm">
                   <ArrowRight className="w-4 h-4 text-white/80" />
                 </div>

@@ -8,6 +8,7 @@ import Footer from '@/components/Footer'
 import ToolsLibrary from '@/components/ToolsLibrary'
 import ResultsTab from '@/components/ResultsTab'
 import RecommendationsTab from '@/components/RecommendationsTab'
+import CampaignsTab from '@/components/CampaignsTab'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useToast } from '@/hooks/useToast'
 import { ToastProvider } from '@/hooks/useToast'
@@ -339,6 +340,19 @@ function DashboardContent() {
                 )}
               </button>
               <button
+                onClick={() => setActiveTab('campaigns')}
+                className={`pb-3 px-1 font-medium transition-colors relative ${
+                  activeTab === 'campaigns'
+                    ? 'text-white'
+                    : 'text-white/60 hover:text-white/80'
+                }`}
+              >
+                Campaigns
+                {activeTab === 'campaigns' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-500" />
+                )}
+              </button>
+              <button
                 onClick={() => setActiveTab('results')}
                 className={`pb-3 px-1 font-medium transition-colors relative ${
                   activeTab === 'results'
@@ -479,6 +493,10 @@ function DashboardContent() {
 
           {activeTab === 'tools' && (
             <ToolsLibrary onToolClick={handleToolClick} />
+          )}
+
+          {activeTab === 'campaigns' && (
+            <CampaignsTab />
           )}
 
           {activeTab === 'results' && (

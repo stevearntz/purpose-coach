@@ -146,11 +146,6 @@ export default function AdminPage() {
       return;
     }
     
-    if (!selectedCompany && !isNewCompany) {
-      showError('Please select a company or create a new one');
-      return;
-    }
-    
     if (usersList.length === 0) {
       showError('Please add at least one user');
       return;
@@ -162,7 +157,8 @@ export default function AdminPage() {
       let companyId = selectedCompany?.id;
       let companyName = selectedCompany?.name || companySearch;
       
-      if (isNewCompany) {
+      // If no company selected, treat as new company
+      if (!selectedCompany) {
         // Create new company
         const companyResponse = await fetch('/api/companies', {
           method: 'POST',
@@ -734,7 +730,7 @@ export default function AdminPage() {
             </button>
             <button
               onClick={handleCreateInvitation}
-              disabled={(!selectedCompany && !isNewCompany) || usersList.length === 0 || loading}
+              disabled={!companySearch.trim() || usersList.length === 0 || loading}
               className="flex items-center gap-2 px-6 py-2 bg-iris-500 text-white rounded-lg hover:bg-iris-600 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (

@@ -50,11 +50,17 @@ export const InvitationEmail = ({
                 style={companyLogoStyle}
               />
             ) : (
-              <Img
-                src="https://tools.getcampfire.com/campfire-logo-new.png"
-                alt="Campfire Logo"
-                style={logo}
-              />
+              <>
+                <Img
+                  src="https://tools.getcampfire.com/campfire-logo-new.png"
+                  alt="Campfire"
+                  width="150"
+                  height="40"
+                  style={logo}
+                />
+                {/* Fallback text if image doesn't load */}
+                <Text style={logoFallback}>Campfire</Text>
+              </>
             )}
           </Section>
 
@@ -171,6 +177,16 @@ const logoSection = {
 const logo = {
   height: '40px',
   width: 'auto',
+  margin: '0 auto',
+};
+
+const logoFallback = {
+  fontSize: '28px',
+  fontWeight: '700',
+  color: '#8b5cf6',
+  textAlign: 'center' as const,
+  margin: '0',
+  display: 'none', // Hidden by default, shown if image fails
 };
 
 const companyLogoStyle = {

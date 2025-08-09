@@ -1,8 +1,12 @@
-import { Resend } from 'resend';
+// Email service selector
+// This file acts as a proxy to use either SendGrid or Resend
+// based on what's configured in environment variables
+
 import { ReactElement } from 'react';
 
-// Initialize Resend with API key
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Check which service is configured
+const USE_SENDGRID = !!process.env.SENDGRID_API_KEY;
+const USE_RESEND = !!process.env.RESEND_API_KEY && !USE_SENDGRID; // Prefer SendGrid if both are set
 
 export interface EmailOptions {
   to: string | string[];
@@ -17,35 +21,47 @@ export interface EmailOptions {
 }
 
 /**
- * Send an email using Resend
+ * Send an email using the configured service (SendGrid or Resend)
  */
 export async function sendEmail(options: EmailOptions) {
-  try {
-    // Default from address - you'll need to verify this domain in Resend
-    const from = options.from || 'Campfire <notifications@getcampfire.com>';
+  if (USE_SENDGRID) {
+    // Use SendGrid
+    const sendgrid = await import('./email-sendgrid');
+    return sendgrid.sendEmail(options);
+  } else if (USE_RESEND) {
+    // Use Resend
+    const { Resend } = await import('resend');
+    const resend = new Resend(process.env.RESEND_API_KEY);
     
-    const data = await resend.emails.send({
-      from,
-      to: options.to,
-      subject: options.subject,
-      react: options.react,
-      html: options.html,
-      text: options.text,
-      reply_to: options.replyTo,
-      cc: options.cc,
-      bcc: options.bcc,
-    });
-    
-    console.log('Email sent successfully:', {
-      id: data.data?.id,
-      to: options.to,
-      subject: options.subject
-    });
-    
-    return { success: true, data };
-  } catch (error) {
-    console.error('Failed to send email:', error);
-    return { success: false, error };
+    try {
+      const from = options.from || 'Campfire <notifications@getcampfire.com>';
+      
+      const data = await resend.emails.send({
+        from,
+        to: options.to,
+        subject: options.subject,
+        react: options.react,
+        html: options.html,
+        text: options.text,
+        reply_to: options.replyTo,
+        cc: options.cc,
+        bcc: options.bcc,
+      });
+      
+      console.log('Email sent successfully via Resend:', {
+        id: data.data?.id,
+        to: options.to,
+        subject: options.subject
+      });
+      
+      return { success: true, data };
+    } catch (error) {
+      console.error('Failed to send email via Resend:', error);
+      return { success: false, error };
+    }
+  } else {
+    console.warn('No email service configured');
+    return { success: false, error: 'No email service configured' };
   }
 }
 
@@ -93,5 +109,14 @@ export async function sendInvitationEmail({
  * Check if email service is configured
  */
 export function isEmailServiceConfigured(): boolean {
-  return !!process.env.RESEND_API_KEY;
+  return USE_SENDGRID || USE_RESEND;
+}
+
+/**
+ * Get configured email service name
+ */
+export function getEmailServiceName(): string {
+  if (USE_SENDGRID) return 'SendGrid';
+  if (USE_RESEND) return 'Resend';
+  return 'None';
 }

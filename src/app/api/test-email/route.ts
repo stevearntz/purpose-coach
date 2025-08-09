@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sendEmail, sendInvitationEmail, isEmailServiceConfigured } from '@/lib/email';
+import { sendEmail, sendInvitationEmail, isEmailServiceConfigured, getEmailServiceName } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -75,14 +75,19 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   const configured = isEmailServiceConfigured();
+  const serviceName = getEmailServiceName();
   
   return NextResponse.json({
     configured,
     message: configured 
-      ? 'Email service is configured' 
-      : 'Email service not configured - set RESEND_API_KEY',
-    provider: 'Resend',
+      ? `Email service is configured (using ${serviceName})` 
+      : 'Email service not configured - set SENDGRID_API_KEY or RESEND_API_KEY',
+    provider: serviceName,
     testEndpoint: '/api/test-email',
-    usage: 'POST { "to": "email@example.com", "type": "test" | "invitation" }'
+    usage: 'POST { "to": "email@example.com", "type": "test" | "invitation" }',
+    environment: {
+      hasSendGrid: !!process.env.SENDGRID_API_KEY,
+      hasResend: !!process.env.RESEND_API_KEY
+    }
   });
 }

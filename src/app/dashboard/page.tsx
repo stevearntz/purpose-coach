@@ -49,7 +49,10 @@ function DashboardContent() {
     // First try to get authenticated user data
     const loadAuthUser = async () => {
       try {
-        const response = await fetch('/api/auth/me')
+        const response = await fetch('/api/auth/me', {
+          credentials: 'include'
+        })
+        console.log('[dashboard] Auth check response status:', response.status)
         if (response.ok) {
           const authData = await response.json()
           setUserData({
@@ -73,10 +76,11 @@ function DashboardContent() {
           return
         }
       } catch (error) {
-        console.error('Failed to load auth user:', error)
+        console.error('[dashboard] Failed to load auth user:', error)
       }
       
       // If not authenticated, redirect to login
+      console.log('[dashboard] Not authenticated, redirecting to login')
       router.push('/login')
     }
     

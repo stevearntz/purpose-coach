@@ -12,24 +12,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ companies: [] });
     }
     
-    // Search for companies with name containing the query (case-insensitive)
-    const companies = await prisma.company.findMany({
-      where: {
-        name: {
-          contains: query,
-          mode: 'insensitive'
-        }
-      },
-      select: {
-        id: true,
-        name: true,
-        logo: true
-      },
-      take: 10,
-      orderBy: {
-        name: 'asc'
-      }
-    });
+    // Search for companies with name containing the query
+    // Using ILIKE for PostgreSQL case-insensitive search
+    const companies = await prisma.$queryRaw`
+      SELECT id, name, logo 
+      FROM "Company" 
+      WHERE name ILIKE ${`%${query}%`}
+      ORDER BY name ASC
+      LIMIT 10
+    `;
     
     console.log('Found companies:', companies);
     

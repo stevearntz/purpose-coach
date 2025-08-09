@@ -32,20 +32,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Company name is required' }, { status: 400 });
     }
     
-    // Check if company already exists (case-insensitive)
-    const existing = await prisma.company.findFirst({
-      where: { 
-        name: {
-          equals: name,
-          mode: 'insensitive'
-        }
-      }
-    });
+    // Check if company already exists (case-insensitive using raw query)
+    const existing = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "Company" 
+      WHERE LOWER(name) = LOWER(${name})
+      LIMIT 1
+    `;
     
-    if (existing) {
+    const existingCompany = existing.length > 0 ? existing[0] : null;
+    
+    if (existingCompany) {
       return NextResponse.json({ 
         error: 'Company with this name already exists',
-        company: existing 
+        company: existingCompany 
       }, { status: 409 });
     }
     

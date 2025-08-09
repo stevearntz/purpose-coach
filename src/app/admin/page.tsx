@@ -743,10 +743,11 @@ export default function AdminPage() {
                         src={formData.companyLogo} 
                         alt="Company logo preview" 
                         className="h-12 object-contain"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </div>
                   </div>
                 )}
               </div>

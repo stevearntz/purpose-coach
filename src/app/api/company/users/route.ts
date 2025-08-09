@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import companyStorage from '@/lib/companyStorage';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,29 +10,67 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
     
-    // Get or create company from email domain
-    const company = await companyStorage.getOrCreateCompanyFromEmail(email);
+    // Get company from email domain
+    const domain = email.split('@')[1];
+    const companyName = domain.split('.')[0];
     
-    // Get or create user
-    let user = await companyStorage.getUserByEmail(email);
-    if (!user) {
-      const [firstName, ...lastNameParts] = email.split('@')[0].split('.');
-      user = await companyStorage.createUser({
-        email,
-        firstName: firstName || 'User',
-        lastName: lastNameParts.join(' ') || '',
-        companyId: company.id,
-        role: 'hr_leader', // First user is HR leader
-        status: 'active'
+    // Find or create company
+    let company = await prisma.company.findFirst({
+      where: {
+        OR: [
+          { name: { contains: companyName } },
+          { name: 'Campfire' } // Default to Campfire for getcampfire.com emails
+        ]
+      }
+    });
+    
+    if (!company) {
+      // Create company if doesn't exist
+      company = await prisma.company.create({
+        data: {
+          name: companyName.charAt(0).toUpperCase() + companyName.slice(1)
+        }
       });
     }
     
-    // Get all company users
-    const users = await companyStorage.getCompanyUsers(company.id);
+    // Get all invitations for this company
+    const invitations = await prisma.invitation.findMany({
+      where: { companyId: company.id },
+      select: {
+        email: true,
+        name: true,
+        status: true,
+        createdAt: true,
+        completedAt: true
+      }
+    });
+    
+    // Transform invitations to users format
+    const users = invitations.map(inv => ({
+      id: inv.email,
+      email: inv.email,
+      name: inv.name || inv.email.split('@')[0],
+      firstName: inv.name?.split(' ')[0] || inv.email.split('@')[0],
+      lastName: inv.name?.split(' ').slice(1).join(' ') || '',
+      status: inv.status === 'COMPLETED' ? 'active' : 'invited',
+      signedUp: inv.completedAt ? inv.completedAt.toISOString() : 'Invited',
+      role: 'user'
+    }));
+    
+    // Find current user
+    const currentUser = users.find(u => u.email === email) || {
+      id: email,
+      email,
+      name: email.split('@')[0],
+      firstName: email.split('@')[0],
+      lastName: '',
+      status: 'active',
+      role: 'admin'
+    };
     
     return NextResponse.json({
       company,
-      currentUser: user,
+      currentUser,
       users: users.filter(u => u.email !== email) // Exclude current user from list
     });
   } catch (error) {

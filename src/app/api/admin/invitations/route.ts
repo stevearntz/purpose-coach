@@ -60,6 +60,38 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
     
+    // Check for existing invitation
+    const existingInvitation = await prisma.invitation.findFirst({
+      where: { 
+        email,
+        companyId 
+      },
+      include: {
+        company: true
+      }
+    });
+    
+    if (existingInvitation) {
+      // Return existing invitation with duplicate flag
+      return NextResponse.json({ 
+        success: false,
+        duplicate: true,
+        invitation: {
+          id: existingInvitation.id,
+          email: existingInvitation.email,
+          name: existingInvitation.name,
+          company: existingInvitation.company.name,
+          companyLogo: existingInvitation.company.logo,
+          inviteCode: existingInvitation.inviteCode,
+          inviteUrl: existingInvitation.inviteUrl,
+          status: existingInvitation.status.toLowerCase(),
+          createdAt: existingInvitation.createdAt.toISOString(),
+          sentAt: existingInvitation.sentAt?.toISOString()
+        },
+        message: `An invitation already exists for ${email}`
+      }, { status: 409 });
+    }
+    
     // Generate unique invitation code
     const inviteCode = nanoid(10);
     

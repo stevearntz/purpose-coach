@@ -199,11 +199,23 @@ export default function AdminPage() {
           })
         });
         
-        if (!response.ok) throw new Error(`Failed to create invitation for ${user.email}`);
-        return response.json();
+        const data = await response.json();
+        
+        if (!response.ok) {
+          if (data.duplicate) {
+            // Handle duplicate invitation
+            showError(`${user.email} already has an invitation. Use the existing invitation link or resend from the dashboard.`);
+            return null;
+          }
+          throw new Error(`Failed to create invitation for ${user.email}`);
+        }
+        return data;
       });
       
       const newInvitations = await Promise.all(invitationPromises);
+      
+      // Filter out null values (duplicates)
+      const successfulInvitations = newInvitations.filter(inv => inv !== null);
       
       // Refresh the list
       await loadInvitations();
@@ -224,13 +236,22 @@ export default function AdminPage() {
       setShowCreateModal(false);
       
       // Show success message with details
-      const userCount = newInvitations.length;
-      const userText = userCount === 1 ? '1 invitation' : `${userCount} invitations`;
-      showSuccess(
-        `Successfully created ${userText} for ${companyName}! ${
-          formData.sendImmediately ? 'Emails have been sent.' : 'Ready to send when you are.'
-        }`
-      );
+      const successCount = successfulInvitations.length;
+      const duplicateCount = usersList.length - successCount;
+      
+      if (successCount > 0) {
+        const userText = successCount === 1 ? '1 invitation' : `${successCount} invitations`;
+        showSuccess(
+          `Successfully created ${userText} for ${companyName}! ${
+            formData.sendImmediately ? 'Emails have been sent.' : 'Ready to send when you are.'
+          }`
+        );
+      }
+      
+      if (duplicateCount > 0) {
+        const dupText = duplicateCount === 1 ? '1 user already had' : `${duplicateCount} users already had`;
+        showInfo(`${dupText} an invitation.`);
+      }
     } catch (error) {
       console.error('Failed to create invitations:', error);
       showError('Failed to create invitations. Please try again.');

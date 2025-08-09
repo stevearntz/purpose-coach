@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import invitationStorage from '@/lib/invitationStorage';
+import prisma from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
@@ -10,8 +10,11 @@ export async function GET(
     
     console.log('[GET /api/invitations] Looking for invitation with code:', code);
     
-    // Find invitation by code
-    const invitation = await invitationStorage.getInvitationByCode(code);
+    // Find invitation by code in database
+    const invitation = await prisma.invitation.findUnique({
+      where: { inviteCode: code },
+      include: { company: true }
+    });
     
     console.log('[GET /api/invitations] Found invitation:', invitation ? 'Yes' : 'No');
     
@@ -24,8 +27,8 @@ export async function GET(
     const responseData = {
       name: invitation.name || '',
       email: invitation.email || '',
-      company: invitation.company || '',
-      companyLogo: invitation.companyLogo || '',
+      company: invitation.company.name || '',
+      companyLogo: invitation.company.logo || '',
       personalMessage: invitation.personalMessage || ''
     };
     

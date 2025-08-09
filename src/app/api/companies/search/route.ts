@@ -10,11 +10,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ companies: [] });
     }
     
-    // Search for companies with name containing the query
+    // Search for companies with name containing the query (case-insensitive)
     const companies = await prisma.company.findMany({
       where: {
         name: {
-          contains: query
+          contains: query,
+          mode: 'insensitive'
         }
       },
       select: {

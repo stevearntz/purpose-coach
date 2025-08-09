@@ -41,21 +41,48 @@ export async function GET(request: NextRequest) {
         name: true,
         status: true,
         createdAt: true,
+        sentAt: true,
         completedAt: true
       }
     });
     
+    // Get all admins for this company to track last login
+    const admins = await prisma.admin.findMany({
+      where: { companyId: company.id },
+      select: {
+        email: true,
+        lastLogin: true
+      }
+    });
+    
     // Transform invitations to users format
-    const users = invitations.map(inv => ({
-      id: inv.email,
-      email: inv.email,
-      name: inv.name || inv.email.split('@')[0],
-      firstName: inv.name?.split(' ')[0] || inv.email.split('@')[0],
-      lastName: inv.name?.split(' ').slice(1).join(' ') || '',
-      status: inv.status === 'COMPLETED' ? 'active' : 'invited',
-      signedUp: inv.completedAt ? inv.completedAt.toISOString() : 'Invited',
-      role: 'user'
-    }));
+    const users = invitations.map(inv => {
+      // Find corresponding admin for last login
+      const admin = admins.find(a => a.email === inv.email);
+      
+      // Determine status: COMPLETED = active, SENT = invited, PENDING = created
+      let status: 'active' | 'invited' | 'created';
+      if (inv.status === 'COMPLETED') {
+        status = 'active';
+      } else if (inv.status === 'SENT' || inv.sentAt) {
+        status = 'invited';
+      } else {
+        status = 'created';
+      }
+      
+      return {
+        id: inv.email,
+        email: inv.email,
+        name: inv.name || inv.email.split('@')[0],
+        firstName: inv.name?.split(' ')[0] || inv.email.split('@')[0],
+        lastName: inv.name?.split(' ').slice(1).join(' ') || '',
+        status,
+        signedUp: inv.completedAt ? inv.completedAt.toISOString() : 
+                  inv.sentAt ? 'Invited' : 'Created',
+        lastSignIn: admin?.lastLogin?.toISOString() || null,
+        role: 'user'
+      };
+    });
     
     // Find current user
     const currentUser = users.find(u => u.email === email) || {

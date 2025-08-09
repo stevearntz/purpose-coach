@@ -67,7 +67,8 @@ export async function POST(request: NextRequest) {
           continue;
         }
         
-        // Create invitation in database
+        // Create invitation in database WITHOUT sending email
+        // Users are created as "PENDING" and only become "SENT" when campaign is launched
         const inviteCode = nanoid(10);
         const inviteUrl = `${baseUrl}/start?invite=${inviteCode}`;
         
@@ -79,41 +80,23 @@ export async function POST(request: NextRequest) {
             inviteUrl,
             personalMessage: message || `You've been invited to join ${company.name} on Campfire`,
             companyId: company.id,
-            status: 'SENT',
-            sentAt: new Date()
+            status: 'PENDING', // Not invited yet, just created
+            sentAt: null // No email sent yet
           },
           include: {
             company: true
           }
         });
         
-        console.log('[invite] Created invitation:', {
+        console.log('[invite] Created user (not invited yet):', {
           id: invitation.id,
           email: invitation.email,
           name: invitation.name,
-          company: invitation.company.name
+          company: invitation.company.name,
+          status: 'PENDING'
         });
         
-        // Send email if configured
-        if (isEmailServiceConfigured()) {
-          try {
-            await sendInvitationEmail({
-              to: email.trim(),
-              recipientName: fullName,
-              companyName: company.name,
-              companyLogo: company.logo || undefined,
-              inviteUrl,
-              inviterName: senderEmail.split('@')[0],
-              personalMessage: message
-            });
-            console.log('[invite] Email sent to:', email);
-          } catch (emailError) {
-            console.error('[invite] Failed to send email:', emailError);
-            // Continue even if email fails - invitation is created
-          }
-        } else {
-          console.log('[invite] Email service not configured - invitation created but email not sent');
-        }
+        // NO EMAIL SENDING HERE - only when launching campaigns
         
         sentCount++;
         results.push({

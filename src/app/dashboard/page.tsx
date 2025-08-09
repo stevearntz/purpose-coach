@@ -25,7 +25,7 @@ interface CompanyUser {
   email: string
   firstName: string
   lastName: string
-  status: 'active' | 'invited' | 'deactivated'
+  status: 'active' | 'invited' | 'created' | 'deactivated'
   lastSignIn?: string
   invitedAt?: string
 }
@@ -468,10 +468,10 @@ function DashboardContent() {
                     <thead>
                       <tr className="text-left text-white/60 text-sm border-b border-white/10">
                         <th className="pb-3 pr-4">NAME</th>
-                        <th className="pb-3 pr-4">SIGNED UP</th>
+                        <th className="pb-3 pr-4">STATUS</th>
                         <th className="pb-3 pr-4">LAST SIGN IN</th>
                         <th className="pb-3">LAST CAMPFIRE</th>
-                        <th className="pb-3">{companyUsers.length} USERS</th>
+                        <th className="pb-3"></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -495,14 +495,29 @@ function DashboardContent() {
                                 </div>
                               </div>
                             </td>
-                            <td className="py-4 pr-4 text-white/60">
-                              {user.status === 'active' ? 'Yes' : 'Invited'}
+                            <td className="py-4 pr-4">
+                              <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                user.status === 'active' 
+                                  ? 'bg-green-500/20 text-green-400'
+                                  : user.status === 'invited'
+                                  ? 'bg-blue-500/20 text-blue-400'
+                                  : 'bg-gray-500/20 text-gray-400'
+                              }`}>
+                                {user.status === 'active' ? 'Active' : 
+                                 user.status === 'invited' ? 'Invited' : 'Created'}
+                              </span>
                             </td>
                             <td className="py-4 pr-4 text-white/60">
-                              {user.lastSignIn || '-'}
+                              {user.lastSignIn ? new Date(user.lastSignIn).toLocaleDateString() : '-'}
                             </td>
                             <td className="py-4 pr-4 text-white/60">-</td>
-                            <td className="py-4 text-white/60">-</td>
+                            <td className="py-4 text-white/60">
+                              {user.status === 'created' && (
+                                <button className="text-purple-400 hover:text-purple-300 text-sm">
+                                  Send Invite
+                                </button>
+                              )}
+                            </td>
                           </tr>
                         )
                       })}
@@ -645,8 +660,8 @@ function DashboardContent() {
               {/* Note about invitations */}
               <div className="mt-4 p-4 bg-blue-50 rounded-lg">
                 <p className="text-sm text-blue-800">
-                  <strong>Note:</strong> Users will be created immediately and can sign in with their email. 
-                  To invite them to specific tools, share the tool link with them directly.
+                  <strong>Note:</strong> Users will be created but not invited immediately. 
+                  You can send invitations later through campaigns or individually from the user list.
                 </p>
               </div>
 

@@ -18,6 +18,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ companies: [] });
     }
     
+    // Ensure connection
+    await prisma.$connect();
+    
     // Search for companies - fallback to simple contains
     // This should work with any Prisma provider
     const companies = await prisma.company.findMany({

@@ -5,6 +5,10 @@ import prisma from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     console.log('Fetching invitations from database...');
+    console.log('Database URL configured:', process.env.DATABASE_URL ? 'Yes' : 'No');
+    
+    // Ensure Prisma is connected
+    await prisma.$connect();
     
     // Get all invitations from database
     const invitations = await prisma.invitation.findMany({

@@ -23,10 +23,10 @@ export interface EmailOptions {
  */
 export async function sendEmail(options: EmailOptions) {
   try {
-    // Default from address - using subdomain to avoid conflicts
+    // Default from address - using verified domain
     const from = options.from || {
-      email: 'notifications@tools.getcampfire.com',
-      name: 'Campfire Tools'
+      email: 'notifications@getcampfire.com',
+      name: 'Campfire'
     };
     
     // For React elements, we'll render them differently in Next.js

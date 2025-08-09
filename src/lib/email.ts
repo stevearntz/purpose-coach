@@ -34,9 +34,8 @@ export async function sendEmail(options: EmailOptions) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     
     try {
-      // Use a subdomain to avoid any conflicts
-      // You can use tools.getcampfire.com or app.getcampfire.com
-      const from = options.from || 'Campfire <notifications@tools.getcampfire.com>';
+      // Use the verified domain
+      const from = options.from || 'Campfire <notifications@getcampfire.com>';
       
       const data = await resend.emails.send({
         from,
@@ -50,13 +49,26 @@ export async function sendEmail(options: EmailOptions) {
         bcc: options.bcc,
       });
       
-      console.log('Email sent successfully via Resend:', {
-        id: data.data?.id,
-        to: options.to,
-        subject: options.subject
-      });
+      console.log('Resend API response:', data);
       
-      return { success: true, data };
+      // Check if email was actually sent
+      if (data.error) {
+        console.error('Resend returned error:', data.error);
+        return { success: false, error: data.error };
+      }
+      
+      if (data.data?.id) {
+        console.log('Email sent successfully via Resend:', {
+          id: data.data.id,
+          to: options.to,
+          subject: options.subject
+        });
+        return { success: true, data };
+      }
+      
+      // Unexpected response
+      console.warn('Unexpected Resend response:', data);
+      return { success: false, error: 'Unexpected response from Resend' };
     } catch (error) {
       console.error('Failed to send email via Resend:', error);
       return { success: false, error };

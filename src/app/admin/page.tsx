@@ -61,8 +61,9 @@ export default function AdminPage() {
   // Search for companies when user types
   useEffect(() => {
     const searchCompanies = async () => {
-      if (companySearch.length < 2) {
+      if (companySearch.length < 1) {
         setCompanies([]);
+        setShowCompanyDropdown(false);
         return;
       }
       
@@ -71,6 +72,7 @@ export default function AdminPage() {
         if (response.ok) {
           const data = await response.json();
           setCompanies(data.companies);
+          // Always show dropdown when typing, even if no results (to show "Create" option)
           setShowCompanyDropdown(true);
         }
       } catch (error) {
@@ -78,7 +80,7 @@ export default function AdminPage() {
       }
     };
     
-    const debounceTimer = setTimeout(searchCompanies, 300);
+    const debounceTimer = setTimeout(searchCompanies, 200);
     return () => clearTimeout(debounceTimer);
   }, [companySearch]);
 
@@ -547,7 +549,8 @@ export default function AdminPage() {
                       setIsNewCompany(false);
                     }}
                     onFocus={() => {
-                      if (companies.length > 0 || companySearch.length >= 2) {
+                      // Show dropdown if there's any text or if we have companies
+                      if (companySearch.length >= 1) {
                         setShowCompanyDropdown(true);
                       }
                     }}
@@ -586,7 +589,7 @@ export default function AdminPage() {
                       </>
                     ) : null}
                     
-                    {companySearch.length >= 2 && (
+                    {companySearch.length >= 1 && (
                       <button
                         type="button"
                         onClick={handleCreateNewCompany}

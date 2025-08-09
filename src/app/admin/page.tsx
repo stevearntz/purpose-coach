@@ -45,6 +45,7 @@ export default function AdminPage() {
   });
   const [currentUser, setCurrentUser] = useState({ email: '', name: '' });
   const [usersList, setUsersList] = useState<{ email: string; name: string }[]>([]);
+  const [duplicateUsers, setDuplicateUsers] = useState<{email: string; name: string; invitation: Invitation}[]>([]);
   
   // Company typeahead state
   const [companySearch, setCompanySearch] = useState('');
@@ -114,22 +115,45 @@ export default function AdminPage() {
       return;
     }
     
-    // Check for duplicates
-    if (usersList.some(u => u.email === currentUser.email.trim())) {
+    // Check if already in the current lists
+    if (usersList.some(u => u.email === currentUser.email.trim()) || 
+        duplicateUsers.some(u => u.email === currentUser.email.trim())) {
       showError('This email has already been added');
       return;
     }
     
-    setUsersList([...usersList, { 
-      email: currentUser.email.trim(), 
-      name: currentUser.name.trim() 
-    }]);
+    // Check if user already has an invitation for the selected company
+    const companyName = selectedCompany?.name || companySearch;
+    const existingInvite = invitations.find(inv => 
+      inv.email === currentUser.email.trim() && 
+      inv.company === companyName
+    );
+    
+    if (existingInvite) {
+      // Add to duplicate users list with the existing invitation
+      setDuplicateUsers([...duplicateUsers, {
+        email: currentUser.email.trim(),
+        name: currentUser.name.trim() || existingInvite.name || '',
+        invitation: existingInvite
+      }]);
+    } else {
+      // Add to regular users list for new invitation
+      setUsersList([...usersList, { 
+        email: currentUser.email.trim(), 
+        name: currentUser.name.trim() 
+      }]);
+    }
+    
     setCurrentUser({ email: '', name: '' });
     showSuccess(`Added ${currentUser.name || currentUser.email}`);
   };
 
   const removeUser = (index: number) => {
     setUsersList(usersList.filter((_, i) => i !== index));
+  };
+  
+  const removeDuplicateUser = (index: number) => {
+    setDuplicateUsers(duplicateUsers.filter((_, i) => i !== index));
   };
 
   const handleCompanySelect = (company: {id: string; name: string; logo?: string}) => {
@@ -154,21 +178,14 @@ export default function AdminPage() {
       return;
     }
     
-    if (usersList.length === 0) {
+    if (usersList.length === 0 && duplicateUsers.length === 0) {
       showError('Please add at least one user');
       return;
     }
     
-    // Frontend duplicate checking as additional safeguard
-    const duplicateEmails = usersList.filter(user => 
-      invitations.some(inv => 
-        inv.email === user.email && 
-        inv.company === (selectedCompany?.name || companySearch)
-      )
-    );
-    
-    if (duplicateEmails.length > 0) {
-      showError(`The following users already have invitations: ${duplicateEmails.map(u => u.email).join(', ')}`);
+    // Only proceed if there are new users to invite
+    if (usersList.length === 0) {
+      showInfo('All selected users already have invitations. Use the resend or copy link options.');
       return;
     }
     
@@ -249,6 +266,7 @@ export default function AdminPage() {
         sendImmediately: true
       });
       setUsersList([]);
+      setDuplicateUsers([]);
       setCurrentUser({ email: '', name: '' });
       setCompanySearch('');
       setSelectedCompany(null);
@@ -526,6 +544,7 @@ export default function AdminPage() {
         setShowCreateModal(false);
         setFormData({ company: '', companyLogo: '', personalMessage: '', sendImmediately: true });
         setUsersList([]);
+        setDuplicateUsers([]);
         setCurrentUser({ email: '', name: '' });
         setCompanySearch('');
         setSelectedCompany(null);
@@ -702,17 +721,17 @@ export default function AdminPage() {
                 </button>
               </div>
               
-              {/* Users List */}
+              {/* Users Lists */}
               {usersList.length > 0 && (
                 <div className="bg-gray-50 rounded-lg p-3 space-y-2">
                   <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">
-                    {usersList.length} user{usersList.length !== 1 ? 's' : ''} to invite
+                    {usersList.length} new invitation{usersList.length !== 1 ? 's' : ''} to create
                   </p>
                   {usersList.map((user, index) => (
                     <div key={index} className="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-gray-200">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                          <User className="w-4 h-4 text-purple-600" />
+                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                          <Plus className="w-4 h-4 text-green-600" />
                         </div>
                         <div>
                           <div className="text-sm font-medium text-gray-900">
@@ -732,7 +751,57 @@ export default function AdminPage() {
                 </div>
               )}
               
-              {usersList.length === 0 && (
+              {duplicateUsers.length > 0 && (
+                <div className="bg-amber-50 rounded-lg p-3 space-y-2">
+                  <p className="text-xs text-amber-700 font-medium uppercase tracking-wider">
+                    {duplicateUsers.length} existing invitation{duplicateUsers.length !== 1 ? 's' : ''}
+                  </p>
+                  {duplicateUsers.map((user, index) => (
+                    <div key={index} className="bg-white rounded-lg px-3 py-2 border border-amber-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+                            <AlertCircle className="w-4 h-4 text-amber-600" />
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {user.name || 'No name'}
+                            </div>
+                            <div className="text-xs text-gray-500">{user.email}</div>
+                            <div className="text-xs text-amber-600 mt-0.5">
+                              Already invited • {user.invitation.status}
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => removeDuplicateUser(index)}
+                          className="text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="flex gap-2 mt-2 pl-11">
+                        <button
+                          onClick={() => handleResendInvitation(user.invitation)}
+                          className="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded hover:bg-amber-200 transition-colors flex items-center gap-1"
+                        >
+                          <RefreshCw className="w-3 h-3" />
+                          Resend
+                        </button>
+                        <button
+                          onClick={() => copyInviteLink(user.invitation.inviteUrl)}
+                          className="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded hover:bg-amber-200 transition-colors flex items-center gap-1"
+                        >
+                          <Copy className="w-3 h-3" />
+                          Copy Link
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {usersList.length === 0 && duplicateUsers.length === 0 && (
                 <p className="text-xs text-gray-500 italic">No users added yet. Add users above to send invitations.</p>
               )}
             </div>
@@ -771,6 +840,7 @@ export default function AdminPage() {
                 setShowCreateModal(false);
                 setFormData({ company: '', companyLogo: '', personalMessage: '', sendImmediately: true });
                 setUsersList([]);
+                setDuplicateUsers([]);
                 setCurrentUser({ email: '', name: '' });
                 setCompanySearch('');
                 setSelectedCompany(null);
@@ -783,7 +853,7 @@ export default function AdminPage() {
             </button>
             <button
               onClick={handleCreateInvitation}
-              disabled={!companySearch.trim() || usersList.length === 0 || loading}
+              disabled={!companySearch.trim() || (usersList.length === 0 && duplicateUsers.length === 0) || loading}
               className="flex items-center gap-2 px-6 py-2 bg-iris-500 text-white rounded-lg hover:bg-iris-600 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
@@ -794,7 +864,7 @@ export default function AdminPage() {
               ) : (
                 <>
                   <Send className="w-4 h-4" />
-                  Create & Send
+                  {usersList.length > 0 ? 'Create & Send' : 'Continue'}
                 </>
               )}
             </button>

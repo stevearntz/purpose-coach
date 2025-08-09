@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { nanoid } from 'nanoid';
 import prisma from '@/lib/prisma';
+import { sendInvitationEmail, isEmailServiceConfigured } from '@/lib/email';
 
 export async function GET(request: NextRequest) {
   try {
@@ -134,14 +135,28 @@ export async function POST(request: NextRequest) {
       }
     });
     
-    // Send email if requested
+    // Send email if requested and email service is configured
     if (sendImmediately) {
-      await sendInvitationEmail({
-        email,
-        name,
-        inviteUrl,
-        company: invitation.company.name
-      });
+      if (isEmailServiceConfigured()) {
+        const emailResult = await sendInvitationEmail({
+          to: email,
+          recipientName: name,
+          companyName: invitation.company.name,
+          companyLogo: invitation.company.logo,
+          inviteUrl,
+          personalMessage
+        });
+        
+        if (!emailResult.success) {
+          console.error('Failed to send invitation email:', emailResult.error);
+          // Still continue - invitation is created, just email failed
+        } else {
+          console.log('Invitation email sent successfully');
+        }
+      } else {
+        console.warn('Email service not configured - skipping email send');
+        console.log('To enable email sending, set RESEND_API_KEY in environment variables');
+      }
     }
     
     // Transform for compatibility
@@ -166,13 +181,3 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Helper function to send invitation email
-async function sendInvitationEmail(invitation: any) {
-  // In production, integrate with an email service (SendGrid, AWS SES, etc.)
-  // For now, we'll just log the email
-  console.log('Sending invitation email to:', invitation.email);
-  console.log('Invitation link:', invitation.inviteUrl);
-  
-  // Simulate email sending
-  return new Promise((resolve) => setTimeout(resolve, 1000));
-}

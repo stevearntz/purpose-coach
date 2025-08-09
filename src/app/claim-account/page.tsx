@@ -217,21 +217,8 @@ function ClaimAccountContent() {
         localStorage.setItem('campfire_user_company', authResult.user.company);
       }
       
-      // Also call the original claim-account API to handle any additional setup
-      const response = await fetch('/api/claim-account', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          password: formData.password,
-          inviteCode,
-          company: inviteData?.company
-        })
-      });
-      
-      const result = response.ok ? await response.json() : null;
+      // Skip the old claim-account API - we don't need it anymore
+      // The setup-password API handles everything
       
       // Track account creation
       if (inviteCode) {

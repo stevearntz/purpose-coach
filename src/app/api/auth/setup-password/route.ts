@@ -7,6 +7,7 @@ export async function POST(request: NextRequest) {
     const { inviteCode, email, password, name } = await request.json();
     
     console.log('Setup password for:', email, 'with invite code:', inviteCode);
+    console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
     
     if (!inviteCode || !email || !password) {
       return NextResponse.json(
@@ -44,8 +45,11 @@ export async function POST(request: NextRequest) {
       where: { email }
     });
     
+    console.log('Existing admin found:', !!admin);
+    
     if (admin) {
       // Update existing admin with password
+      console.log('Updating existing admin with password');
       admin = await prisma.admin.update({
         where: { email },
         data: {
@@ -56,6 +60,7 @@ export async function POST(request: NextRequest) {
       });
     } else {
       // Create new admin
+      console.log('Creating new admin for company:', invitation.companyId);
       admin = await prisma.admin.create({
         data: {
           email,
@@ -66,6 +71,8 @@ export async function POST(request: NextRequest) {
         }
       });
     }
+    
+    console.log('Admin account ready:', admin.id);
     
     // Update invitation status
     await prisma.invitation.update({
@@ -83,6 +90,8 @@ export async function POST(request: NextRequest) {
       companyId: admin.companyId
     });
     
+    console.log('Token generated, length:', token.length);
+    
     // Create response with auth cookie
     const response = NextResponse.json({
       success: true,
@@ -95,13 +104,16 @@ export async function POST(request: NextRequest) {
     });
     
     // Set auth cookie
-    response.cookies.set('campfire-auth', token, {
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'lax' as const,
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/'
-    });
+    };
+    
+    console.log('Setting cookie with options:', cookieOptions);
+    response.cookies.set('campfire-auth', token, cookieOptions);
     
     return response;
   } catch (error) {

@@ -23,18 +23,19 @@ model Company {
 }
 
 model Admin {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  name        String?
-  password    String?  // Hashed password
-  companyId   String
-  isActive    Boolean  @default(true)
-  lastLogin   DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String   @id @default(cuid())
+  email          String   @unique
+  name           String?
+  password       String?  // Hashed password
+  companyId      String
+  isActive       Boolean  @default(true)
+  lastLogin      DateTime?
+  lastAssessment DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
   
-  company     Company  @relation(fields: [companyId], references: [id])
-  invitations Invitation[]
+  company        Company  @relation(fields: [companyId], references: [id])
+  invitations    Invitation[]
 }
 
 model Invitation {

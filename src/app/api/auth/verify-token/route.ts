@@ -28,7 +28,9 @@ export async function GET(request: NextRequest) {
     }
     
     // Also try using our getAuthUser function
+    console.log('[verify-token] About to call getAuthUser');
     const authUser = await getAuthUser(request);
+    console.log('[verify-token] getAuthUser result:', authUser);
     
     return NextResponse.json({
       success: true,

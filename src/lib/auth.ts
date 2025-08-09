@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+console.log('[auth] JWT_SECRET configured, using:', JWT_SECRET ? 'env variable' : 'fallback');
 const COOKIE_NAME = 'campfire-auth';
 
 export interface AuthPayload {
@@ -50,6 +51,9 @@ export function setAuthCookie(res: NextResponse, token: string) {
 
 export function getAuthToken(req: NextRequest): string | undefined {
   const cookie = req.cookies.get(COOKIE_NAME);
+  console.log('[auth] getAuthToken - cookie name:', COOKIE_NAME);
+  console.log('[auth] getAuthToken - cookie found:', !!cookie);
+  console.log('[auth] getAuthToken - cookie value length:', cookie?.value?.length);
   return cookie?.value;
 }
 
@@ -62,14 +66,22 @@ export function clearAuthCookie(res: NextResponse) {
 }
 
 export async function getAuthUser(req: NextRequest): Promise<AuthPayload | null> {
-  const token = getAuthToken(req);
-  console.log('[auth] getAuthUser - token exists:', !!token);
-  if (!token) {
-    console.log('[auth] No auth token found in request');
+  try {
+    const token = getAuthToken(req);
+    console.log('[auth] getAuthUser - token exists:', !!token);
+    console.log('[auth] getAuthUser - token length:', token?.length);
+    
+    if (!token) {
+      console.log('[auth] No auth token found in request');
+      return null;
+    }
+    
+    const user = verifyToken(token);
+    console.log('[auth] getAuthUser - user verified:', !!user);
+    console.log('[auth] getAuthUser - user data:', user);
+    return user;
+  } catch (error) {
+    console.error('[auth] getAuthUser error:', error);
     return null;
   }
-  
-  const user = verifyToken(token);
-  console.log('[auth] getAuthUser - user verified:', !!user);
-  return user;
 }

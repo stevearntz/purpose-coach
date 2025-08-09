@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getAuthUser } from '@/lib/auth'
 
 // Routes that require authentication
 const protectedRoutes = ['/dashboard']  // Removed /admin - it's open for now
@@ -22,30 +21,33 @@ export async function middleware(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
   const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
   
-  // Get auth user
+  // Get auth cookie
   const authCookie = request.cookies.get('campfire-auth')
-  const user = await getAuthUser(request)
+  
+  // For now, just check if cookie exists
+  // JWT verification in middleware Edge Runtime is complex
+  const hasAuth = !!authCookie?.value
   
   console.log('[middleware] Check:', {
     pathname,
     isProtectedRoute,
     isAuthRoute,
-    hasUser: !!user,
+    hasAuth,
     hasCookie: !!authCookie,
     cookieValue: authCookie?.value ? `${authCookie.value.substring(0, 20)}...` : null
   })
   
   // Redirect to login if accessing protected route without auth
-  if (isProtectedRoute && !user) {
-    console.log('[middleware] Redirecting to login - no auth for protected route')
+  if (isProtectedRoute && !hasAuth) {
+    console.log('[middleware] Redirecting to login - no auth cookie for protected route')
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('from', pathname)
     return NextResponse.redirect(loginUrl)
   }
   
   // Redirect to dashboard if accessing auth routes while authenticated
-  if (isAuthRoute && user) {
-    console.log('[middleware] Redirecting to dashboard - already authenticated')
+  if (isAuthRoute && hasAuth) {
+    console.log('[middleware] Redirecting to dashboard - already has auth cookie')
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
   

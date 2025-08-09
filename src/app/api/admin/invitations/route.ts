@@ -142,13 +142,13 @@ export async function POST(request: NextRequest) {
           to: email,
           recipientName: name,
           companyName: invitation.company.name,
-          companyLogo: invitation.company.logo,
+          companyLogo: invitation.company.logo || undefined,
           inviteUrl,
           personalMessage
         });
         
         if (!emailResult.success) {
-          console.error('Failed to send invitation email:', emailResult.error);
+          console.error('Failed to send invitation email:', (emailResult as any).error);
           // Still continue - invitation is created, just email failed
         } else {
           console.log('Invitation email sent successfully');

@@ -33,7 +33,7 @@ export async function POST(
       
       emailSent = emailResult.success;
       if (!emailSent) {
-        console.error('Failed to resend invitation email:', emailResult.error);
+        console.error('Failed to resend invitation email:', (emailResult as any).error);
       } else {
         console.log('Invitation email resent successfully to:', invitation.email);
       }

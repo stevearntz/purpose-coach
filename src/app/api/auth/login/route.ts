@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Check if admin has a password set
-    if (!admin.password) {
+    if (!(admin as any).password) {
       console.log('Admin has no password set');
       return NextResponse.json(
         { error: 'Please set up your password first. Check your invitation email for the setup link.' },
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Verify password
-    const isValid = await verifyPassword(password, admin.password);
+    const isValid = await verifyPassword(password, (admin as any).password);
     console.log('Password valid:', isValid);
     
     if (!isValid) {

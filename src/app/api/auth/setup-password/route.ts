@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
         where: { email },
         data: {
           password: hashedPassword,
-          name: name || admin.name,
+          name: name || (admin as any).name,
           lastLogin: new Date()
         }
       });

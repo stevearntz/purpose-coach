@@ -1,6 +1,5 @@
 import sgMail from '@sendgrid/mail';
 import { ReactElement } from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 
 // Initialize SendGrid with API key
 if (process.env.SENDGRID_API_KEY) {
@@ -30,10 +29,12 @@ export async function sendEmail(options: EmailOptions) {
       name: 'Campfire Tools'
     };
     
-    // Convert React element to HTML if provided
+    // For React elements, we'll render them differently in Next.js
     let html = options.html;
     if (options.react) {
-      html = renderToStaticMarkup(options.react);
+      // Import dynamically to avoid client-side issues
+      const ReactDOMServer = await import('react-dom/server');
+      html = ReactDOMServer.renderToStaticMarkup(options.react);
     }
     
     const msg = {

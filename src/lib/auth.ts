@@ -27,8 +27,11 @@ export function generateToken(payload: AuthPayload): string {
 
 export function verifyToken(token: string): AuthPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as AuthPayload;
-  } catch {
+    const decoded = jwt.verify(token, JWT_SECRET) as AuthPayload;
+    console.log('[auth] Token verified successfully');
+    return decoded;
+  } catch (error) {
+    console.error('[auth] Token verification failed:', error);
     return null;
   }
 }
@@ -60,7 +63,13 @@ export function clearAuthCookie(res: NextResponse) {
 
 export async function getAuthUser(req: NextRequest): Promise<AuthPayload | null> {
   const token = getAuthToken(req);
-  if (!token) return null;
+  console.log('[auth] getAuthUser - token exists:', !!token);
+  if (!token) {
+    console.log('[auth] No auth token found in request');
+    return null;
+  }
   
-  return verifyToken(token);
+  const user = verifyToken(token);
+  console.log('[auth] getAuthUser - user verified:', !!user);
+  return user;
 }

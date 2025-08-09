@@ -208,7 +208,8 @@ function ClaimAccountContent() {
       
       const authResult = await authResponse.json();
       
-      console.log('Auth setup successful, user should be logged in now');
+      console.log('[claim-account] Auth setup response:', authResult);
+      console.log('[claim-account] Auth cookie should be set, redirecting to dashboard');
       
       // Store user info immediately (the auth cookie is already set)
       localStorage.setItem('campfire_user_email', formData.email);
@@ -240,9 +241,10 @@ function ClaimAccountContent() {
       showSuccess('Account created successfully! Redirecting to your dashboard...');
       
       // The auth cookie is already set by setup-password API
-      // Just redirect to dashboard
+      // Force a hard navigation to ensure cookies are sent
       setTimeout(() => {
-        router.push('/dashboard');
+        console.log('[claim-account] Redirecting to dashboard');
+        window.location.href = '/dashboard';
       }, 1500);
       
     } catch (error) {

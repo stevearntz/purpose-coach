@@ -17,23 +17,31 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
 
+    console.log('[login] Attempting login for:', email);
+
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
+        credentials: 'include' // Ensure cookies are sent
       });
 
+      console.log('[login] Response status:', response.status);
       const data = await response.json();
+      console.log('[login] Response data:', data);
 
       if (!response.ok) {
+        console.error('[login] Login failed:', data.error);
         setError(data.error || 'Failed to login');
         return;
       }
 
-      // Redirect to dashboard
-      router.push('/dashboard');
+      console.log('[login] Login successful, redirecting to dashboard');
+      // Use window.location for hard navigation to ensure cookies are sent
+      window.location.href = '/dashboard';
     } catch (err) {
+      console.error('[login] Login error:', err);
       setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);

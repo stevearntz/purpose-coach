@@ -23,18 +23,21 @@ export async function middleware(request: NextRequest) {
   const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
   
   // Get auth user
-  const user = await getAuthUser(request)
   const authCookie = request.cookies.get('campfire-auth')
+  const user = await getAuthUser(request)
   
-  console.log('Middleware check:', {
+  console.log('[middleware] Check:', {
     pathname,
     isProtectedRoute,
+    isAuthRoute,
     hasUser: !!user,
-    hasCookie: !!authCookie
+    hasCookie: !!authCookie,
+    cookieValue: authCookie?.value ? `${authCookie.value.substring(0, 20)}...` : null
   })
   
   // Redirect to login if accessing protected route without auth
   if (isProtectedRoute && !user) {
+    console.log('[middleware] Redirecting to login - no auth for protected route')
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('from', pathname)
     return NextResponse.redirect(loginUrl)
@@ -42,6 +45,7 @@ export async function middleware(request: NextRequest) {
   
   // Redirect to dashboard if accessing auth routes while authenticated
   if (isAuthRoute && user) {
+    console.log('[middleware] Redirecting to dashboard - already authenticated')
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
   

@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
     
     console.log('Setup password for:', email, 'with invite code:', inviteCode);
     console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
+    console.log('NODE_ENV:', process.env.NODE_ENV);
     
     if (!inviteCode || !email || !password) {
       return NextResponse.json(
@@ -104,15 +105,20 @@ export async function POST(request: NextRequest) {
     });
     
     // Set auth cookie
+    const isProduction = process.env.NODE_ENV === 'production';
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       sameSite: 'lax' as const,
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/'
     };
     
-    console.log('Setting cookie with options:', cookieOptions);
+    console.log('Setting cookie with options:', {
+      ...cookieOptions,
+      tokenLength: token.length,
+      isProduction
+    });
     response.cookies.set('campfire-auth', token, cookieOptions);
     
     return response;

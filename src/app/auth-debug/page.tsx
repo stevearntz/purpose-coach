@@ -53,6 +53,21 @@ export default function AuthDebugPage() {
     setLoading(false);
   };
 
+  const verifyToken = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/auth/verify-token', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      console.log('Verify token response:', data);
+      alert(JSON.stringify(data, null, 2));
+    } catch (error) {
+      console.error('Failed to verify token:', error);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
     checkCookies();
   }, []);
@@ -99,6 +114,13 @@ export default function AuthDebugPage() {
                 className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 disabled:opacity-50 ml-2"
               >
                 Check /api/auth/me
+              </button>
+              <button
+                onClick={verifyToken}
+                disabled={loading}
+                className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 disabled:opacity-50 ml-2"
+              >
+                Verify Token
               </button>
             </div>
           </div>

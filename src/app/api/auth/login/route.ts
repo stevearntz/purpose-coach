@@ -1,0 +1,87 @@
+import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
+import { verifyPassword, generateToken, setAuthCookie } from '@/lib/auth';
+
+export async function POST(request: NextRequest) {
+  try {
+    const { email, password } = await request.json();
+    
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: 'Email and password are required' },
+        { status: 400 }
+      );
+    }
+    
+    // Find admin by email
+    const admin = await prisma.admin.findUnique({
+      where: { email },
+      include: { company: true }
+    });
+    
+    if (!admin) {
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      );
+    }
+    
+    // Check if admin has a password set
+    if (!admin.password) {
+      return NextResponse.json(
+        { error: 'Please set up your password first. Check your invitation email for the setup link.' },
+        { status: 401 }
+      );
+    }
+    
+    // Verify password
+    const isValid = await verifyPassword(password, admin.password);
+    if (!isValid) {
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      );
+    }
+    
+    // Update last login
+    await prisma.admin.update({
+      where: { id: admin.id },
+      data: { lastLogin: new Date() }
+    });
+    
+    // Generate token
+    const token = generateToken({
+      userId: admin.id,
+      email: admin.email,
+      companyId: admin.companyId
+    });
+    
+    // Create response with auth cookie
+    const response = NextResponse.json({
+      success: true,
+      user: {
+        id: admin.id,
+        email: admin.email,
+        name: admin.name,
+        company: admin.company.name
+      }
+    });
+    
+    // Set auth cookie
+    response.cookies.set('campfire-auth', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: '/'
+    });
+    
+    return response;
+  } catch (error) {
+    console.error('Login error:', error);
+    return NextResponse.json(
+      { error: 'Failed to login' },
+      { status: 500 }
+    );
+  }
+}

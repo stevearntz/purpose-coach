@@ -46,31 +46,41 @@ function DashboardContent() {
   const [copiedLink, setCopiedLink] = useState(false)
 
   useEffect(() => {
-    // Get user data from localStorage
-    const email = localStorage.getItem('campfire_user_email')
-    const name = localStorage.getItem('campfire_user_name')
-    const company = localStorage.getItem('campfire_user_company')
-
-    if (!email) {
-      // Redirect to login if no user data
-      router.push('/claim-account')
-      return
+    // First try to get authenticated user data
+    const loadAuthUser = async () => {
+      try {
+        const response = await fetch('/api/auth/me')
+        if (response.ok) {
+          const authData = await response.json()
+          setUserData({
+            email: authData.email,
+            name: authData.name || authData.email.split('@')[0],
+            company: authData.company,
+            companyId: authData.companyId,
+            role: 'hr_leader' // Default role for now
+          })
+          
+          // Update localStorage with auth data
+          localStorage.setItem('campfire_user_email', authData.email)
+          localStorage.setItem('campfire_user_name', authData.name || '')
+          localStorage.setItem('campfire_user_company', authData.company || '')
+          
+          loadCompanyUsers(authData.email)
+          analytics.trackAction('Dashboard Viewed', {
+            user_email: authData.email,
+            company: authData.company || 'unknown'
+          })
+          return
+        }
+      } catch (error) {
+        console.error('Failed to load auth user:', error)
+      }
+      
+      // If not authenticated, redirect to login
+      router.push('/login')
     }
-
-    setUserData({
-      email,
-      name: name || email.split('@')[0],
-      company: company || undefined,
-      role: 'hr_leader' // Default role for now
-    })
-
-    // Load company users
-    loadCompanyUsers(email)
-
-    analytics.trackAction('Dashboard Viewed', {
-      user_email: email,
-      company: company || 'unknown'
-    })
+    
+    loadAuthUser()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

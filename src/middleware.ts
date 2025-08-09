@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 import { getAuthUser } from '@/lib/auth'
 
 // Routes that require authentication
-const protectedRoutes = ['/dashboard', '/admin']
+const protectedRoutes = ['/dashboard']  // Removed /admin - it's open for now
 
 // Routes that should redirect to dashboard if already authenticated
 const authRoutes = ['/login']

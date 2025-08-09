@@ -18,15 +18,24 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ companies: [] });
     }
     
-    // Search for companies with name containing the query
-    // Using ILIKE for PostgreSQL case-insensitive search
-    const companies = await prisma.$queryRaw<CompanyResult[]>`
-      SELECT id, name, logo 
-      FROM "Company" 
-      WHERE name ILIKE ${`%${query}%`}
-      ORDER BY name ASC
-      LIMIT 10
-    `;
+    // Search for companies - fallback to simple contains
+    // This should work with any Prisma provider
+    const companies = await prisma.company.findMany({
+      where: {
+        name: {
+          contains: query
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        logo: true
+      },
+      take: 10,
+      orderBy: {
+        name: 'asc'
+      }
+    });
     
     console.log('Found companies:', companies);
     

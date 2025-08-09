@@ -75,13 +75,18 @@ export async function POST(request: NextRequest) {
     });
     
     // Set auth cookie
-    response.cookies.set('campfire-auth', token, {
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'lax' as const,
       maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: '/'
-    });
+      path: '/',
+      domain: undefined // Let the browser handle the domain
+    };
+    
+    console.log('[login] Setting auth cookie with options:', cookieOptions);
+    response.cookies.set('campfire-auth', token, cookieOptions);
+    console.log('[login] Cookie set on response');
     
     return response;
   } catch (error) {

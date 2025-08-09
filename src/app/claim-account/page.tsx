@@ -240,9 +240,19 @@ function ClaimAccountContent() {
       
       showSuccess('Account created successfully! Redirecting to your dashboard...');
       
-      // The auth cookie is already set by setup-password API
-      // Force a hard navigation to ensure cookies are sent
-      setTimeout(() => {
+      // Check if the cookie was actually set
+      setTimeout(async () => {
+        console.log('[claim-account] Checking session before redirect');
+        try {
+          const checkResponse = await fetch('/api/auth/check-session', {
+            credentials: 'include'
+          });
+          const checkData = await checkResponse.json();
+          console.log('[claim-account] Session check:', checkData);
+        } catch (err) {
+          console.error('[claim-account] Session check failed:', err);
+        }
+        
         console.log('[claim-account] Redirecting to dashboard');
         window.location.href = '/dashboard';
       }, 1500);

@@ -111,7 +111,8 @@ export async function POST(request: NextRequest) {
       secure: isProduction,
       sameSite: 'lax' as const,
       maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: '/'
+      path: '/',
+      domain: undefined // Let the browser handle the domain
     };
     
     console.log('Setting cookie with options:', {
@@ -120,6 +121,9 @@ export async function POST(request: NextRequest) {
       isProduction
     });
     response.cookies.set('campfire-auth', token, cookieOptions);
+    
+    // Log to verify cookie was set
+    console.log('Cookie set on response, headers:', response.headers.get('set-cookie'));
     
     return response;
   } catch (error) {

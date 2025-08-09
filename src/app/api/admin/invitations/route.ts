@@ -4,6 +4,8 @@ import prisma from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('Fetching invitations from database...');
+    
     // Get all invitations from database
     const invitations = await prisma.invitation.findMany({
       include: {
@@ -14,6 +16,8 @@ export async function GET(request: NextRequest) {
         createdAt: 'desc'
       }
     });
+    
+    console.log(`Found ${invitations.length} invitations`);
     
     // Transform for compatibility with existing code
     const transformedInvitations = invitations.map(inv => ({
@@ -44,9 +48,17 @@ export async function GET(request: NextRequest) {
     }));
     
     return NextResponse.json({ invitations: transformedInvitations });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to fetch invitations:', error);
-    return NextResponse.json({ error: 'Failed to fetch invitations' }, { status: 500 });
+    console.error('Error details:', {
+      message: error?.message,
+      code: error?.code,
+      meta: error?.meta
+    });
+    return NextResponse.json({ 
+      error: 'Failed to fetch invitations',
+      details: error?.message || 'Unknown error'
+    }, { status: 500 });
   }
 }
 

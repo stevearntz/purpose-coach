@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
+interface CompanyResult {
+  id: string;
+  name: string;
+  logo: string | null;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -14,7 +20,7 @@ export async function GET(request: NextRequest) {
     
     // Search for companies with name containing the query
     // Using ILIKE for PostgreSQL case-insensitive search
-    const companies = await prisma.$queryRaw`
+    const companies = await prisma.$queryRaw<CompanyResult[]>`
       SELECT id, name, logo 
       FROM "Company" 
       WHERE name ILIKE ${`%${query}%`}
@@ -25,8 +31,16 @@ export async function GET(request: NextRequest) {
     console.log('Found companies:', companies);
     
     return NextResponse.json({ companies });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to search companies:', error);
-    return NextResponse.json({ error: 'Failed to search companies' }, { status: 500 });
+    console.error('Error details:', {
+      message: error?.message,
+      code: error?.code,
+      meta: error?.meta
+    });
+    return NextResponse.json({ 
+      error: 'Failed to search companies',
+      details: error?.message || 'Unknown error'
+    }, { status: 500 });
   }
 }

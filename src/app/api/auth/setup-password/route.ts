@@ -6,6 +6,8 @@ export async function POST(request: NextRequest) {
   try {
     const { inviteCode, email, password, name } = await request.json();
     
+    console.log('Setup password for:', email, 'with invite code:', inviteCode);
+    
     if (!inviteCode || !email || !password) {
       return NextResponse.json(
         { error: 'Invite code, email, and password are required' },

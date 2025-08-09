@@ -24,6 +24,14 @@ export async function middleware(request: NextRequest) {
   
   // Get auth user
   const user = await getAuthUser(request)
+  const authCookie = request.cookies.get('campfire-auth')
+  
+  console.log('Middleware check:', {
+    pathname,
+    isProtectedRoute,
+    hasUser: !!user,
+    hasCookie: !!authCookie
+  })
   
   // Redirect to login if accessing protected route without auth
   if (isProtectedRoute && !user) {

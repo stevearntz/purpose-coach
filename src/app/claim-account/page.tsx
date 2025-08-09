@@ -208,6 +208,15 @@ function ClaimAccountContent() {
       
       const authResult = await authResponse.json();
       
+      console.log('Auth setup successful, user should be logged in now');
+      
+      // Store user info immediately (the auth cookie is already set)
+      localStorage.setItem('campfire_user_email', formData.email);
+      localStorage.setItem('campfire_user_name', `${formData.firstName} ${formData.lastName}`.trim());
+      if (authResult.user?.company) {
+        localStorage.setItem('campfire_user_company', authResult.user.company);
+      }
+      
       // Also call the original claim-account API to handle any additional setup
       const response = await fetch('/api/claim-account', {
         method: 'POST',
@@ -243,15 +252,8 @@ function ClaimAccountContent() {
       
       showSuccess('Account created successfully! Redirecting to your dashboard...');
       
-      // Store user info (the auth cookie is already set by setup-password API)
-      localStorage.setItem('campfire_user_email', formData.email);
-      localStorage.setItem('campfire_user_name', `${formData.firstName} ${formData.lastName}`.trim());
-      if (inviteData?.company || authResult.user?.company) {
-        localStorage.setItem('campfire_user_company', inviteData?.company || authResult.user.company);
-      }
-      
-      // Redirect to dashboard after a brief delay
-      // The user is now authenticated via the cookie from setup-password
+      // The auth cookie is already set by setup-password API
+      // Just redirect to dashboard
       setTimeout(() => {
         router.push('/dashboard');
       }, 1500);

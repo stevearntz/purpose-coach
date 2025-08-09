@@ -6,6 +6,8 @@ export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
     
+    console.log('Login attempt for:', email);
+    
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Email and password are required' },
@@ -19,6 +21,8 @@ export async function POST(request: NextRequest) {
       include: { company: true }
     });
     
+    console.log('Admin found:', admin ? 'Yes' : 'No');
+    
     if (!admin) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
@@ -28,6 +32,7 @@ export async function POST(request: NextRequest) {
     
     // Check if admin has a password set
     if (!admin.password) {
+      console.log('Admin has no password set');
       return NextResponse.json(
         { error: 'Please set up your password first. Check your invitation email for the setup link.' },
         { status: 401 }
@@ -36,6 +41,8 @@ export async function POST(request: NextRequest) {
     
     // Verify password
     const isValid = await verifyPassword(password, admin.password);
+    console.log('Password valid:', isValid);
+    
     if (!isValid) {
       return NextResponse.json(
         { error: 'Invalid email or password' },

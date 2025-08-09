@@ -24,10 +24,10 @@ export interface EmailOptions {
  */
 export async function sendEmail(options: EmailOptions) {
   try {
-    // Default from address
+    // Default from address - using subdomain to avoid conflicts
     const from = options.from || {
-      email: 'notifications@getcampfire.com',
-      name: 'Campfire'
+      email: 'notifications@tools.getcampfire.com',
+      name: 'Campfire Tools'
     };
     
     // Convert React element to HTML if provided

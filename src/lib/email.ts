@@ -34,7 +34,9 @@ export async function sendEmail(options: EmailOptions) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     
     try {
-      const from = options.from || 'Campfire <notifications@getcampfire.com>';
+      // Use a subdomain to avoid any conflicts
+      // You can use tools.getcampfire.com or app.getcampfire.com
+      const from = options.from || 'Campfire <notifications@tools.getcampfire.com>';
       
       const data = await resend.emails.send({
         from,
@@ -60,8 +62,8 @@ export async function sendEmail(options: EmailOptions) {
       return { success: false, error };
     }
   } else {
-    console.warn('No email service configured');
-    return { success: false, error: 'No email service configured' };
+    console.warn('No email service configured - invitation links must be copied manually');
+    return { success: false, error: 'No email service configured - invitation links can be copied manually' };
   }
 }
 

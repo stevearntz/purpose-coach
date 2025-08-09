@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { LogOut, Plus, Mail, Users, Building, X, Upload, Check } from 'lucide-react'
+import { LogOut, Plus, Mail, Users, Building, X, Upload, Check, Power } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
 import Footer from '@/components/Footer'
 import ToolsLibrary from '@/components/ToolsLibrary'
@@ -221,11 +221,26 @@ function DashboardContent() {
     router.push(toolPath)
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem('campfire_user_email')
-    localStorage.removeItem('campfire_user_name')
-    localStorage.removeItem('campfire_user_company')
-    router.push('/')
+  const handleLogout = async () => {
+    try {
+      // Call logout API to clear auth cookie
+      await fetch('/api/auth/logout', {
+        method: 'POST'
+      })
+      
+      // Clear local storage
+      localStorage.removeItem('campfire_user_email')
+      localStorage.removeItem('campfire_user_name')
+      localStorage.removeItem('campfire_user_company')
+      
+      // Redirect to login page
+      router.push('/login')
+    } catch (error) {
+      console.error('Logout failed:', error)
+      // Even if API fails, clear local data and redirect
+      localStorage.clear()
+      router.push('/login')
+    }
   }
 
   const getInitials = (name: string) => {

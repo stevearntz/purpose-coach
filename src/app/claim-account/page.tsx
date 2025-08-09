@@ -188,6 +188,27 @@ function ClaimAccountContent() {
     try {
       const inviteCode = searchParams.get('invite');
       
+      // First, set up the password and create/update the admin account
+      const authResponse = await fetch('/api/auth/setup-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          inviteCode,
+          email: formData.email,
+          password: formData.password,
+          name: `${formData.firstName} ${formData.lastName}`.trim()
+        })
+      });
+      
+      if (!authResponse.ok) {
+        const errorData = await authResponse.json();
+        console.error('Account setup failed:', errorData);
+        throw new Error(errorData.error || 'Failed to set up account');
+      }
+      
+      const authResult = await authResponse.json();
+      
+      // Also call the original claim-account API to handle any additional setup
       const response = await fetch('/api/claim-account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -201,13 +222,7 @@ function ClaimAccountContent() {
         })
       });
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Account creation failed:', errorData);
-        throw new Error(errorData.message || errorData.error || 'Failed to create account');
-      }
-      
-      const result = await response.json();
+      const result = response.ok ? await response.json() : null;
       
       // Track account creation
       if (inviteCode) {

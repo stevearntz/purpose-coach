@@ -43,7 +43,7 @@ export const InvitationEmail = ({
         <Container style={container}>
           {/* Header with logo */}
           <Section style={logoSection}>
-            {companyLogo ? (
+            {companyLogo && !companyLogo.toLowerCase().includes('.svg') ? (
               <Img
                 src={companyLogo}
                 alt={`${companyName} Logo`}

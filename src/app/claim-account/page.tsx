@@ -280,7 +280,7 @@ function ClaimAccountContent() {
           <div className="max-w-2xl mx-auto">
             {/* Header with company branding */}
             <div className="text-center mb-8">
-              {inviteData?.companyLogo ? (
+              {inviteData?.companyLogo && !inviteData.companyLogo.toLowerCase().includes('.svg') ? (
                 <div className="flex flex-col items-center gap-4 mb-6">
                   <img 
                     src={inviteData.companyLogo}

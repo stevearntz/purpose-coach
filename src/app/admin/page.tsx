@@ -727,14 +727,22 @@ export default function AdminPage() {
                   placeholder="https://example.com/logo.png"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-iris-500"
                 />
-                <p className="text-xs text-gray-500 mt-1">Provide a URL to your company logo for a personalized welcome experience</p>
+                <p className="text-xs text-gray-500 mt-1">Provide a URL to your company logo (PNG, JPG, or GIF only - SVG not supported in emails)</p>
                 {formData.companyLogo && (
-                  <div className="mt-2 p-2 bg-gray-50 rounded-lg">
-                    <p className="text-xs text-gray-500 mb-1">Preview:</p>
-                    <img 
-                      src={formData.companyLogo} 
-                      alt="Company logo preview" 
-                      className="h-12 object-contain"
+                  <div className="mt-2">
+                    {formData.companyLogo.toLowerCase().includes('.svg') && (
+                      <div className="p-2 bg-yellow-50 border border-yellow-200 rounded-lg mb-2">
+                        <p className="text-xs text-yellow-800">
+                          ⚠️ SVG images are not supported in email clients. Please use PNG, JPG, or GIF format for the logo to appear in invitation emails.
+                        </p>
+                      </div>
+                    )}
+                    <div className="p-2 bg-gray-50 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-1">Preview:</p>
+                      <img 
+                        src={formData.companyLogo} 
+                        alt="Company logo preview" 
+                        className="h-12 object-contain"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
                       }}

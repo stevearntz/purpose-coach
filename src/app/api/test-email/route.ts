@@ -55,13 +55,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         success: true,
         message: 'Test email sent successfully',
-        emailId: result.data?.data?.id
+        emailId: (result as any).data?.data?.id || (result as any).data?.id
       });
     } else {
       return NextResponse.json({ 
         success: false,
         error: 'Failed to send test email',
-        details: result.error
+        details: (result as any).error
       }, { status: 500 });
     }
   } catch (error: any) {

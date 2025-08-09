@@ -44,10 +44,10 @@ export async function sendEmail(options: EmailOptions) {
         react: options.react,
         html: options.html,
         text: options.text,
-        reply_to: options.replyTo,
-        cc: options.cc,
-        bcc: options.bcc,
-      });
+        reply_to: options.replyTo as any,
+        cc: options.cc as any,
+        bcc: options.bcc as any,
+      } as any);
       
       console.log('Resend API response:', data);
       

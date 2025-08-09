@@ -6,6 +6,8 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get('q');
     
+    console.log('Company search query:', query);
+    
     if (!query || query.length < 1) {
       return NextResponse.json({ companies: [] });
     }
@@ -28,6 +30,8 @@ export async function GET(request: NextRequest) {
         name: 'asc'
       }
     });
+    
+    console.log('Found companies:', companies);
     
     return NextResponse.json({ companies });
   } catch (error) {

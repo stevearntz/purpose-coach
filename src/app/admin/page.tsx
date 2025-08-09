@@ -71,9 +71,12 @@ export default function AdminPage() {
         const response = await fetch(`/api/companies/search?q=${encodeURIComponent(companySearch)}`);
         if (response.ok) {
           const data = await response.json();
+          console.log('Search results for', companySearch, ':', data.companies);
           setCompanies(data.companies);
           // Always show dropdown when typing, even if no results (to show "Create" option)
           setShowCompanyDropdown(true);
+        } else {
+          console.error('Search failed with status:', response.status);
         }
       } catch (error) {
         console.error('Failed to search companies:', error);

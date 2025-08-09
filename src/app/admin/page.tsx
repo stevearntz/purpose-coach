@@ -32,6 +32,7 @@ export default function AdminPage() {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true); // Add initial data loading state
   const [selectedInvite, setSelectedInvite] = useState<Invitation | null>(null);
   const { showSuccess, showError, showInfo } = useToast();
   
@@ -90,6 +91,8 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error('Failed to load invitations:', error);
+    } finally {
+      setDataLoading(false); // Mark data as loaded
     }
   };
 
@@ -148,6 +151,19 @@ export default function AdminPage() {
     
     if (usersList.length === 0) {
       showError('Please add at least one user');
+      return;
+    }
+    
+    // Frontend duplicate checking as additional safeguard
+    const duplicateEmails = usersList.filter(user => 
+      invitations.some(inv => 
+        inv.email === user.email && 
+        inv.company === (selectedCompany?.name || companySearch)
+      )
+    );
+    
+    if (duplicateEmails.length > 0) {
+      showError(`The following users already have invitations: ${duplicateEmails.map(u => u.email).join(', ')}`);
       return;
     }
     
@@ -327,7 +343,8 @@ export default function AdminPage() {
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-iris-500 text-white rounded-lg hover:bg-iris-600 transition-colors font-semibold"
+              disabled={dataLoading}
+              className="flex items-center gap-2 px-6 py-3 bg-iris-500 text-white rounded-lg hover:bg-iris-600 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Plus className="w-5 h-5" />
               Create Invitation
@@ -410,7 +427,16 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {invitations.length === 0 ? (
+                  {dataLoading ? (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-12 text-center">
+                        <div className="flex justify-center items-center gap-3">
+                          <RefreshCw className="w-5 h-5 text-gray-400 animate-spin" />
+                          <span className="text-gray-500">Loading invitations...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : invitations.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                         No invitations yet. Create your first invitation to get started.
@@ -491,7 +517,7 @@ export default function AdminPage() {
       </ViewportContainer>
 
       {/* Create Invitation Modal */}
-      <Modal isOpen={showCreateModal} onClose={() => {
+      <Modal isOpen={showCreateModal && !dataLoading} onClose={() => {
         setShowCreateModal(false);
         setFormData({ company: '', companyLogo: '', personalMessage: '', sendImmediately: true });
         setUsersList([]);

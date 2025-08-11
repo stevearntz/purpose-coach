@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
-  ArrowLeft, Send, Users, Calendar, Settings, Search, Filter, 
+  ArrowLeft, Send, Users, Calendar, Settings, Search,
   ChevronDown, X, Plus, Upload, Clock, Target, AlertCircle,
   CheckCircle, UserPlus, Download
 } from 'lucide-react'
@@ -135,9 +135,6 @@ function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }>
   const [companyUsers, setCompanyUsers] = useState<CompanyUser[]>([])
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set())
   const [searchQuery, setSearchQuery] = useState('')
-  const [filterDepartment, setFilterDepartment] = useState<string>('all')
-  const [filterRole, setFilterRole] = useState<string>('all')
-  const [showFilters, setShowFilters] = useState(false)
   
   // UI state
   const [loading, setLoading] = useState(false)
@@ -479,15 +476,6 @@ function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }>
                       className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500"
                     />
                   </div>
-                  
-                  <button
-                    onClick={() => setShowFilters(!showFilters)}
-                    className="px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors flex items-center gap-2"
-                  >
-                    <Filter className="w-4 h-4" />
-                    Filters
-                    <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-                  </button>
 
                   <button
                     onClick={selectAll}
@@ -496,38 +484,6 @@ function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }>
                     {selectedUsers.size === filteredUsers.length ? 'Deselect All' : 'Select All'}
                   </button>
                 </div>
-
-                {/* Filters */}
-                {showFilters && (
-                  <div className="mt-4 p-4 bg-white/5 rounded-lg grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-white/80 mb-2">Department</label>
-                      <select
-                        value={filterDepartment}
-                        onChange={(e) => setFilterDepartment(e.target.value)}
-                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-purple-500"
-                      >
-                        <option value="all">All Departments</option>
-                        {departments.map(dept => (
-                          <option key={dept} value={dept}>{dept}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-white/80 mb-2">Role</label>
-                      <select
-                        value={filterRole}
-                        onChange={(e) => setFilterRole(e.target.value)}
-                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-purple-500"
-                      >
-                        <option value="all">All Roles</option>
-                        {roles.map(role => (
-                          <option key={role} value={role}>{role}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* User List */}

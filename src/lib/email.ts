@@ -85,38 +85,67 @@ export async function sendEmail(options: EmailOptions) {
 export async function sendInvitationEmail({
   to,
   recipientName,
+  userName,
   companyName,
   companyLogo,
   inviteUrl,
   inviterName,
   personalMessage,
+  assessmentName,
+  deadline,
 }: {
   to: string;
   recipientName?: string;
+  userName?: string;
   companyName: string;
   companyLogo?: string;
   inviteUrl: string;
   inviterName?: string;
   personalMessage?: string;
+  assessmentName?: string;
+  deadline?: string | null;
 }) {
-  // Dynamically import the email template to avoid client-side issues
-  const { InvitationEmail } = await import('@/emails/invitation');
-  
-  const emailElement = InvitationEmail({
-    inviteUrl,
-    recipientName,
-    recipientEmail: to,
-    companyName,
-    companyLogo,
-    inviterName,
-    personalMessage,
-  });
-  
-  return sendEmail({
-    to,
-    subject: `You're invited to join ${companyName} on Campfire`,
-    react: emailElement,
-  });
+  // If this is an assessment invitation, use the assessment template
+  if (assessmentName) {
+    // Dynamically import the assessment email template
+    const { AssessmentInvitationEmail } = await import('@/emails/assessment-invitation');
+    
+    const emailElement = AssessmentInvitationEmail({
+      userName: userName || recipientName || to.split('@')[0],
+      inviterName: inviterName || 'Your organization',
+      companyName,
+      companyLogo,
+      inviteUrl,
+      personalMessage,
+      assessmentName,
+      deadline,
+    });
+    
+    return sendEmail({
+      to,
+      subject: `Action Required: Complete your ${assessmentName}`,
+      react: emailElement,
+    });
+  } else {
+    // Use the general invitation template
+    const { InvitationEmail } = await import('@/emails/invitation');
+    
+    const emailElement = InvitationEmail({
+      inviteUrl,
+      recipientName,
+      recipientEmail: to,
+      companyName,
+      companyLogo,
+      inviterName,
+      personalMessage,
+    });
+    
+    return sendEmail({
+      to,
+      subject: `You're invited to join ${companyName} on Campfire`,
+      react: emailElement,
+    });
+  }
 }
 
 /**

@@ -239,54 +239,62 @@ function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }>
       return
     }
 
+    // Show confirmation dialog
+    const confirmMessage = `You are about to send ${selectedUsers.size} email invitation${selectedUsers.size > 1 ? 's' : ''} for the ${tool.title} assessment.\n\nAre you sure you want to proceed?`
+    if (!window.confirm(confirmMessage)) {
+      return
+    }
+
     setCreating(true)
     try {
       // Get selected user details
       const participants = Array.from(selectedUsers).map(email => {
         const user = companyUsers.find(u => u.email === email)!
         return {
-          userId: email, // In real app, this would be user ID
           email,
-          name: `${user.firstName} ${user.lastName}`
+          name: `${user.firstName} ${user.lastName}`.trim()
         }
       })
 
-      // Create campaign
-      const response = await fetch('/api/campaigns', {
+      const senderEmail = localStorage.getItem('campfire_user_email')
+      const companyName = localStorage.getItem('campfire_user_company')
+
+      // Launch campaign and send emails
+      const response = await fetch('/api/campaigns/launch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           toolId,
           toolName: tool.title,
           toolPath: tool.path,
-          name: campaignName,
-          description: customMessage,
+          campaignName,
+          customMessage,
           startDate,
           deadline,
           participants,
-          settings: {
-            sendReminders,
-            anonymousResults,
-            reminderFrequency: 'weekly',
-            allowLateSubmissions: true,
-            requiredCompletion: false
-          },
-          createdBy: localStorage.getItem('campfire_user_email'),
-          companyId: localStorage.getItem('campfire_user_company') || 'default'
+          senderEmail,
+          companyName
         })
       })
 
       if (!response.ok) {
-        throw new Error('Failed to create campaign')
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to launch campaign')
       }
 
-      const campaign = await response.json()
-      showSuccess(`Campaign "${campaignName}" created successfully!`)
+      const result = await response.json()
       
-      // Redirect to campaign dashboard
+      // Show success message with email count
+      if (result.emailsSent > 0) {
+        showSuccess(`Campaign launched! ${result.emailsSent} invitation${result.emailsSent > 1 ? 's' : ''} sent successfully.`)
+      } else {
+        showSuccess(`Campaign created! Invitations will need to be sent manually.`)
+      }
+      
+      // Redirect to campaigns tab
       setTimeout(() => {
-        router.push(`/dashboard/campaigns/${campaign.id}`)
-      }, 1500)
+        router.push('/dashboard?tab=campaigns')
+      }, 2000)
     } catch (error) {
       console.error('Failed to create campaign:', error)
       showError('Failed to create campaign. Please try again.')
@@ -635,6 +643,24 @@ function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }>
                       </div>
                     )
                   })}
+                </div>
+              </div>
+
+              {/* Email Notification Warning */}
+              <div className="bg-purple-600/20 backdrop-blur-sm rounded-xl p-6 border border-purple-500/30">
+                <div className="flex items-start gap-3">
+                  <Send className="w-5 h-5 text-purple-400 mt-0.5" />
+                  <div>
+                    <h3 className="text-white font-medium mb-2">Email Invitations Will Be Sent</h3>
+                    <p className="text-white/80 text-sm">
+                      When you launch this campaign, all {selectedUsers.size} selected participant{selectedUsers.size !== 1 ? 's' : ''} will receive an email invitation to complete the {tool.title}.
+                    </p>
+                    {customMessage && (
+                      <p className="text-white/60 text-sm mt-2">
+                        Your custom message will be included in the invitation email.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
 

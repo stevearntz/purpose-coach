@@ -6,6 +6,7 @@ import {
   ChevronRight, FileText, Clock, CheckCircle, AlertCircle,
   Target, Brain, Shield, MessageSquare
 } from 'lucide-react'
+import IndividualResultsView from './IndividualResultsView'
 
 interface CampaignResult {
   id: string
@@ -260,85 +261,14 @@ export default function ResultsTab() {
           </div>
         )
       ) : (
-        /* Individual Results View */
-        individualResults.length === 0 ? (
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-12 border border-white/10 text-center">
-            <Users className="w-16 h-16 text-white/40 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">
-              No Individual Results Yet
-            </h3>
-            <p className="text-white/60 max-w-md mx-auto">
-              Individual assessment results will appear here as participants complete their assessments
-            </p>
-          </div>
-        ) : (
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="border-b border-white/10">
-                  <tr>
-                    <th className="text-left px-6 py-4 text-sm font-medium text-white/80">
-                      Participant
-                    </th>
-                    <th className="text-left px-6 py-4 text-sm font-medium text-white/80">
-                      Assessment
-                    </th>
-                    <th className="text-left px-6 py-4 text-sm font-medium text-white/80">
-                      Campaign
-                    </th>
-                    <th className="text-left px-6 py-4 text-sm font-medium text-white/80">
-                      Completed
-                    </th>
-                    <th className="text-left px-6 py-4 text-sm font-medium text-white/80">
-                      Status
-                    </th>
-                    <th className="text-left px-6 py-4 text-sm font-medium text-white/80">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {individualResults.map((result) => (
-                    <tr
-                      key={result.id}
-                      className="hover:bg-white/5 transition-colors cursor-pointer"
-                    >
-                      <td className="px-6 py-4">
-                        <div>
-                          <div className="text-sm font-medium text-white">
-                            {result.participantName}
-                          </div>
-                          <div className="text-xs text-white/60">
-                            {result.participantEmail}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-white/80">
-                        {result.assessmentType}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-white/80">
-                        {result.campaignName || '-'}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-white/80">
-                        {result.completedAt ? formatDate(result.completedAt) : '-'}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(result.status)}`}>
-                          {result.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <button className="text-purple-400 hover:text-purple-300 text-sm font-medium">
-                          View Details
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )
+        /* Individual Results View - Using new expandable card component */
+        <IndividualResultsView 
+          results={individualResults.map(result => ({
+            ...result,
+            status: result.status.toLowerCase() as 'completed' | 'started' | 'invited' | 'pending'
+          }))} 
+          loading={loading} 
+        />
       )}
 
       {/* Campaign Detail Modal */}

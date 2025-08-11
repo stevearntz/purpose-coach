@@ -41,6 +41,20 @@ export async function POST(request: NextRequest) {
       });
     }
     
+    // Create the campaign record
+    const campaign = await prisma.campaign.create({
+      data: {
+        name: campaignName,
+        description: customMessage || `${toolName} assessment campaign`,
+        companyId: company.id,
+        status: 'ACTIVE',
+        startDate: startDate ? new Date(startDate) : new Date(),
+        endDate: deadline ? new Date(deadline) : null
+      }
+    });
+    
+    console.log('[campaign-launch] Created campaign:', campaign.id, campaign.name);
+    
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.headers.get('origin') || 'http://localhost:3000';
     const results = [];
     let sentCount = 0;

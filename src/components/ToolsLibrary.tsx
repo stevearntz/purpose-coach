@@ -212,14 +212,14 @@ export default function ToolsLibrary({
   return (
     <div>
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-white mb-2">
-          {filterType === 'assessment' && 'Assessment Tools'}
+        <h2 className="text-2xl font-bold text-white mb-3">
+          {filterType === 'assessment' && 'Launch Assessment Campaigns'}
           {filterType === 'reflection' && 'Reflection Tools'}
           {filterType === 'conversation-guide' && 'Conversation Guides'}
           {filterType === 'all' && 'All Tools'}
         </h2>
-        <p className="text-white/70">
-          {filterType === 'assessment' && 'Create campaigns to assess your team\'s current state and identify areas for growth.'}
+        <p className="text-lg text-white/80">
+          {filterType === 'assessment' && 'Select an assessment below to invite your team and gather insights about their needs, challenges, and opportunities for growth.'}
           {filterType === 'reflection' && 'Tools for personal and team reflection to drive insights and growth.'}
           {filterType === 'conversation-guide' && 'Structured guides to facilitate meaningful team conversations.'}
           {filterType === 'all' && 'Choose from our complete library of assessment, reflection, and conversation tools.'}
@@ -236,7 +236,7 @@ export default function ToolsLibrary({
             {/* Background gradient overlay */}
             <div className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-10 group-hover:opacity-20 transition-opacity duration-300`} />
             
-            <div className="relative p-6">
+            <div className="relative p-6 flex flex-col h-full">
               <div className="flex items-start justify-between mb-4">
                 <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${tool.gradient} text-white shadow-lg`}>
                   {tool.icon}
@@ -257,15 +257,17 @@ export default function ToolsLibrary({
                 {tool.subtitle}
               </p>
 
-              <p className="text-sm text-white/60 line-clamp-2">
+              <p className="text-sm text-white/60 line-clamp-2 mb-6 flex-grow">
                 {tool.description}
               </p>
 
-              {/* Hover indicator with text */}
-              <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-2">
-                <span className="text-xs text-white/80 font-medium">Create Campaign</span>
-                <div className="p-2 bg-white/10 rounded-full backdrop-blur-sm">
-                  <ArrowRight className="w-4 h-4 text-white/80" />
+              {/* Prominent CTA Button */}
+              <div className="flex items-center justify-center">
+                <div className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-3 rounded-lg group-hover:from-purple-700 group-hover:to-purple-800 transition-all shadow-lg group-hover:shadow-xl">
+                  <span className="text-sm text-white font-semibold">
+                    Launch Campaign
+                  </span>
+                  <ArrowRight className="w-4 h-4 text-white transition-all group-hover:translate-x-1" />
                 </div>
               </div>
             </div>

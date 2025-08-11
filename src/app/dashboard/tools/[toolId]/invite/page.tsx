@@ -520,11 +520,13 @@ function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }>
                             </span>
                             <span className="text-white/60 text-sm">{user.email}</span>
                           </div>
-                          <div className="flex items-center gap-4 mt-1 text-xs text-white/50">
-                            {user.department && <span>{user.department}</span>}
-                            {user.role && <span>• {user.role}</span>}
-                            {user.lastAssessment && <span>• Last assessment: {user.lastAssessment}</span>}
-                          </div>
+                          {(user.department || user.role || user.lastAssessment) && (
+                            <div className="flex items-center gap-4 mt-1 text-xs text-white/50">
+                              {user.department && user.department !== 'user' && <span>{user.department}</span>}
+                              {user.role && user.role !== 'user' && <span>• {user.role}</span>}
+                              {user.lastAssessment && <span>• Last assessment: {user.lastAssessment}</span>}
+                            </div>
+                          )}
                         </div>
                         <span className={`text-xs px-2 py-1 rounded-full ${
                           user.status === 'active' 

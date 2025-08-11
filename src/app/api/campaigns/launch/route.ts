@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
               userName: name || email.split('@')[0],
               inviterName: senderEmail.split('@')[0],
               companyName: company.name,
-              companyLogo: company.logo,
+              companyLogo: company.logo || undefined,
               inviteUrl: assessmentUrl,
               personalMessage: customMessage,
               assessmentName: toolName,
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
                 month: 'long', 
                 day: 'numeric', 
                 year: 'numeric' 
-              }) : null
+              }) : undefined
             });
             
             console.log(`[campaign-launch] ✅ Email sent to ${email}`);

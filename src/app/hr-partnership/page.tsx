@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { ArrowLeft, ArrowRight, Users, Target, Heart, Brain, Lightbulb, MessageSquare, CheckCircle, X, Plus, AlertCircle, Shield, UserCheck, UsersIcon, MessagesSquare, Laptop, Briefcase, GitBranch, Settings, Handshake, ShieldCheck, DollarSign, Package, Link, Cog, Calendar, RefreshCw, Clock, ShieldAlert, Printer } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
 import ToolNavigation from '@/components/ToolNavigation'
@@ -141,10 +142,13 @@ const categoryOptions: { [key: string]: string[] } = {
   ]
 }
 
-export default function HRPartnershipPage() {
+function HRPartnershipContent() {
+  const searchParams = useSearchParams()
   const analytics = useAnalytics()
   const { email, hasStoredEmail, captureEmailForTool } = useEmailCapture()
   const config = toolConfigs.hrPartnership
+  const inviteCode = searchParams.get('invite') || ''
+  const campaignName = searchParams.get('campaign') || ''
   const [currentStage, setCurrentStage] = useState('intro')
   const [categoryIndex, setCategoryIndex] = useState(0)
   const [isGeneratingFollowUp, setIsGeneratingFollowUp] = useState(false)
@@ -209,7 +213,10 @@ export default function HRPartnershipPage() {
   const progress = ((currentStageIndex + 1) / stages.length) * 100
 
   useEffect(() => {
-    analytics.trackToolStart('HR Partnership Assessment')
+    analytics.trackToolStart('HR Partnership Assessment', {
+      inviteCode,
+      campaignName
+    })
   }, [])
 
   useEffect(() => {
@@ -387,16 +394,32 @@ export default function HRPartnershipPage() {
     if (currentStage === 'insights') {
       const completionTime = Math.round((Date.now() - startTime) / 1000)
       
-      // Save assessment to database
+      // Save assessment to database with campaign tracking
       try {
         const response = await fetch('/api/hr-assessments', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ managerData })
+          body: JSON.stringify({ 
+            managerData,
+            inviteCode,
+            campaignName
+          })
         })
         
         if (!response.ok) {
           console.error('Failed to save assessment')
+        }
+        
+        // Update invitation status if this came from a campaign
+        if (inviteCode) {
+          await fetch('/api/invitations/complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              inviteCode,
+              assessmentType: 'HR Partnership Assessment'
+            })
+          })
         }
       } catch (error) {
         console.error('Error saving assessment:', error)
@@ -405,8 +428,24 @@ export default function HRPartnershipPage() {
       analytics.trackToolComplete('HR Partnership Assessment', {
         completionTime,
         categoriesSelected: managerData.selectedCategories.length,
-        hasAIFollowUp: !!managerData.aiFollowUp
+        hasAIFollowUp: !!managerData.aiFollowUp,
+        campaignName: campaignName || 'direct',
+        hasInviteCode: !!inviteCode
       })
+
+      // Update invitation status if coming from campaign
+      if (inviteCode) {
+        fetch('/api/invitations/complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            inviteCode,
+            assessmentType: 'HR Partnership Assessment'
+          })
+        }).catch(error => {
+          console.error('Failed to update invitation status:', error)
+        })
+      }
     }
   }
 
@@ -1238,5 +1277,17 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
         </div>
       </div>
     </ViewportContainer>
+  )
+}
+
+export default function HRPartnershipPage() {
+  return (
+    <Suspense fallback={
+      <ViewportContainer className="bg-gradient-to-br from-[#30C7C7] to-[#2A74B9] flex items-center justify-center">
+        <div className="text-white">Loading assessment...</div>
+      </ViewportContainer>
+    }>
+      <HRPartnershipContent />
+    </Suspense>
   )
 }

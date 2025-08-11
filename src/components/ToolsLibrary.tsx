@@ -41,16 +41,16 @@ const tools: Tool[] = [
     icon: <ShieldCheck className="w-8 h-8" />,
     type: 'conversation-guide'
   },
-  {
-    id: 'burnout-assessment',
-    path: '/burnout-assessment',
-    title: 'Burnout Assessment',
-    subtitle: 'Check your energy levels',
-    description: 'Evaluate your current state and get strategies for maintaining well-being.',
-    gradient: 'from-[#74DEDE] to-[#30B859]',
-    icon: <Heart className="w-8 h-8" />,
-    type: 'assessment'
-  },
+  // {
+  //   id: 'burnout-assessment',
+  //   path: '/burnout-assessment',
+  //   title: 'Burnout Assessment',
+  //   subtitle: 'Check your energy levels',
+  //   description: 'Evaluate your current state and get strategies for maintaining well-being.',
+  //   gradient: 'from-[#74DEDE] to-[#30B859]',
+  //   icon: <Heart className="w-8 h-8" />,
+  //   type: 'assessment'
+  // },
   {
     id: 'decision-audit',
     path: '/decision-making-audit',
@@ -61,26 +61,26 @@ const tools: Tool[] = [
     icon: <Brain className="w-8 h-8" />,
     type: 'reflection'
   },
-  {
-    id: 'change-style',
-    path: '/change-style',
-    title: 'Change Style Profile',
-    subtitle: 'Discover your change persona',
-    description: 'Understand how you naturally respond to change.',
-    gradient: 'from-[#F595B6] to-[#BF4C74]',
-    icon: <Target className="w-8 h-8" />,
-    type: 'assessment'
-  },
-  {
-    id: 'change-readiness',
-    path: '/change-readiness-assessment',
-    title: 'Change Readiness Assessment',
-    subtitle: 'Navigate change confidently',
-    description: 'Assess your readiness for change and identify where you need support.',
-    gradient: 'from-[#F595B6] to-[#BF4C74]',
-    icon: <Target className="w-8 h-8" />,
-    type: 'assessment'
-  },
+  // {
+  //   id: 'change-style',
+  //   path: '/change-style',
+  //   title: 'Change Style Profile',
+  //   subtitle: 'Discover your change persona',
+  //   description: 'Understand how you naturally respond to change.',
+  //   gradient: 'from-[#F595B6] to-[#BF4C74]',
+  //   icon: <Target className="w-8 h-8" />,
+  //   type: 'assessment'
+  // },
+  // {
+  //   id: 'change-readiness',
+  //   path: '/change-readiness-assessment',
+  //   title: 'Change Readiness Assessment',
+  //   subtitle: 'Navigate change confidently',
+  //   description: 'Assess your readiness for change and identify where you need support.',
+  //   gradient: 'from-[#F595B6] to-[#BF4C74]',
+  //   icon: <Target className="w-8 h-8" />,
+  //   type: 'assessment'
+  // },
   {
     id: 'user-guide',
     path: '/user-guide',

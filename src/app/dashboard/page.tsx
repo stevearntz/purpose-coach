@@ -471,8 +471,7 @@ function DashboardContent() {
                         <th className="pb-3 pr-4">NAME</th>
                         <th className="pb-3 pr-4">STATUS</th>
                         <th className="pb-3 pr-4">LAST SIGN IN</th>
-                        <th className="pb-3 pr-4">LAST ASSESSMENT</th>
-                        <th className="pb-3"></th>
+                        <th className="pb-3">LAST ASSESSMENT</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -511,15 +510,8 @@ function DashboardContent() {
                             <td className="py-4 pr-4 text-white/60">
                               {user.lastSignIn ? new Date(user.lastSignIn).toLocaleDateString() : '-'}
                             </td>
-                            <td className="py-4 pr-4 text-white/60">
-                              {user.lastAssessment ? new Date(user.lastAssessment).toLocaleDateString() : '-'}
-                            </td>
                             <td className="py-4 text-white/60">
-                              {user.status === 'created' && (
-                                <button className="text-purple-400 hover:text-purple-300 text-sm">
-                                  Send Invite
-                                </button>
-                              )}
+                              {user.lastAssessment ? new Date(user.lastAssessment).toLocaleDateString() : '-'}
                             </td>
                           </tr>
                         )

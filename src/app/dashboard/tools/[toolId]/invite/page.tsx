@@ -139,6 +139,7 @@ function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }>
   // UI state
   const [loading, setLoading] = useState(false)
   const [creating, setCreating] = useState(false)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
 
   useEffect(() => {
     params.then(p => {
@@ -239,12 +240,12 @@ function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }>
       return
     }
 
-    // Show confirmation dialog
-    const confirmMessage = `You are about to send ${selectedUsers.size} email invitation${selectedUsers.size > 1 ? 's' : ''} for the ${tool.title} assessment.\n\nAre you sure you want to proceed?`
-    if (!window.confirm(confirmMessage)) {
-      return
-    }
+    // Show custom confirmation modal
+    setShowConfirmModal(true)
+  }
 
+  const handleConfirmLaunch = async () => {
+    setShowConfirmModal(false)
     setCreating(true)
     try {
       // Get selected user details
@@ -693,6 +694,73 @@ function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }>
           )}
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowConfirmModal(false)}
+          />
+          
+          {/* Modal */}
+          <div className="relative bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                <Send className="w-6 h-6 text-purple-600" />
+              </div>
+              
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Confirm Campaign Launch
+                </h3>
+                
+                <p className="text-gray-600 mb-4">
+                  You are about to send <strong>{selectedUsers.size} email invitation{selectedUsers.size !== 1 ? 's' : ''}</strong> for 
+                  the <strong>{tool.title}</strong> assessment.
+                </p>
+                
+                {customMessage && (
+                  <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                    <p className="text-sm text-gray-600">
+                      <strong>Your message:</strong><br />
+                      {customMessage}
+                    </p>
+                  </div>
+                )}
+                
+                <p className="text-sm text-gray-500">
+                  Are you sure you want to proceed?
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmLaunch}
+                disabled={creating}
+                className="flex-1 px-4 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {creating ? (
+                  'Sending...'
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Send Invitations
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </ViewportContainer>

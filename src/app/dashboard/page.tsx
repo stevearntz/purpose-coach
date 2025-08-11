@@ -45,6 +45,15 @@ function DashboardContent() {
   const [sendingInvites, setSendingInvites] = useState(false)
   const [csvFile, setCsvFile] = useState<File | null>(null)
   const [copiedLink, setCopiedLink] = useState(false)
+  
+  // Check URL params for initial tab
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const tab = params.get('tab')
+    if (tab && ['users', 'tools', 'campaigns', 'results', 'recommendations'].includes(tab)) {
+      setActiveTab(tab)
+    }
+  }, [])
 
   useEffect(() => {
     // First try to get authenticated user data

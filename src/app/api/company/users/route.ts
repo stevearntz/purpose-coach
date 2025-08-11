@@ -46,42 +46,77 @@ export async function GET(request: NextRequest) {
       }
     });
     
-    // Get all admins for this company to track last login
+    // Get all admins for this company
     const admins = await prisma.admin.findMany({
       where: { companyId: company.id },
       select: {
         email: true,
-        lastLogin: true
+        name: true,
+        lastLogin: true,
+        createdAt: true
         // lastAssessment: true // TODO: Add after migration is applied
       }
     });
     
-    // Transform invitations to users format
-    const users = invitations.map(inv => {
-      // Find corresponding admin for last login
-      const admin = admins.find(a => a.email === inv.email);
-      
-      // Determine status: COMPLETED = active, SENT = invited, PENDING = created
+    // Create a map of all users (combining invitations and admins)
+    const userMap = new Map();
+    
+    // First, add all invitations
+    invitations.forEach(inv => {
+      userMap.set(inv.email, {
+        email: inv.email,
+        name: inv.name,
+        status: inv.status,
+        sentAt: inv.sentAt,
+        completedAt: inv.completedAt,
+        createdAt: inv.createdAt
+      });
+    });
+    
+    // Then, add or update with admin data
+    admins.forEach(admin => {
+      const existing = userMap.get(admin.email);
+      if (existing) {
+        // Update existing invitation with admin data
+        existing.adminData = admin;
+      } else {
+        // Admin exists without invitation (e.g., company creator)
+        userMap.set(admin.email, {
+          email: admin.email,
+          name: admin.name,
+          status: 'COMPLETED', // If they're an admin, they're active
+          completedAt: admin.createdAt,
+          createdAt: admin.createdAt,
+          adminData: admin
+        });
+      }
+    });
+    
+    // Transform to users format
+    const users = Array.from(userMap.values()).map(userData => {
+      // Determine status
       let status: 'active' | 'invited' | 'created';
-      if (inv.status === 'COMPLETED') {
+      if (userData.adminData || userData.status === 'COMPLETED') {
         status = 'active';
-      } else if (inv.status === 'SENT' || inv.sentAt) {
+      } else if (userData.status === 'SENT' || userData.sentAt) {
         status = 'invited';
       } else {
         status = 'created';
       }
       
+      const name = userData.adminData?.name || userData.name || userData.email.split('@')[0];
+      
       return {
-        id: inv.email,
-        email: inv.email,
-        name: inv.name || inv.email.split('@')[0],
-        firstName: inv.name?.split(' ')[0] || inv.email.split('@')[0],
-        lastName: inv.name?.split(' ').slice(1).join(' ') || '',
+        id: userData.email,
+        email: userData.email,
+        name: name,
+        firstName: name?.split(' ')[0] || userData.email.split('@')[0],
+        lastName: name?.split(' ').slice(1).join(' ') || '',
         status,
-        signedUp: inv.completedAt ? inv.completedAt.toISOString() : 
-                  inv.sentAt ? 'Invited' : 'Created',
-        lastSignIn: admin?.lastLogin?.toISOString() || null,
-        lastAssessment: null, // TODO: admin?.lastAssessment?.toISOString() || null - after migration
+        signedUp: userData.completedAt ? userData.completedAt.toISOString() : 
+                  userData.sentAt ? 'Invited' : 'Created',
+        lastSignIn: userData.adminData?.lastLogin?.toISOString() || null,
+        lastAssessment: null, // TODO: userData.adminData?.lastAssessment?.toISOString() || null
         role: 'user'
       };
     });

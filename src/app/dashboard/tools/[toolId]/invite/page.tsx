@@ -150,9 +150,10 @@ function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }>
       const tool = toolsData[p.toolId]
       if (tool) {
         const today = new Date()
-        const quarter = Math.floor((today.getMonth() + 3) / 3)
-        const year = today.getFullYear()
-        setCampaignName(`Q${quarter} ${year} ${tool.title}`)
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December']
+        const currentMonth = monthNames[today.getMonth()]
+        setCampaignName(`${currentMonth} - ${tool.title}`)
         
         // Set default deadline to 2 weeks from now
         const twoWeeksFromNow = new Date()
@@ -350,7 +351,7 @@ function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }>
                 className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
               >
                 <ArrowLeft className="w-5 h-5" />
-                Back to Tools
+                Back to Assessments
               </button>
               
               {/* Step Indicator */}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { sendInvitationEmail, isEmailServiceConfigured } from '@/lib/email';
+import { isEmailServiceConfigured } from '@/lib/email';
+import { sendInvitationEmailBatch } from '@/lib/email-batch';
 import { nanoid } from 'nanoid';
 
 export async function POST(request: NextRequest) {
@@ -56,11 +57,10 @@ export async function POST(request: NextRequest) {
     console.log('[campaign-launch] Created campaign:', campaign.id, campaign.name);
     
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.headers.get('origin') || 'http://localhost:3000';
-    const results = [];
-    let sentCount = 0;
-    let errorCount = 0;
+    const invitationsToSend: any[] = [];
+    const results: any[] = [];
     
-    // Process each participant
+    // First, create all invitations in the database
     for (const participant of participants) {
       try {
         const { email, name } = participant;
@@ -104,66 +104,84 @@ export async function POST(request: NextRequest) {
           });
         }
         
-        // Send email if service is configured
+        // Prepare email data for batch sending
         if (emailConfigured) {
-          try {
-            // Capitalize the inviter's name properly
-            const inviterName = senderEmail.split('@')[0];
-            const capitalizedInviterName = inviterName.charAt(0).toUpperCase() + inviterName.slice(1).toLowerCase();
-            
-            await sendInvitationEmail({
-              to: email,
-              userName: name || email.split('@')[0],
-              inviterName: capitalizedInviterName,
-              companyName: company.name,
-              companyLogo: company.logo || undefined,
-              inviteUrl: assessmentUrl,
-              personalMessage: customMessage,
-              assessmentName: toolName,
-              deadline: deadline ? new Date(deadline).toLocaleDateString('en-US', { 
-                month: 'long', 
-                day: 'numeric', 
-                year: 'numeric' 
-              }) : undefined
-            });
-            
-            console.log(`[campaign-launch] ✅ Email sent to ${email}`);
-            sentCount++;
-            
-            results.push({
-              email,
-              success: true,
-              message: 'Invitation sent successfully'
-            });
-          } catch (emailError) {
-            console.error(`[campaign-launch] Failed to send email to ${email}:`, emailError);
-            errorCount++;
-            results.push({
-              email,
-              success: false,
-              message: 'Failed to send email',
-              error: emailError instanceof Error ? emailError.message : 'Unknown error'
-            });
-          }
-        } else {
-          // No email sent, but invitation created
-          results.push({
-            email,
-            success: true,
-            message: 'Invitation created (email service not configured)',
-            inviteUrl: assessmentUrl
+          // Capitalize the inviter's name properly
+          const inviterName = senderEmail.split('@')[0];
+          const capitalizedInviterName = inviterName.charAt(0).toUpperCase() + inviterName.slice(1).toLowerCase();
+          
+          invitationsToSend.push({
+            to: email,
+            userName: name || email.split('@')[0],
+            inviterName: capitalizedInviterName,
+            companyName: company.name,
+            companyLogo: company.logo || undefined,
+            inviteUrl: assessmentUrl,
+            personalMessage: customMessage,
+            assessmentName: toolName,
+            deadline: deadline ? new Date(deadline).toLocaleDateString('en-US', { 
+              month: 'long', 
+              day: 'numeric', 
+              year: 'numeric' 
+            }) : undefined
           });
         }
         
+        // Track invitation creation
+        results.push({
+          email,
+          success: true,
+          message: 'Invitation created',
+          inviteUrl: assessmentUrl
+        });
+        
       } catch (error) {
-        console.error(`[campaign-launch] Failed to process participant ${participant.email}:`, error);
-        errorCount++;
+        console.error(`[campaign-launch] Failed to create invitation for ${participant.email}:`, error);
         results.push({
           email: participant.email,
           success: false,
           message: 'Failed to create invitation',
           error: error instanceof Error ? error.message : 'Unknown error'
         });
+      }
+    }
+    
+    // Send all emails in batch with rate limiting
+    let sentCount = 0;
+    let errorCount = 0;
+    
+    if (emailConfigured && invitationsToSend.length > 0) {
+      console.log(`[campaign-launch] Sending ${invitationsToSend.length} emails in batch...`);
+      
+      try {
+        const emailResults = await sendInvitationEmailBatch(invitationsToSend, {
+          maxConcurrent: 3,  // Send 3 emails at a time
+          delayBetweenBatches: 1500,  // 1.5 seconds between batches
+          retryFailures: true,
+          maxRetries: 2
+        });
+        
+        // Update results with email sending status
+        emailResults.forEach(emailResult => {
+          const resultIndex = results.findIndex(r => r.email === emailResult.email);
+          if (resultIndex !== -1) {
+            if (emailResult.success) {
+              results[resultIndex].message = 'Invitation sent successfully';
+              results[resultIndex].emailSent = true;
+              sentCount++;
+            } else {
+              results[resultIndex].message = 'Invitation created but email failed';
+              results[resultIndex].emailError = emailResult.error;
+              errorCount++;
+            }
+          }
+        });
+        
+        console.log(`[campaign-launch] Email batch complete: ${sentCount} sent, ${errorCount} failed`);
+        
+      } catch (batchError) {
+        console.error('[campaign-launch] Batch email sending failed:', batchError);
+        errorCount = invitationsToSend.length;
       }
     }
     

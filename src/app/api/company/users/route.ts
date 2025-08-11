@@ -46,13 +46,13 @@ export async function GET(request: NextRequest) {
       }
     });
     
-    // Get all admins for this company to track last login and last assessment
+    // Get all admins for this company to track last login
     const admins = await prisma.admin.findMany({
       where: { companyId: company.id },
       select: {
         email: true,
-        lastLogin: true,
-        lastAssessment: true
+        lastLogin: true
+        // lastAssessment: true // TODO: Add after migration is applied
       }
     });
     
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
         signedUp: inv.completedAt ? inv.completedAt.toISOString() : 
                   inv.sentAt ? 'Invited' : 'Created',
         lastSignIn: admin?.lastLogin?.toISOString() || null,
-        lastAssessment: admin?.lastAssessment?.toISOString() || null,
+        lastAssessment: null, // TODO: admin?.lastAssessment?.toISOString() || null - after migration
         role: 'user'
       };
     });

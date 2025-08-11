@@ -30,7 +30,7 @@ model Admin {
   companyId      String
   isActive       Boolean  @default(true)
   lastLogin      DateTime?
-  lastAssessment DateTime?
+  // lastAssessment DateTime? // TODO: Add after migration is applied
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   

@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       company,
       currentUser,
-      users: users.filter(u => u.email !== email) // Exclude current user from list
+      users // Include all users, including current user
     });
   } catch (error) {
     console.error('Failed to fetch company users:', error);

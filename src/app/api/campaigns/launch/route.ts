@@ -107,10 +107,14 @@ export async function POST(request: NextRequest) {
         // Send email if service is configured
         if (emailConfigured) {
           try {
+            // Capitalize the inviter's name properly
+            const inviterName = senderEmail.split('@')[0];
+            const capitalizedInviterName = inviterName.charAt(0).toUpperCase() + inviterName.slice(1).toLowerCase();
+            
             await sendInvitationEmail({
               to: email,
               userName: name || email.split('@')[0],
-              inviterName: senderEmail.split('@')[0],
+              inviterName: capitalizedInviterName,
               companyName: company.name,
               companyLogo: company.logo || undefined,
               inviteUrl: assessmentUrl,

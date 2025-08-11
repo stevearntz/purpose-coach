@@ -177,33 +177,8 @@ function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }>
       const response = await fetch(`/api/company/users?email=${userEmail}`)
       if (response.ok) {
         const data = await response.json()
-        // Simulate additional user data for demo
-        const enrichedUsers = data.users.map((user: any, index: number) => ({
-          ...user,
-          department: ['Engineering', 'Sales', 'Marketing', 'Operations', 'HR'][index % 5],
-          role: ['Manager', 'IC', 'Senior Manager', 'Director', 'VP'][index % 5],
-          lastAssessment: index % 3 === 0 ? '2 months ago' : index % 3 === 1 ? '6 months ago' : 'Never'
-        }))
-        
-        // Add more simulated users for realistic testing
-        for (let i = data.users.length; i < 50; i++) {
-          const departments = ['Engineering', 'Sales', 'Marketing', 'Operations', 'HR', 'Finance', 'Legal', 'Product']
-          const roles = ['Manager', 'IC', 'Senior Manager', 'Director', 'VP', 'Engineer', 'Analyst', 'Specialist']
-          const firstNames = ['John', 'Jane', 'Mike', 'Sarah', 'David', 'Emily', 'Chris', 'Lisa', 'Tom', 'Amy']
-          const lastNames = ['Smith', 'Johnson', 'Brown', 'Davis', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Thomas', 'Jackson']
-          
-          enrichedUsers.push({
-            email: `user${i}@company.com`,
-            firstName: firstNames[i % firstNames.length],
-            lastName: lastNames[i % lastNames.length],
-            status: 'active',
-            department: departments[i % departments.length],
-            role: roles[i % roles.length],
-            lastAssessment: i % 4 === 0 ? '1 month ago' : i % 4 === 1 ? '3 months ago' : i % 4 === 2 ? '6 months ago' : 'Never'
-          })
-        }
-        
-        setCompanyUsers(enrichedUsers)
+        // Just use the real users from the API
+        setCompanyUsers(data.users || [])
       }
     } catch (error) {
       console.error('Failed to load company users:', error)
@@ -223,21 +198,14 @@ function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }>
     )
   }
 
-  // Filter users based on search and filters
+  // Filter users based on search only
   const filteredUsers = companyUsers.filter(user => {
     const matchesSearch = searchQuery === '' || 
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchQuery.toLowerCase())
     
-    const matchesDepartment = filterDepartment === 'all' || user.department === filterDepartment
-    const matchesRole = filterRole === 'all' || user.role === filterRole
-    
-    return matchesSearch && matchesDepartment && matchesRole
+    return matchesSearch
   })
-
-  // Get unique departments and roles for filters
-  const departments = Array.from(new Set(companyUsers.map(u => u.department).filter(Boolean)))
-  const roles = Array.from(new Set(companyUsers.map(u => u.role).filter(Boolean)))
 
   const toggleUser = (email: string) => {
     const newSelected = new Set(selectedUsers)

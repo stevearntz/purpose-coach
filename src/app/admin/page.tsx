@@ -903,7 +903,11 @@ export default function AdminPage() {
               {selectedInvite.company && (
                 <div>
                   <label className="block text-sm font-medium text-gray-500">Company</label>
-                  <p className="text-lg text-gray-900">{selectedInvite.company}</p>
+                  <p className="text-lg text-gray-900">
+                    {typeof selectedInvite.company === 'string' 
+                      ? selectedInvite.company 
+                      : selectedInvite.company.name}
+                  </p>
                 </div>
               )}
 

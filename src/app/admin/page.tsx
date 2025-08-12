@@ -12,7 +12,7 @@ interface Invitation {
   id: string;
   email: string;
   name?: string;
-  company?: string;
+  company?: string | { id: string; name: string; logo?: string };
   inviteCode: string;
   inviteUrl: string;
   status: 'pending' | 'sent' | 'opened' | 'started' | 'completed';
@@ -490,7 +490,7 @@ export default function AdminPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {invitation.company || '-'}
+                          {typeof invitation.company === 'string' ? invitation.company : invitation.company?.name || '-'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(invitation.status)}`}>

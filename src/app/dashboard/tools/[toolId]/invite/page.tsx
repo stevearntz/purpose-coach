@@ -165,20 +165,29 @@ function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }>
 
   useEffect(() => {
     // Load company users
-    const userEmail = localStorage.getItem('campfire_user_email')
-    if (userEmail) {
-      loadCompanyUsers(userEmail)
+    if (session?.user?.email) {
+      loadCompanyUsers(session.user.email)
+    } else {
+      // Fallback to localStorage
+      const userEmail = localStorage.getItem('campfire_user_email')
+      if (userEmail) {
+        loadCompanyUsers(userEmail)
+      }
     }
-  }, [])
+  }, [session])
 
   const loadCompanyUsers = async (userEmail: string) => {
     setLoading(true)
     try {
-      const response = await fetch(`/api/company/users/v2?email=${userEmail}`)
+      const response = await fetch(`/api/company/users/v2?email=${userEmail}`, {
+        credentials: 'include' // Include auth cookies
+      })
       if (response.ok) {
         const data = await response.json()
         // Just use the real users from the API
         setCompanyUsers(data.users || [])
+      } else {
+        console.error('Failed to load company users:', response.status)
       }
     } catch (error) {
       console.error('Failed to load company users:', error)

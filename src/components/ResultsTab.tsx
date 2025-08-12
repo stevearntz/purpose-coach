@@ -55,7 +55,7 @@ export default function ResultsTab() {
   const loadCampaignResults = async () => {
     setLoading(true)
     try {
-      // Use authenticated endpoint with session
+      // Use authenticated endpoint ONLY
       const response = await fetch('/api/results/campaigns', {
         credentials: 'include' // Include auth cookies
       })
@@ -63,15 +63,8 @@ export default function ResultsTab() {
         const data = await response.json()
         setCampaignResults(data.results || [])
       } else if (response.status === 401) {
-        // Fallback for unauthenticated state
-        const userEmail = localStorage.getItem('campfire_user_email')
-        if (userEmail) {
-          const fallbackResponse = await fetch(`/api/results/campaigns?email=${userEmail}`)
-          if (fallbackResponse.ok) {
-            const data = await fallbackResponse.json()
-            setCampaignResults(data.results || [])
-          }
-        }
+        console.error('Authentication required - user must be logged in')
+        setCampaignResults([])
       }
     } catch (error) {
       console.error('Failed to load campaign results:', error)
@@ -83,7 +76,7 @@ export default function ResultsTab() {
   const loadIndividualResults = async () => {
     setLoading(true)
     try {
-      // Use authenticated endpoint with session
+      // Use authenticated endpoint ONLY
       const response = await fetch('/api/results/individuals', {
         credentials: 'include' // Include auth cookies
       })
@@ -91,15 +84,8 @@ export default function ResultsTab() {
         const data = await response.json()
         setIndividualResults(data.results || [])
       } else if (response.status === 401) {
-        // Fallback for unauthenticated state
-        const userEmail = localStorage.getItem('campfire_user_email')
-        if (userEmail) {
-          const fallbackResponse = await fetch(`/api/results/individuals?email=${userEmail}`)
-          if (fallbackResponse.ok) {
-            const data = await fallbackResponse.json()
-            setIndividualResults(data.results || [])
-          }
-        }
+        console.error('Authentication required - user must be logged in')
+        setIndividualResults([])
       }
     } catch (error) {
       console.error('Failed to load individual results:', error)

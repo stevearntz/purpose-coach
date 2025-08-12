@@ -13,11 +13,14 @@ const signInSchema = z.object({
 })
 
 export const authConfig: NextAuthConfig = {
-  adapter: PrismaAdapter(prisma),
+  // Remove adapter when using JWT strategy - adapters are for database sessions
+  // adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+  secret: process.env.NEXTAUTH_SECRET, // Ensure secret is set
+  trustHost: true, // Important for production and API routes
   pages: {
     signIn: "/login",
     error: "/login",

@@ -7,9 +7,9 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const campaignId = searchParams.get('campaignId');
     
-    // Get authenticated user
+    // Get authenticated user - NO FALLBACKS
     const user = await getServerSession();
-    const email = user?.email || searchParams.get('email'); // Fallback for backwards compatibility
+    const email = user?.email;
     
     if (!email) {
       return NextResponse.json(

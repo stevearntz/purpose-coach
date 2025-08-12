@@ -237,6 +237,118 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                       </li>
                     ))}
                   </ul>
+                ) : assessment.insights && typeof assessment.insights === 'object' ? (
+                  <div className="space-y-4">
+                    {/* Handle HR Partnership specific structure */}
+                    {assessment.insights.skillGaps && (
+                      <div>
+                        <h6 className="font-medium text-gray-700 mb-2">Skill Gaps</h6>
+                        <div className="grid grid-cols-2 gap-3">
+                          {Object.entries(assessment.insights.skillGaps).map(([category, details]: [string, any]) => (
+                            <div key={category} className="bg-purple-50 rounded-lg p-3">
+                              <p className="text-sm font-medium text-purple-700">{category}</p>
+                              {Array.isArray(details) ? (
+                                <ul className="mt-1 text-sm text-gray-600">
+                                  {details.map((item: string, idx: number) => (
+                                    <li key={idx}>• {item}</li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p className="text-sm text-gray-600 mt-1">{String(details)}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {assessment.insights.priorities && (
+                      <div>
+                        <h6 className="font-medium text-gray-700 mb-2">Priorities</h6>
+                        <div className="grid grid-cols-2 gap-3">
+                          {Object.entries(assessment.insights.priorities).map(([category, items]: [string, any]) => (
+                            <div key={category} className="bg-blue-50 rounded-lg p-3">
+                              <p className="text-sm font-medium text-blue-700">{category}</p>
+                              {Array.isArray(items) ? (
+                                <ul className="mt-1 text-sm text-gray-600">
+                                  {items.map((item: string, idx: number) => (
+                                    <li key={idx}>• {item}</li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p className="text-sm text-gray-600 mt-1">{String(items)}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {assessment.insights.cultureNeeds && (
+                      <div>
+                        <h6 className="font-medium text-gray-700 mb-2">Culture Needs</h6>
+                        <div className="grid grid-cols-2 gap-3">
+                          {Object.entries(assessment.insights.cultureNeeds).map(([category, items]: [string, any]) => (
+                            <div key={category} className="bg-green-50 rounded-lg p-3">
+                              <p className="text-sm font-medium text-green-700">{category}</p>
+                              {Array.isArray(items) ? (
+                                <ul className="mt-1 text-sm text-gray-600">
+                                  {items.map((item: string, idx: number) => (
+                                    <li key={idx}>• {item}</li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p className="text-sm text-gray-600 mt-1">{String(items)}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {assessment.insights.supportNeeds && (
+                      <div>
+                        <h6 className="font-medium text-gray-700 mb-2">Support Needs</h6>
+                        <div className="grid grid-cols-2 gap-3">
+                          {Object.entries(assessment.insights.supportNeeds).map(([category, items]: [string, any]) => (
+                            <div key={category} className="bg-yellow-50 rounded-lg p-3">
+                              <p className="text-sm font-medium text-yellow-700">{category}</p>
+                              {Array.isArray(items) ? (
+                                <ul className="mt-1 text-sm text-gray-600">
+                                  {items.map((item: string, idx: number) => (
+                                    <li key={idx}>• {item}</li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p className="text-sm text-gray-600 mt-1">{String(items)}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {assessment.insights.mainChallengeAreas && (
+                      <div>
+                        <h6 className="font-medium text-gray-700 mb-2">Main Challenge Areas</h6>
+                        <div className="space-y-2">
+                          {Object.entries(assessment.insights.mainChallengeAreas).map(([category, details]: [string, any]) => (
+                            <div key={category} className="bg-red-50 rounded-lg p-3">
+                              <p className="text-sm font-medium text-red-700">{category}</p>
+                              <div className="mt-2 space-y-1">
+                                {details.details && (
+                                  <p className="text-sm text-gray-600">{details.details}</p>
+                                )}
+                                {details.challenges && Array.isArray(details.challenges) && (
+                                  <ul className="text-sm text-gray-600">
+                                    {details.challenges.map((challenge: string, idx: number) => (
+                                      <li key={idx}>• {challenge}</li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <div className="bg-gray-50 rounded-lg p-4">
                     <pre className="text-sm text-gray-700 whitespace-pre-wrap">
@@ -395,7 +507,8 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
       {/* Results Cards */}
       <div className="space-y-4">
         {filteredResults.map((result) => {
-          const StatusIcon = statusConfig[result.status].icon
+          const status = result.status || 'pending'
+          const StatusIcon = statusConfig[status]?.icon || Clock
           const isExpanded = expandedId === result.id
           const completionTime = getCompletionTime(result.startedAt, result.completedAt)
           const resultAssessments = assessmentData[result.id] || []
@@ -418,9 +531,9 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                         </h3>
                         <p className="text-sm text-gray-600">{result.participantEmail}</p>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium border ${statusConfig[result.status].color}`}>
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium border ${statusConfig[status]?.color || 'bg-gray-100 text-gray-600 border-gray-200'}`}>
                         <StatusIcon className="w-3 h-3 inline mr-1" />
-                        {statusConfig[result.status].label}
+                        {statusConfig[status]?.label || 'Unknown'}
                       </span>
                     </div>
                     

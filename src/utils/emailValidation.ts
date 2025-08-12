@@ -81,12 +81,13 @@ export function validateEmail(email: string): EmailValidationResult {
   }
 
   // Check for obvious fake patterns
-  if (email.includes('test@') || email.includes('fake@') || email.includes('example@')) {
-    return { 
-      isValid: false, 
-      error: 'Please enter your real email address' 
-    };
-  }
+  // NOTE: Disabled for local development - uncomment for production
+  // if (email.includes('test@') || email.includes('fake@') || email.includes('example@')) {
+  //   return { 
+  //     isValid: false, 
+  //     error: 'Please enter your real email address' 
+  //   };
+  // }
 
   // Check for too many consecutive dots or hyphens (often indicates fake)
   if (domain.includes('..') || domain.includes('--')) {

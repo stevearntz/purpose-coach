@@ -178,6 +178,25 @@ function HRPartnershipContent() {
   const [showSuggestion, setShowSuggestion] = useState(false)
   const [customInputs, setCustomInputs] = useState<{ [key: string]: string }>({})
 
+  // Fetch invitation data if invite code is present
+  useEffect(() => {
+    if (inviteCode) {
+      fetch(`/api/invitations/${inviteCode}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.name || data.email) {
+            setManagerData(prev => ({
+              ...prev,
+              name: data.name || '',
+              email: data.email || '',
+              department: data.department || ''
+            }))
+          }
+        })
+        .catch(err => console.error('Failed to load invitation data:', err))
+    }
+  }, [inviteCode])
+
   // Calculate dynamic stages based on selected categories
   const getDynamicStages = () => {
     const baseStages = [

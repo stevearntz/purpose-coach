@@ -21,12 +21,13 @@ export async function GET(request: NextRequest) {
     // Ensure connection
     await prisma.$connect();
     
-    // Search for companies - fallback to simple contains
-    // This should work with any Prisma provider
+    // Search for companies - case-insensitive search
+    // Using mode: 'insensitive' for case-insensitive search
     const companies = await prisma.company.findMany({
       where: {
         name: {
-          contains: query
+          contains: query,
+          mode: 'insensitive'
         }
       },
       select: {

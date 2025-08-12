@@ -73,6 +73,8 @@ export async function GET(req: NextRequest) {
           startDate: campaign.startDate?.toISOString(),
           endDate: campaign.endDate?.toISOString(),
           participantCount: totalCount,
+          totalParticipants: totalCount,  // Add this field
+          completedCount: completedCount,  // Add this field  
           completionRate: totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0,
           status: campaign.status || 'active',
           participants

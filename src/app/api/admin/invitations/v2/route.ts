@@ -22,7 +22,7 @@ const logger = pino({
 const CreateInvitationSchema = z.object({
   email: EmailSchema,
   name: NameSchema.optional(),
-  companyId: z.string().uuid('Invalid company ID'),
+  companyId: z.string().min(1, 'Company ID is required'),
   personalMessage: z.string().max(1000).optional(),
   sendImmediately: z.boolean().default(false)
 });
@@ -31,7 +31,7 @@ const GetInvitationsSchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(50),
   offset: z.coerce.number().min(0).default(0),
   status: z.enum(['PENDING', 'SENT', 'OPENED', 'STARTED', 'COMPLETED']).optional(),
-  companyId: z.string().uuid().optional()
+  companyId: z.string().optional()
 });
 
 /**

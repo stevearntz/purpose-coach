@@ -76,59 +76,24 @@ function DashboardContent() {
     })
     
     // Track analytics
-    analytics.track('Dashboard Viewed', {
+    analytics.trackEvent('Dashboard Viewed', {
       email: session.user.email,
       company: session.user.companyName
     })
   }, [session, status, router, analytics])
   
   useEffect(() => {
-    // Load company users if we have a session
-    const loadCompanyUsers = async () => {
-      if (!session?.user) return
-      try {
-        const response = await fetch('/api/auth/me', {
-          credentials: 'include'
-        })
-        console.log('[dashboard] Auth check response status:', response.status)
-        if (response.ok) {
-          const authData = await response.json()
-          setUserData({
-            email: authData.email,
-            name: authData.name || authData.email.split('@')[0],
-            company: authData.company,
-            companyId: authData.companyId,
-            role: 'hr_leader' // Default role for now
-          })
-          
-          // Update localStorage with auth data
-          localStorage.setItem('campfire_user_email', authData.email)
-          localStorage.setItem('campfire_user_name', authData.name || '')
-          localStorage.setItem('campfire_user_company', authData.company || '')
-          
-          loadCompanyUsers(authData.email)
-          analytics.trackAction('Dashboard Viewed', {
-            user_email: authData.email,
-            company: authData.company || 'unknown'
-          })
-          return
-        }
-      } catch (error) {
-        console.error('[dashboard] Failed to load auth user:', error)
-      }
-      
-      // If not authenticated, redirect to login
-      console.log('[dashboard] Not authenticated, redirecting to login')
-      router.push('/login')
+    // Load company users if we have user data
+    if (userData?.email) {
+      loadCompanyUsers(userData.email)
     }
-    
-    loadAuthUser()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [userData])
 
   const loadCompanyUsers = async (userEmail: string) => {
     try {
-      const response = await fetch(`/api/company/users/v2?email=${userEmail}`)
+      const response = await fetch(`/api/company/users/v2?email=${userEmail}`, {
+        credentials: 'include'
+      })
       if (response.ok) {
         const data = await response.json()
         setCompanyUsers(data.users || [])

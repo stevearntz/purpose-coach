@@ -104,10 +104,12 @@ export async function middleware(request: NextRequest) {
   }
   
   // Redirect to dashboard if accessing auth routes while authenticated
-  if (isAuthRoute && hasAuth) {
-    console.log('[middleware] Redirecting to dashboard - already has auth cookie')
-    return NextResponse.redirect(new URL('/dashboard', request.url))
-  }
+  // DISABLED: This causes redirect loops with invalid cookies
+  // The login page should handle redirecting authenticated users
+  // if (isAuthRoute && hasAuth) {
+  //   console.log('[middleware] Redirecting to dashboard - already has auth cookie')
+  //   return NextResponse.redirect(new URL('/dashboard', request.url))
+  // }
   
   // Add security headers to response
   const response = NextResponse.next()

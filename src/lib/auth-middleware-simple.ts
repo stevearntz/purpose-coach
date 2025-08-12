@@ -50,10 +50,15 @@ export function withAuth(
 
       // Check admin permission if required
       if (options.requireAdmin) {
-        // For now, all authenticated users are considered admins
-        // In future, check role or company
-        if (session.user.companyName?.toLowerCase() !== 'campfire') {
-          console.log('[auth-middleware-simple] Not a Campfire admin:', session.user.companyName);
+        // Check if user is an admin based on their email domain or company
+        const isAdmin = session.user.email?.endsWith('@getcampfire.com') || 
+                       session.user.companyName?.toLowerCase() === 'campfire';
+        
+        if (!isAdmin) {
+          console.log('[auth-middleware-simple] Not an admin:', {
+            email: session.user.email,
+            company: session.user.companyName
+          });
           return NextResponse.json(
             { error: 'Admin access required' },
             { status: 403 }

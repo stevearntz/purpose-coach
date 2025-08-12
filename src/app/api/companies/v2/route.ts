@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware';
+import { withJWTAuth, JWTAuthenticatedRequest } from '@/lib/jwt-auth-middleware';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
 import prisma from '@/lib/prisma';
@@ -33,7 +33,7 @@ const GetCompaniesSchema = z.object({
  * GET /api/companies/v2
  * Fetch companies with pagination
  */
-export const GET = withAuth(async (req: AuthenticatedRequest) => {
+export const GET = withJWTAuth(async (req: JWTAuthenticatedRequest) => {
   const requestId = nanoid(10);
   logger.info({ requestId, userId: req.user.id }, 'Fetching companies');
   
@@ -126,15 +126,14 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
     await prisma.$disconnect();
   }
 }, {
-  requireAdmin: true,
-  rateLimit: true
+  requireAdmin: true
 });
 
 /**
  * POST /api/companies/v2
  * Create a new company
  */
-export const POST = withAuth(async (req: AuthenticatedRequest) => {
+export const POST = withJWTAuth(async (req: JWTAuthenticatedRequest) => {
   const requestId = nanoid(10);
   logger.info({ requestId, userId: req.user.id }, 'Creating company');
   
@@ -210,8 +209,5 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
     await prisma.$disconnect();
   }
 }, {
-  requireAdmin: true,
-  rateLimit: true,
-  maxRequests: 10,
-  windowMs: '60s'
+  requireAdmin: true
 });

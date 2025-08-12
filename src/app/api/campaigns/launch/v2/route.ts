@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware';
+import { withJWTAuth, JWTAuthenticatedRequest } from '@/lib/jwt-auth-middleware';
 import { CreateCampaignSchema, validateRequestBody } from '@/lib/api-validation';
 import { sendInvitationEmailBatch } from '@/lib/email-batch';
 import { isEmailServiceConfigured } from '@/lib/email';
@@ -28,7 +28,7 @@ const prisma = new PrismaClient({
  * POST /api/campaigns/launch/v2
  * Launch a new assessment campaign with email invitations
  */
-export const POST = withAuth(async (req: AuthenticatedRequest) => {
+export const POST = withJWTAuth(async (req: JWTAuthenticatedRequest) => {
   const requestId = nanoid(10);
   const startTime = Date.now();
   
@@ -268,10 +268,7 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
     await prisma.$disconnect();
   }
 }, {
-  requireAdmin: true,
-  rateLimit: true,
-  maxRequests: 5,
-  windowMs: '60s'
+  requireAdmin: true
 });
 
 /**

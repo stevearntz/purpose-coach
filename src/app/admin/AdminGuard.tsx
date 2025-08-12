@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { Loader2 } from 'lucide-react'
 
 interface AdminGuardProps {
@@ -10,42 +11,27 @@ interface AdminGuardProps {
 
 export default function AdminGuard({ children }: AdminGuardProps) {
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(true)
+  const { data: session, status } = useSession()
   const [isAuthorized, setIsAuthorized] = useState(false)
   
   useEffect(() => {
-    checkAdminAuth()
-  }, [])
-  
-  const checkAdminAuth = async () => {
-    try {
-      const response = await fetch('/api/auth/me', {
-        credentials: 'include'
-      })
-      
-      if (!response.ok) {
-        router.push('/login?redirect=/admin')
-        return
-      }
-      
-      const data = await response.json()
-      
-      // Check if user is from Campfire company (system admin)
-      if (data.company?.toLowerCase() === 'campfire') {
-        setIsAuthorized(true)
-      } else {
-        // Not a Campfire admin, redirect to regular dashboard
-        router.push('/dashboard')
-      }
-    } catch (error) {
-      console.error('Auth check failed:', error)
-      router.push('/login?redirect=/admin')
-    } finally {
-      setIsLoading(false)
+    if (status === 'loading') return
+    
+    if (!session) {
+      router.push('/login?callbackUrl=/admin')
+      return
     }
-  }
+    
+    // Check if user is from Campfire company (system admin)
+    if (session.user?.companyName?.toLowerCase() === 'campfire') {
+      setIsAuthorized(true)
+    } else {
+      // Not a Campfire admin, redirect to regular dashboard
+      router.push('/dashboard')
+    }
+  }, [session, status, router])
   
-  if (isLoading) {
+  if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

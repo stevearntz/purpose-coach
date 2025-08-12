@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession, signOut } from 'next-auth/react'
 import { LogOut, Plus, Mail, Users, Building, X, Upload, Check, Power } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
 import Footer from '@/components/Footer'
@@ -33,6 +34,7 @@ interface CompanyUser {
 
 function DashboardContent() {
   const router = useRouter()
+  const { data: session, status } = useSession()
   const analytics = useAnalytics()
   const { showSuccess, showError } = useToast()
   const [userData, setUserData] = useState<UserData | null>(null)
@@ -56,8 +58,34 @@ function DashboardContent() {
   }, [])
 
   useEffect(() => {
-    // First try to get authenticated user data
-    const loadAuthUser = async () => {
+    // Use NextAuth session data
+    if (status === 'loading') return
+    
+    if (!session) {
+      router.push('/login')
+      return
+    }
+    
+    // Set user data from session
+    setUserData({
+      email: session.user.email || '',
+      name: session.user.name || '',
+      company: session.user.companyName || '',
+      companyId: session.user.companyId || '',
+      role: 'admin'
+    })
+    
+    // Track analytics
+    analytics.track('Dashboard Viewed', {
+      email: session.user.email,
+      company: session.user.companyName
+    })
+  }, [session, status, router, analytics])
+  
+  useEffect(() => {
+    // Load company users if we have a session
+    const loadCompanyUsers = async () => {
+      if (!session?.user) return
       try {
         const response = await fetch('/api/auth/me', {
           credentials: 'include'
@@ -247,10 +275,8 @@ function DashboardContent() {
 
   const handleLogout = async () => {
     try {
-      // Call logout API to clear auth cookie
-      await fetch('/api/auth/logout', {
-        method: 'POST'
-      })
+      // Sign out using NextAuth
+      await signOut({ redirect: false })
       
       // Clear local storage
       localStorage.removeItem('campfire_user_email')

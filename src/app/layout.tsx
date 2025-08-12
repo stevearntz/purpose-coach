@@ -4,6 +4,7 @@ import './globals.css'
 import '../styles/print.css'
 import AmplitudeProvider from '@/components/AmplitudeProvider'
 import ScrollToTop from '@/components/ScrollToTop'
+import Providers from '@/components/Providers'
 
 const leagueSpartan = League_Spartan({ 
   subsets: ['latin'],
@@ -66,10 +67,12 @@ export default function RootLayout({
         <meta name="theme-color" content="#7c3aed" />
       </head>
       <body className={`${leagueSpartan.className} antialiased`}>
-        <AmplitudeProvider>
-          <ScrollToTop />
-          {children}
-        </AmplitudeProvider>
+        <Providers>
+          <AmplitudeProvider>
+            <ScrollToTop />
+            {children}
+          </AmplitudeProvider>
+        </Providers>
       </body>
     </html>
   )

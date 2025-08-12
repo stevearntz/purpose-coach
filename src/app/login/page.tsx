@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import ViewportContainer from '@/components/ViewportContainer';
 import { Lock, Mail, AlertCircle } from 'lucide-react';
 
@@ -20,26 +21,25 @@ export default function LoginPage() {
     console.log('[login] Attempting login for:', email);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include' // Ensure cookies are sent
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
       });
 
-      console.log('[login] Response status:', response.status);
-      const data = await response.json();
-      console.log('[login] Response data:', data);
+      console.log('[login] SignIn result:', result);
 
-      if (!response.ok) {
-        console.error('[login] Login failed:', data.error);
-        setError(data.error || 'Failed to login');
+      if (!result?.ok) {
+        console.error('[login] Login failed:', result?.error);
+        setError(result?.error || 'Invalid email or password');
         return;
       }
 
       console.log('[login] Login successful, redirecting to dashboard');
-      // Use window.location for hard navigation to ensure cookies are sent
-      window.location.href = '/dashboard';
+      // Redirect to dashboard or the original requested page
+      const searchParams = new URLSearchParams(window.location.search);
+      const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+      router.push(callbackUrl);
     } catch (err) {
       console.error('[login] Login error:', err);
       setError('An error occurred. Please try again.');

@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { auth } from '@/auth'
 
 // Routes that require authentication
-const protectedRoutes = ['/dashboard']  // Removed /admin - it's open for now
+const protectedRoutes = ['/dashboard', '/admin']
 
-// Routes that should redirect to dashboard if already authenticated
+// Routes that should redirect to dashboard if already authenticated  
 const authRoutes = ['/login']
 
 // SECURITY: Block dangerous routes in production
@@ -27,7 +28,7 @@ const DEPRECATED_ROUTES: Record<string, string> = {
   '/api/campaigns/launch': '/api/campaigns/launch/v2'
 }
 
-export async function middleware(request: NextRequest) {
+export default auth(async function middleware(request: NextRequest) {
   const host = request.headers.get('host') || ''
   const pathname = request.nextUrl.pathname
   const isProduction = process.env.NODE_ENV === 'production'
@@ -75,41 +76,41 @@ export async function middleware(request: NextRequest) {
     return NextResponse.rewrite(new URL('/connection-sorter', request.url))
   }
   
+  // Get the session
+  const session = await auth()
+  const isAuthenticated = !!session?.user
+  
   // Check if route needs protection
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
   const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
-  
-  // Get auth cookie
-  const authCookie = request.cookies.get('campfire-auth')
-  
-  // For now, just check if cookie exists
-  // JWT verification in middleware Edge Runtime is complex
-  const hasAuth = !!authCookie?.value
   
   console.log('[middleware] Check:', {
     pathname,
     isProtectedRoute,
     isAuthRoute,
-    hasAuth,
-    hasCookie: !!authCookie,
-    cookieValue: authCookie?.value ? `${authCookie.value.substring(0, 20)}...` : null
+    isAuthenticated,
+    user: session?.user?.email || null
   })
   
   // Redirect to login if accessing protected route without auth
-  if (isProtectedRoute && !hasAuth) {
-    console.log('[middleware] Redirecting to login - no auth cookie for protected route')
+  if (isProtectedRoute && !isAuthenticated) {
+    console.log('[middleware] Redirecting to login - no session for protected route')
     const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('from', pathname)
+    loginUrl.searchParams.set('callbackUrl', pathname)
     return NextResponse.redirect(loginUrl)
   }
   
   // Redirect to dashboard if accessing auth routes while authenticated
-  // DISABLED: This causes redirect loops with invalid cookies
-  // The login page should handle redirecting authenticated users
-  // if (isAuthRoute && hasAuth) {
-  //   console.log('[middleware] Redirecting to dashboard - already has auth cookie')
-  //   return NextResponse.redirect(new URL('/dashboard', request.url))
-  // }
+  if (isAuthRoute && isAuthenticated) {
+    console.log('[middleware] Redirecting to dashboard - already authenticated')
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+  
+  // Special handling for admin route - check company
+  if (pathname.startsWith('/admin') && isAuthenticated) {
+    // Admin company check is handled by AdminGuard component
+    // We just ensure they're authenticated here
+  }
   
   // Add security headers to response
   const response = NextResponse.next()
@@ -118,8 +119,10 @@ export async function middleware(request: NextRequest) {
   })
   
   return response
-}
+})
 
 export const config = {
-  matcher: '/((?!_next/static|_next/image|favicon.ico).*)',
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }

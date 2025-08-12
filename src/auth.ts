@@ -19,8 +19,8 @@ export const authConfig: NextAuthConfig = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: {
-    signIn: "/dashboard/login",
-    error: "/dashboard/login",
+    signIn: "/login",
+    error: "/login",
   },
   providers: [
     Credentials({

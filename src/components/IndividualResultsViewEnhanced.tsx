@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { 
   Building2, ChevronDown, ChevronUp,
-  Clock, CheckCircle, Users, Hash, Loader2
+  Clock, CheckCircle, Users, Hash, Loader2, Mail
 } from 'lucide-react'
 
 interface AssessmentData {

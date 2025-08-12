@@ -141,6 +141,7 @@ function DashboardContent() {
       const response = await fetch('/api/company/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           emails: emailList,
           message: inviteMessage,
@@ -207,6 +208,7 @@ function DashboardContent() {
       const response = await fetch('/api/company/invite-link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           senderEmail: userData?.email,
           company: userData?.company

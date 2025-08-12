@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { withJWTAuth, JWTAuthenticatedRequest } from '@/lib/jwt-auth-middleware';
+import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
 import prisma from '@/lib/prisma';
@@ -28,7 +28,7 @@ const GetUsersSchema = z.object({
  * GET /api/company/users/v2
  * Fetch company users with proper authorization
  */
-export const GET = withJWTAuth(async (req: JWTAuthenticatedRequest) => {
+export const GET = withAuth(async (req: AuthenticatedRequest) => {
   const requestId = nanoid(10);
   logger.info({ requestId, userId: req.user.id }, 'Fetching company users');
   
@@ -193,5 +193,8 @@ export const GET = withJWTAuth(async (req: JWTAuthenticatedRequest) => {
     await prisma.$disconnect();
   }
 }, {
-  requireAdmin: true
+  requireAdmin: true,
+  rateLimit: true,
+  maxRequests: 100,
+  windowMs: '60s'
 });

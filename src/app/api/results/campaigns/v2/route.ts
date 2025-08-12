@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { withJWTAuth, JWTAuthenticatedRequest } from '@/lib/jwt-auth-middleware';
+import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
 import prisma from '@/lib/prisma';
@@ -28,7 +28,7 @@ const GetCampaignResultsSchema = z.object({
  * GET /api/results/campaigns/v2
  * Fetch campaign results with proper authorization
  */
-export const GET = withJWTAuth(async (req: JWTAuthenticatedRequest) => {
+export const GET = withAuth(async (req: AuthenticatedRequest) => {
   const requestId = nanoid(10);
   logger.info({ requestId, userId: req.user.id }, 'Fetching campaign results');
   
@@ -196,7 +196,10 @@ export const GET = withJWTAuth(async (req: JWTAuthenticatedRequest) => {
     await prisma.$disconnect();
   }
 }, {
-  requireAdmin: true
+  requireAdmin: true,
+  rateLimit: true,
+  maxRequests: 50,
+  windowMs: '60s'
 });
 
 /**

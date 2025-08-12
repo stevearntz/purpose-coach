@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { withJWTAuth, JWTAuthenticatedRequest } from '@/lib/jwt-auth-middleware';
+import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
 import prisma from '@/lib/prisma';
@@ -38,7 +38,7 @@ const GetInvitationsSchema = z.object({
  * GET /api/admin/invitations/v2
  * Fetch invitations with pagination and filtering
  */
-export const GET = withJWTAuth(async (req: JWTAuthenticatedRequest) => {
+export const GET = withAuth(async (req: AuthenticatedRequest) => {
   const requestId = nanoid(10);
   logger.info({ requestId, userId: req.user.id }, 'Fetching invitations');
   
@@ -147,14 +147,16 @@ export const GET = withJWTAuth(async (req: JWTAuthenticatedRequest) => {
   }
 }, {
   requireAdmin: true,
-  requireCampfireCompany: true
+  rateLimit: true,
+  maxRequests: 100,
+  windowMs: '60s'
 });
 
 /**
  * POST /api/admin/invitations/v2
  * Create a new invitation
  */
-export const POST = withJWTAuth(async (req: JWTAuthenticatedRequest) => {
+export const POST = withAuth(async (req: AuthenticatedRequest) => {
   const requestId = nanoid(10);
   logger.info({ requestId, userId: req.user.id }, 'Creating invitation');
   
@@ -297,5 +299,7 @@ export const POST = withJWTAuth(async (req: JWTAuthenticatedRequest) => {
   }
 }, {
   requireAdmin: true,
-  requireCampfireCompany: true
+  rateLimit: true,
+  maxRequests: 20,
+  windowMs: '60s'
 });

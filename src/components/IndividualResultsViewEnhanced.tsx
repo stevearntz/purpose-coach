@@ -2,10 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import { 
-  User, Mail, Calendar, Building2, ChevronDown, ChevronUp,
-  AlertCircle, Target, Shield, Heart, Brain, MessageSquare,
-  Clock, CheckCircle, TrendingUp, Users, Hash, Download,
-  Eye, Send, Database, Loader2
+  Building2, ChevronDown, ChevronUp,
+  Clock, CheckCircle, Users, Hash, Loader2
 } from 'lucide-react'
 
 interface AssessmentData {
@@ -177,131 +175,87 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
     if (!assessments || assessments.length === 0) {
       return (
         <div className="py-8 text-center text-gray-500">
-          <Database className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-          <p>No detailed assessment data available</p>
-          <p className="text-sm mt-2">Assessment data will be saved for new submissions</p>
+          <p className="text-sm">No assessment data available</p>
         </div>
       )
     }
     
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         {assessments.map((assessment, idx) => (
-          <div key={assessment.id} className="border-l-4 border-purple-500 pl-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-semibold text-lg text-gray-900">
-                {assessment.toolName}
-              </h4>
-              <span className={`px-3 py-1 rounded-full text-sm ${
-                toolColors[assessment.toolId] || 'bg-gray-100 text-gray-700'
-              }`}>
-                {assessment.toolId}
-              </span>
-            </div>
-            
-            {/* Summary */}
-            {assessment.summary && (
-              <div className="mb-4">
-                <h5 className="font-medium text-gray-800 mb-2">Summary</h5>
-                <p className="text-gray-700 leading-relaxed">{assessment.summary}</p>
-              </div>
-            )}
-            
-            {/* Scores */}
-            {assessment.scores && (
-              <div className="mb-4">
-                <h5 className="font-medium text-gray-800 mb-2">Scores</h5>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {Object.entries(assessment.scores as Record<string, any>).map(([key, value]) => (
-                    <div key={key} className="bg-gray-50 rounded-lg p-3">
-                      <p className="text-sm text-gray-600">{key}</p>
-                      <p className="text-xl font-semibold text-gray-900">{String(value)}</p>
+          <div key={assessment.id} className="space-y-4">
+            {/* Only show insights for HR Partnership */}
+            {assessment.toolId === 'hr-partnership' && assessment.insights && typeof assessment.insights === 'object' && (
+              <div className="space-y-4">
+                {/* Challenge Areas - Main focus */}
+                {assessment.insights.mainChallengeAreas && (
+                  <div>
+                    <h5 className="font-medium text-gray-800 mb-3">Challenge Areas</h5>
+                    <div className="space-y-3">
+                      {Object.entries(assessment.insights.mainChallengeAreas).map(([category, details]: [string, any]) => (
+                        <div key={category} className="border-l-4 border-red-400 pl-4">
+                          <h6 className="font-medium text-gray-800 mb-1">{category}</h6>
+                          {details.challenges && Array.isArray(details.challenges) && (
+                            <div className="flex flex-wrap gap-2">
+                              {details.challenges.map((challenge: string, idx: number) => (
+                                <span key={idx} className="px-3 py-1 bg-red-50 text-red-700 rounded-full text-sm">
+                                  {challenge}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {/* Insights */}
-            {assessment.insights && (
-              <div className="mb-4">
-                <h5 className="font-medium text-gray-800 mb-2">Key Insights</h5>
-                {typeof assessment.insights === 'string' ? (
-                  <p className="text-gray-700">{assessment.insights}</p>
-                ) : Array.isArray(assessment.insights) ? (
-                  <ul className="space-y-2">
-                    {assessment.insights.map((insight: any, i: number) => (
-                      <li key={i} className="flex items-start">
-                        <span className="text-purple-500 mr-2">•</span>
-                        <span className="text-gray-700">{String(insight)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : assessment.insights && typeof assessment.insights === 'object' ? (
-                  <div className="space-y-4">
-                    {/* Handle HR Partnership specific structure */}
-                    {assessment.insights.skillGaps && (
-                      <div>
-                        <h6 className="font-medium text-gray-700 mb-2">Skill Gaps</h6>
-                        <div className="grid grid-cols-2 gap-3">
-                          {Object.entries(assessment.insights.skillGaps).map(([category, details]: [string, any]) => (
-                            <div key={category} className="bg-purple-50 rounded-lg p-3">
-                              <p className="text-sm font-medium text-purple-700">{category}</p>
-                              {Array.isArray(details) ? (
-                                <ul className="mt-1 text-sm text-gray-600">
-                                  {details.map((item: string, idx: number) => (
-                                    <li key={idx}>• {item}</li>
-                                  ))}
-                                </ul>
-                              ) : (
-                                <p className="text-sm text-gray-600 mt-1">{String(details)}</p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {assessment.insights.priorities && (
-                      <div>
-                        <h6 className="font-medium text-gray-700 mb-2">Priorities</h6>
-                        <div className="grid grid-cols-2 gap-3">
-                          {Object.entries(assessment.insights.priorities).map(([category, items]: [string, any]) => (
-                            <div key={category} className="bg-blue-50 rounded-lg p-3">
-                              <p className="text-sm font-medium text-blue-700">{category}</p>
-                              {Array.isArray(items) ? (
-                                <ul className="mt-1 text-sm text-gray-600">
-                                  {items.map((item: string, idx: number) => (
-                                    <li key={idx}>• {item}</li>
-                                  ))}
-                                </ul>
-                              ) : (
-                                <p className="text-sm text-gray-600 mt-1">{String(items)}</p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {assessment.insights.cultureNeeds && (
-                      <div>
-                        <h6 className="font-medium text-gray-700 mb-2">Culture Needs</h6>
-                        <div className="grid grid-cols-2 gap-3">
-                          {Object.entries(assessment.insights.cultureNeeds).map(([category, items]: [string, any]) => (
-                            <div key={category} className="bg-green-50 rounded-lg p-3">
-                              <p className="text-sm font-medium text-green-700">{category}</p>
-                              {Array.isArray(items) ? (
-                                <ul className="mt-1 text-sm text-gray-600">
-                                  {items.map((item: string, idx: number) => (
-                                    <li key={idx}>• {item}</li>
-                                  ))}
-                                </ul>
-                              ) : (
-                                <p className="text-sm text-gray-600 mt-1">{String(items)}</p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                  </div>
+                )}
+
+                {/* Skills to Develop */}
+                {assessment.insights.skillGaps && (
+                  <div>
+                    <h5 className="font-medium text-gray-800 mb-2">Skills to Develop</h5>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(assessment.insights.skillGaps).flatMap(([category, items]: [string, any]) => 
+                        Array.isArray(items) ? items : [items]
+                      ).map((skill: string, idx: number) => (
+                        <span key={idx} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Support Needs */}
+                {assessment.insights.supportNeeds && (
+                  <div>
+                    <h5 className="font-medium text-gray-800 mb-2">Immediate Support Needs</h5>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(assessment.insights.supportNeeds).flatMap(([category, items]: [string, any]) => 
+                        Array.isArray(items) ? items : [items]
+                      ).map((need: string, idx: number) => (
+                        <span key={idx} className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm">
+                          {need}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Focus Areas (Priorities) */}
+                {assessment.insights.priorities && (
+                  <div>
+                    <h5 className="font-medium text-gray-800 mb-2">Focus Areas</h5>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(assessment.insights.priorities).flatMap(([category, items]: [string, any]) => 
+                        Array.isArray(items) ? items : [items]
+                      ).map((priority: string, idx: number) => (
+                        <span key={idx} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
+                          {priority}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                     )}
                     {assessment.insights.supportNeeds && (
                       <div>
@@ -323,112 +277,19 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                           ))}
                         </div>
                       </div>
-                    )}
-                    {assessment.insights.mainChallengeAreas && (
-                      <div>
-                        <h6 className="font-medium text-gray-700 mb-2">Main Challenge Areas</h6>
-                        <div className="space-y-2">
-                          {Object.entries(assessment.insights.mainChallengeAreas).map(([category, details]: [string, any]) => (
-                            <div key={category} className="bg-red-50 rounded-lg p-3">
-                              <p className="text-sm font-medium text-red-700">{category}</p>
-                              <div className="mt-2 space-y-1">
-                                {details.details && (
-                                  <p className="text-sm text-gray-600">{details.details}</p>
-                                )}
-                                {details.challenges && Array.isArray(details.challenges) && (
-                                  <ul className="text-sm text-gray-600">
-                                    {details.challenges.map((challenge: string, idx: number) => (
-                                      <li key={idx}>• {challenge}</li>
-                                    ))}
-                                  </ul>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <pre className="text-sm text-gray-700 whitespace-pre-wrap">
-                      {JSON.stringify(assessment.insights, null, 2)}
-                    </pre>
+                )}
+
+                {/* Additional Insights - Comments/Text */}
+                {assessment.responses && assessment.responses.additionalComments && (
+                  <div>
+                    <h5 className="font-medium text-gray-800 mb-2">Additional Insights</h5>
+                    <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600">
+                      "{assessment.responses.additionalComments}"
+                    </blockquote>
                   </div>
                 )}
               </div>
             )}
-            
-            {/* Recommendations */}
-            {assessment.recommendations && (
-              <div className="mb-4">
-                <h5 className="font-medium text-gray-800 mb-2">Recommendations</h5>
-                {typeof assessment.recommendations === 'string' ? (
-                  <p className="text-gray-700">{assessment.recommendations}</p>
-                ) : Array.isArray(assessment.recommendations) ? (
-                  <ul className="space-y-2">
-                    {assessment.recommendations.map((rec: any, i: number) => (
-                      <li key={i} className="flex items-start">
-                        <Target className="w-4 h-4 text-green-500 mr-2 mt-0.5" />
-                        <span className="text-gray-700">{String(rec)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                    <pre className="text-sm text-gray-700 whitespace-pre-wrap">
-                      {JSON.stringify(assessment.recommendations, null, 2)}
-                    </pre>
-                  </div>
-                )}
-              </div>
-            )}
-            
-            {/* Responses */}
-            {assessment.responses && (
-              <details className="mb-4">
-                <summary className="cursor-pointer font-medium text-gray-800 mb-2 hover:text-purple-600">
-                  View Raw Responses
-                </summary>
-                <div className="mt-2 bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto">
-                  <pre className="text-xs text-gray-600 whitespace-pre-wrap">
-                    {JSON.stringify(assessment.responses, null, 2)}
-                  </pre>
-                </div>
-              </details>
-            )}
-            
-            {/* Action Buttons */}
-            <div className="flex gap-3 pt-4 border-t border-gray-200">
-              {assessment.shareId && (
-                <button 
-                  onClick={() => window.open(`/share/${assessment.shareId}`, '_blank')}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
-                >
-                  <Eye className="w-4 h-4" />
-                  View Share Page
-                </button>
-              )}
-              {assessment.pdfUrl ? (
-                <a 
-                  href={assessment.pdfUrl}
-                  download
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  Download PDF
-                </a>
-              ) : (
-                <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2">
-                  <Download className="w-4 h-4" />
-                  Generate PDF
-                </button>
-              )}
-              <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2">
-                <Send className="w-4 h-4" />
-                Send Follow-up
-              </button>
-            </div>
           </div>
         ))}
       </div>
@@ -559,27 +420,6 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                       )}
                     </div>
                     
-                    {/* Summary Badges */}
-                    {result.status === 'completed' && (
-                      <div className="flex flex-wrap gap-3">
-                        {resultAssessments.length > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Database className="w-4 h-4 text-purple-600" />
-                            <span className="text-sm text-gray-700">
-                              {resultAssessments.length} assessment{resultAssessments.length === 1 ? '' : 's'} saved
-                            </span>
-                          </div>
-                        )}
-                        {completionTime && (
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4 text-green-600" />
-                            <span className="text-sm text-gray-700">
-                              Completed in {completionTime}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </div>
                   
                   {/* Expand/Collapse Icon */}

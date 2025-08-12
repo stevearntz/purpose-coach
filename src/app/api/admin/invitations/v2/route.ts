@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware';
+import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware-simple';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
 import prisma from '@/lib/prisma';

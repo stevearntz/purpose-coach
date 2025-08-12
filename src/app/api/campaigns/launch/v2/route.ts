@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware';
+import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware-simple';
 import { CreateCampaignSchema, validateRequestBody } from '@/lib/api-validation';
 import { sendInvitationEmailBatch } from '@/lib/email-batch';
 import { isEmailServiceConfigured } from '@/lib/email';

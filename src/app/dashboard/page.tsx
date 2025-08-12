@@ -96,10 +96,16 @@ function DashboardContent() {
       const response = await fetch(`/api/company/users/v2?email=${userEmail}`, {
         credentials: 'include'
       })
-      if (response.ok) {
-        const data = await response.json()
-        setCompanyUsers(data.users || [])
+      if (!response.ok) {
+        console.error('Failed to load company users - Status:', response.status)
+        if (response.status === 500) {
+          const errorData = await response.json().catch(() => ({}))
+          console.error('Server error details:', errorData)
+        }
+        return
       }
+      const data = await response.json()
+      setCompanyUsers(data.users || [])
     } catch (error) {
       console.error('Failed to load company users:', error)
     }

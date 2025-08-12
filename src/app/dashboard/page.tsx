@@ -66,21 +66,23 @@ function DashboardContent() {
       return
     }
     
-    // Set user data from session
-    setUserData({
-      email: session.user.email || '',
-      name: session.user.name || '',
-      company: session.user.companyName || '',
-      companyId: session.user.companyId || '',
-      role: 'admin'
-    })
-    
-    // Track analytics
-    analytics.trackEvent('Dashboard Viewed', {
-      email: session.user.email,
-      company: session.user.companyName
-    })
-  }, [session, status, router, analytics])
+    // Only set user data if it's different (prevents re-tracking)
+    if (userData?.email !== session.user.email) {
+      setUserData({
+        email: session.user.email || '',
+        name: session.user.name || '',
+        company: session.user.companyName || '',
+        companyId: session.user.companyId || '',
+        role: 'admin'
+      })
+      
+      // Track analytics only when user changes
+      analytics.trackEvent('Dashboard Viewed', {
+        email: session.user.email,
+        company: session.user.companyName
+      })
+    }
+  }, [session, status, router, userData?.email])
   
   useEffect(() => {
     // Load company users if we have user data

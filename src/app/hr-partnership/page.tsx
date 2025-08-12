@@ -9,6 +9,7 @@ import { toolConfigs } from '@/lib/toolConfigs'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
 import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
+import { saveAssessmentResult } from '@/lib/assessment-utils'
 
 interface ManagerData {
   name: string
@@ -394,8 +395,62 @@ function HRPartnershipContent() {
     if (currentStage === 'insights') {
       const completionTime = Math.round((Date.now() - startTime) / 1000)
       
+      // Calculate scores/insights from the assessment data
+      const challengeCount = Object.keys(managerData.categoryDetails).reduce((total, cat) => {
+        return total + (managerData.categoryDetails[cat]?.challenges?.length || 0)
+      }, 0)
+      
+      const insights = {
+        mainChallengeAreas: managerData.selectedCategories.map(catId => {
+          const category = mainCategories.find(c => c.id === catId)
+          return {
+            category: category?.label || catId,
+            challenges: managerData.categoryDetails[catId]?.challenges || [],
+            details: managerData.categoryDetails[catId]?.details || ''
+          }
+        }),
+        skillGaps: managerData.skillGaps,
+        supportNeeds: managerData.supportNeeds,
+        priorities: managerData.selectedPriorities,
+        cultureNeeds: managerData.cultureNeeds
+      }
+      
+      const recommendations = [
+        ...managerData.supportNeeds.map(need => `Immediate support needed: ${need}`),
+        ...managerData.skillGaps.map(skill => `Develop skill: ${skill}`),
+        managerData.customPriority && `Focus on: ${managerData.customPriority}`
+      ].filter(Boolean)
+      
       // Save assessment to database with campaign tracking
       try {
+        // Save to new assessment results table
+        const assessmentData = {
+          inviteCode,
+          toolId: 'hr-partnership',
+          toolName: 'HR Partnership Assessment',
+          responses: managerData,
+          scores: {
+            challengeCount,
+            categoryCount: managerData.selectedCategories.length,
+            skillGapCount: managerData.skillGaps.length,
+            supportNeedCount: managerData.supportNeeds.length
+          },
+          summary: `Manager assessment completed with ${challengeCount} challenges identified across ${managerData.selectedCategories.length} categories`,
+          insights,
+          recommendations,
+          userProfile: {
+            name: managerData.name,
+            email: managerData.email,
+            role: 'Manager',
+            department: managerData.department,
+            teamSize: managerData.teamSize
+          }
+        }
+        
+        const saveResult = await saveAssessmentResult(assessmentData)
+        console.log('Assessment saved to database:', saveResult)
+        
+        // Also save to original endpoint for backward compatibility
         const response = await fetch('/api/hr-assessments', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -407,7 +462,7 @@ function HRPartnershipContent() {
         })
         
         if (!response.ok) {
-          console.error('Failed to save assessment')
+          console.error('Failed to save assessment to legacy endpoint')
         }
         
         // Update invitation status if this came from a campaign

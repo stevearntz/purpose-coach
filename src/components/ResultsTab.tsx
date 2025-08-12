@@ -6,7 +6,7 @@ import {
   ChevronRight, FileText, Clock, CheckCircle, AlertCircle,
   Target, Brain, Shield, MessageSquare
 } from 'lucide-react'
-import IndividualResultsView from './IndividualResultsView'
+import IndividualResultsViewEnhanced from './IndividualResultsViewEnhanced'
 
 interface CampaignResult {
   id: string
@@ -261,8 +261,8 @@ export default function ResultsTab() {
           </div>
         )
       ) : (
-        /* Individual Results View - Using new expandable card component */
-        <IndividualResultsView 
+        /* Individual Results View - Using enhanced expandable card component with DB data */
+        <IndividualResultsViewEnhanced 
           results={individualResults.map(result => ({
             ...result,
             status: result.status.toLowerCase() as 'completed' | 'started' | 'invited' | 'pending'

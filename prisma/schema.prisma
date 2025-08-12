@@ -8,6 +8,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Company {
@@ -59,6 +60,7 @@ model Invitation {
   company         Company  @relation(fields: [companyId], references: [id])
   admin           Admin?   @relation(fields: [adminId], references: [id])
   metadata        InvitationMetadata?
+  assessmentResults AssessmentResult[]
   
   @@index([email])
   @@index([companyId])
@@ -76,6 +78,38 @@ model InvitationMetadata {
   isGenericLink   Boolean  @default(false)
   
   invitation      Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+}
+
+model AssessmentResult {
+  id              String   @id @default(cuid())
+  invitationId    String
+  toolId          String   // e.g., "purpose-coach", "values-explorer", etc.
+  toolName        String   // Display name of the tool
+  
+  // Core assessment data
+  responses       Json     // Raw responses from the assessment
+  scores          Json?    // Calculated scores/metrics
+  summary         String?  @db.Text // AI-generated summary
+  insights        Json?    // Detailed insights and analysis
+  recommendations Json?    // Action items and recommendations
+  
+  // User profile data (from the assessment)
+  userProfile     Json?    // Name, role, challenges, etc.
+  
+  // Completion tracking
+  completedAt     DateTime @default(now())
+  shareId         String?  @unique // For sharing results
+  
+  // PDF data if generated
+  pdfUrl          String?
+  pdfGeneratedAt  DateTime?
+  
+  // Relations
+  invitation      Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  
+  @@index([invitationId])
+  @@index([toolId])
+  @@index([shareId])
 }
 
 model Campaign {

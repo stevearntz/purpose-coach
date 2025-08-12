@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Send, Copy, ExternalLink, User, Clock, CheckCircle, AlertCircle, RefreshCw, Mail, Users, X, Search, Building2, Check, Lock } from 'lucide-react';
+import { Plus, Send, Copy, ExternalLink, User, Clock, CheckCircle, AlertCircle, RefreshCw, Mail, Users, X, Search, Building2, Check } from 'lucide-react';
+import AdminGuard from './AdminGuard';
 import ViewportContainer from '@/components/ViewportContainer';
 import Modal from '@/components/Modal';
 import Footer from '@/components/Footer';
@@ -36,11 +37,6 @@ export default function AdminPage() {
   const [selectedInvite, setSelectedInvite] = useState<Invitation | null>(null);
   const { showSuccess, showError, showInfo } = useToast();
   
-  // Simple password protection
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  
   // Form state
   const [formData, setFormData] = useState({
     company: '',
@@ -59,22 +55,10 @@ export default function AdminPage() {
   const [showCompanyDropdown, setShowCompanyDropdown] = useState(false);
   const [isNewCompany, setIsNewCompany] = useState(false);
 
-  // Check authentication and load invitations on mount
+  // Load invitations on mount
   useEffect(() => {
-    // Check if already authenticated in session
-    const authStored = sessionStorage.getItem('admin_auth');
-    if (authStored === 'true') {
-      setIsAuthenticated(true);
-      loadInvitations();
-    }
+    loadInvitations();
   }, []);
-  
-  // Load invitations when authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadInvitations();
-    }
-  }, [isAuthenticated]);
   
   // Search for companies when user types
   useEffect(() => {
@@ -105,16 +89,6 @@ export default function AdminPage() {
     return () => clearTimeout(debounceTimer);
   }, [companySearch]);
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === 'G3t.c@mpf1r3.st3v3') {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('admin_auth', 'true');
-      setPasswordError('');
-    } else {
-      setPasswordError('Invalid password');
-    }
-  };
 
   const loadInvitations = async () => {
     try {
@@ -386,46 +360,8 @@ export default function AdminPage() {
     }
   };
 
-  // Show password prompt if not authenticated
-  if (!isAuthenticated) {
-    return (
-      <ViewportContainer className="bg-gray-50 min-h-screen flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
-          <h2 className="text-2xl font-bold mb-6 text-center">Admin Access</h2>
-          <form onSubmit={handlePasswordSubmit}>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Enter Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-iris-500"
-                  placeholder="Enter admin password"
-                  autoFocus
-                />
-              </div>
-              {passwordError && (
-                <p className="text-red-500 text-sm mt-2">{passwordError}</p>
-              )}
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-iris-500 text-white py-2 px-4 rounded-lg hover:bg-iris-600 transition-colors"
-            >
-              Access Admin Panel
-            </button>
-          </form>
-        </div>
-      </ViewportContainer>
-    );
-  }
-
   return (
-    <>
+    <AdminGuard>
       <ViewportContainer className="bg-gray-50 min-h-screen">
         <div className="container mx-auto px-6 py-8">
           {/* Header */}
@@ -1064,6 +1000,6 @@ export default function AdminPage() {
       )}
 
       <Footer />
-    </>
+    </AdminGuard>
   );
 }

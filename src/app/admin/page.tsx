@@ -118,7 +118,9 @@ export default function AdminPage() {
 
   const loadInvitations = async () => {
     try {
-      const response = await fetch('/api/admin/invitations/v2');
+      const response = await fetch('/api/admin/invitations/v2', {
+        credentials: 'include'
+      });
       if (response.ok) {
         const data = await response.json();
         setInvitations(data.invitations || []);
@@ -226,7 +228,8 @@ export default function AdminPage() {
       // If no company selected, treat as new company
       if (!selectedCompany) {
         // Create new company
-        const companyResponse = await fetch('/api/companies', {
+        const companyResponse = await fetch('/api/companies/v2', {
+          credentials: 'include',
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -254,6 +257,7 @@ export default function AdminPage() {
       // Create invitations for each user using the database API
       const invitationPromises = usersList.map(async (user) => {
         const response = await fetch('/api/admin/invitations/v2', {
+          credentials: 'include',
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

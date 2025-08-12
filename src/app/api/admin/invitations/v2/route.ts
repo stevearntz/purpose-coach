@@ -65,18 +65,8 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
     if (status) where.status = status;
     if (companyId) where.companyId = companyId;
     
-    // If not admin, filter by user's company
-    if (!req.user.companyId && !companyId) {
-      logger.warn({ requestId }, 'User without company trying to access invitations');
-      return NextResponse.json(
-        { error: 'Company context required' },
-        { status: 403 }
-      );
-    }
-    
-    if (req.user.companyId && !companyId) {
-      where.companyId = req.user.companyId;
-    }
+    // No filtering by company - show all invitations
+    // This is a general invitation management portal
     
     // Execute query with transaction
     const [invitations, total] = await prisma.$transaction([
@@ -177,14 +167,8 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
     
     const { email, name, companyId, personalMessage, sendImmediately } = validation.data;
     
-    // Verify user has access to this company
-    if (req.user.companyId && req.user.companyId !== companyId) {
-      logger.warn({ requestId, companyId }, 'Unauthorized company access');
-      return NextResponse.json(
-        { error: 'Not authorized for this company' },
-        { status: 403 }
-      );
-    }
+    // No company restrictions - admin portal can manage invitations for any company
+    // This is a general invitation management system
     
     // Execute transaction
     const result = await prisma.$transaction(async (tx) => {

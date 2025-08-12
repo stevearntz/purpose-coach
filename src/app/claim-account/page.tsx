@@ -7,6 +7,7 @@ import ViewportContainer from '@/components/ViewportContainer';
 import Footer from '@/components/Footer';
 import { useToast } from '@/hooks/useToast';
 import { ToastProvider } from '@/hooks/useToast';
+import { signIn } from 'next-auth/react';
 
 interface PasswordStrength {
   score: number;
@@ -208,18 +209,27 @@ function ClaimAccountContent() {
       
       const authResult = await authResponse.json();
       
-      console.log('[claim-account] Auth setup response:', authResult);
-      console.log('[claim-account] Auth cookie should be set, redirecting to dashboard');
+      console.log('[claim-account] Account created, now signing in with NextAuth');
       
-      // Store user info immediately (the auth cookie is already set)
+      // Store user info for later use
       localStorage.setItem('campfire_user_email', formData.email);
       localStorage.setItem('campfire_user_name', `${formData.firstName} ${formData.lastName}`.trim());
       if (authResult.user?.company) {
         localStorage.setItem('campfire_user_company', authResult.user.company);
       }
       
-      // Skip the old claim-account API - we don't need it anymore
-      // The setup-password API handles everything
+      // Now sign in with NextAuth using the credentials
+      const signInResult = await signIn('credentials', {
+        email: formData.email,
+        password: formData.password,
+        redirect: false
+      });
+      
+      console.log('[claim-account] NextAuth signIn result:', signInResult);
+      
+      if (!signInResult?.ok) {
+        throw new Error('Failed to sign in after account creation');
+      }
       
       // Track account creation
       if (inviteCode) {
@@ -240,21 +250,10 @@ function ClaimAccountContent() {
       
       showSuccess('Account created successfully! Redirecting to your dashboard...');
       
-      // Check if the cookie was actually set
-      setTimeout(async () => {
-        console.log('[claim-account] Checking session before redirect');
-        try {
-          const checkResponse = await fetch('/api/auth/check-session', {
-            credentials: 'include'
-          });
-          const checkData = await checkResponse.json();
-          console.log('[claim-account] Session check:', checkData);
-        } catch (err) {
-          console.error('[claim-account] Session check failed:', err);
-        }
-        
+      // Redirect to dashboard
+      setTimeout(() => {
         console.log('[claim-account] Redirecting to dashboard');
-        window.location.href = '/dashboard';
+        router.push('/dashboard');
       }, 1500);
       
     } catch (error) {

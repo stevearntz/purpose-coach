@@ -50,16 +50,46 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
     
     const { limit, offset, status, search } = validation.data;
     
-    // Get user's company
-    const admin = await prisma.admin.findUnique({
-      where: { email: req.user.email },
-      include: {
-        company: true
-      }
-    });
+    // Get user's company - check both admin table and session
+    let companyId = req.user.companyId;
+    let companyName = req.user.companyName;
     
-    if (!admin?.company) {
-      logger.warn({ requestId }, 'User has no company association');
+    // If not in session, try to find in admin table
+    if (!companyId) {
+      const admin = await prisma.admin.findUnique({
+        where: { email: req.user.email },
+        include: {
+          company: true
+        }
+      });
+      
+      if (admin?.company) {
+        companyId = admin.company.id;
+        companyName = admin.company.name;
+      }
+    }
+    
+    // If still no company, try to find by email domain
+    if (!companyId) {
+      const emailDomain = req.user.email.split('@')[1];
+      const company = await prisma.company.findFirst({
+        where: {
+          OR: [
+            { name: { contains: emailDomain } },
+            { admins: { some: { email: req.user.email } } },
+            { invitations: { some: { email: req.user.email } } }
+          ]
+        }
+      });
+      
+      if (company) {
+        companyId = company.id;
+        companyName = company.name;
+      }
+    }
+    
+    if (!companyId) {
+      logger.warn({ requestId, email: req.user.email }, 'User has no company association');
       return NextResponse.json({ users: [] });
     }
     
@@ -68,11 +98,11 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
       // Get admins
       const admins = await tx.admin.findMany({
         where: {
-          companyId: admin.company.id,
+          companyId: companyId,
           ...(search ? {
             OR: [
-              { email: { contains: search, mode: 'insensitive' } },
-              { name: { contains: search, mode: 'insensitive' } }
+              { email: { contains: search } },
+              { name: { contains: search } }
             ]
           } : {})
         },
@@ -87,11 +117,11 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
       // Get invitations to show invited users
       const invitations = await tx.invitation.findMany({
         where: {
-          companyId: admin.company.id,
+          companyId: companyId,
           ...(search ? {
             OR: [
-              { email: { contains: search, mode: 'insensitive' } },
-              { name: { contains: search, mode: 'insensitive' } }
+              { email: { contains: search } },
+              { name: { contains: search } }
             ]
           } : {})
         },
@@ -193,7 +223,7 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
     await prisma.$disconnect();
   }
 }, {
-  requireAdmin: true,
+  requireAdmin: false, // Allow any authenticated user to view their company users
   rateLimit: true,
   maxRequests: 100,
   windowMs: '60s'

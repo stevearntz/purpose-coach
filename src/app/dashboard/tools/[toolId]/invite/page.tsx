@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { 
   ArrowLeft, Send, Users, Calendar, Settings, Search,
   ChevronDown, X, Plus, Upload, Clock, Target, AlertCircle,
@@ -119,6 +120,7 @@ interface CompanyUser {
 
 function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }> }) {
   const router = useRouter()
+  const { data: session } = useSession()
   const { showSuccess, showError } = useToast()
   const [toolId, setToolId] = useState<string>('')
   const [currentStep, setCurrentStep] = useState<'setup' | 'participants' | 'review'>('setup')
@@ -257,37 +259,53 @@ function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }>
         }
       })
 
-      const senderEmail = localStorage.getItem('campfire_user_email')
-      const companyName = localStorage.getItem('campfire_user_company')
+      // Get from session or fallback to localStorage for backward compatibility
+      const senderEmail = session?.user?.email || localStorage.getItem('campfire_user_email') || ''
+      const companyName = session?.user?.companyName || localStorage.getItem('campfire_user_company') || ''
+
+      // Format dates to ISO datetime format (add time component)
+      const formattedStartDate = startDate ? `${startDate}T00:00:00Z` : undefined
+      const formattedDeadline = deadline ? `${deadline}T23:59:59Z` : undefined
+      
+      // Debug log the payload
+      const payload = {
+        toolId,
+        toolName: tool.title,
+        toolPath: tool.path,
+        campaignName,
+        customMessage,
+        startDate: formattedStartDate,
+        deadline: formattedDeadline,
+        participants,
+        senderEmail,
+        companyName
+      }
+      
+      console.log('Campaign launch payload:', payload)
 
       // Launch campaign and send emails
       const response = await fetch('/api/campaigns/launch/v2', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          toolId,
-          toolName: tool.title,
-          toolPath: tool.path,
-          campaignName,
-          customMessage,
-          startDate,
-          deadline,
-          participants,
-          senderEmail,
-          companyName
-        })
+        credentials: 'include', // Add credentials for auth
+        body: JSON.stringify(payload)
       })
 
       if (!response.ok) {
         const error = await response.json()
+        console.error('Campaign launch error:', error)
+        if (error.details) {
+          console.error('Validation details:', error.details)
+        }
         throw new Error(error.error || 'Failed to launch campaign')
       }
 
       const result = await response.json()
       
       // Show success message with email count
-      if (result.emailsSent > 0) {
-        showSuccess(`Campaign launched! ${result.emailsSent} invitation${result.emailsSent > 1 ? 's' : ''} sent successfully.`)
+      const emailsSent = result.summary?.emailsSent || 0
+      if (emailsSent > 0) {
+        showSuccess(`Campaign launched! ${emailsSent} invitation${emailsSent > 1 ? 's' : ''} sent successfully.`)
       } else {
         showSuccess(`Campaign created! Invitations will need to be sent manually.`)
       }

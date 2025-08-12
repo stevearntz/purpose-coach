@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { hashPassword, generateToken } from '@/lib/auth';
+import { hashPassword } from '@/lib/auth';
+import { signIn } from '@/auth';
+import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,8 +40,8 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Hash password
-    const hashedPassword = await hashPassword(password);
+    // Hash password using bcrypt directly (NextAuth compatible)
+    const hashedPassword = await bcrypt.hash(password, 10);
     
     // Create or update admin account
     let admin = await prisma.admin.findUnique({
@@ -84,48 +86,18 @@ export async function POST(request: NextRequest) {
       }
     });
     
-    // Generate token
-    const token = generateToken({
-      userId: admin.id,
-      email: admin.email,
-      companyId: admin.companyId
-    });
-    
-    console.log('Token generated, length:', token.length);
-    
-    // Create response with auth cookie
-    const response = NextResponse.json({
+    // Return success - the client will need to call signIn separately
+    // We can't call signIn from here because it needs to be called from the client
+    return NextResponse.json({
       success: true,
       user: {
         id: admin.id,
         email: admin.email,
         name: admin.name,
         company: invitation.company.name
-      }
+      },
+      message: 'Account created successfully. Please sign in.'
     });
-    
-    // Set auth cookie
-    const isProduction = process.env.NODE_ENV === 'production';
-    const cookieOptions = {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'lax' as const,
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: '/',
-      domain: undefined // Let the browser handle the domain
-    };
-    
-    console.log('Setting cookie with options:', {
-      ...cookieOptions,
-      tokenLength: token.length,
-      isProduction
-    });
-    response.cookies.set('campfire-auth', token, cookieOptions);
-    
-    // Log to verify cookie was set
-    console.log('Cookie set on response, headers:', response.headers.get('set-cookie'));
-    
-    return response;
   } catch (error) {
     console.error('Setup password error:', error);
     return NextResponse.json(

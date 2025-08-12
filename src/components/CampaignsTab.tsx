@@ -28,13 +28,15 @@ export default function CampaignsTab() {
   const loadCampaigns = async () => {
     setLoading(true)
     try {
-      const userEmail = localStorage.getItem('campfire_user_email')
-      if (!userEmail) return
-
-      const response = await fetch(`/api/campaigns?email=${userEmail}`)
+      // Use v2 endpoint with NextAuth
+      const response = await fetch('/api/campaigns/v2', {
+        credentials: 'include' // Include auth cookies
+      })
       if (response.ok) {
         const data = await response.json()
         setCampaigns(data.campaigns || [])
+      } else {
+        console.error('Failed to load campaigns:', response.status)
       }
     } catch (error) {
       console.error('Failed to load campaigns:', error)

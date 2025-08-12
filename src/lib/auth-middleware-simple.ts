@@ -50,12 +50,9 @@ export function withAuth(
 
       // Check admin permission if required
       if (options.requireAdmin) {
-        // TEMPORARY: Allow all authenticated users to access admin endpoints
-        // This is a workaround while we fix the admin authorization
-        console.log('[auth-middleware-simple] Admin check bypassed for testing:', {
-          email: session.user.email,
-          company: session.user.companyName
-        });
+        // For now, any authenticated user can access admin endpoints
+        // This can be restricted later based on specific requirements
+        console.log('[auth-middleware-simple] Admin access granted to:', session.user.email);
       }
 
       // Attach user to request

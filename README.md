@@ -37,7 +37,10 @@ Purpose Coach is a comprehensive platform offering evidence-based tools to help 
 - **Framework**: Next.js 15.3.4 with App Router
 - **Language**: TypeScript with strict mode
 - **Styling**: Tailwind CSS v4 with PostCSS
+- **Authentication**: NextAuth.js with JWT strategy
+- **Database**: PostgreSQL (Supabase) with Prisma ORM
 - **AI Integration**: OpenAI API (GPT-4)
+- **Email Service**: SendGrid (optional)
 - **Storage**: Redis with memory fallback
 - **PDF Generation**: jsPDF
 - **Analytics**: Amplitude
@@ -201,13 +204,35 @@ Structured guides for team conversations:
 1. Clone the repository
 2. Install dependencies: `npm install`
 3. Set up environment variables:
+   
+   **.env.local** (sensitive keys):
    ```bash
+   # Required
    OPENAI_API_KEY=your_openai_api_key
-   REDIS_URL=redis_connection_url  # Optional, falls back to memory
-   NEXT_PUBLIC_BASE_URL=https://tools.getcampfire.com  # Production URL
-   NEXT_PUBLIC_GOOGLE_CLIENT_ID=optional_google_oauth_id
+   DATABASE_URL=postgresql://...  # Supabase pooled connection
+   DIRECT_URL=postgresql://...    # Supabase direct connection
+   NEXTAUTH_SECRET=your_secret_key  # Generate with: openssl rand -base64 32
+   JWT_SECRET=your_jwt_secret      # Fallback for NextAuth
+   
+   # Optional
+   REDIS_URL=redis_connection_url  # Falls back to memory
+   SENDGRID_API_KEY=your_sendgrid_key  # For email invitations
+   NEXT_PUBLIC_GOOGLE_CLIENT_ID=oauth_client_id
    ```
-4. Run development server: `npm run dev`
+   
+   **.env** (non-sensitive):
+   ```bash
+   NEXT_PUBLIC_BASE_URL=https://tools.getcampfire.com  # Production URL
+   NEXT_PUBLIC_AMPLITUDE_API_KEY=amplitude_key
+   ```
+
+4. Set up database:
+   ```bash
+   npx prisma generate  # Generate Prisma client
+   npx prisma db push   # Sync schema with database
+   ```
+
+5. Run development server: `npm run dev`
 
 ### Development Commands
 
@@ -461,6 +486,67 @@ showError('Failed to send invitations')
 4. **Not tracking participant status** - Always update status through campaignStorage
 5. **Forgetting type badges** - Always show tool type in UI
 6. **Direct user invitations** - Use campaign system for assessments
+7. **Using v1 API endpoints** - Always use v2 endpoints with proper auth
+8. **Missing credentials in fetch** - Include `credentials: 'include'` for auth
+9. **Custom auth implementations** - Always use NextAuth for authentication
+10. **Hardcoding Campfire URLs** - Keep branding flexible
+
+## Authentication System
+
+### Overview
+The application uses NextAuth.js for authentication with a custom credentials provider.
+
+### Key Components
+
+1. **Auth Configuration** (`/src/auth.ts`)
+   - NextAuth setup with credentials provider
+   - JWT strategy for session management
+   - Custom callbacks for user data enrichment
+
+2. **Protected Routes** (`/src/middleware.ts`)
+   - Dashboard and admin routes require authentication
+   - Automatic redirect to login for unauthenticated users
+   - Session-based access control
+
+3. **Login Flow**
+   - Email/password authentication at `/login`
+   - Password: `Campfire2024!` (for testing)
+   - Session persists across page refreshes
+
+4. **Account Creation**
+   - Invitation-based account creation
+   - Password requirements enforced
+   - Automatic sign-in after account creation
+
+### API Security
+
+1. **V2 Endpoints**
+   - All v2 API endpoints use NextAuth authentication
+   - Located in `/api/*/v2/route.ts`
+   - Use `withAuth` middleware wrapper
+   - Include `credentials: 'include'` in fetch calls
+
+2. **Deprecated Endpoints**
+   - V1 endpoints are deprecated for security
+   - Middleware blocks access in production
+   - Automatic warnings for deprecated routes
+
+## Database Schema
+
+### Key Tables
+
+1. **Admin** - User accounts with passwords
+2. **Company** - Organization entities
+3. **Invitation** - Email invitations with tracking
+4. **Campaign** - Assessment campaigns
+5. **LocalStorage** - Persistent key-value storage
+
+### Prisma Commands
+```bash
+npx prisma studio     # Visual database editor
+npx prisma db push    # Sync schema changes
+npx prisma generate   # Update TypeScript types
+```
 
 ## Recent Updates (Session Context)
 
@@ -475,6 +561,12 @@ showError('Failed to send invitations')
 - Implemented participant tracking and progress monitoring
 - Added campaign dashboard with real-time metrics
 
+### Authentication Migration
+- Migrated from custom JWT to NextAuth.js
+- Implemented secure session management
+- Added v2 API endpoints with proper authentication
+- Created auth middleware wrapper for API routes
+
 ### Tool Categorization
 - Organized all 13 tools into three types
 - Renamed "Content Library" to "Assessments" (showing only assessment tools)
@@ -486,6 +578,23 @@ showError('Failed to send invitations')
 - Created simulated Results tab showing assessment completions
 - Built AI-powered Recommendations tab with prioritized insights
 - Implemented user management with bulk import capabilities
+
+## Known Issues & Solutions
+
+### Authentication Issues
+- **Session not persisting**: Ensure NEXTAUTH_SECRET is set
+- **401 errors on API calls**: Add `credentials: 'include'` to fetch
+- **Login redirect loops**: Check middleware.ts protected routes
+
+### Campaign Issues
+- **Campaigns not showing**: Check v2 campaigns endpoint
+- **Date validation errors**: Use ISO 8601 format with time
+- **Company users 500 error**: Verify company association
+
+### Database Issues
+- **Connection timeouts**: Check Supabase status
+- **Prisma errors**: Run `npx prisma generate`
+- **Case sensitivity**: Remove `mode: 'insensitive'` if not supported
 
 ## Testing Your Implementation
 
@@ -511,10 +620,22 @@ showError('Failed to send invitations')
 
 ## Deployment Notes
 
-- The application is optimized for Vercel deployment
-- Redis is recommended for production (memory fallback available)
-- Set all environment variables in Vercel dashboard
-- Campaign links use NEXT_PUBLIC_BASE_URL for proper routing
+### Vercel Deployment
+1. **Environment Variables**: Set all vars in Vercel dashboard
+2. **Database**: Ensure Supabase connection pooling is configured
+3. **Build Command**: `npm run build`
+4. **Install Command**: `npm install`
+5. **Framework Preset**: Next.js (auto-detected)
+
+### Production Checklist
+- [ ] Set NEXTAUTH_SECRET (generate with `openssl rand -base64 32`)
+- [ ] Configure Supabase connection pooling
+- [ ] Set up SendGrid for email (optional)
+- [ ] Enable Redis for production scale
+- [ ] Set NEXT_PUBLIC_BASE_URL to production domain
+- [ ] Test authentication flow
+- [ ] Verify v2 API endpoints work
+- [ ] Check campaign creation and tracking
 
 ## Need Help?
 

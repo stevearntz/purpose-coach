@@ -116,13 +116,6 @@ export const authConfig: NextAuthConfig = {
   },
   secret: process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET,
   debug: process.env.NODE_ENV === "development",
-  session: {
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  pages: {
-    signIn: "/login",
-  },
   trustHost: true, // Important for production
 }
 

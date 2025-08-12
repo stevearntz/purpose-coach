@@ -4,12 +4,11 @@ import prisma from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     // Count all records
-    const [admins, companies, invitations, campaigns, localStorage] = await Promise.all([
+    const [admins, companies, invitations, campaigns] = await Promise.all([
       prisma.admin.findMany({ select: { email: true, name: true, companyId: true }}),
       prisma.company.findMany({ select: { id: true, name: true }}),
       prisma.invitation.count(),
-      prisma.campaign.count(),
-      prisma.localStorage.count()
+      prisma.campaign.count()
     ]);
     
     return NextResponse.json({
@@ -18,8 +17,7 @@ export async function GET(request: NextRequest) {
       companies: companies,
       companyCount: companies.length,
       invitationCount: invitations,
-      campaignCount: campaigns,
-      localStorageCount: localStorage
+      campaignCount: campaigns
     });
   } catch (error) {
     console.error('Error checking data:', error);
@@ -77,16 +75,15 @@ export async function DELETE(request: NextRequest) {
         companies = await tx.company.deleteMany();
       }
       
-      // Delete all local storage
-      const localStorage = await tx.localStorage.deleteMany();
+      // Note: localStorage table may not exist in schema
+      // const localStorage = await tx.localStorage.deleteMany();
       
       return {
         campaigns: campaigns.count,
         invitations: invitations.count,
         metadata: metadata.count,
         admins: admins.count,
-        companies: companies.count,
-        localStorage: localStorage.count
+        companies: companies.count
       };
     });
     

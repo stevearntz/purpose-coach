@@ -62,9 +62,10 @@ async function flushData() {
         console.log(`🗑️  Deleted ${companies.count} companies (admin has no company)`);
       }
       
-      // 6. Delete all local storage data
-      const localStorage = await tx.localStorage.deleteMany();
-      console.log(`🗑️  Deleted ${localStorage.count} localStorage records`);
+      // 6. Delete all local storage data (if table exists)
+      // Note: localStorage table may not exist in all schemas
+      // const localStorage = await tx.localStorage.deleteMany();
+      // console.log(`🗑️  Deleted ${localStorage.count} localStorage records`);
     });
     
     console.log('\n✨ Data flush complete!');

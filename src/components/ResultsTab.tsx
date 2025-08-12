@@ -56,7 +56,7 @@ export default function ResultsTab() {
       const userEmail = localStorage.getItem('campfire_user_email')
       if (!userEmail) return
 
-      const response = await fetch(`/api/results/campaigns?email=${userEmail}`)
+      const response = await fetch(`/api/results/campaigns/v2?email=${userEmail}`)
       if (response.ok) {
         const data = await response.json()
         setCampaignResults(data.results || [])

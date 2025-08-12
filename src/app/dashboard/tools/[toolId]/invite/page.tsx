@@ -172,7 +172,7 @@ function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }>
   const loadCompanyUsers = async (userEmail: string) => {
     setLoading(true)
     try {
-      const response = await fetch(`/api/company/users?email=${userEmail}`)
+      const response = await fetch(`/api/company/users/v2?email=${userEmail}`)
       if (response.ok) {
         const data = await response.json()
         // Just use the real users from the API
@@ -261,7 +261,7 @@ function CreateCampaignContent({ params }: { params: Promise<{ toolId: string }>
       const companyName = localStorage.getItem('campfire_user_company')
 
       // Launch campaign and send emails
-      const response = await fetch('/api/campaigns/launch', {
+      const response = await fetch('/api/campaigns/launch/v2', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

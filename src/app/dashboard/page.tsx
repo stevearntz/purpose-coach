@@ -100,7 +100,7 @@ function DashboardContent() {
 
   const loadCompanyUsers = async (userEmail: string) => {
     try {
-      const response = await fetch(`/api/company/users?email=${userEmail}`)
+      const response = await fetch(`/api/company/users/v2?email=${userEmail}`)
       if (response.ok) {
         const data = await response.json()
         setCompanyUsers(data.users || [])

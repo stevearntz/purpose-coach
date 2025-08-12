@@ -6,6 +6,7 @@ import {
   ChevronRight, FileText, Clock, CheckCircle, AlertCircle,
   Target, Brain, Shield, MessageSquare
 } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 import IndividualResultsViewEnhanced from './IndividualResultsViewEnhanced'
 
 interface CampaignResult {
@@ -36,6 +37,7 @@ interface IndividualResult {
 }
 
 export default function ResultsTab() {
+  const { data: session } = useSession()
   const [activeSubTab, setActiveSubTab] = useState<'campaigns' | 'individuals'>('campaigns')
   const [campaignResults, setCampaignResults] = useState<CampaignResult[]>([])
   const [individualResults, setIndividualResults] = useState<IndividualResult[]>([])
@@ -48,13 +50,17 @@ export default function ResultsTab() {
     } else {
       loadIndividualResults()
     }
-  }, [activeSubTab])
+  }, [activeSubTab, session])
 
   const loadCampaignResults = async () => {
     setLoading(true)
     try {
-      const userEmail = localStorage.getItem('campfire_user_email')
-      if (!userEmail) return
+      // Use session email if available, fallback to localStorage
+      const userEmail = session?.user?.email || localStorage.getItem('campfire_user_email')
+      if (!userEmail) {
+        console.log('No user email found in session or localStorage')
+        return
+      }
 
       // Temporarily use public endpoint until auth is fixed
       const response = await fetch(`/api/results/campaigns/public?email=${userEmail}`)
@@ -72,10 +78,15 @@ export default function ResultsTab() {
   const loadIndividualResults = async () => {
     setLoading(true)
     try {
-      const userEmail = localStorage.getItem('campfire_user_email')
-      if (!userEmail) return
+      // Use session email if available, fallback to localStorage
+      const userEmail = session?.user?.email || localStorage.getItem('campfire_user_email')
+      if (!userEmail) {
+        console.log('No user email found in session or localStorage')
+        return
+      }
 
-      const response = await fetch(`/api/results/individuals?email=${userEmail}`)
+      // Temporarily use public endpoint until auth is fixed
+      const response = await fetch(`/api/results/individuals/public?email=${userEmail}`)
       if (response.ok) {
         const data = await response.json()
         setIndividualResults(data.results || [])

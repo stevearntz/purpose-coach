@@ -28,8 +28,8 @@ export default function CampaignsTab() {
   const loadCampaigns = async () => {
     setLoading(true)
     try {
-      // Use v2 endpoint with NextAuth
-      const response = await fetch('/api/campaigns/v2', {
+      // Temporarily use public endpoint until auth is fixed
+      const response = await fetch('/api/campaigns/public', {
         credentials: 'include' // Include auth cookies
       })
       if (response.ok) {

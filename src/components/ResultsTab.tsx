@@ -56,7 +56,8 @@ export default function ResultsTab() {
       const userEmail = localStorage.getItem('campfire_user_email')
       if (!userEmail) return
 
-      const response = await fetch(`/api/results/campaigns/v2?email=${userEmail}`)
+      // Temporarily use public endpoint until auth is fixed
+      const response = await fetch(`/api/results/campaigns/public?email=${userEmail}`)
       if (response.ok) {
         const data = await response.json()
         setCampaignResults(data.results || [])

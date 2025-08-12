@@ -55,18 +55,23 @@ export default function ResultsTab() {
   const loadCampaignResults = async () => {
     setLoading(true)
     try {
-      // Use session email if available, fallback to localStorage
-      const userEmail = session?.user?.email || localStorage.getItem('campfire_user_email')
-      if (!userEmail) {
-        console.log('No user email found in session or localStorage')
-        return
-      }
-
-      // Temporarily use public endpoint until auth is fixed
-      const response = await fetch(`/api/results/campaigns/public?email=${userEmail}`)
+      // Use authenticated endpoint with session
+      const response = await fetch('/api/results/campaigns', {
+        credentials: 'include' // Include auth cookies
+      })
       if (response.ok) {
         const data = await response.json()
         setCampaignResults(data.results || [])
+      } else if (response.status === 401) {
+        // Fallback for unauthenticated state
+        const userEmail = localStorage.getItem('campfire_user_email')
+        if (userEmail) {
+          const fallbackResponse = await fetch(`/api/results/campaigns?email=${userEmail}`)
+          if (fallbackResponse.ok) {
+            const data = await fallbackResponse.json()
+            setCampaignResults(data.results || [])
+          }
+        }
       }
     } catch (error) {
       console.error('Failed to load campaign results:', error)
@@ -78,18 +83,23 @@ export default function ResultsTab() {
   const loadIndividualResults = async () => {
     setLoading(true)
     try {
-      // Use session email if available, fallback to localStorage
-      const userEmail = session?.user?.email || localStorage.getItem('campfire_user_email')
-      if (!userEmail) {
-        console.log('No user email found in session or localStorage')
-        return
-      }
-
-      // Temporarily use public endpoint until auth is fixed
-      const response = await fetch(`/api/results/individuals/public?email=${userEmail}`)
+      // Use authenticated endpoint with session
+      const response = await fetch('/api/results/individuals', {
+        credentials: 'include' // Include auth cookies
+      })
       if (response.ok) {
         const data = await response.json()
         setIndividualResults(data.results || [])
+      } else if (response.status === 401) {
+        // Fallback for unauthenticated state
+        const userEmail = localStorage.getItem('campfire_user_email')
+        if (userEmail) {
+          const fallbackResponse = await fetch(`/api/results/individuals?email=${userEmail}`)
+          if (fallbackResponse.ok) {
+            const data = await fallbackResponse.json()
+            setIndividualResults(data.results || [])
+          }
+        }
       }
     } catch (error) {
       console.error('Failed to load individual results:', error)

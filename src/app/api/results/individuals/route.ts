@@ -1,16 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getServerSession } from '@/lib/auth-helpers';
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const email = searchParams.get('email');
     const campaignId = searchParams.get('campaignId');
+    
+    // Get authenticated user
+    const user = await getServerSession();
+    const email = user?.email || searchParams.get('email'); // Fallback for backwards compatibility
     
     if (!email) {
       return NextResponse.json(
-        { error: 'Email is required' },
-        { status: 400 }
+        { error: 'Authentication required' },
+        { status: 401 }
       );
     }
     

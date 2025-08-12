@@ -28,8 +28,8 @@ export default function CampaignsTab() {
   const loadCampaigns = async () => {
     setLoading(true)
     try {
-      // Temporarily use public endpoint until auth is fixed
-      const response = await fetch('/api/campaigns/public', {
+      // Use authenticated endpoint
+      const response = await fetch('/api/campaigns', {
         credentials: 'include' // Include auth cookies
       })
       if (response.ok) {

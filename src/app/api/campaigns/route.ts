@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getServerSession } from '@/lib/auth-helpers';
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const email = searchParams.get('email');
     const campaignId = searchParams.get('id');
+    
+    // Get authenticated user
+    const user = await getServerSession();
+    const email = user?.email || searchParams.get('email'); // Fallback for backwards compatibility
     
     // Get specific campaign by ID
     if (campaignId) {

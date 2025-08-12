@@ -39,7 +39,8 @@ export default function LoginPage() {
       // Redirect to dashboard or the original requested page
       const searchParams = new URLSearchParams(window.location.search);
       const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
-      router.push(callbackUrl);
+      // Use window.location for more reliable redirect
+      window.location.href = callbackUrl;
     } catch (err) {
       console.error('[login] Login error:', err);
       setError('An error occurred. Please try again.');

@@ -14,6 +14,7 @@ datasource db {
 model Company {
   id          String   @id @default(cuid())
   name        String   @unique
+  domain      String?  // Company email domain
   logo        String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -24,19 +25,23 @@ model Company {
 }
 
 model Admin {
-  id             String   @id @default(cuid())
-  email          String   @unique
-  name           String?
-  password       String?  // Hashed password
-  companyId      String
-  isActive       Boolean  @default(true)
-  lastLogin      DateTime?
-  // lastAssessment DateTime? // TODO: Add after migration is applied
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id               String    @id @default(cuid())
+  email            String    @unique
+  firstName        String?
+  lastName         String?
+  name             String?   // Computed from firstName + lastName (for backward compatibility)
+  password         String?   // Hashed password
+  companyId        String?
+  role             String    @default("ADMIN")
+  isActive         Boolean   @default(true)
+  lastLogin        DateTime?
+  resetToken       String?   @db.Text // Password reset token
+  resetTokenExpiry DateTime? // Token expiration time
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
   
-  company        Company  @relation(fields: [companyId], references: [id])
-  invitations    Invitation[]
+  company          Company?  @relation(fields: [companyId], references: [id])
+  invitations      Invitation[]
 }
 
 model Invitation {

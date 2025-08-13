@@ -121,8 +121,6 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
       { error: 'Failed to fetch campaigns' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }, {
   requireAdmin: false, // Any authenticated user can view campaigns

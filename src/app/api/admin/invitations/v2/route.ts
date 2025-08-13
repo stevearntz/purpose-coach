@@ -132,8 +132,6 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
       { error: 'Failed to fetch invitations' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }, {
   requireAdmin: true,
@@ -278,8 +276,6 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
       { error: 'Failed to create invitation' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }, {
   requireAdmin: true,

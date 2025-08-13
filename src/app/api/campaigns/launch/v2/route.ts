@@ -263,9 +263,6 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
       { error: 'Failed to launch campaign' },
       { status: 500 }
     );
-    
-  } finally {
-    await prisma.$disconnect();
   }
 }, {
   requireAdmin: true,

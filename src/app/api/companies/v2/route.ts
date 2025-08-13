@@ -122,8 +122,6 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
       { error: 'Failed to fetch companies' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }, {
   requireAdmin: true,
@@ -206,8 +204,6 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
       { error: 'Failed to create company' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }, {
   requireAdmin: true,

@@ -207,6 +207,7 @@ When building ANY new tool:
 4. **Custom email validation** - Use existing utilities
 5. **Forgetting to add tools to toolkit and homepage**
 6. **Not following established multi-stage patterns**
+7. **Using browser alerts/confirms** - NEVER use alert(), confirm(), or prompt() in user-facing pages (dashboard, tools, etc.). Always use in-app notifications, toasts, or modals. Admin pages can use browser alerts if needed.
 
 ## Navigation URLs
 - Back to Plan: `/?screen=4`

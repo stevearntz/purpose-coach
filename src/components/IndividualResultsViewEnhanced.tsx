@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { 
   Building2, ChevronDown, ChevronUp,
-  Clock, CheckCircle, Users, Hash, Loader2, Mail
+  Clock, CheckCircle, Users, Hash, Loader2, Mail, TrendingUp, X, Copy
 } from 'lucide-react'
 
 interface AssessmentData {
@@ -41,7 +41,7 @@ interface IndividualResult {
   campaignName?: string
   completedAt?: string
   startedAt?: string
-  status: 'completed' | 'started' | 'invited' | 'pending'
+  status: string // Allow any status string for flexibility
   
   // Enhanced with real assessment data
   assessmentData?: AssessmentData
@@ -53,23 +53,28 @@ interface Props {
   companyId?: string
 }
 
-const statusConfig = {
-  completed: {
+const statusConfig: Record<string, any> = {
+  'COMPLETED': {
     color: 'bg-green-100 text-green-700 border-green-200',
     icon: CheckCircle,
     label: 'Completed'
   },
-  started: {
+  'STARTED': {
     color: 'bg-yellow-100 text-yellow-700 border-yellow-200',
     icon: Clock,
     label: 'In Progress'
   },
-  invited: {
+  'SENT': {
     color: 'bg-blue-100 text-blue-700 border-blue-200',
     icon: Mail,
     label: 'Invited'
   },
-  pending: {
+  'INVITED': {
+    color: 'bg-blue-100 text-blue-700 border-blue-200',
+    icon: Mail,
+    label: 'Invited'
+  },
+  'PENDING': {
     color: 'bg-gray-100 text-gray-600 border-gray-200',
     icon: Clock,
     label: 'Pending'
@@ -91,13 +96,22 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<string>('all')
   const [filterAssessment, setFilterAssessment] = useState<string>('all')
+  const [filterCampaign, setFilterCampaign] = useState<string>('all')
   const [assessmentData, setAssessmentData] = useState<Record<string, AssessmentData[]>>({})
   const [loadingAssessments, setLoadingAssessments] = useState<Set<string>>(new Set())
+  const [copiedEmail, setCopiedEmail] = useState<string | null>(null)
+  const [showBulkCopy, setShowBulkCopy] = useState(false)
+  
+  // Email modal state - commented out for now
+  // const [showEmailModal, setShowEmailModal] = useState(false)
+  // const [selectedParticipant, setSelectedParticipant] = useState<IndividualResult | null>(null)
+  // const [emailSubject, setEmailSubject] = useState('')
+  // const [emailMessage, setEmailMessage] = useState('')
   
   // Fetch assessment data for completed results
   useEffect(() => {
     const fetchAssessmentData = async () => {
-      const completedResults = results.filter(r => r.status === 'completed')
+      const completedResults = results.filter(r => r.status?.toLowerCase() === 'completed')
       
       for (const result of completedResults) {
         if (!assessmentData[result.id] && !loadingAssessments.has(result.id)) {
@@ -129,21 +143,56 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
     fetchAssessmentData()
   }, [results])
   
+  // First, filter to get only the most recent result per user/campaign/assessment combination
+  const getMostRecentResults = (allResults: IndividualResult[]) => {
+    const resultMap = new Map<string, IndividualResult>()
+    
+    // Sort by completedAt/startedAt date (newest first)
+    const sortedResults = [...allResults].sort((a, b) => {
+      const dateA = new Date(a.completedAt || a.startedAt || 0).getTime()
+      const dateB = new Date(b.completedAt || b.startedAt || 0).getTime()
+      return dateB - dateA // Newest first
+    })
+    
+    // Keep only the most recent result for each user+campaign+assessment combination
+    // If no campaign (individual), group those separately
+    sortedResults.forEach(result => {
+      // Create a unique key that includes campaign (or 'individual' if no campaign)
+      // This keeps campaign results separate from individual results
+      const campaignKey = result.campaignName || 'individual'
+      const key = `${result.participantEmail}_${campaignKey}_${result.assessmentType}`
+      
+      // Only add if we haven't seen this combination before (since we sorted by newest first)
+      if (!resultMap.has(key)) {
+        resultMap.set(key, result)
+      }
+    })
+    
+    return Array.from(resultMap.values())
+  }
+  
+  // Get deduplicated results
+  const deduplicatedResults = getMostRecentResults(results)
+  
   // Filter results based on search and filters
-  const filteredResults = results.filter(result => {
+  const filteredResults = deduplicatedResults.filter(result => {
     const matchesSearch = searchTerm === '' || 
       result.participantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       result.participantEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
       result.department?.toLowerCase().includes(searchTerm.toLowerCase())
     
-    const matchesStatus = filterStatus === 'all' || result.status === filterStatus
+    const matchesStatus = filterStatus === 'all' || result.status?.toLowerCase() === filterStatus
     const matchesAssessment = filterAssessment === 'all' || result.assessmentType === filterAssessment
+    const matchesCampaign = filterCampaign === 'all' || 
+      (filterCampaign === 'No Campaign' && !result.campaignName) ||
+      result.campaignName === filterCampaign
     
-    return matchesSearch && matchesStatus && matchesAssessment
+    return matchesSearch && matchesStatus && matchesAssessment && matchesCampaign
   })
   
-  // Get unique assessment types for filter
-  const assessmentTypes = [...new Set(results.map(r => r.assessmentType))]
+  // Get unique assessment types and campaigns for filters (use deduplicated results)
+  const assessmentTypes = [...new Set(deduplicatedResults.map(r => r.assessmentType))]
+  const campaigns = [...new Set(deduplicatedResults.filter(r => r.campaignName).map(r => r.campaignName!))]
   
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id)
@@ -171,7 +220,88 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
     return `${hours}h ${mins}m`
   }
   
-  const renderAssessmentDetails = (resultId: string, assessments: AssessmentData[]) => {
+  // Copy single email to clipboard
+  const copyEmail = (email: string) => {
+    navigator.clipboard.writeText(email)
+    setCopiedEmail(email)
+    setTimeout(() => setCopiedEmail(null), 2000)
+  }
+  
+  // Copy all filtered emails as CSV
+  const copyAllEmails = () => {
+    const emails = filteredResults.map(r => r.participantEmail).join(', ')
+    navigator.clipboard.writeText(emails)
+    setShowBulkCopy(true)
+    setTimeout(() => setShowBulkCopy(false), 2000)
+  }
+  
+  // Email modal handlers - commented out for now
+  // const openEmailModal = (participant: IndividualResult) => {
+  //   setSelectedParticipant(participant)
+  //   setEmailSubject('')
+  //   setEmailMessage('')
+  //   setShowEmailModal(true)
+  // }
+  
+  // const closeEmailModal = () => {
+  //   setShowEmailModal(false)
+  //   setSelectedParticipant(null)
+  //   setEmailSubject('')
+  //   setEmailMessage('')
+  // }
+  
+  // const sendEmail = async () => {
+  //   if (!selectedParticipant || !emailSubject.trim() || !emailMessage.trim()) {
+  //     console.warn('Missing required fields for email')
+  //     return
+  //   }
+    
+  //   try {
+  //     const response = await fetch('/api/send-message', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         recipientEmail: selectedParticipant.participantEmail,
+  //         recipientName: selectedParticipant.participantName,
+  //         senderName: 'HR Team', // TODO: Get from session
+  //         subject: emailSubject,
+  //         message: emailMessage,
+  //         assessmentType: selectedParticipant.assessmentType,
+  //         status: selectedParticipant.status.toLowerCase(),
+  //         campaignId: selectedParticipant.campaignName,
+  //         deadline: 'August 26, 2025' // TODO: Get from campaign
+  //       })
+  //     })
+      
+  //     const data = await response.json()
+      
+  //     if (data.success) {
+  //       console.log('Email template generated:', data)
+  //       // TODO: Show success notification
+  //     }
+  //   } catch (error) {
+  //     console.error('Error sending message:', error)
+  //     // TODO: Show error notification
+  //   }
+    
+  //   closeEmailModal()
+  // }
+  
+  const renderAssessmentDetails = (resultId: string, assessments: AssessmentData[], result: IndividualResult) => {
+    // Check if we're still loading this result's data
+    const isLoadingData = loadingAssessments.has(resultId);
+    
+    if (isLoadingData) {
+      return (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="animate-spin h-8 w-8 text-purple-600 mr-3" />
+          <span className="text-gray-600">Loading assessment details...</span>
+        </div>
+      )
+    }
+    
     if (!assessments || assessments.length === 0) {
       return (
         <div className="py-8 text-center text-gray-500">
@@ -180,29 +310,79 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
       )
     }
     
+    // Filter to only show the most recent assessment that matches this result's campaign context
+    let relevantAssessment: AssessmentData | null = null;
+    
+    if (result.campaignName) {
+      // For campaign results, find the assessment that matches the campaign
+      relevantAssessment = assessments.find(a => {
+        // Check if the assessment was from this campaign
+        // This would need to be stored in the assessment data
+        return a.completedAt === result.completedAt;
+      }) || assessments[0]; // Fallback to most recent
+    } else {
+      // For individual results, use the most recent assessment
+      relevantAssessment = assessments[0];
+    }
+    
+    if (!relevantAssessment) {
+      return (
+        <div className="py-8 text-center text-gray-500">
+          <p className="text-sm">No matching assessment data found</p>
+        </div>
+      )
+    }
+    
+    // Now render only the single relevant assessment
+    const assessment = relevantAssessment;
+    
+    // Priority names mapping
+    const priorityLabels: Record<string, string> = {
+      'revenue': 'Revenue, sales, or growth targets',
+      'customer': 'Customer success or retention',
+      'product': 'Product or delivery milestones',
+      'team': 'Team performance or growth',
+      'collaboration': 'Cross-functional collaboration',
+      'culture': 'Culture or engagement',
+      'operations': 'Operational efficiency',
+      'budget': 'Budget or cost management',
+      'strategy': 'Strategy or planning',
+      'change': 'Change or transformation efforts',
+      'focus': 'My own focus / effectiveness',
+      'risk': 'Risk management or compliance'
+    };
+    
     return (
       <div className="space-y-4">
-        {assessments.map((assessment, idx) => (
-          <div key={assessment.id} className="space-y-4">
-            {/* Only show insights for HR Partnership */}
-            {assessment.toolId === 'hr-partnership' && assessment.insights && typeof assessment.insights === 'object' && (
-              <div className="space-y-4">
+        <div className="space-y-4">
+          {/* Only show insights for HR Partnership */}
+          {assessment.toolId === 'hr-partnership' && assessment.insights && typeof assessment.insights === 'object' && (
+            <div className="space-y-4">
                 {/* Challenge Areas - Main focus */}
                 {assessment.insights.mainChallengeAreas && (
                   <div>
                     <h5 className="font-medium text-gray-800 mb-3">Challenge Areas</h5>
                     <div className="space-y-3">
-                      {Object.entries(assessment.insights.mainChallengeAreas).map(([category, details]: [string, any]) => (
-                        <div key={category} className="border-l-4 border-red-400 pl-4">
-                          <h6 className="font-medium text-gray-800 mb-1">{category}</h6>
-                          {details.challenges && Array.isArray(details.challenges) && (
-                            <div className="flex flex-wrap gap-2">
-                              {details.challenges.map((challenge: string, idx: number) => (
-                                <span key={idx} className="px-3 py-1 bg-red-50 text-red-700 rounded-full text-sm">
+                      {(Array.isArray(assessment.insights.mainChallengeAreas) 
+                        ? assessment.insights.mainChallengeAreas 
+                        : Object.values(assessment.insights.mainChallengeAreas)
+                      ).map((area: any, idx: number) => (
+                        <div key={idx} className="border-l-4 border-red-400 pl-4">
+                          <h6 className="font-medium text-gray-800 mb-2">{area.category}</h6>
+                          {area.challenges && Array.isArray(area.challenges) && (
+                            <div className="flex flex-wrap gap-2 mb-2">
+                              {area.challenges.map((challenge: string, cidx: number) => (
+                                <span key={cidx} className="px-3 py-1 bg-red-50 text-red-700 rounded-full text-sm">
                                   {challenge}
                                 </span>
                               ))}
                             </div>
+                          )}
+                          {/* Challenge area details/comments */}
+                          {area.details && area.details.trim() && (
+                            <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600 text-sm mt-2">
+                              "{area.details}"
+                            </blockquote>
                           )}
                         </div>
                       ))}
@@ -214,84 +394,83 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                 {assessment.insights.skillGaps && (
                   <div>
                     <h5 className="font-medium text-gray-800 mb-2">Skills to Develop</h5>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(assessment.insights.skillGaps).flatMap(([category, items]: [string, any]) => 
-                        Array.isArray(items) ? items : [items]
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {(Array.isArray(assessment.insights.skillGaps) 
+                        ? assessment.insights.skillGaps 
+                        : Object.values(assessment.insights.skillGaps).flat()
                       ).map((skill: string, idx: number) => (
                         <span key={idx} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
                           {skill}
                         </span>
                       ))}
                     </div>
+                    {/* Skills details/comments */}
+                    {assessment.responses?.skillDetails && assessment.responses.skillDetails.trim() && (
+                      <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600 text-sm">
+                        "{assessment.responses.skillDetails}"
+                      </blockquote>
+                    )}
                   </div>
                 )}
 
-                {/* Support Needs */}
+                {/* Support Needs - as pills */}
                 {assessment.insights.supportNeeds && (
                   <div>
-                    <h5 className="font-medium text-gray-800 mb-2">Immediate Support Needs</h5>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(assessment.insights.supportNeeds).flatMap(([category, items]: [string, any]) => 
-                        Array.isArray(items) ? items : [items]
+                    <h5 className="font-medium text-gray-800 mb-2">Support Needs</h5>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {(Array.isArray(assessment.insights.supportNeeds) 
+                        ? assessment.insights.supportNeeds 
+                        : Object.values(assessment.insights.supportNeeds).flat()
                       ).map((need: string, idx: number) => (
                         <span key={idx} className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm">
                           {need}
                         </span>
                       ))}
                     </div>
+                    {/* Support details/comments */}
+                    {assessment.responses?.supportDetails && assessment.responses.supportDetails.trim() && (
+                      <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600 text-sm">
+                        "{assessment.responses.supportDetails}"
+                      </blockquote>
+                    )}
                   </div>
                 )}
 
-                {/* Focus Areas (Priorities) */}
+                {/* Focus Areas (Priorities) with full names */}
                 {assessment.insights.priorities && (
                   <div>
                     <h5 className="font-medium text-gray-800 mb-2">Focus Areas</h5>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(assessment.insights.priorities).flatMap(([category, items]: [string, any]) => 
-                        Array.isArray(items) ? items : [items]
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {(Array.isArray(assessment.insights.priorities) 
+                        ? assessment.insights.priorities 
+                        : Object.values(assessment.insights.priorities).flat()
                       ).map((priority: string, idx: number) => (
                         <span key={idx} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
-                          {priority}
+                          {priorityLabels[priority] || priority}
                         </span>
                       ))}
                     </div>
-                  </div>
+                    {/* Team priorities comments */}
+                    {assessment.responses?.teamPriorities && assessment.responses.teamPriorities.trim() && (
+                      <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600 text-sm">
+                        "{assessment.responses.teamPriorities}"
+                      </blockquote>
                     )}
-                    {assessment.insights.supportNeeds && (
-                      <div>
-                        <h6 className="font-medium text-gray-700 mb-2">Support Needs</h6>
-                        <div className="grid grid-cols-2 gap-3">
-                          {Object.entries(assessment.insights.supportNeeds).map(([category, items]: [string, any]) => (
-                            <div key={category} className="bg-yellow-50 rounded-lg p-3">
-                              <p className="text-sm font-medium text-yellow-700">{category}</p>
-                              {Array.isArray(items) ? (
-                                <ul className="mt-1 text-sm text-gray-600">
-                                  {items.map((item: string, idx: number) => (
-                                    <li key={idx}>• {item}</li>
-                                  ))}
-                                </ul>
-                              ) : (
-                                <p className="text-sm text-gray-600 mt-1">{String(items)}</p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                  </div>
                 )}
 
-                {/* Additional Insights - Comments/Text */}
-                {assessment.responses && assessment.responses.additionalComments && (
+                {/* Additional Insights - always show if present */}
+                {assessment.responses?.additionalInsights && assessment.responses.additionalInsights.trim() && (
                   <div>
                     <h5 className="font-medium text-gray-800 mb-2">Additional Insights</h5>
                     <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600">
-                      "{assessment.responses.additionalComments}"
+                      "{assessment.responses.additionalInsights}"
                     </blockquote>
                   </div>
                 )}
-              </div>
-            )}
-          </div>
-        ))}
+            </div>
+          )}
+        </div>
       </div>
     )
   }
@@ -325,50 +504,103 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
     <div className="space-y-6">
       {/* Filters */}
       <div className="bg-white rounded-lg shadow-sm p-4">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+          {/* Search box - takes up less space */}
+          <div className="md:col-span-4">
             <input
               type="text"
-              placeholder="Search by name, email, or department..."
+              placeholder="Search by name, email, dept..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
           
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-          >
-            <option value="all">All Status</option>
-            <option value="completed">Completed</option>
-            <option value="started">In Progress</option>
-            <option value="invited">Invited</option>
-            <option value="pending">Pending</option>
-          </select>
+          {/* Status filter */}
+          <div className="md:col-span-2">
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="all">All Status</option>
+              <option value="completed">Completed</option>
+              <option value="started">In Progress</option>
+              <option value="invited">Invited</option>
+              <option value="pending">Pending</option>
+            </select>
+          </div>
           
-          <select
-            value={filterAssessment}
-            onChange={(e) => setFilterAssessment(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-          >
-            <option value="all">All Assessments</option>
-            {assessmentTypes.map(type => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
+          {/* Campaign filter */}
+          <div className="md:col-span-3">
+            <select
+              value={filterCampaign}
+              onChange={(e) => setFilterCampaign(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="all">All Campaigns</option>
+              {campaigns.map(campaign => (
+                <option key={campaign} value={campaign}>{campaign}</option>
+              ))}
+              <option value="No Campaign">Individual Assessments</option>
+            </select>
+          </div>
+          
+          {/* Assessment type filter */}
+          <div className="md:col-span-3">
+            <select
+              value={filterAssessment}
+              onChange={(e) => setFilterAssessment(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="all">All Assessments</option>
+              {assessmentTypes.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </div>
         </div>
         
-        <div className="mt-3 text-sm text-gray-600">
-          Showing {filteredResults.length} of {results.length} results
+        <div className="mt-3 text-sm text-gray-600 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span>Showing {filteredResults.length} of {deduplicatedResults.length} results</span>
+            {results.length > deduplicatedResults.length && (
+              <span className="text-amber-600 text-xs">
+                ({results.length - deduplicatedResults.length} duplicate{results.length - deduplicatedResults.length > 1 ? 's' : ''} hidden)
+              </span>
+            )}
+            {filteredResults.length > 0 && (
+              <>
+                <span className="text-gray-400">•</span>
+                <button
+                  onClick={copyAllEmails}
+                  className="text-purple-600 hover:text-purple-700 font-medium transition-colors"
+                >
+                  {showBulkCopy ? 'Copied!' : 'Copy result emails as CSV'}
+                </button>
+              </>
+            )}
+          </div>
+          {(searchTerm || filterStatus !== 'all' || filterAssessment !== 'all' || filterCampaign !== 'all') && (
+            <button
+              onClick={() => {
+                setSearchTerm('')
+                setFilterStatus('all')
+                setFilterAssessment('all')
+                setFilterCampaign('all')
+              }}
+              className="text-purple-600 hover:text-purple-700 font-medium"
+            >
+              Clear filters
+            </button>
+          )}
         </div>
       </div>
       
       {/* Results Cards */}
       <div className="space-y-4">
         {filteredResults.map((result) => {
-          const status = result.status || 'pending'
+          const status = result.status?.toUpperCase() || 'PENDING'
           const StatusIcon = statusConfig[status]?.icon || Clock
           const isExpanded = expandedId === result.id
           const completionTime = getCompletionTime(result.startedAt, result.completedAt)
@@ -384,29 +616,56 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    {/* Name and Email */}
-                    <div className="flex items-center gap-4 mb-3">
-                      <div>
-                        <h3 className="font-semibold text-lg text-gray-900">
-                          {result.participantName}
-                        </h3>
-                        <p className="text-sm text-gray-600">{result.participantEmail}</p>
-                      </div>
+                    {/* Top row: Name, Email Pill, Status Pill, Timestamp */}
+                    <div className="flex items-center gap-3 mb-3 flex-wrap">
+                      <h3 className="font-semibold text-lg text-gray-900">
+                        {result.participantName}
+                      </h3>
+                      
+                      {/* Email Pill with Copy */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          copyEmail(result.participantEmail)
+                        }}
+                        className="px-3 py-1 rounded-full text-sm font-medium border bg-indigo-100 text-indigo-700 border-indigo-200 hover:bg-indigo-200 transition-colors flex items-center gap-1"
+                      >
+                        {copiedEmail === result.participantEmail ? (
+                          <>
+                            <CheckCircle className="w-3 h-3" />
+                            <span>Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Mail className="w-3 h-3" />
+                            <span>{result.participantEmail}</span>
+                          </>
+                        )}
+                      </button>
+                      
+                      {/* Status Pill */}
                       <span className={`px-3 py-1 rounded-full text-sm font-medium border ${statusConfig[status]?.color || 'bg-gray-100 text-gray-600 border-gray-200'}`}>
                         <StatusIcon className="w-3 h-3 inline mr-1" />
                         {statusConfig[status]?.label || 'Unknown'}
                       </span>
+                      
+                      {/* Timestamp */}
+                      {result.completedAt && (
+                        <span className="text-sm text-gray-500">
+                          {formatDate(result.completedAt)}
+                        </span>
+                      )}
                     </div>
                     
                     {/* Meta Information */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-3">
                       <div className="flex items-center gap-1 text-gray-600">
                         <Building2 className="w-4 h-4" />
-                        <span>Department: <span className="font-medium">{result.department || 'N/A'}</span></span>
+                        <span>Department: <span className="font-medium">{resultAssessments[0]?.responses?.department || result.department || 'N/A'}</span></span>
                       </div>
                       <div className="flex items-center gap-1 text-gray-600">
                         <Users className="w-4 h-4" />
-                        <span>Team Size: <span className="font-medium">{result.teamSize || 'N/A'}</span></span>
+                        <span>Team Size: <span className="font-medium">{resultAssessments[0]?.responses?.teamSize || result.teamSize || 'N/A'}</span></span>
                       </div>
                       <div className="flex items-center gap-1 text-gray-600">
                         <Hash className="w-4 h-4" />
@@ -422,42 +681,39 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                     
                   </div>
                   
-                  {/* Expand/Collapse Icon */}
-                  <div className="ml-4">
-                    {result.status === 'completed' && (
-                      isExpanded ? (
-                        <ChevronUp className="w-5 h-5 text-gray-400" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5 text-gray-400" />
-                      )
+                  {/* Action Icons */}
+                  <div className="ml-4 flex items-center gap-2">
+                    {/* Email Icon - commented out for now */}
+                    {/* <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        openEmailModal(result)
+                      }}
+                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      title={`Send message to ${result.participantName}`}
+                    >
+                      <Mail className="w-4 h-4" />
+                    </button> */}
+                    
+                    {/* Expand/Collapse Icon */}
+                    {status === 'COMPLETED' && (
+                      <div>
+                        {isExpanded ? (
+                          <ChevronUp className="w-5 h-5 text-gray-400" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5 text-gray-400" />
+                        )}
+                      </div>
                     )}
                   </div>
-                </div>
-                
-                {/* Date Information */}
-                <div className="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-500">
-                  {result.completedAt ? (
-                    <span>Completed {formatDate(result.completedAt)}</span>
-                  ) : result.startedAt ? (
-                    <span>Started {formatDate(result.startedAt)}</span>
-                  ) : (
-                    <span>Not started</span>
-                  )}
                 </div>
               </div>
               
               {/* Expanded Details */}
-              {isExpanded && result.status === 'completed' && (
+              {isExpanded && status === 'COMPLETED' && (
                 <div className="px-6 pb-6 border-t border-gray-100">
                   <div className="mt-4">
-                    {isLoadingData ? (
-                      <div className="flex items-center justify-center py-8">
-                        <Loader2 className="animate-spin h-8 w-8 text-purple-600 mr-3" />
-                        <span className="text-gray-600">Loading assessment details...</span>
-                      </div>
-                    ) : (
-                      renderAssessmentDetails(result.id, resultAssessments)
-                    )}
+                    {renderAssessmentDetails(result.id, resultAssessments, result)}
                   </div>
                 </div>
               )}

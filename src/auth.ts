@@ -117,9 +117,7 @@ export const authConfig: NextAuthConfig = {
       return session
     }
   },
-  secret: process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET,
-  debug: process.env.NODE_ENV === "development",
-  trustHost: true, // Important for production
+  debug: process.env.NODE_ENV === "development"
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig)

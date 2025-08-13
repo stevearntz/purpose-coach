@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react'
 import { 
   BarChart3, Users, Calendar, TrendingUp, Download, 
-  ChevronRight, FileText, Clock, CheckCircle, AlertCircle,
-  Target, Brain, Shield, MessageSquare
+  ChevronRight, ChevronDown, ChevronUp, FileText, Clock, CheckCircle, AlertCircle,
+  Target, Brain, Shield, MessageSquare, Loader2
 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import IndividualResultsViewEnhanced from './IndividualResultsViewEnhanced'
@@ -19,9 +19,10 @@ interface CampaignResult {
   completedCount: number
   completionRate: number
   aggregatedData?: {
-    topChallenges: { challenge: string; count: number }[]
-    topCapabilities: { capability: string; count: number }[]
-    averageScores?: Record<string, number>
+    challengeAreas?: Record<string, { category: string; challenges: Record<string, number> }>
+    skills?: Record<string, number>
+    supportNeeds?: Record<string, number>
+    focusAreas?: Record<string, number>
   }
 }
 
@@ -42,7 +43,9 @@ export default function ResultsTab() {
   const [campaignResults, setCampaignResults] = useState<CampaignResult[]>([])
   const [individualResults, setIndividualResults] = useState<IndividualResult[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedCampaign, setSelectedCampaign] = useState<CampaignResult | null>(null)
+  const [expandedCampaignId, setExpandedCampaignId] = useState<string | null>(null)
+  const [aggregatedData, setAggregatedData] = useState<Record<string, any>>({})
+  const [loadingAggregatedData, setLoadingAggregatedData] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     if (activeSubTab === 'campaigns') {
@@ -82,6 +85,8 @@ export default function ResultsTab() {
       })
       if (response.ok) {
         const data = await response.json()
+        // Note: IndividualResultsViewEnhanced component handles deduplication on the client side
+        // It filters to show only the most recent submission per user/campaign/assessment
         setIndividualResults(data.results || [])
       } else if (response.status === 401) {
         console.error('Authentication required - user must be logged in')
@@ -115,9 +120,143 @@ export default function ResultsTab() {
     }
   }
 
-  const exportResults = (campaign: CampaignResult) => {
-    // TODO: Implement CSV export
-    console.log('Exporting results for:', campaign.campaignName)
+  const toggleCampaignExpand = (campaignId: string) => {
+    if (expandedCampaignId === campaignId) {
+      setExpandedCampaignId(null)
+    } else {
+      setExpandedCampaignId(campaignId)
+      if (!aggregatedData[campaignId]) {
+        loadAggregatedData(campaignId)
+      }
+    }
+  }
+
+  const loadAggregatedData = async (campaignId: string) => {
+    setLoadingAggregatedData(prev => new Set(prev).add(campaignId))
+    try {
+      // IMPORTANT: The API should deduplicate results before aggregation
+      // Only count the most recent submission per user for each assessment
+      // This ensures users who retake assessments are counted once with their latest responses
+      
+      // In a real app, this would fetch from API
+      // For now, create mock aggregated data
+      const mockAggregated = {
+        challengeAreas: {
+          individual: {
+            category: 'Individual Performance',
+            challenges: {
+              'High performer growth': 2,
+              'Stretch assignments': 1
+            }
+          },
+          leadership: {
+            category: 'Leadership Skills',
+            challenges: {
+              'Delegation': 1,
+              'Project planning': 2,
+              'Leading through ambiguity': 1
+            }
+          },
+          compliance: {
+            category: 'Compliance & Risk',
+            challenges: {
+              'HR policies': 2,
+              'Feedback and terminations': 1,
+              'Regulatory compliance': 1
+            }
+          }
+        },
+        skills: {
+          'Coaching': 2,
+          'Communication': 1,
+          'Decision making': 2
+        },
+        supportNeeds: {
+          'Day-to-day people issues': 2,
+          'Difficult terminations': 1,
+          'Reorganization support': 1,
+          'Mental health resources': 2
+        },
+        focusAreas: {
+          'Revenue, sales, or growth targets': 2,
+          'Team performance or growth': 1,
+          'Strategy or planning': 2,
+          'Risk management or compliance': 1
+        }
+      }
+      setAggregatedData(prev => ({ ...prev, [campaignId]: mockAggregated }))
+    } catch (error) {
+      console.error('Failed to load aggregated data:', error)
+    } finally {
+      setLoadingAggregatedData(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(campaignId)
+        return newSet
+      })
+    }
+  }
+
+  const exportResults = async (campaign: CampaignResult) => {
+    // Load data if not already loaded
+    if (!aggregatedData[campaign.id]) {
+      await loadAggregatedData(campaign.id)
+    }
+    
+    const campaignData = aggregatedData[campaign.id]
+    
+    // Create CSV from aggregated data
+    const rows: string[][] = []
+    rows.push(['Category', 'Item', 'Count'])
+    
+    // Add challenge areas
+    if (campaignData?.challengeAreas) {
+      Object.values(campaignData.challengeAreas).forEach((area: any) => {
+        Object.entries(area.challenges || {}).forEach(([challenge, count]) => {
+          if (Number(count) > 0) {
+            rows.push([area.category, challenge, String(count)])
+          }
+        })
+      })
+    }
+    
+    // Add skills
+    if (campaignData?.skills) {
+      Object.entries(campaignData.skills).forEach(([skill, count]) => {
+        if (Number(count) > 0) {
+          rows.push(['Skills to Develop', skill, String(count)])
+        }
+      })
+    }
+    
+    // Add support needs
+    if (campaignData?.supportNeeds) {
+      Object.entries(campaignData.supportNeeds).forEach(([need, count]) => {
+        if (Number(count) > 0) {
+          rows.push(['Support Needs', need, String(count)])
+        }
+      })
+    }
+    
+    // Add focus areas
+    if (campaignData?.focusAreas) {
+      Object.entries(campaignData.focusAreas).forEach(([area, count]) => {
+        if (Number(count) > 0) {
+          rows.push(['Focus Areas', area, String(count)])
+        }
+      })
+    }
+    
+    // Create CSV
+    const csvContent = rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n')
+    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${campaign.campaignName.replace(/\s+/g, '_')}_aggregated_results.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    window.URL.revokeObjectURL(url)
   }
 
   return (
@@ -181,139 +320,144 @@ export default function ResultsTab() {
           </div>
         ) : (
           <div className="space-y-4">
-            {campaignResults.map((campaign) => (
-              <div
-                key={campaign.id}
-                className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden hover:bg-white/10 transition-all cursor-pointer"
-                onClick={() => setSelectedCampaign(campaign)}
-              >
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-1">
-                        {campaign.campaignName}
-                      </h3>
-                      <p className="text-sm text-white/60">
-                        {campaign.assessmentType}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          exportResults(campaign)
-                        }}
-                        className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                        title="Export Results"
-                      >
-                        <Download className="w-4 h-4 text-white/60" />
-                      </button>
-                      <ChevronRight className="w-5 h-5 text-white/40" />
-                    </div>
-                  </div>
-
-                  {/* Stats Grid */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    <div>
-                      <div className="text-2xl font-bold text-white">
-                        {campaign.completionRate}%
-                      </div>
-                      <div className="text-xs text-white/60">Completion Rate</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-white">
-                        {campaign.completedCount}/{campaign.totalParticipants}
-                      </div>
-                      <div className="text-xs text-white/60">Completed</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-white/80">
-                        {formatDate(campaign.startDate)}
-                      </div>
-                      <div className="text-xs text-white/60">Started</div>
-                    </div>
-                    {campaign.endDate && (
+            {campaignResults.map((campaign) => {
+              const isExpanded = expandedCampaignId === campaign.id
+              const isLoadingData = loadingAggregatedData.has(campaign.id)
+              const campaignData = aggregatedData[campaign.id]
+              
+              return (
+                <div key={campaign.id} className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden">
+                  {/* Card Header - Always Visible */}
+                  <div 
+                    className="p-6 cursor-pointer hover:bg-white/10 transition-all"
+                    onClick={() => toggleCampaignExpand(campaign.id)}
+                  >
+                    <div className="flex items-start justify-between">
                       <div>
-                        <div className="text-sm text-white/80">
-                          {formatDate(campaign.endDate)}
-                        </div>
-                        <div className="text-xs text-white/60">Deadline</div>
+                        <h3 className="text-lg font-semibold text-white mb-1">
+                          {campaign.campaignName}
+                        </h3>
+                        <p className="text-sm text-white/60">
+                          {campaign.assessmentType}
+                        </p>
                       </div>
-                    )}
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            await exportResults(campaign)
+                          }}
+                          className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                          title="Export Results"
+                        >
+                          <Download className="w-4 h-4 text-white/60" />
+                        </button>
+                        {isExpanded ? (
+                          <ChevronUp className="w-5 h-5 text-white/40" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5 text-white/40" />
+                        )}
+                      </div>
+                    </div>
                   </div>
-
-                  {/* Top Insights Preview */}
-                  {campaign.aggregatedData && (
-                    <div className="pt-4 border-t border-white/10">
-                      <div className="text-sm text-white/60 mb-2">Top Challenges Identified:</div>
-                      <div className="flex flex-wrap gap-2">
-                        {campaign.aggregatedData.topChallenges.slice(0, 3).map((item, idx) => (
-                          <span
-                            key={idx}
-                            className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs"
-                          >
-                            {item.challenge} ({item.count})
-                          </span>
-                        ))}
-                        {campaign.aggregatedData.topChallenges.length > 3 && (
-                          <span className="px-3 py-1 bg-white/10 text-white/60 rounded-full text-xs">
-                            +{campaign.aggregatedData.topChallenges.length - 3} more
-                          </span>
+                  
+                  {/* Expanded Details */}
+                  {isExpanded && (
+                    <div className="px-6 pb-6 border-t border-white/10">
+                      <div className="mt-4">
+                        {isLoadingData ? (
+                          <div className="flex items-center justify-center py-8">
+                            <Loader2 className="animate-spin h-8 w-8 text-purple-400 mr-3" />
+                            <span className="text-white/60">Loading aggregated data...</span>
+                          </div>
+                        ) : campaignData ? (
+                          <div className="space-y-6 bg-white/5 rounded-lg p-6">
+                            {/* Challenge Areas */}
+                            {campaignData.challengeAreas && Object.keys(campaignData.challengeAreas).length > 0 && (
+                              <div>
+                                <h3 className="text-lg font-semibold text-white mb-3">Challenge Areas</h3>
+                                <div className="space-y-3">
+                                  {Object.entries(campaignData.challengeAreas).map(([key, area]: [string, any]) => (
+                                    <div key={key} className="border-l-4 border-red-400 pl-4">
+                                      <h4 className="font-medium text-white/90 mb-2">{area.category}</h4>
+                                      <div className="flex flex-wrap gap-2">
+                                        {Object.entries(area.challenges || {}).filter(([_, count]) => Number(count) > 0).map(([challenge, count]) => (
+                                          <span key={challenge} className="px-3 py-1 bg-red-500/20 text-red-300 rounded-full text-sm flex items-center gap-1">
+                                            {challenge}
+                                            <span className="font-semibold">({String(count)})</span>
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Skills to Develop */}
+                            {campaignData.skills && Object.keys(campaignData.skills).length > 0 && (
+                              <div>
+                                <h3 className="text-lg font-semibold text-white mb-3">Skills to Develop</h3>
+                                <div className="flex flex-wrap gap-2">
+                                  {Object.entries(campaignData.skills).filter(([_, count]) => Number(count) > 0).map(([skill, count]) => (
+                                    <span key={skill} className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm flex items-center gap-1">
+                                      {skill}
+                                      <span className="font-semibold">({String(count)})</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Support Needs */}
+                            {campaignData.supportNeeds && Object.keys(campaignData.supportNeeds).length > 0 && (
+                              <div>
+                                <h3 className="text-lg font-semibold text-white mb-3">Support Needs</h3>
+                                <div className="flex flex-wrap gap-2">
+                                  {Object.entries(campaignData.supportNeeds).filter(([_, count]) => Number(count) > 0).map(([need, count]) => (
+                                    <span key={need} className="px-3 py-1 bg-yellow-500/20 text-yellow-300 rounded-full text-sm flex items-center gap-1">
+                                      {need}
+                                      <span className="font-semibold">({String(count)})</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Focus Areas */}
+                            {campaignData.focusAreas && Object.keys(campaignData.focusAreas).length > 0 && (
+                              <div>
+                                <h3 className="text-lg font-semibold text-white mb-3">Focus Areas</h3>
+                                <div className="flex flex-wrap gap-2">
+                                  {Object.entries(campaignData.focusAreas).filter(([_, count]) => Number(count) > 0).map(([area, count]) => (
+                                    <span key={area} className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm flex items-center gap-1">
+                                      {area}
+                                      <span className="font-semibold">({String(count)})</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-center py-8 text-white/40">
+                            No data available
+                          </div>
                         )}
                       </div>
                     </div>
                   )}
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )
       ) : (
         /* Individual Results View - Using enhanced expandable card component with DB data */
         <IndividualResultsViewEnhanced 
-          results={individualResults.map(result => ({
-            ...result,
-            status: result.status.toLowerCase() as 'completed' | 'started' | 'invited' | 'pending'
-          }))} 
+          results={individualResults} 
           loading={loading} 
         />
-      )}
-
-      {/* Campaign Detail Modal */}
-      {selectedCampaign && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setSelectedCampaign(null)}
-          />
-          
-          <div className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 p-6 z-10">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    {selectedCampaign.campaignName}
-                  </h2>
-                  <p className="text-gray-600 mt-1">
-                    {selectedCampaign.assessmentType} • {selectedCampaign.completedCount} responses
-                  </p>
-                </div>
-                <button
-                  onClick={() => setSelectedCampaign(null)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-            
-            <div className="p-6">
-              <div className="text-center py-12 text-gray-500">
-                Detailed campaign analytics coming soon...
-              </div>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   )

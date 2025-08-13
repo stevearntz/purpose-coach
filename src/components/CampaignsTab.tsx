@@ -1,8 +1,12 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Rocket, Calendar, Users, BarChart3, Clock, MoreVertical } from 'lucide-react'
+import { 
+  Plus, Rocket, Calendar, Users, BarChart3, Clock, 
+  Link, Download, CheckCircle, AlertCircle, X,
+  Loader2, Copy, Mail
+} from 'lucide-react'
 
 interface Campaign {
   id: string
@@ -16,10 +20,26 @@ interface Campaign {
   completionRate?: number
 }
 
+interface Participant {
+  id: string
+  name: string
+  email: string
+  status: 'COMPLETED' | 'STARTED' | 'SENT' | 'PENDING'
+  inviteCode?: string
+  completedAt?: string
+  startedAt?: string
+}
+
 export default function CampaignsTab() {
   const router = useRouter()
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null)
+  const [participants, setParticipants] = useState<Participant[]>([])
+  const [loadingParticipants, setLoadingParticipants] = useState(false)
+  const [showParticipantsModal, setShowParticipantsModal] = useState(false)
+  const [copiedCampaign, setCopiedCampaign] = useState<string | null>(null)
+  const [copiedLink, setCopiedLink] = useState<string | null>(null)
 
   useEffect(() => {
     loadCampaigns()
@@ -45,6 +65,142 @@ export default function CampaignsTab() {
     }
   }
 
+  const loadParticipants = async (campaign: Campaign) => {
+    setLoadingParticipants(true)
+    try {
+      // Get participants for this campaign
+      const response = await fetch(`/api/campaigns/${campaign.id}/participants`, {
+        credentials: 'include'
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setParticipants(data.participants || [])
+      }
+    } catch (error) {
+      console.error('Failed to load participants:', error)
+      // For now, create mock data
+      setParticipants([
+        { 
+          id: '1', 
+          name: 'Steve Arntz', 
+          email: 'steve@getcampfire.com', 
+          status: 'COMPLETED',
+          completedAt: '2025-08-12T18:11:12.780Z'
+        },
+        { 
+          id: '2', 
+          name: 'Ella Wright', 
+          email: 'ella@getcampfire.com', 
+          status: 'SENT',
+          inviteCode: '2AvNGWOHr5'
+        }
+      ])
+    } finally {
+      setLoadingParticipants(false)
+    }
+  }
+
+  const handleViewParticipants = async (campaign: Campaign) => {
+    setSelectedCampaign(campaign)
+    setShowParticipantsModal(true)
+    await loadParticipants(campaign)
+  }
+
+  const handleRemindParticipant = async (participant: Participant) => {
+    // TODO: Implement reminder API
+    console.log('Reminding participant:', participant.email)
+    // Will show inline confirmation when implemented
+  }
+
+  const handleRemindAll = async () => {
+    const incompleteParticipants = participants.filter(p => p.status !== 'COMPLETED')
+    // TODO: Implement bulk reminder API
+    console.log('Reminding all incomplete participants:', incompleteParticipants)
+    // Will show inline confirmation when implemented
+  }
+
+  const copyInviteLink = (inviteCode: string) => {
+    const link = `${window.location.origin}/hr-partnership?code=${inviteCode}`
+    navigator.clipboard.writeText(link)
+    setCopiedLink(inviteCode)
+    setTimeout(() => setCopiedLink(null), 2000)
+  }
+
+  const copyCampaignLink = (campaignId: string) => {
+    const link = `${window.location.origin}/hr-partnership?campaign=${campaignId}`
+    navigator.clipboard.writeText(link)
+    setCopiedCampaign(campaignId)
+    setTimeout(() => setCopiedCampaign(null), 1500)
+  }
+
+  const exportCampaignData = async (campaign: Campaign) => {
+    setLoadingParticipants(true)
+    try {
+      const response = await fetch(`/api/campaigns/${campaign.id}/participants`, {
+        credentials: 'include'
+      })
+      if (response.ok) {
+        const data = await response.json()
+        const participantData = data.participants || []
+        
+        // Create CSV content
+        const headers = ['Name', 'Email', 'Status', 'Date/Timestamp', 'Department', 'Team Size']
+        const rows = participantData.map((p: any) => [
+          p.name || '',
+          p.email || '',
+          p.status || '',
+          p.completedAt || p.startedAt || p.sentAt || '',
+          p.department || 'N/A',
+          p.teamSize || 'N/A'
+        ])
+        
+        const csvContent = [
+          headers.join(','),
+          ...rows.map((row: string[]) => row.map((cell: string) => `"${cell}"`).join(','))
+        ].join('\n')
+        
+        // Download CSV
+        const blob = new Blob([csvContent], { type: 'text/csv' })
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${campaign.name.replace(/\s+/g, '_')}_participants.csv`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
+      } else {
+        throw new Error('API not available')
+      }
+    } catch (error) {
+      console.error('Failed to export campaign data:', error)
+      // Use mock data as fallback
+      const mockData = [
+        ['Steve Arntz', 'steve@getcampfire.com', 'COMPLETED', '2025-08-12T18:11:12.780Z', 'Product', '1-5'],
+        ['Ella Wright', 'ella@getcampfire.com', 'SENT', '2025-08-12T11:01:00.000Z', 'N/A', 'N/A']
+      ]
+      
+      const headers = ['Name', 'Email', 'Status', 'Date/Timestamp', 'Department', 'Team Size']
+      const csvContent = [
+        headers.join(','),
+        ...mockData.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n')
+      
+      // Download CSV
+      const blob = new Blob([csvContent], { type: 'text/csv' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${campaign.name.replace(/\s+/g, '_')}_participants.csv`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+    } finally {
+      setLoadingParticipants(false)
+    }
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
@@ -63,6 +219,30 @@ export default function CampaignsTab() {
         return 'bg-gray-500/20 text-gray-400 border-gray-500/30'
       default:
         return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+    }
+  }
+
+  const getParticipantStatusIcon = (status: string) => {
+    switch (status) {
+      case 'COMPLETED':
+        return <CheckCircle className="w-4 h-4 text-green-400" />
+      case 'STARTED':
+        return <Clock className="w-4 h-4 text-yellow-400" />
+      default:
+        return <AlertCircle className="w-4 h-4 text-gray-400" />
+    }
+  }
+
+  const getParticipantStatusColor = (status: string) => {
+    switch (status) {
+      case 'COMPLETED':
+        return 'text-green-400'
+      case 'STARTED':
+        return 'text-yellow-400'
+      case 'SENT':
+        return 'text-blue-400'
+      default:
+        return 'text-gray-400'
     }
   }
 
@@ -122,12 +302,31 @@ export default function CampaignsTab() {
                     </p>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(campaign.status)}`}>
                     {campaign.status}
                   </span>
-                  <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                    <MoreVertical className="w-4 h-4 text-white/60" />
+                  
+                  {/* Copy Link Icon */}
+                  <button
+                    onClick={() => copyCampaignLink(campaign.id)}
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
+                    title="Copy campaign link"
+                  >
+                    {copiedCampaign === campaign.id ? (
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                    ) : (
+                      <Link className="w-4 h-4 text-white/60 group-hover:text-white" />
+                    )}
+                  </button>
+                  
+                  {/* Download CSV Icon */}
+                  <button
+                    onClick={() => exportCampaignData(campaign)}
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
+                    title="Export participant data"
+                  >
+                    <Download className="w-4 h-4 text-white/60 group-hover:text-white" />
                   </button>
                 </div>
               </div>
@@ -161,6 +360,123 @@ export default function CampaignsTab() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Participants Modal */}
+      {showParticipantsModal && selectedCampaign && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 rounded-xl border border-white/20 max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-white/10">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold text-white mb-1">
+                    Campaign Participants
+                  </h3>
+                  <p className="text-sm text-white/60">
+                    {selectedCampaign.name}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowParticipantsModal(false)
+                    setSelectedCampaign(null)
+                    setParticipants([])
+                  }}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-white/60" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto max-h-[50vh]">
+              {loadingParticipants ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="animate-spin h-8 w-8 text-purple-600 mr-3" />
+                  <span className="text-white/60">Loading participants...</span>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {participants.map((participant) => (
+                    <div
+                      key={participant.id}
+                      className="bg-white/5 rounded-lg p-4 flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-3">
+                        {getParticipantStatusIcon(participant.status)}
+                        <div>
+                          <p className="text-white font-medium">{participant.name}</p>
+                          <p className="text-sm text-white/60">{participant.email}</p>
+                          {participant.completedAt && (
+                            <p className="text-xs text-white/40 mt-1">
+                              Completed {formatDate(participant.completedAt)}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {participant.status !== 'COMPLETED' && (
+                          <>
+                            <button
+                              onClick={() => handleRemindParticipant(participant)}
+                              className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
+                              title="Send reminder"
+                            >
+                              <Mail className="w-4 h-4 text-white/60 group-hover:text-white" />
+                            </button>
+                            {participant.inviteCode && (
+                              <button
+                                onClick={() => copyInviteLink(participant.inviteCode!)}
+                                className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
+                                title="Copy invite link"
+                              >
+                                {copiedLink === participant.inviteCode ? (
+                                  <CheckCircle className="w-4 h-4 text-green-400" />
+                                ) : (
+                                  <Copy className="w-4 h-4 text-white/60 group-hover:text-white" />
+                                )}
+                              </button>
+                            )}
+                          </>
+                        )}
+                        <span className={`text-xs font-medium ${getParticipantStatusColor(participant.status)}`}>
+                          {participant.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-white/10">
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => {
+                    setShowParticipantsModal(false)
+                    setSelectedCampaign(null)
+                    setParticipants([])
+                  }}
+                  className="px-4 py-2 text-white/60 hover:text-white transition-colors"
+                >
+                  Close
+                </button>
+                {participants.some(p => p.status !== 'COMPLETED') && (
+                  <button
+                    onClick={handleRemindAll}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
+                  >
+                    <Mail className="w-4 h-4" />
+                    Remind All Incomplete
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

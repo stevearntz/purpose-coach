@@ -219,8 +219,6 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
       { error: 'Failed to fetch users' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }, {
   requireAdmin: false, // Allow any authenticated user to view their company users

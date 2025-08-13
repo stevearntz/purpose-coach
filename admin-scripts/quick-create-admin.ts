@@ -34,7 +34,7 @@ async function createAdmin() {
         output: process.stdout
       })
       
-      readline.question('', async (answer) => {
+      readline.question('', async (answer: string) => {
         if (answer.toLowerCase() === 'y') {
           const hashedPassword = await bcrypt.hash(password, 10)
           await prisma.admin.update({

@@ -91,7 +91,7 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
           // Get invitations for this campaign
           const invitations = await tx.invitation.findMany({
             where: {
-              companyId: admin.company.id,
+              companyId: admin.company?.id,
               inviteUrl: {
                 contains: `campaign=${encodeURIComponent(campaign.name)}`
               }

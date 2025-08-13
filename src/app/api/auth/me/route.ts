@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       id: admin.id,
       email: admin.email,
       name: admin.name,
-      company: admin.company.name,
+      company: admin.company?.name || null,
       companyId: admin.companyId,
       lastLogin: admin.lastLogin
     });

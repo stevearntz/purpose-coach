@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     const token = generateToken({
       userId: admin.id,
       email: admin.email,
-      companyId: admin.companyId
+      companyId: admin.companyId || ''
     });
     
     // Create response with auth cookie
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
         id: admin.id,
         email: admin.email,
         name: admin.name,
-        company: admin.company.name
+        company: admin.company?.name || null
       }
     });
     

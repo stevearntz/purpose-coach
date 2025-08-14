@@ -74,7 +74,7 @@ async function testAuth() {
           console.log(`  ❌ Password "${testPass}" does not match`)
         }
       } catch (err) {
-        console.log(`  ⚠️ Error testing "${testPass}":`, err.message)
+        console.log(`  ⚠️ Error testing "${testPass}":`, err instanceof Error ? err.message : String(err))
       }
     }
     

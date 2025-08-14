@@ -33,9 +33,17 @@ if (!secret) {
   console.error('[auth] ERROR: No secret available! Set NEXTAUTH_SECRET environment variable!')
 }
 
+// Determine the base URL
+const baseUrl = process.env.NEXTAUTH_URL || 
+                process.env.NEXT_PUBLIC_APP_URL || 
+                (process.env.NODE_ENV === 'production' 
+                  ? 'https://tools.getcampfire.com' 
+                  : 'http://localhost:3000')
+
 export const authConfig: NextAuthConfig = {
   // Remove adapter when using JWT strategy - adapters are for database sessions
   // adapter: PrismaAdapter(prisma),
+  basePath: '/api/auth',
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days

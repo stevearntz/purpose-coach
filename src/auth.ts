@@ -162,12 +162,12 @@ export const authConfig: NextAuthConfig = {
             id: admin.id,
             email: admin.email,
             name: admin.name || admin.email.split('@')[0],
-            companyId: admin.company?.id,
-            companyName: admin.company?.name
+            companyId: admin.company?.id || undefined,
+            companyName: admin.company?.name || undefined
           }
           
-          console.log('[auth] Returning user for session:', user)
-          return user
+          console.log('[auth] Returning user for session:', JSON.stringify(user))
+          return user as any
         } catch (error) {
           console.error("[auth] Authorization error:", error)
           return null
@@ -177,21 +177,40 @@ export const authConfig: NextAuthConfig = {
   ],
   callbacks: {
     async jwt({ token, user, account }) {
+      console.log('[auth] JWT callback called with:', { 
+        hasUser: !!user, 
+        hasToken: !!token,
+        tokenEmail: token?.email 
+      })
+      
       // This is called whenever a JWT is created, updated, or accessed
       if (user) {
         // User is available during sign-in
-        console.log('[auth] JWT callback - user sign in:', user.email)
+        console.log('[auth] JWT callback - creating token for:', user.email)
         token.id = user.id
         token.email = user.email
         token.name = user.name
         token.companyId = user.companyId
         token.companyName = user.companyName
       }
+      
+      console.log('[auth] JWT callback returning token:', JSON.stringify({
+        id: token.id,
+        email: token.email,
+        name: token.name
+      }))
+      
       return token
     },
     async session({ session, token }) {
+      console.log('[auth] Session callback called with:', {
+        hasSession: !!session,
+        hasToken: !!token,
+        tokenEmail: token?.email
+      })
+      
       // Send properties to the client
-      if (session?.user) {
+      if (session?.user && token) {
         console.log('[auth] Session callback - building session for:', token.email)
         session.user.id = token.id as string
         session.user.email = token.email as string
@@ -199,12 +218,24 @@ export const authConfig: NextAuthConfig = {
         session.user.companyId = token.companyId as string
         session.user.companyName = token.companyName as string
       }
+      
+      console.log('[auth] Session callback returning session with user:', session?.user?.email)
+      
       return session
     },
     async signIn({ user, account, profile, email, credentials }) {
       // Add additional logging
       console.log('[auth] SignIn callback triggered for:', user?.email)
-      return true // Allow sign in
+      console.log('[auth] SignIn details:', {
+        hasUser: !!user,
+        userId: user?.id,
+        userEmail: user?.email,
+        hasAccount: !!account,
+        provider: account?.provider
+      })
+      
+      // Always allow sign in if user is returned from authorize
+      return true
     }
   },
   debug: true // Temporarily enable debug to diagnose production issue

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser, useClerk } from '@clerk/nextjs'
-import { LogOut, Building } from 'lucide-react'
+import { LogOut, Building, UserPlus } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
 import Footer from '@/components/Footer'
 import ToolsLibrary from '@/components/ToolsLibrary'
@@ -148,6 +148,15 @@ function DashboardContent() {
               </div>
 
               <div className="flex items-center gap-4">
+                {/* Invite Team Button */}
+                <button
+                  onClick={() => router.push('/dashboard/invite')}
+                  className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span className="text-sm font-medium">Invite Team</span>
+                </button>
+                
                 {/* User Avatar & Logout */}
                 <div className="flex items-center gap-3 pl-4 border-l border-white/20">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">

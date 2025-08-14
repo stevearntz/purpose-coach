@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { auth } from '@/auth'
+import { getAuthSession } from '@/lib/auth-wrapper'
 
 // Routes that require authentication
 const protectedRoutes = ['/dashboard', '/admin']
@@ -76,8 +76,8 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.rewrite(new URL('/connection-sorter', request.url))
   }
   
-  // Get the session using NextAuth
-  const session = await auth()
+  // Get the session using NextAuth with error handling
+  const session = await getAuthSession()
   const isAuthenticated = !!session?.user
   
   

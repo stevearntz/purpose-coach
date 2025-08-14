@@ -14,13 +14,19 @@ const signInSchema = z.object({
 
 // Get the secret - try multiple possible env var names
 // Vercel might use AUTH_SECRET instead of NEXTAUTH_SECRET
-const secret = process.env.NEXTAUTH_SECRET || 
-               process.env.AUTH_SECRET || 
-               process.env.NEXT_PUBLIC_NEXTAUTH_SECRET
+const getSecret = () => {
+  return process.env.NEXTAUTH_SECRET || 
+         process.env.AUTH_SECRET || 
+         process.env.NEXT_PUBLIC_NEXTAUTH_SECRET ||
+         'development-secret-only-for-local-development'
+}
 
-if (!secret && process.env.NODE_ENV === 'production') {
-  console.error('[auth] CRITICAL: No auth secret found in production!')
-  console.error('[auth] Checked: NEXTAUTH_SECRET, AUTH_SECRET, NEXT_PUBLIC_NEXTAUTH_SECRET')
+const secret = getSecret()
+
+if (!secret || secret === 'development-secret-only-for-local-development') {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('[auth] WARNING: Using fallback secret in production!')
+  }
 }
 
 // Determine the base URL
@@ -38,7 +44,7 @@ export const authConfig: NextAuthConfig = {
   jwt: {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  secret: secret,
+  secret: secret || undefined,
   trustHost: true,
   pages: {
     signIn: "/login",

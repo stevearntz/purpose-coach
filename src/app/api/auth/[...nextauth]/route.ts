@@ -1,3 +1,7 @@
-import { handlers } from "@/auth"
+import { getAuth } from "@/lib/auth-init"
 
-export const { GET, POST } = handlers
+// Get handlers at runtime
+const auth = getAuth()
+const { GET, POST } = auth.handlers
+
+export { GET, POST }

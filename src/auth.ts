@@ -46,6 +46,17 @@ export const authConfig: NextAuthConfig = {
     signIn: "/login",
     error: "/login",
   },
+  cookies: {
+    sessionToken: {
+      name: `authjs.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production'
+      }
+    }
+  },
   providers: [
     Credentials({
       name: "credentials",
@@ -130,17 +141,25 @@ export const authConfig: NextAuthConfig = {
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id
-        token.email = user.email
-        token.name = user.name
-        token.companyId = user.companyId
-        token.companyName = user.companyName
+    async jwt({ token, user, account }) {
+      // Initial sign in
+      if (account && user) {
+        console.log('[auth] JWT callback - initial sign in for:', user.email)
+        return {
+          ...token,
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          companyId: user.companyId,
+          companyName: user.companyName
+        }
       }
+      
+      // Return previous token if the user is already signed in
       return token
     },
     async session({ session, token }) {
+      console.log('[auth] Session callback - creating session for:', token.email)
       if (token) {
         session.user.id = token.id as string
         session.user.email = token.email as string
@@ -149,6 +168,13 @@ export const authConfig: NextAuthConfig = {
         session.user.companyName = token.companyName as string
       }
       return session
+    },
+    async redirect({ url, baseUrl }) {
+      // Always redirect to dashboard after login
+      if (url.includes('/login')) {
+        return `${baseUrl}/dashboard`
+      }
+      return url
     }
   },
   debug: process.env.NODE_ENV === "development"

@@ -76,28 +76,9 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.rewrite(new URL('/connection-sorter', request.url))
   }
   
-  // TEMPORARY: Skip auth check for dashboard to diagnose issue
-  if (pathname === '/dashboard' || pathname.startsWith('/dashboard')) {
-    console.log('[middleware] TEMP: Allowing dashboard access without auth check')
-    const response = NextResponse.next()
-    Object.entries(securityHeaders).forEach(([key, value]) => {
-      response.headers.set(key, value)
-    })
-    return response
-  }
-  
-  // Get the session - with error handling
-  let session = null
-  let isAuthenticated = false
-  
-  try {
-    session = await auth()
-    isAuthenticated = !!session?.user
-    console.log('[middleware] Auth session:', session ? 'found' : 'not found')
-  } catch (error) {
-    console.error('[middleware] Auth check error:', error)
-    isAuthenticated = false
-  }
+  // Get the session
+  const session = await auth()
+  const isAuthenticated = !!session?.user
   
   // Check if route needs protection
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))

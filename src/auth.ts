@@ -159,7 +159,7 @@ export const authConfig: NextAuthConfig = {
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       // This is called whenever a JWT is created, updated, or accessed
       if (user) {
         // User is available during sign-in
@@ -183,9 +183,14 @@ export const authConfig: NextAuthConfig = {
         session.user.companyName = token.companyName as string
       }
       return session
+    },
+    async signIn({ user, account, profile, email, credentials }) {
+      // Add additional logging
+      console.log('[auth] SignIn callback triggered for:', user?.email)
+      return true // Allow sign in
     }
   },
-  debug: process.env.NODE_ENV === 'development' // Only debug in development
+  debug: true // Temporarily enable debug to diagnose production issue
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig)

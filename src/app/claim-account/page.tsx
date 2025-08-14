@@ -227,7 +227,36 @@ function ClaimAccountContent() {
       
       console.log('[claim-account] NextAuth signIn result:', signInResult);
       
-      if (!signInResult?.ok) {
+      // NextAuth v5 beta bug: always returns error even on success
+      // Check if we actually have a session despite the error
+      if (signInResult?.error === 'CredentialsSignin') {
+        console.log('[claim-account] NextAuth returned error, checking for session...');
+        const sessionResponse = await fetch('/api/auth/session');
+        const session = await sessionResponse.json();
+        
+        if (!session?.user) {
+          // No session, try direct login as fallback
+          console.log('[claim-account] No session found, trying direct login...');
+          const directLoginResponse = await fetch('/api/auth/direct-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: formData.email,
+              password: formData.password
+            })
+          });
+          
+          if (!directLoginResponse.ok) {
+            throw new Error('Failed to sign in after account creation');
+          }
+          
+          const directLoginResult = await directLoginResponse.json();
+          console.log('[claim-account] Direct login successful:', directLoginResult);
+        } else {
+          // Have session, continue despite NextAuth's false error
+          console.log('[claim-account] Session found despite error, continuing...');
+        }
+      } else if (!signInResult?.ok) {
         throw new Error('Failed to sign in after account creation');
       }
       

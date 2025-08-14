@@ -40,27 +40,19 @@ export const authConfig: NextAuthConfig = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+  jwt: {
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
   secret: secret, // Use the pre-defined secret
   trustHost: true, // Important for production and API routes
+  useSecureCookies: process.env.NODE_ENV === 'production',
   pages: {
     signIn: "/login",
     error: "/login",
   },
-  cookies: {
-    sessionToken: {
-      name: process.env.NODE_ENV === 'production' 
-        ? '__Secure-authjs.session-token'
-        : 'authjs.session-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production'
-      }
-    }
-  },
   providers: [
     Credentials({
+      id: "credentials",
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
@@ -143,26 +135,23 @@ export const authConfig: NextAuthConfig = {
     })
   ],
   callbacks: {
-    async jwt({ token, user, account }) {
-      // Initial sign in
-      if (account && user) {
-        console.log('[auth] JWT callback - initial sign in for:', user.email)
-        return {
-          ...token,
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          companyId: user.companyId,
-          companyName: user.companyName
-        }
+    async jwt({ token, user }) {
+      // This is called whenever a JWT is created, updated, or accessed
+      if (user) {
+        // User is available during sign-in
+        console.log('[auth] JWT callback - user sign in:', user.email)
+        token.id = user.id
+        token.email = user.email
+        token.name = user.name
+        token.companyId = user.companyId
+        token.companyName = user.companyName
       }
-      
-      // Return previous token if the user is already signed in
       return token
     },
     async session({ session, token }) {
-      console.log('[auth] Session callback - creating session for:', token.email)
-      if (token) {
+      // Send properties to the client
+      if (session?.user) {
+        console.log('[auth] Session callback - building session for:', token.email)
         session.user.id = token.id as string
         session.user.email = token.email as string
         session.user.name = token.name as string
@@ -170,13 +159,6 @@ export const authConfig: NextAuthConfig = {
         session.user.companyName = token.companyName as string
       }
       return session
-    },
-    async redirect({ url, baseUrl }) {
-      // Always redirect to dashboard after login
-      if (url.includes('/login')) {
-        return `${baseUrl}/dashboard`
-      }
-      return url
     }
   },
   debug: process.env.NODE_ENV === "development"

@@ -97,8 +97,7 @@ export default async function middleware(request: NextRequest) {
     pathname,
     isProtectedRoute,
     isAuthRoute,
-    isAuthenticated,
-    user: session?.user?.email || null
+    isAuthenticated
   })
   
   // Redirect to login if accessing protected route without auth

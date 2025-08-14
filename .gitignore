@@ -45,3 +45,6 @@ next-env.d.ts
 .share-data/
 
 /src/generated/prisma
+
+# clerk configuration (can include secrets)
+/.clerk/

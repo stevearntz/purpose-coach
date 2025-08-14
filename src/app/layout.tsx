@@ -5,6 +5,14 @@ import '../styles/print.css'
 import AmplitudeProvider from '@/components/AmplitudeProvider'
 import ScrollToTop from '@/components/ScrollToTop'
 import Providers from '@/components/Providers'
+import { 
+  ClerkProvider,
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton 
+} from '@clerk/nextjs'
 
 const leagueSpartan = League_Spartan({ 
   subsets: ['latin'],
@@ -67,12 +75,14 @@ export default function RootLayout({
         <meta name="theme-color" content="#7c3aed" />
       </head>
       <body className={`${leagueSpartan.className} antialiased`}>
-        <Providers>
-          <AmplitudeProvider>
-            <ScrollToTop />
-            {children}
-          </AmplitudeProvider>
-        </Providers>
+        <ClerkProvider>
+          <Providers>
+            <AmplitudeProvider>
+              <ScrollToTop />
+              {children}
+            </AmplitudeProvider>
+          </Providers>
+        </ClerkProvider>
       </body>
     </html>
   )

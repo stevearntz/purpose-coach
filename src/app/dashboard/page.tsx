@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession, signOut } from 'next-auth/react'
+import { useUser, useClerk } from '@clerk/nextjs'
 import { LogOut, Building } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
 import Footer from '@/components/Footer'
@@ -28,7 +28,8 @@ interface UserData {
 
 function DashboardContent() {
   const router = useRouter()
-  const { data: session, status } = useSession()
+  const { isLoaded, isSignedIn, user } = useUser()
+  const { signOut } = useClerk()
   const analytics = useAnalytics()
   const [userData, setUserData] = useState<UserData | null>(null)
   const [activeTab, setActiveTab] = useState('start')
@@ -43,31 +44,32 @@ function DashboardContent() {
   }, [])
 
   useEffect(() => {
-    // Use NextAuth session data
-    if (status === 'loading') return
+    // Use Clerk user data
+    if (!isLoaded) return
     
-    if (!session) {
-      router.push('/login')
+    if (!isSignedIn) {
+      router.push('/sign-in')
       return
     }
     
     // Only set user data if it's different (prevents re-tracking)
-    if (userData?.email !== session.user.email) {
+    const email = user?.primaryEmailAddress?.emailAddress || ''
+    if (userData?.email !== email) {
       setUserData({
-        email: session.user.email || '',
-        name: session.user.name || '',
-        company: session.user.companyName || '',
-        companyId: session.user.companyId || '',
+        email: email,
+        name: user?.fullName || user?.firstName || '',
+        company: user?.publicMetadata?.company as string || '',
+        companyId: user?.publicMetadata?.companyId as string || '',
         role: 'admin'
       })
       
       // Track analytics only when user changes
       analytics.trackEvent('Dashboard Viewed', {
-        email: session.user.email,
-        company: session.user.companyName
+        email: email,
+        company: user?.publicMetadata?.company as string || ''
       })
     }
-  }, [session, status, router, userData?.email])
+  }, [isLoaded, isSignedIn, user, router, userData?.email])
 
   const handleToolClick = (toolId: string, toolTitle: string, toolPath: string) => {
     analytics.trackAction('Tool Selected', {
@@ -80,21 +82,20 @@ function DashboardContent() {
 
   const handleLogout = async () => {
     try {
-      // Sign out using NextAuth
-      await signOut({ redirect: false })
+      // Sign out using Clerk
+      await signOut()
       
       // Clear local storage
       localStorage.removeItem('campfire_user_email')
       localStorage.removeItem('campfire_user_name')
       localStorage.removeItem('campfire_user_company')
       
-      // Redirect to login page
-      router.push('/login')
+      // Clerk handles redirect automatically
     } catch (error) {
       console.error('Logout failed:', error)
       // Even if API fails, clear local data and redirect
       localStorage.clear()
-      router.push('/login')
+      router.push('/sign-in')
     }
   }
 
@@ -112,7 +113,7 @@ function DashboardContent() {
     return '??'
   }
 
-  if (!userData) {
+  if (!isLoaded || !userData) {
     return (
       <ViewportContainer className="bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 flex items-center justify-center">
         <div className="text-white">Loading...</div>

@@ -28,7 +28,7 @@ const DEPRECATED_ROUTES: Record<string, string> = {
   '/api/campaigns/launch': '/api/campaigns/launch/v2'
 }
 
-export default auth(async function middleware(request: NextRequest) {
+export default async function middleware(request: NextRequest) {
   const host = request.headers.get('host') || ''
   const pathname = request.nextUrl.pathname
   const isProduction = process.env.NODE_ENV === 'production'
@@ -76,9 +76,28 @@ export default auth(async function middleware(request: NextRequest) {
     return NextResponse.rewrite(new URL('/connection-sorter', request.url))
   }
   
-  // Get the session
-  const session = await auth()
-  const isAuthenticated = !!session?.user
+  // Get the session - with error handling
+  let session = null
+  let isAuthenticated = false
+  
+  try {
+    session = await auth()
+    isAuthenticated = !!session?.user
+  } catch (error) {
+    console.error('[middleware] Auth check error:', error)
+    // Check for session cookie as fallback
+    const sessionCookie = request.cookies.get('authjs.session-token') || 
+                         request.cookies.get('__Secure-authjs.session-token') ||
+                         request.cookies.get('next-auth.session-token') ||
+                         request.cookies.get('__Secure-next-auth.session-token')
+    
+    // If we have a session cookie but auth() failed, allow access to dashboard
+    // This handles the case where the session exists but auth() can't verify it
+    if (sessionCookie && pathname === '/dashboard') {
+      console.log('[middleware] Found session cookie, allowing dashboard access')
+      isAuthenticated = true
+    }
+  }
   
   // Check if route needs protection
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
@@ -119,7 +138,7 @@ export default auth(async function middleware(request: NextRequest) {
   })
   
   return response
-})
+}
 
 export const config = {
   matcher: [

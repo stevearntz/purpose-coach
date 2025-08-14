@@ -3,10 +3,11 @@ import prisma from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ code: string }> }
+  context: { params: Promise<{ code: string }> }
 ) {
   try {
-    const { code } = await params;
+    const params = await context.params;
+    const code = params.code;
     
     console.log('[GET /api/invitations] Looking for invitation with code:', code);
     
@@ -37,6 +38,13 @@ export async function GET(
     return NextResponse.json(responseData);
   } catch (error) {
     console.error('Failed to fetch invitation:', error);
+    // Return more detailed error in development
+    if (process.env.NODE_ENV !== 'production') {
+      return NextResponse.json({ 
+        error: 'Failed to fetch invitation',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }, { status: 500 });
+    }
     return NextResponse.json({ error: 'Failed to fetch invitation' }, { status: 500 });
   }
 }

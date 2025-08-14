@@ -50,21 +50,27 @@ export default function LoginPage() {
         return;
       }
       
-      // For CredentialsSignin error, we need to check if it actually worked
-      // by attempting to fetch the session
+      // For CredentialsSignin error, NextAuth v5 beta is broken
+      // Use our direct login endpoint as a fallback
       if (result?.error === 'CredentialsSignin') {
-        // This is the known bug - let's check if we're actually authenticated
-        const response = await fetch('/api/auth/session');
-        const session = await response.json();
+        console.log('[login] NextAuth failed, trying direct login...');
         
-        if (session?.user) {
-          console.log('[login] Login successful (despite error), redirecting...');
+        const directResponse = await fetch('/api/auth/direct-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        
+        const directResult = await directResponse.json();
+        
+        if (directResult.success) {
+          console.log('[login] Direct login successful, redirecting...');
           const searchParams = new URLSearchParams(window.location.search);
           const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
           window.location.href = callbackUrl;
           return;
         } else {
-          console.error('[login] Credentials actually failed');
+          console.error('[login] Direct login also failed');
           setError('Invalid email or password');
           return;
         }

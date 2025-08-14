@@ -12,11 +12,15 @@ const signInSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters")
 })
 
-// Get the secret - NEXTAUTH_SECRET is the standard env var
-const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET
+// Get the secret - try multiple possible env var names
+// Vercel might use AUTH_SECRET instead of NEXTAUTH_SECRET
+const secret = process.env.NEXTAUTH_SECRET || 
+               process.env.AUTH_SECRET || 
+               process.env.NEXT_PUBLIC_NEXTAUTH_SECRET
 
 if (!secret && process.env.NODE_ENV === 'production') {
-  console.error('[auth] WARNING: NEXTAUTH_SECRET is not set in production!')
+  console.error('[auth] CRITICAL: No auth secret found in production!')
+  console.error('[auth] Checked: NEXTAUTH_SECRET, AUTH_SECRET, NEXT_PUBLIC_NEXTAUTH_SECRET')
 }
 
 // Determine the base URL
@@ -34,7 +38,7 @@ export const authConfig: NextAuthConfig = {
   jwt: {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  secret: secret || 'fallback-secret-for-build-only-replace-in-production',
+  secret: secret,
   trustHost: true,
   pages: {
     signIn: "/login",
@@ -114,6 +118,12 @@ export const authConfig: NextAuthConfig = {
           
           return user as any
         } catch (error) {
+          console.error('[auth] CRITICAL ERROR in authorize:', error)
+          // If it's a database error, we should know
+          if (error instanceof Error) {
+            console.error('[auth] Error message:', error.message)
+            console.error('[auth] Error stack:', error.stack)
+          }
           return null
         }
       }

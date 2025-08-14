@@ -177,7 +177,7 @@ export const authConfig: NextAuthConfig = {
       return session
     }
   },
-  debug: true // Temporarily enable debug in production
+  debug: process.env.NODE_ENV === 'development' // Only debug in development
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig)

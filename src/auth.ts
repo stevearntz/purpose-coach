@@ -17,6 +17,14 @@ let secret = process.env.NEXTAUTH_SECRET ||
              process.env.JWT_SECRET || 
              process.env.AUTH_SECRET
 
+console.log('[auth] Environment check:', {
+  hasNextAuthSecret: !!process.env.NEXTAUTH_SECRET,
+  hasJwtSecret: !!process.env.JWT_SECRET,
+  hasAuthSecret: !!process.env.AUTH_SECRET,
+  nodeEnv: process.env.NODE_ENV,
+  secretLength: secret?.length || 0
+})
+
 // If no secret is found, generate one based on DATABASE_URL as a fallback
 // This is not ideal but ensures the app works
 if (!secret && process.env.DATABASE_URL) {
@@ -81,17 +89,23 @@ export const authConfig: NextAuthConfig = {
       },
       async authorize(credentials) {
         try {
+          console.log("[auth] Authorize called with:", { 
+            hasCredentials: !!credentials,
+            email: credentials?.email 
+          })
+          
           // Validate input
           const validatedFields = signInSchema.safeParse(credentials)
           
           if (!validatedFields.success) {
-            console.error("[auth] Invalid credentials format")
+            console.error("[auth] Invalid credentials format:", validatedFields.error.issues)
             return null
           }
           
           const { email, password } = validatedFields.data
           
           console.log("[auth] Login attempt for:", email)
+          console.log("[auth] Password length:", password?.length)
           
           // Find admin user
           const admin = await prisma.admin.findUnique({
@@ -123,12 +137,15 @@ export const authConfig: NextAuthConfig = {
           console.log("[auth] Admin found, verifying password...")
           
           // Verify password
+          console.log("[auth] Comparing password, hash starts with:", admin.password.substring(0, 10))
           const passwordMatch = await bcrypt.compare(password, admin.password)
+          console.log("[auth] Password match result:", passwordMatch)
           
           if (!passwordMatch) {
             console.error("[auth] Password mismatch for:", email)
             // Log hash prefix for debugging (safe to log first 10 chars)
             console.error("[auth] Expected hash prefix:", admin.password?.substring(0, 10))
+            console.error("[auth] Provided password:", password)
             return null
           }
           

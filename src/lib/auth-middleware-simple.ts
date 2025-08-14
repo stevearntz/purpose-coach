@@ -5,6 +5,7 @@
 
 import { auth } from '@/auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { getBypassSession, isProductionBypass } from '@/lib/auth-bypass';
 
 export interface AuthenticatedRequest extends NextRequest {
   user: {
@@ -31,13 +32,26 @@ export function withAuth(
 ) {
   return async (req: NextRequest): Promise<NextResponse> => {
     try {
-      // Check authentication using NextAuth
-      const session = await auth();
+      // TEMPORARY: Check for production bypass first
+      let session = null;
+      
+      if (isProductionBypass()) {
+        session = getBypassSession();
+        if (session) {
+          console.log('[auth-middleware-simple] Using production bypass for:', session.user.email);
+        }
+      }
+      
+      // If no bypass session, use normal auth
+      if (!session) {
+        session = await auth();
+      }
       
       console.log('[auth-middleware-simple] Session check:', {
         hasSession: !!session,
         userEmail: session?.user?.email,
-        path: req.nextUrl.pathname
+        path: req.nextUrl.pathname,
+        isProduction: isProductionBypass()
       });
       
       if (!session?.user?.email) {

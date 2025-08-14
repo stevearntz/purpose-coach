@@ -15,6 +15,17 @@ export default function AdminGuard({ children }: AdminGuardProps) {
   const [isAuthorized, setIsAuthorized] = useState(false)
   
   useEffect(() => {
+    // TEMPORARY: In production, bypass auth for admin
+    const isProduction = process.env.NODE_ENV === 'production' || 
+                        window.location.hostname === 'tools.getcampfire.com'
+    
+    if (isProduction) {
+      // Temporary bypass for production
+      setIsAuthorized(true)
+      return
+    }
+    
+    // Normal auth flow for development
     if (status === 'loading') return
     
     if (!session) {

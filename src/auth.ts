@@ -65,6 +65,8 @@ export const authConfig: NextAuthConfig = {
           
           const { email, password } = validatedFields.data
           
+          console.log("[auth] Login attempt for:", email)
+          
           // Find admin user
           const admin = await prisma.admin.findUnique({
             where: { email: email.toLowerCase() },
@@ -82,18 +84,29 @@ export const authConfig: NextAuthConfig = {
             }
           })
           
-          if (!admin || !admin.password) {
-            console.error("[auth] Admin not found or no password set")
+          if (!admin) {
+            console.error("[auth] Admin not found for email:", email)
             return null
           }
+          
+          if (!admin.password) {
+            console.error("[auth] Admin has no password set:", email)
+            return null
+          }
+          
+          console.log("[auth] Admin found, verifying password...")
           
           // Verify password
           const passwordMatch = await bcrypt.compare(password, admin.password)
           
           if (!passwordMatch) {
-            console.error("[auth] Password mismatch")
+            console.error("[auth] Password mismatch for:", email)
+            // Log hash prefix for debugging (safe to log first 10 chars)
+            console.error("[auth] Expected hash prefix:", admin.password?.substring(0, 10))
             return null
           }
+          
+          console.log("[auth] Password verified successfully")
           
           // Update last login
           await prisma.admin.update({

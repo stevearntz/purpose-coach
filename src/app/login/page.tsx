@@ -31,18 +31,21 @@ export default function LoginPage() {
 
       console.log('[login] SignIn result:', result);
 
-      if (!result?.ok) {
-        console.error('[login] Login failed:', result?.error);
-        setError(result?.error || 'Invalid email or password');
+      // Check if login was successful (ok: true means success)
+      if (result?.ok === true) {
+        console.log('[login] Login successful, redirecting to dashboard');
+        // Get callback URL or default to dashboard
+        const searchParams = new URLSearchParams(window.location.search);
+        const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+        
+        // Force navigation with window.location to ensure clean redirect
+        window.location.href = callbackUrl;
         return;
       }
-
-      console.log('[login] Login successful, redirecting to dashboard');
-      // Redirect to dashboard or the original requested page
-      const searchParams = new URLSearchParams(window.location.search);
-      const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
-      // Use window.location for more reliable redirect
-      window.location.href = callbackUrl;
+      
+      // Only show error if login actually failed
+      console.error('[login] Login failed:', result);
+      setError('Invalid email or password');
     } catch (err) {
       console.error('[login] Login error:', err);
       setError('An error occurred. Please try again.');

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { auth, clerkClient } from '@clerk/nextjs/server'
 import prisma from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
@@ -32,6 +32,17 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         logo: '🏢' // Default emoji logo
+      }
+    })
+    
+    // Update user's metadata in Clerk (server-side)
+    const client = await clerkClient()
+    await client.users.updateUserMetadata(userId, {
+      publicMetadata: {
+        companyId: company.id,
+        companyName: company.name,
+        role: 'admin',
+        onboardingComplete: false
       }
     })
     

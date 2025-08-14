@@ -1,18 +1,25 @@
 import { SignIn } from '@clerk/nextjs'
-import ViewportContainer from '@/components/ViewportContainer'
+import Image from 'next/image'
 
 export default function SignInPage() {
   return (
-    <ViewportContainer className="bg-gradient-to-br from-purple-100 via-pink-50 to-purple-50 flex items-center justify-center">
-      <div className="w-full max-w-md">
+    <div className="relative min-h-screen flex items-center justify-center">
+      <Image
+        src="/purple-sign-in-background.png"
+        alt="Background"
+        fill
+        className="object-cover"
+        priority
+      />
+      
+      <div className="relative z-10 w-full max-w-md px-4">
         <div className="text-center mb-8">
-          <img 
-            src="/campfire-logo-new.png" 
-            alt="Campfire" 
-            className="h-12 mx-auto mb-4"
+          <img
+            src="/campfire-logo-white.png"
+            alt="Campfire"
+            className="h-12 w-auto mx-auto mb-6"
           />
-          <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
-          <p className="text-gray-600 mt-2">Sign in to access your dashboard</p>
+          <p className="text-white/90 text-lg drop-shadow">Sign in to access your dashboard</p>
         </div>
         
         <SignIn 
@@ -37,6 +44,6 @@ export default function SignInPage() {
           signUpUrl="/sign-up"
         />
       </div>
-    </ViewportContainer>
+    </div>
   )
 }

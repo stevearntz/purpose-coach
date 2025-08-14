@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useUser } from '@clerk/nextjs'
+import { useUser, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { Building, Users, Sparkles, ArrowRight, Check } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
@@ -10,6 +10,7 @@ type OnboardingStep = 'welcome' | 'company' | 'team' | 'complete'
 
 export default function OnboardingPage() {
   const { user, isLoaded } = useUser()
+  const { session } = useClerk()
   const router = useRouter()
   const [step, setStep] = useState<OnboardingStep>('welcome')
   const [companyData, setCompanyData] = useState({
@@ -47,23 +48,25 @@ export default function OnboardingPage() {
         })
       })
 
-      if (!response.ok) throw new Error('Failed to create company')
+      const data = await response.json()
       
-      const { companyId } = await response.json()
-
-      // Update user metadata in Clerk
-      await user?.update({
-        publicMetadata: {
-          companyId,
-          companyName: companyData.name,
-          role: 'admin',
-          onboardingComplete: false
+      if (!response.ok) {
+        // Handle specific error cases
+        if (response.status === 409) {
+          alert(`A company named "${companyData.name}" already exists. Please choose a different name.`)
+          return
         }
-      })
+        throw new Error(data.error || 'Failed to create company')
+      }
+
+      // Metadata is updated on the server side
+      // Reload the user to get updated metadata
+      await user?.reload()
 
       setStep('team')
     } catch (error) {
       console.error('Failed to create company:', error)
+      alert('Failed to create company. Please try again.')
     } finally {
       setIsCreating(false)
     }
@@ -87,13 +90,22 @@ export default function OnboardingPage() {
       }
     }
 
-    // Mark onboarding complete
-    await user?.update({
-      publicMetadata: {
-        ...user.publicMetadata,
-        onboardingComplete: true
-      }
-    })
+    await completeOnboarding()
+  }
+
+  const completeOnboarding = async () => {
+    // Mark onboarding complete via API
+    try {
+      await fetch('/api/onboarding/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      
+      // Reload user to get updated metadata
+      await user?.reload()
+    } catch (error) {
+      console.error('Failed to mark onboarding complete:', error)
+    }
 
     setStep('complete')
   }
@@ -266,19 +278,19 @@ export default function OnboardingPage() {
         </p>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-4 pt-2">
         <button
-          onClick={() => handleInviteTeam()}
-          className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+          onClick={() => completeOnboarding()}
+          className="flex-1 py-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors text-lg"
         >
           Skip for now
         </button>
         <button
           onClick={() => handleInviteTeam()}
-          className="flex-1 py-3 bg-[#BF4C74] text-white rounded-lg font-semibold hover:bg-[#A63D5F] transition-colors flex items-center justify-center gap-2"
+          className="flex-1 py-4 bg-[#BF4C74] text-white rounded-lg font-semibold hover:bg-[#A63D5F] transition-colors flex items-center justify-center gap-2 text-lg"
         >
-          Send Invites & Continue
-          <ArrowRight className="w-5 h-5" />
+          Send Invites
+          <ArrowRight className="w-5 h-5 ml-1" />
         </button>
       </div>
     </div>
@@ -300,7 +312,12 @@ export default function OnboardingPage() {
       </div>
 
       <button
-        onClick={() => router.push('/dashboard')}
+        onClick={async () => {
+          // Reload the session to get updated metadata
+          await session?.reload()
+          // Use router push for proper navigation
+          router.push('/dashboard')
+        }}
         className="w-full py-4 bg-[#BF4C74] text-white rounded-lg font-semibold hover:bg-[#A63D5F] transition-colors flex items-center justify-center gap-2"
       >
         Go to Dashboard

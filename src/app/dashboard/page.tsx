@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useUser, useClerk } from '@clerk/nextjs'
-import { LogOut, Building, UserPlus } from 'lucide-react'
+import { useUser, UserButton } from '@clerk/nextjs'
+import { Building, UserPlus } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
 import Footer from '@/components/Footer'
 import ToolsLibrary from '@/components/ToolsLibrary'
 import ResultsTab from '@/components/ResultsTab'
 import RecommendationsTab from '@/components/RecommendationsTab'
 import CampaignsTab from '@/components/CampaignsTab'
-import UsersTab from '@/components/UsersTab'
+import ParticipantsTab from '@/components/ParticipantsTab'
 import StartTab from '@/components/StartTab'
 import OnboardingTab from '@/components/OnboardingTab'
 import { useAnalytics } from '@/hooks/useAnalytics'
@@ -29,7 +29,6 @@ interface UserData {
 function DashboardContent() {
   const router = useRouter()
   const { isLoaded, isSignedIn, user } = useUser()
-  const { signOut } = useClerk()
   const analytics = useAnalytics()
   const [userData, setUserData] = useState<UserData | null>(null)
   const [activeTab, setActiveTab] = useState('start')
@@ -38,7 +37,7 @@ function DashboardContent() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const tab = params.get('tab')
-    if (tab && ['start', 'users', 'tools', 'campaigns', 'results', 'recommendations'].includes(tab)) {
+    if (tab && ['start', 'participants', 'tools', 'campaigns', 'results', 'recommendations'].includes(tab)) {
       setActiveTab(tab)
     }
   }, [])
@@ -58,7 +57,7 @@ function DashboardContent() {
       setUserData({
         email: email,
         name: user?.fullName || user?.firstName || '',
-        company: user?.publicMetadata?.company as string || '',
+        company: user?.publicMetadata?.companyName as string || '',
         companyId: user?.publicMetadata?.companyId as string || '',
         role: 'admin'
       })
@@ -66,7 +65,7 @@ function DashboardContent() {
       // Track analytics only when user changes
       analytics.trackEvent('Dashboard Viewed', {
         email: email,
-        company: user?.publicMetadata?.company as string || ''
+        company: user?.publicMetadata?.companyName as string || ''
       })
     }
   }, [isLoaded, isSignedIn, user, router, userData?.email])
@@ -78,39 +77,6 @@ function DashboardContent() {
       user_email: userData?.email
     })
     router.push(toolPath)
-  }
-
-  const handleLogout = async () => {
-    try {
-      // Sign out using Clerk
-      await signOut()
-      
-      // Clear local storage
-      localStorage.removeItem('campfire_user_email')
-      localStorage.removeItem('campfire_user_name')
-      localStorage.removeItem('campfire_user_company')
-      
-      // Clerk handles redirect automatically
-    } catch (error) {
-      console.error('Logout failed:', error)
-      // Even if API fails, clear local data and redirect
-      localStorage.clear()
-      router.push('/sign-in')
-    }
-  }
-
-  const getInitials = (name: string) => {
-    if (!name || name === 'undefined undefined' || name.trim() === '') {
-      return '??'
-    }
-    
-    const parts = name.split(' ').filter(p => p && p !== 'undefined')
-    if (parts.length >= 2) {
-      return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
-    } else if (parts.length === 1) {
-      return parts[0].substring(0, 2).toUpperCase()
-    }
-    return '??'
   }
 
   if (!isLoaded || !userData) {
@@ -142,32 +108,36 @@ function DashboardContent() {
                   </div>
                   <div>
                     <h1 className="text-xl font-bold text-white">{userData.company || 'Your Company'}</h1>
-                    <p className="text-xs text-white/60">getcampfire.com</p>
+                    <p className="text-xs text-white/60">Powered by Campfire</p>
                   </div>
                 </div>
               </div>
 
               <div className="flex items-center gap-4">
-                {/* Invite Team Button */}
+                {/* Invite Admins Button */}
                 <button
                   onClick={() => router.push('/dashboard/invite')}
                   className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
                 >
                   <UserPlus className="w-4 h-4" />
-                  <span className="text-sm font-medium">Invite Team</span>
+                  <span className="text-sm font-medium">Invite Admins</span>
                 </button>
                 
-                {/* User Avatar & Logout */}
+                {/* User Account Management */}
                 <div className="flex items-center gap-3 pl-4 border-l border-white/20">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">
-                    {getInitials(userData.name)}
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="text-white/80 hover:text-white transition-colors"
-                  >
-                    <LogOut className="w-5 h-5" />
-                  </button>
+                  <UserButton 
+                    appearance={{
+                      elements: {
+                        avatarBox: "w-10 h-10",
+                        userButtonPopoverCard: "shadow-xl",
+                        userButtonPopoverActionButton: "hover:bg-gray-100",
+                        userButtonPopoverActionButtonText: "text-gray-700",
+                        userButtonPopoverActionButtonIcon: "text-gray-500",
+                        userButtonPopoverFooter: "hidden"
+                      }
+                    }}
+                    afterSignOutUrl="/sign-in"
+                  />
                 </div>
               </div>
             </div>
@@ -201,15 +171,15 @@ function DashboardContent() {
                 )}
               </button>
               <button
-                onClick={() => setActiveTab('users')}
+                onClick={() => setActiveTab('participants')}
                 className={`pb-3 px-1 font-medium transition-colors relative ${
-                  activeTab === 'users'
+                  activeTab === 'participants'
                     ? 'text-white'
                     : 'text-white/60 hover:text-white/80'
                 }`}
               >
-                Users
-                {activeTab === 'users' && (
+                Participants
+                {activeTab === 'participants' && (
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-500" />
                 )}
               </button>
@@ -279,8 +249,8 @@ function DashboardContent() {
             <OnboardingTab onNavigate={setActiveTab} />
           )}
 
-          {activeTab === 'users' && (
-            <UsersTab />
+          {activeTab === 'participants' && (
+            <ParticipantsTab />
           )}
 
           {activeTab === 'tools' && (

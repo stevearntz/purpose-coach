@@ -18,6 +18,7 @@ const isPublicRoute = createRouteMatcher([
   '/hopes-fears-expectations(.*)',
 ])
 
+const isApiRoute = createRouteMatcher(['/api(.*)'])
 const isOnboardingRoute = createRouteMatcher(['/onboarding(.*)'])
 const isDashboardRoute = createRouteMatcher(['/dashboard(.*)'])
 
@@ -27,6 +28,9 @@ export default clerkMiddleware(async (auth, req) => {
   // Allow public routes
   if (isPublicRoute(req)) return
   
+  // Skip middleware for API routes - they handle auth themselves
+  if (isApiRoute(req)) return
+  
   // Require authentication for all other routes
   if (!userId) {
     const signInUrl = new URL('/sign-in', req.url)
@@ -34,16 +38,20 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(signInUrl)
   }
   
-  // Check if user needs onboarding
+  // Check if user needs onboarding (now that publicMetadata is in sessionClaims)
   const publicMetadata = sessionClaims?.publicMetadata as any
-  const needsOnboarding = userId && !publicMetadata?.companyId
+  const hasCompany = publicMetadata?.companyId
+  const isOnboardingComplete = publicMetadata?.onboardingComplete
   
-  // Redirect to onboarding if needed
+  // User needs onboarding if they don't have a company OR haven't completed onboarding
+  const needsOnboarding = userId && (!hasCompany || !isOnboardingComplete)
+  
+  // Redirect to onboarding if needed (but not if already on onboarding page)
   if (needsOnboarding && !isOnboardingRoute(req)) {
     return NextResponse.redirect(new URL('/onboarding', req.url))
   }
   
-  // Redirect from onboarding if already complete
+  // Redirect from onboarding to dashboard if onboarding is complete
   if (!needsOnboarding && isOnboardingRoute(req)) {
     return NextResponse.redirect(new URL('/dashboard', req.url))
   }

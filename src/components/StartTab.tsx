@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { 
   Users, Target, Brain, Rocket, TrendingUp, 
   ArrowRight, Sparkles, Heart, Shield, Zap,
@@ -26,6 +26,9 @@ interface StartTabProps {
 export default function StartTab({ onNavigate }: StartTabProps) {
   const [hoveredStep, setHoveredStep] = useState<number | null>(null)
   const [expandedStep, setExpandedStep] = useState<number | null>(null)
+  const [paths, setPaths] = useState<string[]>([])
+  const containerRef = useRef<HTMLDivElement>(null)
+  const stepRefs = useRef<(HTMLDivElement | null)[]>([])
 
   const journeySteps: JourneyStep[] = [
     {
@@ -91,6 +94,77 @@ export default function StartTab({ onNavigate }: StartTabProps) {
     }
   }
 
+  // Calculate SVG paths between step boxes
+  useEffect(() => {
+    const calculatePaths = () => {
+      if (!containerRef.current) return
+
+      const containerRect = containerRef.current.getBoundingClientRect()
+      const newPaths: string[] = []
+
+      // Calculate path between each pair of consecutive steps
+      for (let i = 0; i < stepRefs.current.length - 1; i++) {
+        const currentStep = stepRefs.current[i]
+        const nextStep = stepRefs.current[i + 1]
+
+        if (currentStep && nextStep) {
+          const currentRect = currentStep.getBoundingClientRect()
+          const nextRect = nextStep.getBoundingClientRect()
+
+          // Calculate relative positions within the container
+          const currentX = currentRect.left - containerRect.left
+          const currentY = currentRect.top - containerRect.top
+          const currentWidth = currentRect.width
+          const currentHeight = currentRect.height
+
+          const nextX = nextRect.left - containerRect.left
+          const nextY = nextRect.top - containerRect.top
+          const nextWidth = nextRect.width
+
+          // Determine connection points based on zigzag pattern
+          let startX, startY, endX, endY
+
+          if (i % 2 === 0) {
+            // Even index: current is on left, next is on right
+            // Connect from right-center of current to top-center of next
+            startX = currentX + currentWidth
+            startY = currentY + currentHeight / 2
+            endX = nextX + nextWidth / 2
+            endY = nextY
+          } else {
+            // Odd index: current is on right, next is on left
+            // Connect from left-center of current to top-center of next
+            startX = currentX
+            startY = currentY + currentHeight / 2
+            endX = nextX + nextWidth / 2
+            endY = nextY
+          }
+
+          // Create a curved path
+          const midX = (startX + endX) / 2
+          const midY = (startY + endY) / 2
+          
+          const path = `M ${startX} ${startY} Q ${midX} ${startY} ${midX} ${midY} T ${endX} ${endY}`
+          newPaths.push(path)
+        }
+      }
+
+      setPaths(newPaths)
+    }
+
+    // Calculate on mount and window resize
+    calculatePaths()
+    window.addEventListener('resize', calculatePaths)
+    
+    // Recalculate when steps expand/collapse
+    const timeout = setTimeout(calculatePaths, 350)
+
+    return () => {
+      window.removeEventListener('resize', calculatePaths)
+      clearTimeout(timeout)
+    }
+  }, [expandedStep])
+
   return (
     <div className="max-w-7xl mx-auto">
       {/* Hero Section */}
@@ -114,81 +188,135 @@ export default function StartTab({ onNavigate }: StartTabProps) {
         </p>
       </div>
 
-      {/* Journey Path Visualization - Linear Layout */}
-      <div className="relative mb-12 max-w-xl mx-auto">
-        {/* Journey Steps - Linear Vertical Layout */}
-        <div className="relative flex flex-col items-center">
+      {/* Journey Path Visualization - Grid Layout */}
+      <div className="relative mb-12 w-full max-w-7xl mx-auto px-4" ref={containerRef}>
+        {/* SVG Overlay for Connectors */}
+        <svg 
+          className="absolute inset-0 w-full h-full pointer-events-none hidden md:block"
+          style={{ zIndex: 0 }}
+        >
+          <defs>
+            <linearGradient id="pathGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="rgba(168, 85, 247, 0.8)" />
+              <stop offset="50%" stopColor="rgba(236, 72, 153, 0.8)" />
+              <stop offset="100%" stopColor="rgba(168, 85, 247, 0.8)" />
+            </linearGradient>
+          </defs>
+          {paths.map((path, index) => (
+            <path
+              key={index}
+              d={path}
+              fill="none"
+              stroke="url(#pathGradient)"
+              strokeWidth="3"
+              strokeDasharray="6 4"
+              opacity="0.9"
+            />
+          ))}
+        </svg>
+        
+        {/* Journey Steps - 2-Column Grid Layout with each step on its own row (stacks on mobile) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative" style={{ zIndex: 1 }}>
           
           {journeySteps.map((step, index) => {
             const Icon = step.icon
             const isHovered = hoveredStep === step.id
             const isExpanded = expandedStep === step.id
-            const isLast = index === journeySteps.length - 1
             
-            return (
-              <div key={step.id} className="relative w-full">
-                {/* Step Box */}
-                <div
-                  className={`relative bg-gradient-to-br ${step.bgGradient} backdrop-blur-sm rounded-2xl border ${step.borderColor} transition-all duration-300 cursor-pointer
-                    ${isHovered ? 'transform -translate-y-1 shadow-2xl' : ''}
-                    ${isExpanded ? 'ring-2 ring-white/20' : ''}`}
-                  onMouseEnter={() => setHoveredStep(step.id)}
-                  onMouseLeave={() => setHoveredStep(null)}
-                  onClick={() => setExpandedStep(isExpanded ? null : step.id)}
-                >
-                  <div className="p-6 flex flex-col">
-                    {/* Step Header */}
-                    <div className="flex items-start gap-4 mb-3">
-                      <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${step.bgGradient} border ${step.borderColor} flex items-center justify-center flex-shrink-0`}>
-                        <Icon className={`w-8 h-8 ${step.color}`} />
-                      </div>
-                      <div className="flex-1">
-                        <span className={`text-xs font-bold ${step.color}`}>STEP {step.id}</span>
-                        <h3 className="text-lg font-bold text-white mt-1">{step.title}</h3>
-                        <p className="text-sm text-white/70 mt-1">{step.subtitle}</p>
+            // Create the step component
+            const stepComponent = (
+              <div
+                ref={el => { stepRefs.current[index] = el }}
+                className={`relative bg-gradient-to-br ${step.bgGradient} backdrop-blur-sm rounded-2xl border ${step.borderColor} transition-all duration-300 cursor-pointer
+                  ${isHovered ? 'transform -translate-y-1 shadow-2xl' : ''}
+                  ${isExpanded ? 'ring-2 ring-white/20' : ''}`}
+                onMouseEnter={() => setHoveredStep(step.id)}
+                onMouseLeave={() => setHoveredStep(null)}
+                onClick={() => setExpandedStep(isExpanded ? null : step.id)}
+              >
+                <div className="p-4 sm:p-6 flex flex-col">
+                  {/* Step Header */}
+                  <div className="flex items-start gap-3 sm:gap-4 mb-3">
+                    <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-br ${step.bgGradient} border ${step.borderColor} flex items-center justify-center flex-shrink-0`}>
+                      <Icon className={`w-6 h-6 sm:w-8 sm:h-8 ${step.color}`} />
+                    </div>
+                    <div className="flex-1">
+                      <span className={`text-xs font-bold ${step.color}`}>STEP {step.id}</span>
+                      <h3 className="text-base sm:text-lg font-bold text-white mt-1">{step.title}</h3>
+                      <p className="text-xs sm:text-sm text-white/70 mt-1">{step.subtitle}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Expandable Content */}
+                  <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-96' : 'max-h-0'}`}>
+                    <div className="pt-3 border-t border-white/10">
+                      <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
+                        {step.description}
+                      </p>
+                      <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border ${step.borderColor} mt-3`}>
+                        <Zap className="w-3 h-3 text-yellow-400" />
+                        <span className="text-xs font-medium text-white/90">{step.outcome}</span>
                       </div>
                     </div>
-                    
-                    {/* Expandable Content */}
-                    <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-96' : 'max-h-0'}`}>
-                      <div className="pt-3 border-t border-white/10">
-                        <p className="text-sm text-white/80 leading-relaxed">
-                          {step.description}
-                        </p>
-                        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border ${step.borderColor} mt-3`}>
-                          <Zap className="w-3 h-3 text-yellow-400" />
-                          <span className="text-xs font-medium text-white/90">{step.outcome}</span>
-                        </div>
-                      </div>
-                    </div>
-                    
                   </div>
                 </div>
-                
-                
-                {/* Add spacing between boxes with connector */}
-                {!isLast && (
-                  <div className="h-12 relative">
-                    {/* Dashed Connector Line */}
-                    <svg 
-                      className="absolute left-1/2 top-0 transform -translate-x-1/2"
-                      width="2" 
-                      height="48"
-                    >
-                      <line
-                        x1="1"
-                        y1="0"
-                        x2="1"
-                        y2="48"
-                        stroke="rgba(255, 255, 255, 0.3)"
-                        strokeWidth="2"
-                        strokeDasharray="4 4"
-                      />
-                    </svg>
-                  </div>
-                )}
               </div>
             )
+            
+            // Return either the step in the correct column or an empty div
+            // Each step gets its own row by adding empty cells
+            if (index === 0) {
+              // Step 1: Row 1, Column 1
+              return (
+                <React.Fragment key={step.id}>
+                  <div className="relative">
+                    {stepComponent}
+                  </div>
+                  <div className="hidden md:block"></div>
+                </React.Fragment>
+              )
+            } else if (index === 1) {
+              // Step 2: Row 2, Column 2
+              return (
+                <React.Fragment key={step.id}>
+                  <div className="hidden md:block"></div>
+                  <div className="relative">
+                    {stepComponent}
+                  </div>
+                </React.Fragment>
+              )
+            } else if (index === 2) {
+              // Step 3: Row 3, Column 1
+              return (
+                <React.Fragment key={step.id}>
+                  <div className="relative">
+                    {stepComponent}
+                  </div>
+                  <div className="hidden md:block"></div>
+                </React.Fragment>
+              )
+            } else if (index === 3) {
+              // Step 4: Row 4, Column 2
+              return (
+                <React.Fragment key={step.id}>
+                  <div className="hidden md:block"></div>
+                  <div className="relative">
+                    {stepComponent}
+                  </div>
+                </React.Fragment>
+              )
+            } else if (index === 4) {
+              // Step 5: Row 5, Column 1
+              return (
+                <React.Fragment key={step.id}>
+                  <div className="relative">
+                    {stepComponent}
+                  </div>
+                  <div className="hidden md:block"></div>
+                </React.Fragment>
+              )
+            }
+            return null
           })}
           
         </div>
@@ -238,8 +366,8 @@ export default function StartTab({ onNavigate }: StartTabProps) {
       </div>
 
       {/* Bottom Stats */}
-      <div className="mt-16 pt-8 border-t border-white/10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      <div className="mt-16 pt-8 border-t border-white/10 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center mt-8">
           <div>
             <div className="text-3xl font-bold text-white mb-1">87%</div>
             <div className="text-sm text-white/60">Report improved team performance</div>

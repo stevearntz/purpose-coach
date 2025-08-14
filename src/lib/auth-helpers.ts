@@ -1,12 +1,10 @@
 /**
  * Authentication helpers for API routes
- * Properly handles NextAuth sessions in API routes
+ * Uses Clerk for authentication
  */
 
-import { auth } from '@/auth';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import jwt from 'jsonwebtoken';
 
 export interface AuthUser {
   id: string;
@@ -14,40 +12,38 @@ export interface AuthUser {
   name?: string;
   companyId?: string;
   companyName?: string;
+  role?: string;
 }
 
 /**
  * Get the current session in an API route
- * This works with both JWT and database sessions
+ * This works with Clerk authentication
  */
 export async function getServerSession(): Promise<AuthUser | null> {
   try {
-    // Import headers to ensure cookies are forwarded properly
-    const { headers: getHeaders } = await import('next/headers');
+    const { userId } = await auth();
     
-    // Get headers to ensure cookies are included
-    const headersList = await getHeaders();
-    
-    // Use the auth() function which handles cookie parsing
-    const session = await auth();
-    
-    console.log('[auth-helpers] Session check:', {
-      hasSession: !!session,
-      userEmail: session?.user?.email,
-      cookies: headersList.get('cookie')?.substring(0, 50) + '...'
-    });
-    
-    if (!session?.user?.email) {
-      console.log('[auth-helpers] No session found');
+    if (!userId) {
+      console.log('[auth-helpers] No userId found');
       return null;
     }
     
+    const user = await currentUser();
+    
+    if (!user?.primaryEmailAddress?.emailAddress) {
+      console.log('[auth-helpers] No user email found');
+      return null;
+    }
+    
+    const publicMetadata = user.publicMetadata as any;
+    
     return {
-      id: session.user.id || '',
-      email: session.user.email,
-      name: session.user.name || undefined,
-      companyId: session.user.companyId,
-      companyName: session.user.companyName,
+      id: user.id,
+      email: user.primaryEmailAddress.emailAddress,
+      name: user.fullName || user.firstName || undefined,
+      companyId: publicMetadata?.companyId,
+      companyName: publicMetadata?.companyName,
+      role: publicMetadata?.role
     };
   } catch (error) {
     console.error('[auth-helpers] Error getting session:', error);

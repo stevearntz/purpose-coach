@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { auth } from '@clerk/nextjs/server';
 import { cookies } from 'next/headers';
 
 export async function GET(req: NextRequest) {
@@ -12,13 +12,13 @@ export async function GET(req: NextRequest) {
     console.log('[test-auth] Token name:', sessionToken?.name);
     
     // Try to get session
-    const session = await auth();
+    const { userId } = await auth();
     
-    console.log('[test-auth] Session:', session);
+    console.log('[test-auth] User ID:', userId);
     
     return NextResponse.json({
-      hasSession: !!session,
-      sessionUser: session?.user || null,
+      hasSession: !!userId,
+      userId: userId || null,
       cookieFound: !!sessionToken,
       cookieName: sessionToken?.name || null
     });

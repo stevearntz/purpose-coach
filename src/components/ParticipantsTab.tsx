@@ -7,7 +7,7 @@ import {
   CheckCircle, Clock, X, Loader2
 } from 'lucide-react'
 
-interface User {
+interface Participant {
   id: string
   name: string
   email: string
@@ -18,34 +18,34 @@ interface User {
   joinedDate: string
 }
 
-export default function UsersTab() {
-  const [users, setUsers] = useState<User[]>([])
+export default function ParticipantsTab() {
+  const [participants, setParticipants] = useState<Participant[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [showAddSection, setShowAddSection] = useState(false)
   const [addMode, setAddMode] = useState<'single' | 'bulk'>('single')
-  const [copiedUserId, setCopiedUserId] = useState<string | null>(null)
+  const [copiedParticipantId, setCopiedParticipantId] = useState<string | null>(null)
   
-  // Form state for single user
-  const [newUserName, setNewUserName] = useState('')
-  const [newUserEmail, setNewUserEmail] = useState('')
-  const [newUserDepartment, setNewUserDepartment] = useState('')
-  const [newUserRole, setNewUserRole] = useState('')
+  // Form state for single participant
+  const [newParticipantName, setNewParticipantName] = useState('')
+  const [newParticipantEmail, setNewParticipantEmail] = useState('')
+  const [newParticipantDepartment, setNewParticipantDepartment] = useState('')
+  const [newParticipantRole, setNewParticipantRole] = useState('')
   
   // CSV upload state
   const [csvFile, setCsvFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
-    loadUsers()
+    loadParticipants()
   }, [])
 
-  const loadUsers = async () => {
+  const loadParticipants = async () => {
     setLoading(true)
     try {
       // In production, this would fetch from API
       // For now, use mock data
-      const mockUsers: User[] = [
+      const mockParticipants: Participant[] = [
         {
           id: '1',
           name: 'Steve Arntz',
@@ -67,7 +67,7 @@ export default function UsersTab() {
         },
         {
           id: '3',
-          name: 'Test User',
+          name: 'Test Participant',
           email: 'test@example.com',
           status: 'active',
           role: 'Member',
@@ -76,25 +76,25 @@ export default function UsersTab() {
           joinedDate: 'Aug 12, 2025'
         }
       ]
-      setUsers(mockUsers)
+      setParticipants(mockParticipants)
     } catch (error) {
-      console.error('Failed to load users:', error)
+      console.error('Failed to load participants:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleAddSingleUser = async () => {
-    if (!newUserName || !newUserEmail) return
+  const handleAddSingleParticipant = async () => {
+    if (!newParticipantName || !newParticipantEmail) return
     
-    // TODO: API call to add user
-    const newUser: User = {
+    // TODO: API call to add participant
+    const newParticipant: Participant = {
       id: Date.now().toString(),
-      name: newUserName,
-      email: newUserEmail,
+      name: newParticipantName,
+      email: newParticipantEmail,
       status: 'invited',
-      role: newUserRole || 'Member',
-      department: newUserDepartment,
+      role: newParticipantRole || 'Member',
+      department: newParticipantDepartment,
       joinedDate: new Date().toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -102,13 +102,13 @@ export default function UsersTab() {
       })
     }
     
-    setUsers([...users, newUser])
+    setParticipants([...participants, newParticipant])
     
     // Reset form
-    setNewUserName('')
-    setNewUserEmail('')
-    setNewUserDepartment('')
-    setNewUserRole('')
+    setNewParticipantName('')
+    setNewParticipantEmail('')
+    setNewParticipantDepartment('')
+    setNewParticipantRole('')
     setShowAddSection(false)
   }
 
@@ -125,7 +125,7 @@ export default function UsersTab() {
       
       setCsvFile(null)
       setShowAddSection(false)
-      loadUsers()
+      loadParticipants()
     } catch (error) {
       console.error('Failed to upload CSV:', error)
     } finally {
@@ -139,26 +139,26 @@ export default function UsersTab() {
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'campfire_users_template.csv'
+    a.download = 'campfire_participants_template.csv'
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
     window.URL.revokeObjectURL(url)
   }
 
-  const copyUserInviteLink = (userId: string, userEmail: string) => {
-    // Create a user-specific invite link
-    const link = `${window.location.origin}/login?invite=${userId}&email=${encodeURIComponent(userEmail)}`
+  const copyParticipantInviteLink = (participantId: string, participantEmail: string) => {
+    // Create a participant-specific assessment link
+    const link = `${window.location.origin}/assessment?participant=${participantId}&email=${encodeURIComponent(participantEmail)}`
     navigator.clipboard.writeText(link)
-    setCopiedUserId(userId)
-    setTimeout(() => setCopiedUserId(null), 1500)
+    setCopiedParticipantId(participantId)
+    setTimeout(() => setCopiedParticipantId(null), 1500)
   }
 
-  const filteredUsers = users.filter(user => 
+  const filteredParticipants = participants.filter(participant => 
     searchTerm === '' ||
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.department?.toLowerCase().includes(searchTerm.toLowerCase())
+    participant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    participant.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    participant.department?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const getStatusColor = (status: string) => {
@@ -189,7 +189,7 @@ export default function UsersTab() {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="animate-spin h-8 w-8 text-purple-600 mr-3" />
-        <span className="text-white/60">Loading users...</span>
+        <span className="text-white/60">Loading participants...</span>
       </div>
     )
   }
@@ -199,10 +199,10 @@ export default function UsersTab() {
       {/* Header */}
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-white mb-3">
-          Users
+          Participants
         </h2>
         <p className="text-lg text-white/80">
-          Manage your team members and their access
+          Manage assessment participants and send them assessment links
         </p>
       </div>
 
@@ -214,7 +214,7 @@ export default function UsersTab() {
         >
           <div className="flex items-center gap-3">
             <Plus className="w-5 h-5 text-purple-400" />
-            <span className="font-medium text-white">Add Users</span>
+            <span className="font-medium text-white">Add Participants</span>
           </div>
           {showAddSection ? (
             <ChevronUp className="w-5 h-5 text-white/40" />
@@ -235,7 +235,7 @@ export default function UsersTab() {
                     : 'bg-white/10 text-white/60 hover:bg-white/20'
                 }`}
               >
-                Add Single User
+                Add Single Participant
               </button>
               <button
                 onClick={() => setAddMode('bulk')}
@@ -250,7 +250,7 @@ export default function UsersTab() {
             </div>
 
             {addMode === 'single' ? (
-              /* Single User Form */
+              /* Single Participant Form */
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -259,8 +259,8 @@ export default function UsersTab() {
                     </label>
                     <input
                       type="text"
-                      value={newUserName}
-                      onChange={(e) => setNewUserName(e.target.value)}
+                      value={newParticipantName}
+                      onChange={(e) => setNewParticipantName(e.target.value)}
                       placeholder="John Doe"
                       className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
@@ -271,8 +271,8 @@ export default function UsersTab() {
                     </label>
                     <input
                       type="email"
-                      value={newUserEmail}
-                      onChange={(e) => setNewUserEmail(e.target.value)}
+                      value={newParticipantEmail}
+                      onChange={(e) => setNewParticipantEmail(e.target.value)}
                       placeholder="john@example.com"
                       className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
@@ -283,8 +283,8 @@ export default function UsersTab() {
                     </label>
                     <input
                       type="text"
-                      value={newUserDepartment}
-                      onChange={(e) => setNewUserDepartment(e.target.value)}
+                      value={newParticipantDepartment}
+                      onChange={(e) => setNewParticipantDepartment(e.target.value)}
                       placeholder="Engineering"
                       className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
@@ -294,8 +294,8 @@ export default function UsersTab() {
                       Role
                     </label>
                     <select
-                      value={newUserRole}
-                      onChange={(e) => setNewUserRole(e.target.value)}
+                      value={newParticipantRole}
+                      onChange={(e) => setNewParticipantRole(e.target.value)}
                       className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                     >
                       <option value="">Select role</option>
@@ -307,11 +307,11 @@ export default function UsersTab() {
                 </div>
                 <div className="flex justify-end">
                   <button
-                    onClick={handleAddSingleUser}
-                    disabled={!newUserName || !newUserEmail}
+                    onClick={handleAddSingleParticipant}
+                    disabled={!newParticipantName || !newParticipantEmail}
                     className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Create User
+                    Add Participant
                   </button>
                 </div>
               </div>
@@ -321,7 +321,7 @@ export default function UsersTab() {
                 <div className="bg-white/5 border-2 border-dashed border-white/20 rounded-lg p-8 text-center">
                   <Upload className="w-12 h-12 text-white/40 mx-auto mb-4" />
                   <p className="text-white/80 mb-4">
-                    Upload a CSV file with user information
+                    Upload a CSV file with participant information
                   </p>
                   <div className="flex items-center justify-center gap-4">
                     <button
@@ -388,7 +388,7 @@ export default function UsersTab() {
             />
           </div>
           <span className="text-sm text-gray-600">
-            {filteredUsers.length} users
+            {filteredParticipants.length} participants
           </span>
         </div>
       </div>
@@ -399,7 +399,7 @@ export default function UsersTab() {
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                User
+                Participant
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
@@ -419,44 +419,44 @@ export default function UsersTab() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {filteredUsers.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50">
+            {filteredParticipants.map((participant) => (
+              <tr key={participant.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">
-                      {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                      {participant.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                      <div className="text-sm text-gray-500">{user.email}</div>
+                      <div className="text-sm font-medium text-gray-900">{participant.name}</div>
+                      <div className="text-sm text-gray-500">{participant.email}</div>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex">
-                    <span className={`px-2 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-full border ${getStatusColor(user.status)}`}>
-                      {getStatusIcon(user.status)}
-                      {user.status}
+                    <span className={`px-2 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-full border ${getStatusColor(participant.status)}`}>
+                      {getStatusIcon(participant.status)}
+                      {participant.status}
                     </span>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {user.department || '-'}
+                  {participant.department || '-'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {user.role || '-'}
+                  {participant.role || '-'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {user.lastActive || '-'}
+                  {participant.lastActive || '-'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  {user.status !== 'active' && (
+                  {participant.status !== 'active' && (
                     <button
-                      onClick={() => copyUserInviteLink(user.id, user.email)}
+                      onClick={() => copyParticipantInviteLink(participant.id, participant.email)}
                       className="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
                       title="Copy invite link"
                     >
-                      {copiedUserId === user.id ? (
+                      {copiedParticipantId === participant.id ? (
                         <CheckCircle className="w-4 h-4 text-green-600" />
                       ) : (
                         <Link className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />

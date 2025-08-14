@@ -1,22 +1,22 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
+  const { isLoaded, isSignedIn } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (!isLoaded) return;
     
-    if (!session) {
-      router.push('/login');
+    if (!isSignedIn) {
+      router.push('/sign-in');
     }
-  }, [session, status, router]);
+  }, [isLoaded, isSignedIn, router]);
 
-  if (status === 'loading') {
+  if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-gray-500">Loading...</div>
@@ -24,7 +24,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
     );
   }
 
-  if (!session) {
+  if (!isSignedIn) {
     return null;
   }
 

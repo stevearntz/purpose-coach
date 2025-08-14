@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/auth'
 import { cookies } from 'next/headers'
 
 export async function GET(request: NextRequest) {
-  // Check all possible session cookies
-  const cookieStore = await cookies()
-  const allCookies = cookieStore.getAll()
+  try {
+    // Check all possible session cookies
+    const cookieStore = await cookies()
+    const allCookies = cookieStore.getAll()
   
   // Try to get session
   let session = null
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     c.name.includes('next')
   )
   
-  return NextResponse.json({
+    return NextResponse.json({
     session: session ? {
       user: session.user,
       expires: session.expires
@@ -46,4 +46,7 @@ export async function GET(request: NextRequest) {
       nodeEnv: process.env.NODE_ENV
     }
   })
+  } catch (error: any) {
+    return NextResponse.json({ error: error?.message || 'Error checking session' }, { status: 500 })
+  }
 }

@@ -76,16 +76,18 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.rewrite(new URL('/connection-sorter', request.url))
   }
   
-  // Check for session cookie directly since auth() isn't working in middleware
+  // Check for our custom auth cookie
+  const authToken = request.cookies.get('auth-token')
   const sessionCookie = request.cookies.get('authjs.session-token') || 
                        request.cookies.get('__Secure-authjs.session-token')
   
-  // For now, presence of session cookie means authenticated
-  const isAuthenticated = !!sessionCookie
+  // Authenticated if we have either our custom token or NextAuth session
+  const isAuthenticated = !!(authToken || sessionCookie)
   
-  console.log('[middleware] Session check:', {
-    hasCookie: !!sessionCookie,
-    cookieName: sessionCookie?.name,
+  console.log('[middleware] Auth check:', {
+    hasAuthToken: !!authToken,
+    hasSessionCookie: !!sessionCookie,
+    isAuthenticated,
     pathname
   })
   

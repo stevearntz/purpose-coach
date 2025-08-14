@@ -23,29 +23,28 @@ export default function LoginPage() {
     console.log('[login] Attempting login for:', email);
 
     try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
+      // Use our custom signin endpoint
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
       });
 
-      console.log('[login] SignIn result:', result);
+      const data = await response.json();
+      console.log('[login] SignIn response:', data);
 
-      // Check if login was successful (ok: true means success)
-      if (result?.ok === true) {
+      if (response.ok && data.success) {
         console.log('[login] Login successful, redirecting to dashboard');
-        // Get callback URL or default to dashboard
-        const searchParams = new URLSearchParams(window.location.search);
-        const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
-        
-        // Force navigation with window.location to ensure clean redirect
-        window.location.href = callbackUrl;
+        // Small delay to ensure cookie is set
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 100);
         return;
       }
       
-      // Only show error if login actually failed
-      console.error('[login] Login failed:', result);
-      setError('Invalid email or password');
+      // Show error if login failed
+      console.error('[login] Login failed:', data);
+      setError(data.error || 'Invalid email or password');
     } catch (err) {
       console.error('[login] Login error:', err);
       setError('An error occurred. Please try again.');

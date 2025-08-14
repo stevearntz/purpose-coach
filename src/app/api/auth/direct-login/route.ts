@@ -59,7 +59,7 @@ export async function POST(request: Request) {
     )
     
     // Set the session cookie that NextAuth expects
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const isProduction = process.env.NODE_ENV === 'production'
     const cookieName = isProduction ? '__Secure-authjs.session-token' : 'authjs.session-token'
     

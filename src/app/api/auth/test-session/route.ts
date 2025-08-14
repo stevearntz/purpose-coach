@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/auth'
 import { cookies } from 'next/headers'
+import { auth } from '@/auth'
 
 export async function GET(request: NextRequest) {
   // Check all possible session cookies

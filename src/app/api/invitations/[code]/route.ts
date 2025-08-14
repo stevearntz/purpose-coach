@@ -14,7 +14,16 @@ export async function GET(
     // Find invitation by code in database
     const invitation = await prisma.invitation.findUnique({
       where: { inviteCode: code },
-      include: { company: true }
+      include: { 
+        company: {
+          select: {
+            id: true,
+            name: true,
+            logo: true
+            // Explicitly exclude domain field which may not exist
+          }
+        }
+      }
     });
     
     console.log('[GET /api/invitations] Found invitation:', invitation ? 'Yes' : 'No');

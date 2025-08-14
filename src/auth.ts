@@ -12,6 +12,27 @@ const signInSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters")
 })
 
+// Get the secret at module level to ensure it's available
+let secret = process.env.NEXTAUTH_SECRET || 
+             process.env.JWT_SECRET || 
+             process.env.AUTH_SECRET
+
+// If no secret is found, generate one based on DATABASE_URL as a fallback
+// This is not ideal but ensures the app works
+if (!secret && process.env.DATABASE_URL) {
+  const crypto = require('crypto')
+  secret = crypto
+    .createHash('sha256')
+    .update(process.env.DATABASE_URL + 'nextauth-campfire-2024')
+    .digest('base64')
+  console.warn('[auth] Warning: Generated fallback secret from DATABASE_URL. Set NEXTAUTH_SECRET in production!')
+}
+
+if (!secret) {
+  secret = 'development-secret-please-set-NEXTAUTH_SECRET-in-production'
+  console.error('[auth] ERROR: No secret available! Set NEXTAUTH_SECRET environment variable!')
+}
+
 export const authConfig: NextAuthConfig = {
   // Remove adapter when using JWT strategy - adapters are for database sessions
   // adapter: PrismaAdapter(prisma),
@@ -19,7 +40,7 @@ export const authConfig: NextAuthConfig = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  secret: process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'your-development-secret-key-replace-in-production', // Ensure secret is set
+  secret: secret, // Use the pre-defined secret
   trustHost: true, // Important for production and API routes
   pages: {
     signIn: "/login",

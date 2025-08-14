@@ -46,6 +46,19 @@ export const authConfig: NextAuthConfig = {
   secret: secret, // Use the pre-defined secret
   trustHost: true, // Important for production and API routes
   useSecureCookies: process.env.NODE_ENV === 'production',
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === 'production' 
+        ? '__Secure-authjs.session-token'
+        : 'authjs.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production'
+      }
+    }
+  },
   pages: {
     signIn: "/login",
     error: "/login",
@@ -119,14 +132,17 @@ export const authConfig: NextAuthConfig = {
             data: { lastLogin: new Date() }
           })
           
-          // Return user object for session
-          return {
+          // Return user object for session - NextAuth v5 expects specific fields
+          const user = {
             id: admin.id,
             email: admin.email,
             name: admin.name || admin.email.split('@')[0],
             companyId: admin.company?.id,
             companyName: admin.company?.name
           }
+          
+          console.log('[auth] Returning user for session:', user)
+          return user
         } catch (error) {
           console.error("[auth] Authorization error:", error)
           return null
@@ -161,7 +177,7 @@ export const authConfig: NextAuthConfig = {
       return session
     }
   },
-  debug: process.env.NODE_ENV === "development"
+  debug: true // Temporarily enable debug in production
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig)

@@ -31,8 +31,15 @@ export default function LoginPage() {
 
       console.log('[login] SignIn result:', result);
 
-      // Check if login was successful (ok: true means success)
-      if (result?.ok === true) {
+      // NextAuth v5 returns error even when ok is true for credentials provider
+      // Check for specific error types
+      if (result?.error === 'CredentialsSignin') {
+        console.error('[login] Credentials sign in failed');
+        setError('Invalid email or password');
+        return;
+      }
+      
+      if (result?.ok && !result?.error) {
         console.log('[login] Login successful, redirecting to dashboard');
         // Get callback URL or default to dashboard
         const searchParams = new URLSearchParams(window.location.search);
@@ -43,9 +50,9 @@ export default function LoginPage() {
         return;
       }
       
-      // Only show error if login actually failed
+      // Handle other errors
       console.error('[login] Login failed:', result);
-      setError('Invalid email or password');
+      setError(result?.error || 'Invalid email or password');
     } catch (err) {
       console.error('[login] Login error:', err);
       setError('An error occurred. Please try again.');

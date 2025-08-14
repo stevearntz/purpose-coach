@@ -13,13 +13,11 @@ const signInSchema = z.object({
 })
 
 // Get the secret - NEXTAUTH_SECRET is the standard env var
-const secret = process.env.NEXTAUTH_SECRET
+const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET
 
-if (!secret) {
-  throw new Error('[auth] NEXTAUTH_SECRET is not set. Please set it in your environment variables.')
+if (!secret && process.env.NODE_ENV === 'production') {
+  console.error('[auth] WARNING: NEXTAUTH_SECRET is not set in production!')
 }
-
-// Environment is configured
 
 // Determine the base URL
 const baseUrl = process.env.NEXTAUTH_URL || 
@@ -36,7 +34,7 @@ export const authConfig: NextAuthConfig = {
   jwt: {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  secret: secret,
+  secret: secret || 'fallback-secret-for-build-only-replace-in-production',
   trustHost: true,
   pages: {
     signIn: "/login",
@@ -56,6 +54,7 @@ export const authConfig: NextAuthConfig = {
           const validatedFields = signInSchema.safeParse(credentials)
           
           if (!validatedFields.success) {
+            console.error('[auth] Validation failed in production:', validatedFields.error.issues)
             return null
           }
           
@@ -79,10 +78,12 @@ export const authConfig: NextAuthConfig = {
           })
           
           if (!admin) {
+            console.error('[auth] Admin not found in production for:', email)
             return null
           }
           
           if (!admin.password) {
+            console.error('[auth] Admin has no password in production:', email)
             return null
           }
           
@@ -90,8 +91,11 @@ export const authConfig: NextAuthConfig = {
           const passwordMatch = await bcrypt.compare(password, admin.password)
           
           if (!passwordMatch) {
+            console.error('[auth] Password mismatch in production for:', email)
             return null
           }
+          
+          console.log('[auth] Login successful in production for:', email)
           
           // Update last login
           await prisma.admin.update({

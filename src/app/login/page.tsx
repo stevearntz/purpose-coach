@@ -2,18 +2,28 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import ViewportContainer from '@/components/ViewportContainer';
 import { Lock, Mail, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showResetForm, setShowResetForm] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
+  
+  // Redirect if already logged in
+  React.useEffect(() => {
+    if (session) {
+      const searchParams = new URLSearchParams(window.location.search);
+      const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+      router.push(callbackUrl);
+    }
+  }, [session, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,28 +41,42 @@ export default function LoginPage() {
 
       console.log('[login] SignIn result:', result);
 
-      // NextAuth v5 returns error even when ok is true for credentials provider
-      // Check for specific error types
-      if (result?.error === 'CredentialsSignin') {
-        console.error('[login] Credentials sign in failed');
-        setError('Invalid email or password');
+      // In NextAuth v5 beta, credentials provider always returns an error
+      // even when authentication succeeds. We need to check the actual result
+      if (result?.error && result.error !== 'CredentialsSignin') {
+        // Real error that's not the known credentials bug
+        console.error('[login] Login error:', result.error);
+        setError('An error occurred. Please try again.');
         return;
       }
       
+      // For CredentialsSignin error, we need to check if it actually worked
+      // by attempting to fetch the session
+      if (result?.error === 'CredentialsSignin') {
+        // This is the known bug - let's check if we're actually authenticated
+        const response = await fetch('/api/auth/session');
+        const session = await response.json();
+        
+        if (session?.user) {
+          console.log('[login] Login successful (despite error), redirecting...');
+          const searchParams = new URLSearchParams(window.location.search);
+          const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+          window.location.href = callbackUrl;
+          return;
+        } else {
+          console.error('[login] Credentials actually failed');
+          setError('Invalid email or password');
+          return;
+        }
+      }
+      
+      // If ok with no error (ideal case)
       if (result?.ok && !result?.error) {
-        console.log('[login] Login successful, redirecting to dashboard');
-        // Get callback URL or default to dashboard
+        console.log('[login] Login successful, redirecting...');
         const searchParams = new URLSearchParams(window.location.search);
         const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
-        
-        // Force navigation with window.location to ensure clean redirect
         window.location.href = callbackUrl;
-        return;
       }
-      
-      // Handle other errors
-      console.error('[login] Login failed:', result);
-      setError(result?.error || 'Invalid email or password');
     } catch (err) {
       console.error('[login] Login error:', err);
       setError('An error occurred. Please try again.');

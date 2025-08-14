@@ -98,6 +98,7 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
       id: inv.id,
       email: inv.email,
       name: inv.name,
+      inviteUrl: inv.inviteUrl, // Include the invite URL for copy functionality
       company: {
         id: inv.company.id,
         name: inv.company.name,
@@ -243,6 +244,7 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
         id: result.id,
         email: result.email,
         name: result.name,
+        inviteUrl: result.inviteUrl, // Include the invite URL
         company: result.company.name,
         status: result.status,
         emailSent,

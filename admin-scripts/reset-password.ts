@@ -1,52 +1,61 @@
-#!/usr/bin/env npx tsx
-/**
- * Direct password reset script
- * Usage: npx tsx scripts/reset-password.ts <email> <newPassword>
- */
-
-import prisma from '../src/lib/prisma'
+import { config } from 'dotenv'
+import { resolve } from 'path'
 import bcrypt from 'bcryptjs'
 
+// Load .env.local file first
+config({ path: resolve(process.cwd(), '.env.local') })
+
+// Need to import prisma after env vars are loaded
+import prisma from '../src/lib/prisma'
+
 async function resetPassword() {
-  const args = process.argv.slice(2)
-  
-  if (args.length !== 2) {
-    console.log('Usage: npx tsx scripts/reset-password.ts <email> <newPassword>')
-    console.log('Example: npx tsx scripts/reset-password.ts steve@getcampfire.com NewPassword123!')
-    process.exit(1)
-  }
-  
-  const [email, password] = args
+  const email = 'steve@getcampfire.com'
+  const newPassword = 'Campfire2024!'
   
   try {
-    // Find admin
-    const admin = await prisma.admin.findUnique({
-      where: { email }
+    console.log(`Resetting password for ${email}...`)
+    
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+    
+    // Update the admin's password
+    const admin = await prisma.admin.update({
+      where: { email },
+      data: { password: hashedPassword },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        company: {
+          select: {
+            name: true
+          }
+        }
+      }
     })
     
-    if (!admin) {
-      console.log(`❌ No admin found with email: ${email}`)
-      process.exit(1)
+    console.log('\n✅ Password reset successful!')
+    console.log(`   Email: ${admin.email}`)
+    console.log(`   Password: ${newPassword}`)
+    console.log(`   Name: ${admin.name}`)
+    console.log(`   Company: ${admin.company?.name}`)
+    
+    // Verify the password works
+    const verifyAdmin = await prisma.admin.findUnique({
+      where: { email },
+      select: { password: true }
+    })
+    
+    if (verifyAdmin?.password) {
+      const passwordMatch = await bcrypt.compare(newPassword, verifyAdmin.password)
+      console.log(`\n🔐 Password verification: ${passwordMatch ? '✅ Success' : '❌ Failed'}`)
     }
     
-    // Hash new password
-    const hashedPassword = await bcrypt.hash(password, 10)
-    
-    // Update password
-    await prisma.admin.update({
-      where: { email },
-      data: { password: hashedPassword }
-    })
-    
-    console.log(`✅ Password reset successfully for ${email}`)
-    console.log('You can now login at: https://tools.getcampfire.com/login')
-    
   } catch (error) {
-    console.error('❌ Error resetting password:', error)
+    console.error('Error resetting password:', error)
   } finally {
     await prisma.$disconnect()
   }
 }
 
-// Run the script
 resetPassword()

@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware-simple';
+import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware';
 import prisma from '@/lib/prisma';
 import pino from 'pino';
 
@@ -122,9 +122,4 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
       { status: 500 }
     );
   }
-}, {
-  requireAdmin: false, // Any authenticated user can view campaigns
-  rateLimit: true,
-  maxRequests: 100,
-  windowMs: '60s'
 });

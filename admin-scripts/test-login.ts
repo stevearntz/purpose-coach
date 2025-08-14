@@ -1,86 +1,72 @@
-#!/usr/bin/env npx tsx
-/**
- * Test login and debug auth issues
- * Usage: npx tsx scripts/test-login.ts <email> <password>
- */
+import { config } from 'dotenv'
+import { resolve } from 'path'
 
-import prisma from '../src/lib/prisma'
-import bcrypt from 'bcryptjs'
+// Load .env.local file first
+config({ path: resolve(process.cwd(), '.env.local') })
 
 async function testLogin() {
-  const [email, password] = process.argv.slice(2)
+  const email = 'steve@getcampfire.com'
+  const password = 'Campfire2024!'
   
-  if (!email || !password) {
-    console.log('Usage: npx tsx scripts/test-login.ts <email> <password>')
-    process.exit(1)
-  }
+  console.log('🔐 Testing login with NextAuth...\n')
+  console.log(`Email: ${email}`)
+  console.log(`Password: ${password}`)
   
   try {
-    console.log(`\n🔍 Testing login for: ${email}\n`)
+    // First, get the CSRF token
+    console.log('\n1. Getting CSRF token...')
+    const csrfResponse = await fetch('http://localhost:3000/api/auth/csrf')
+    const { csrfToken } = await csrfResponse.json()
+    console.log('   ✅ CSRF token obtained')
     
-    // Find admin with various queries
-    console.log('1. Searching for admin...')
-    const admin = await prisma.admin.findUnique({
-      where: { email },
-      include: {
-        company: true
-      }
+    // Now attempt to sign in
+    console.log('\n2. Attempting sign in...')
+    const signInResponse = await fetch('http://localhost:3000/api/auth/callback/credentials', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        email,
+        password,
+        csrfToken,
+        json: 'true'
+      }),
+      redirect: 'manual'
     })
     
-    if (!admin) {
-      console.log('❌ No admin found with this email')
+    console.log(`   Response status: ${signInResponse.status}`)
+    
+    if (signInResponse.status === 200 || signInResponse.status === 302) {
+      console.log('   ✅ Login successful!')
       
-      // Check if there are any admins at all
-      const allAdmins = await prisma.admin.findMany({
-        select: { email: true }
-      })
-      console.log('\nExisting admin emails in database:')
-      allAdmins.forEach(a => console.log(`  - ${a.email}`))
+      // Check if we got a session
+      console.log('\n3. Checking session...')
+      const sessionResponse = await fetch('http://localhost:3000/api/auth/session')
+      const session = await sessionResponse.json()
       
-      process.exit(1)
-    }
-    
-    console.log('✅ Admin found!')
-    console.log('  - ID:', admin.id)
-    console.log('  - Email:', admin.email)
-    console.log('  - Name:', admin.name)
-    console.log('  - First Name:', admin.firstName)
-    console.log('  - Last Name:', admin.lastName)
-    console.log('  - Company ID:', admin.companyId)
-    console.log('  - Company:', admin.company?.name || 'None')
-    console.log('  - Has password:', !!admin.password)
-    console.log('  - Password hash:', admin.password?.substring(0, 20) + '...')
-    
-    if (!admin.password) {
-      console.log('\n❌ Admin has no password set!')
-      process.exit(1)
-    }
-    
-    // Test password
-    console.log('\n2. Testing password...')
-    const passwordMatch = await bcrypt.compare(password, admin.password)
-    
-    if (passwordMatch) {
-      console.log('✅ Password is correct!')
-      console.log('\nYou should be able to login with these credentials.')
-      
-      if (!admin.company) {
-        console.log('\n⚠️  Warning: Admin has no company associated.')
-        console.log('This might cause issues with some features.')
+      if (session?.user) {
+        console.log('   ✅ Session established!')
+        console.log(`   User: ${session.user.email}`)
+        console.log(`   Name: ${session.user.name}`)
+        console.log(`   Company: ${session.user.companyName}`)
+      } else {
+        console.log('   ⚠️  No session found')
       }
     } else {
-      console.log('❌ Password is incorrect!')
-      
-      // Generate correct hash for this password
-      console.log('\n💡 To set this password, run this SQL in Supabase:')
-      const newHash = await bcrypt.hash(password, 10)
-      console.log(`\nUPDATE "Admin" SET password = '${newHash}' WHERE email = '${email}';`)
+      const body = await signInResponse.text()
+      console.log('   ❌ Login failed')
+      console.log('   Response:', body)
     }
     
+    console.log('\n✅ Auth test complete!')
+    console.log('\nYou can now:')
+    console.log('1. Visit http://localhost:3000/login in your browser')
+    console.log('2. Enter the credentials shown above')
+    console.log('3. You should be redirected to /dashboard')
+    
   } catch (error) {
-    console.error('\n❌ Error:', error)
-  } finally {
-    await prisma.$disconnect()
+    console.error('❌ Test failed:', error)
   }
 }
 

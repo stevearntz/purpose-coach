@@ -43,23 +43,7 @@ function DashboardContent() {
   }, [])
 
   useEffect(() => {
-    // TEMPORARY: In production, bypass auth for dashboard
-    const isProduction = process.env.NODE_ENV === 'production' || 
-                        window.location.hostname === 'tools.getcampfire.com'
-    
-    if (isProduction) {
-      // Temporary hardcoded user data for production
-      setUserData({
-        email: 'steve@getcampfire.com',
-        name: 'Steve Arntz',
-        company: 'Campfire',
-        companyId: 'cme7wq5ka0000dqdpws8k3uxu',
-        role: 'ADMIN'
-      })
-      return
-    }
-    
-    // Use NextAuth session data in development
+    // Use NextAuth session data
     if (status === 'loading') return
     
     if (!session) {

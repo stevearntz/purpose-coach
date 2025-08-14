@@ -76,38 +76,18 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.rewrite(new URL('/connection-sorter', request.url))
   }
   
-  // TEMPORARY: Allow dashboard and admin access for steve@getcampfire.com without auth
-  // This is a temporary bypass while we fix authentication
-  const isTemporaryBypass = (pathname.startsWith('/dashboard') || pathname.startsWith('/admin')) && isProduction
+  // Get the session using NextAuth
+  const session = await auth()
+  const isAuthenticated = !!session?.user
   
-  // Check for session cookie directly since auth() isn't working in middleware
-  const sessionCookie = request.cookies.get('authjs.session-token') || 
-                       request.cookies.get('__Secure-authjs.session-token')
-  
-  // For now, presence of session cookie means authenticated
-  // OR if it's the dashboard/admin in production (temporary bypass)
-  const isAuthenticated = !!sessionCookie || isTemporaryBypass
-  
-  console.log('[middleware] Session check:', {
-    hasCookie: !!sessionCookie,
-    cookieName: sessionCookie?.name,
-    pathname
-  })
   
   // Check if route needs protection
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
   const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
   
-  console.log('[middleware] Check:', {
-    pathname,
-    isProtectedRoute,
-    isAuthRoute,
-    isAuthenticated
-  })
   
   // Redirect to login if accessing protected route without auth
   if (isProtectedRoute && !isAuthenticated) {
-    console.log('[middleware] Redirecting to login - no session for protected route')
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('callbackUrl', pathname)
     return NextResponse.redirect(loginUrl)
@@ -115,7 +95,6 @@ export default async function middleware(request: NextRequest) {
   
   // Redirect to dashboard if accessing auth routes while authenticated
   if (isAuthRoute && isAuthenticated) {
-    console.log('[middleware] Redirecting to dashboard - already authenticated')
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
   

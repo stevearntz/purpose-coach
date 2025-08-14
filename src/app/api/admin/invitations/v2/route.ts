@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware-simple';
+import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
 import prisma from '@/lib/prisma';
@@ -133,11 +133,6 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
       { status: 500 }
     );
   }
-}, {
-  requireAdmin: true,
-  rateLimit: true,
-  maxRequests: 100,
-  windowMs: '60s'
 });
 
 /**
@@ -277,9 +272,4 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
       { status: 500 }
     );
   }
-}, {
-  requireAdmin: true,
-  rateLimit: true,
-  maxRequests: 20,
-  windowMs: '60s'
 });

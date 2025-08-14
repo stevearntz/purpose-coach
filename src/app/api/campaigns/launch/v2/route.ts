@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware-simple';
+import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware';
 import { CreateCampaignSchema, validateRequestBody } from '@/lib/api-validation';
 import { sendInvitationEmailBatch } from '@/lib/email-batch';
 import { isEmailServiceConfigured } from '@/lib/email';
@@ -163,9 +163,6 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
       }
       
       return { campaign, company, invitations };
-    }, {
-      maxWait: 5000, // 5 seconds max wait
-      timeout: 10000, // 10 seconds timeout
     });
     
     // 5. Send emails in batch (outside transaction)
@@ -264,11 +261,6 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
       { status: 500 }
     );
   }
-}, {
-  requireAdmin: true,
-  rateLimit: true,
-  maxRequests: 5,
-  windowMs: '60s'
 });
 
 /**

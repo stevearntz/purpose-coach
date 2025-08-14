@@ -18,7 +18,16 @@ export async function POST(request: NextRequest) {
     // Find admin by email
     const admin = await prisma.admin.findUnique({
       where: { email },
-      include: { company: true }
+      include: { 
+        company: {
+          select: {
+            id: true,
+            name: true,
+            logo: true
+            // Exclude domain field which doesn't exist in production
+          }
+        }
+      }
     });
     
     console.log('Admin found:', admin ? 'Yes' : 'No');

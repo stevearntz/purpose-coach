@@ -12,7 +12,16 @@ export async function POST(
     // Find invitation by ID with company info
     const invitation = await prisma.invitation.findUnique({
       where: { id },
-      include: { company: true }
+      include: { 
+        company: {
+          select: {
+            id: true,
+            name: true,
+            logo: true
+            // Exclude domain field which doesn't exist in production
+          }
+        }
+      }
     });
     
     if (!invitation) {
@@ -50,7 +59,16 @@ export async function POST(
         sentAt: emailSent ? new Date() : invitation.sentAt,
         resentAt: new Date()
       },
-      include: { company: true }
+      include: { 
+        company: {
+          select: {
+            id: true,
+            name: true,
+            logo: true
+            // Exclude domain field which doesn't exist in production
+          }
+        }
+      }
     });
     
     // Transform for response

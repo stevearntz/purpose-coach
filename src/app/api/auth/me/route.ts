@@ -16,7 +16,16 @@ export async function GET(request: NextRequest) {
     // Get full admin details
     const admin = await prisma.admin.findUnique({
       where: { id: authUser.userId },
-      include: { company: true }
+      include: { 
+        company: {
+          select: {
+            id: true,
+            name: true,
+            logo: true
+            // Exclude domain field which doesn't exist in production
+          }
+        }
+      }
     });
     
     if (!admin) {

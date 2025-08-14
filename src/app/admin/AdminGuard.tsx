@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useUser } from '@clerk/nextjs'
 import { Loader2 } from 'lucide-react'
 
 interface AdminGuardProps {
@@ -11,38 +11,28 @@ interface AdminGuardProps {
 
 export default function AdminGuard({ children }: AdminGuardProps) {
   const router = useRouter()
-  const { data: session, status } = useSession()
+  const { user, isLoaded } = useUser()
   const [isAuthorized, setIsAuthorized] = useState(false)
   
   useEffect(() => {
-    // TEMPORARY: In production, bypass auth for admin
-    const isProduction = process.env.NODE_ENV === 'production' || 
-                        window.location.hostname === 'tools.getcampfire.com'
+    if (!isLoaded) return
     
-    if (isProduction) {
-      // Temporary bypass for production
-      setIsAuthorized(true)
-      return
-    }
-    
-    // Normal auth flow for development
-    if (status === 'loading') return
-    
-    if (!session) {
-      router.push('/login?callbackUrl=/admin')
+    if (!user) {
+      router.push('/sign-in?redirect_url=/admin')
       return
     }
     
     // Check if user is from Campfire company (system admin)
-    if (session.user?.companyName?.toLowerCase() === 'campfire') {
+    const companyName = user.publicMetadata?.companyName as string
+    if (companyName?.toLowerCase() === 'campfire') {
       setIsAuthorized(true)
     } else {
       // Not a Campfire admin, redirect to regular dashboard
       router.push('/dashboard')
     }
-  }, [session, status, router])
+  }, [user, isLoaded, router])
   
-  if (status === 'loading') {
+  if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

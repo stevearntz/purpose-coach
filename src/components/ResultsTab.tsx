@@ -6,7 +6,7 @@ import {
   ChevronRight, ChevronDown, ChevronUp, FileText, Clock, CheckCircle, AlertCircle,
   Target, Brain, Shield, MessageSquare, Loader2
 } from 'lucide-react'
-import { useSession } from 'next-auth/react'
+import { useUser } from '@clerk/nextjs'
 import IndividualResultsViewEnhanced from './IndividualResultsViewEnhanced'
 
 interface CampaignResult {
@@ -38,7 +38,7 @@ interface IndividualResult {
 }
 
 export default function ResultsTab() {
-  const { data: session } = useSession()
+  const { user } = useUser()
   const [activeSubTab, setActiveSubTab] = useState<'campaigns' | 'individuals'>('campaigns')
   const [campaignResults, setCampaignResults] = useState<CampaignResult[]>([])
   const [individualResults, setIndividualResults] = useState<IndividualResult[]>([])
@@ -53,7 +53,7 @@ export default function ResultsTab() {
     } else {
       loadIndividualResults()
     }
-  }, [activeSubTab, session])
+  }, [activeSubTab, user])
 
   const loadCampaignResults = async () => {
     setLoading(true)

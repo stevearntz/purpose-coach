@@ -7,9 +7,18 @@ declare global {
 }
 
 const prismaClientSingleton = () => {
-  return new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+  const client = new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error', 'warn'],
   });
+  
+  // Add error event handler for better production debugging
+  if (process.env.NODE_ENV === 'production') {
+    client.$on('error' as never, (e: any) => {
+      console.error('[Prisma Error]', e);
+    });
+  }
+  
+  return client;
 };
 
 const prisma = globalThis.prisma ?? prismaClientSingleton();

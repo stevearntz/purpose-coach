@@ -100,8 +100,22 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Setup password error:', error);
+    // In production, log more details for debugging
+    if (process.env.NODE_ENV === 'production') {
+      console.error('Setup password detailed error:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        type: error?.constructor?.name
+      });
+    }
+    
+    // Return more helpful error message
+    const errorMessage = error instanceof Error ? error.message : 'Failed to set up account';
     return NextResponse.json(
-      { error: 'Failed to set up account' },
+      { 
+        error: errorMessage,
+        details: process.env.NODE_ENV !== 'production' ? errorMessage : undefined
+      },
       { status: 500 }
     );
   }

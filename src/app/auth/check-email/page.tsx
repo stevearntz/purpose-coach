@@ -2,6 +2,7 @@
 
 import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
+import AuthLeftPanel from '@/components/AuthLeftPanel'
 
 function CheckEmailContent() {
   const searchParams = useSearchParams()
@@ -18,14 +19,7 @@ function CheckEmailContent() {
       
       <div className="relative z-10 w-full max-w-7xl mx-4 flex shadow-2xl rounded-3xl overflow-hidden">
         {/* Left Panel - Translucent white background */}
-        <div 
-          className="hidden lg:block flex-1" 
-          style={{ 
-            backgroundColor: '#ffffff80'
-          }}
-        >
-          {/* Empty for now - just the translucent panel */}
-        </div>
+        <AuthLeftPanel />
         
         {/* Right Panel - Check Email Message */}
         <div className="flex-1 bg-white p-8 lg:p-16 flex flex-col justify-center max-w-md mx-auto w-full">

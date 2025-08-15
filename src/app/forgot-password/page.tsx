@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export default function ForgotPasswordPage() {
-  const { isLoaded, signIn } = useSignIn()
+  const { isLoaded, signIn, setActive } = useSignIn()
   const [email, setEmail] = useState('')
   const [resetCode, setResetCode] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -65,7 +65,7 @@ export default function ForgotPasswordPage() {
 
       if (result.status === 'complete') {
         // Password reset successful, sign them in
-        await signIn.setActive({ session: result.createdSessionId })
+        await setActive({ session: result.createdSessionId })
         router.push('/dashboard')
       } else {
         setError('Password reset failed. Please try again.')

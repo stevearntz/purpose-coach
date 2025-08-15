@@ -371,7 +371,7 @@ export default function CampaignCreationWizard({
                       <div className="ml-3 flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold">
-                            {user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                            {user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
                           </div>
                           <div className="min-w-0">
                             <div className="text-white font-medium text-sm truncate">{user.name || 'Unnamed User'}</div>

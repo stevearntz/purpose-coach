@@ -14,7 +14,22 @@ model Company {
   logo        String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+  admins      Admin[]
   campaigns   Campaign[]
+  invitations Invitation[]
+}
+
+model Admin {
+  id          String       @id @default(cuid())
+  email       String       @unique
+  name        String?
+  companyId   String
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  password    String?
+  lastLogin   DateTime?
+  company     Company      @relation(fields: [companyId], references: [id])
   invitations Invitation[]
 }
 
@@ -27,6 +42,7 @@ model Invitation {
   status            InvitationStatus    @default(PENDING)
   personalMessage   String?
   companyId         String
+  adminId           String?
   createdAt         DateTime            @default(now())
   sentAt            DateTime?
   openedAt          DateTime?
@@ -35,6 +51,7 @@ model Invitation {
   resentAt          DateTime?
   currentStage      String?
   assessmentResults AssessmentResult[]
+  admin             Admin?              @relation(fields: [adminId], references: [id])
   company           Company             @relation(fields: [companyId], references: [id])
   metadata          InvitationMetadata?
 

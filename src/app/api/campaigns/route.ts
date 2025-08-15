@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getServerSession } from '@/lib/auth-helpers';
+import { getCurrentAuthUser, getUserCompany } from '@/lib/auth-helpers';
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const campaignId = searchParams.get('id');
     
     // Get authenticated user - NO FALLBACKS
-    const user = await getServerSession();
+    const user = await getCurrentAuthUser();
     const email = user?.email;
     
     // Get specific campaign by ID
@@ -48,33 +48,21 @@ export async function GET(request: NextRequest) {
     }
     
     // REQUIRE authentication
-    if (!email) {
+    if (!user) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       );
     }
     
-    // Find the admin by email
-    const admin = await prisma.admin.findUnique({
-      where: { email }
-    });
-    
-    if (!admin) {
-      return NextResponse.json({ campaigns: [] });
-    }
-    
-    // Get the company
-    const company = await prisma.company.findFirst({
-      where: { 
-        admins: {
-          some: { id: admin.id }
-        }
-      }
-    });
+    // Get company info from Clerk metadata
+    const company = await getUserCompany();
     
     if (!company) {
-      return NextResponse.json({ campaigns: [] });
+      return NextResponse.json(
+        { error: 'No company access found. Please contact support.' },
+        { status: 403 }
+      );
     }
     
     // Get all campaigns for this company

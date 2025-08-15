@@ -1,42 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getServerSession } from '@/lib/auth-helpers';
+import { getCurrentAuthUser, getUserCompany } from '@/lib/auth-helpers';
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     
     // Get authenticated user - NO FALLBACKS
-    const user = await getServerSession();
-    const email = user?.email;
+    const user = await getCurrentAuthUser();
     
-    if (!email) {
+    if (!user) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       );
     }
     
-    // Find the admin by email
-    const admin = await prisma.admin.findUnique({
-      where: { email }
-    });
-    
-    if (!admin) {
-      return NextResponse.json({ results: [] });
-    }
-    
-    // Get the company
-    const company = await prisma.company.findFirst({
-      where: { 
-        admins: {
-          some: { id: admin.id }
-        }
-      }
-    });
+    // Get company info from Clerk metadata
+    const company = await getUserCompany();
     
     if (!company) {
-      return NextResponse.json({ results: [] });
+      return NextResponse.json(
+        { error: 'No company access found. Please contact support.' },
+        { status: 403 }
+      );
     }
     
     // Get all campaigns for this company with completed assessments

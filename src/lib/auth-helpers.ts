@@ -16,10 +16,10 @@ export interface AuthUser {
 }
 
 /**
- * Get the current session in an API route
+ * Get the current authenticated user in an API route
  * This works with Clerk authentication
  */
-export async function getServerSession(): Promise<AuthUser | null> {
+export async function getCurrentAuthUser(): Promise<AuthUser | null> {
   try {
     const { userId } = await auth();
     
@@ -60,7 +60,7 @@ export function withAuthentication(
 ) {
   return async (req: NextRequest): Promise<NextResponse> => {
     try {
-      const user = await getServerSession();
+      const user = await getCurrentAuthUser();
       
       if (!user) {
         return NextResponse.json(
@@ -86,7 +86,7 @@ export function withAuthentication(
  * Useful for optional auth routes
  */
 export async function isAuthenticated(): Promise<boolean> {
-  const user = await getServerSession();
+  const user = await getCurrentAuthUser();
   return !!user;
 }
 
@@ -96,7 +96,7 @@ export async function isAuthenticated(): Promise<boolean> {
  */
 export async function getUserEmail(req: NextRequest): Promise<string | null> {
   // First try to get from session
-  const user = await getServerSession();
+  const user = await getCurrentAuthUser();
   if (user?.email) {
     return user.email;
   }
@@ -109,4 +109,27 @@ export async function getUserEmail(req: NextRequest): Promise<string | null> {
   }
   
   return null;
+}
+
+/**
+ * Get company information for the authenticated user
+ * Uses Clerk metadata instead of Admin table lookup
+ */
+export async function getUserCompany(): Promise<{ id: string; name: string } | null> {
+  try {
+    const user = await getCurrentAuthUser();
+    
+    if (!user?.companyId) {
+      console.log('[auth-helpers] No companyId in user metadata');
+      return null;
+    }
+    
+    return {
+      id: user.companyId,
+      name: user.companyName || 'Unknown Company'
+    };
+  } catch (error) {
+    console.error('[auth-helpers] Error getting company info:', error);
+    return null;
+  }
 }

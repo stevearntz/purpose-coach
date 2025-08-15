@@ -54,20 +54,7 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
     let companyId = req.user.companyId;
     let companyName = req.user.companyName;
     
-    // If not in session, try to find in admin table
-    if (!companyId) {
-      const admin = await prisma.admin.findUnique({
-        where: { email: req.user.email },
-        include: {
-          company: true
-        }
-      });
-      
-      if (admin?.company) {
-        companyId = admin.company.id;
-        companyName = admin.company.name;
-      }
-    }
+    // Admin model removed - can't lookup by admin table
     
     // If still no company, try to find by email domain
     if (!companyId) {
@@ -76,7 +63,6 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
         where: {
           OR: [
             { name: { contains: emailDomain } },
-            { admins: { some: { email: req.user.email } } },
             { invitations: { some: { email: req.user.email } } }
           ]
         }
@@ -95,24 +81,8 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
     
     // Get all users associated with this company
     const users = await prisma.$transaction(async (tx) => {
-      // Get admins
-      const admins = await tx.admin.findMany({
-        where: {
-          companyId: companyId,
-          ...(search ? {
-            OR: [
-              { email: { contains: search } },
-              { name: { contains: search } }
-            ]
-          } : {})
-        },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          createdAt: true
-        }
-      });
+      // Admin model removed - no admin data available
+      const admins: any[] = [];
       
       // Get invitations to show invited users
       const invitations = await tx.invitation.findMany({
@@ -139,42 +109,28 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
       // Combine and format users
       const allUsers: any[] = [];
       
-      // Add admins as active users
-      admins.forEach(admin => {
-        const nameParts = (admin.name || admin.email.split('@')[0]).split(' ');
+      // Admin model removed - no admin users to add
+      
+      // Add invitations as invited/created users
+      invitations.forEach(inv => {
+        const nameParts = (inv.name || inv.email.split('@')[0]).split(' ');
+        let userStatus: 'active' | 'invited' | 'created' = 'invited';
+        
+        if (inv.status === 'COMPLETED') {
+          userStatus = 'active';
+        } else if (inv.status === 'STARTED') {
+          userStatus = 'created';
+        }
+        
         allUsers.push({
-          email: admin.email,
+          email: inv.email,
           firstName: nameParts[0] || '',
           lastName: nameParts.slice(1).join(' ') || '',
-          status: 'active' as const,
-          lastSignIn: undefined,
-          createdAt: admin.createdAt.toISOString()
+          status: userStatus,
+          lastSignIn: inv.completedAt?.toISOString(),
+          invitedAt: inv.sentAt?.toISOString(),
+          createdAt: inv.createdAt.toISOString()
         });
-      });
-      
-      // Add invitations as invited/created users (avoid duplicates)
-      const adminEmails = new Set(admins.map(a => a.email));
-      invitations.forEach(inv => {
-        if (!adminEmails.has(inv.email)) {
-          const nameParts = (inv.name || inv.email.split('@')[0]).split(' ');
-          let userStatus: 'active' | 'invited' | 'created' = 'invited';
-          
-          if (inv.status === 'COMPLETED') {
-            userStatus = 'active';
-          } else if (inv.status === 'STARTED') {
-            userStatus = 'created';
-          }
-          
-          allUsers.push({
-            email: inv.email,
-            firstName: nameParts[0] || '',
-            lastName: nameParts.slice(1).join(' ') || '',
-            status: userStatus,
-            lastSignIn: inv.completedAt?.toISOString(),
-            invitedAt: inv.sentAt?.toISOString(),
-            createdAt: inv.createdAt.toISOString()
-          });
-        }
       });
       
       // Filter by status if provided

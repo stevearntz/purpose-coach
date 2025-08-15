@@ -4,16 +4,13 @@ import prisma from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     // Count all records
-    const [admins, companies, invitations, campaigns] = await Promise.all([
-      prisma.admin.findMany({ select: { email: true, name: true, companyId: true }}),
+    const [companies, invitations, campaigns] = await Promise.all([
       prisma.company.findMany({ select: { id: true, name: true }}),
       prisma.invitation.count(),
       prisma.campaign.count()
     ]);
     
     return NextResponse.json({
-      admins: admins,
-      adminCount: admins.length,
       companies: companies,
       companyCount: companies.length,
       invitationCount: invitations,
@@ -46,34 +43,8 @@ export async function DELETE(request: NextRequest) {
       // Delete all invitation metadata
       const metadata = await tx.invitationMetadata.deleteMany();
       
-      // Delete admins except the one to keep (if specified)
-      let admins;
-      if (keepEmail) {
-        admins = await tx.admin.deleteMany({
-          where: { email: { not: keepEmail } }
-        });
-      } else {
-        admins = await tx.admin.deleteMany();
-      }
-      
-      // Get the remaining admin's company (if any)
-      let keepCompanyId = null;
-      if (keepEmail) {
-        const adminToKeep = await tx.admin.findUnique({
-          where: { email: keepEmail }
-        });
-        keepCompanyId = adminToKeep?.companyId;
-      }
-      
-      // Delete companies except the admin's company
-      let companies;
-      if (keepCompanyId) {
-        companies = await tx.company.deleteMany({
-          where: { id: { not: keepCompanyId } }
-        });
-      } else {
-        companies = await tx.company.deleteMany();
-      }
+      // Delete all companies (no admin-specific logic needed)
+      const companies = await tx.company.deleteMany();
       
       // Note: localStorage table may not exist in schema
       // const localStorage = await tx.localStorage.deleteMany();
@@ -82,7 +53,6 @@ export async function DELETE(request: NextRequest) {
         campaigns: campaigns.count,
         invitations: invitations.count,
         metadata: metadata.count,
-        admins: admins.count,
         companies: companies.count
       };
     });
@@ -90,7 +60,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({
       success: true,
       deleted: result,
-      message: keepEmail ? `Data flushed, kept admin: ${keepEmail}` : 'All data flushed'
+      message: 'All data flushed'
     });
     
   } catch (error) {

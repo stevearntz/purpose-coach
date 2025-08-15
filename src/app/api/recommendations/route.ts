@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from '@/lib/auth-helpers';
+import { getCurrentAuthUser } from '@/lib/auth-helpers';
 import prisma from '@/lib/prisma';
 import OpenAI from 'openai';
 
@@ -591,7 +591,7 @@ function calculateRelevanceScore(
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await getServerSession();
+    const user = await getCurrentAuthUser();
     if (!user?.companyId) {
       // Return empty recommendations if no company yet
       return NextResponse.json({ 

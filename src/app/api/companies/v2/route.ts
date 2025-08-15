@@ -76,7 +76,6 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
         include: {
           _count: {
             select: {
-              admins: true,
               invitations: true,
               campaigns: true
             }
@@ -99,7 +98,6 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
       name: company.name,
       logo: company.logo,
       stats: {
-        admins: company._count.admins,
         invitations: company._count.invitations,
         campaigns: company._count.campaigns
       },

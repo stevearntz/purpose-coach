@@ -46,17 +46,8 @@ export async function GET(request: NextRequest) {
       }
     });
     
-    // Get all admins for this company
-    const admins = await prisma.admin.findMany({
-      where: { companyId: company.id },
-      select: {
-        email: true,
-        name: true,
-        lastLogin: true,
-        createdAt: true
-        // lastAssessment: true // TODO: Add after migration is applied
-      }
-    });
+    // Admin model has been removed - no admin data available
+    const admins: any[] = [];
     
     // Create a map of all users (combining invitations and admins)
     const userMap = new Map();
@@ -73,30 +64,13 @@ export async function GET(request: NextRequest) {
       });
     });
     
-    // Then, add or update with admin data
-    admins.forEach(admin => {
-      const existing = userMap.get(admin.email);
-      if (existing) {
-        // Update existing invitation with admin data
-        existing.adminData = admin;
-      } else {
-        // Admin exists without invitation (e.g., company creator)
-        userMap.set(admin.email, {
-          email: admin.email,
-          name: admin.name,
-          status: 'COMPLETED', // If they're an admin, they're active
-          completedAt: admin.createdAt,
-          createdAt: admin.createdAt,
-          adminData: admin
-        });
-      }
-    });
+    // Admin model removed - no admin data to merge
     
     // Transform to users format
     const users = Array.from(userMap.values()).map(userData => {
-      // Determine status
+      // Determine status (simplified without admin data)
       let status: 'active' | 'invited' | 'created';
-      if (userData.adminData || userData.status === 'COMPLETED') {
+      if (userData.status === 'COMPLETED') {
         status = 'active';
       } else if (userData.status === 'SENT' || userData.sentAt) {
         status = 'invited';
@@ -104,7 +78,7 @@ export async function GET(request: NextRequest) {
         status = 'created';
       }
       
-      const name = userData.adminData?.name || userData.name || userData.email.split('@')[0];
+      const name = userData.name || userData.email.split('@')[0];
       
       return {
         id: userData.email,
@@ -115,8 +89,8 @@ export async function GET(request: NextRequest) {
         status,
         signedUp: userData.completedAt ? userData.completedAt.toISOString() : 
                   userData.sentAt ? 'Invited' : 'Created',
-        lastSignIn: userData.adminData?.lastLogin?.toISOString() || null,
-        lastAssessment: null, // TODO: userData.adminData?.lastAssessment?.toISOString() || null
+        lastSignIn: null, // Admin data no longer available
+        lastAssessment: null,
         role: 'user'
       };
     });

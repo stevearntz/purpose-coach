@@ -13,8 +13,7 @@ export async function POST(request: NextRequest) {
     const invitation = await prisma.invitation.findUnique({
       where: { inviteCode },
       include: { 
-        company: true,
-        admin: true
+        company: true
       }
     });
     
@@ -22,10 +21,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invitation not found' }, { status: 404 });
     }
     
-    // Check if admin already exists for this email
-    const existingAdmin = await prisma.admin.findUnique({
-      where: { email: invitation.email }
-    });
+    // Admin model removed - no existing admin check needed
+    const existingAdmin = null;
     
     return NextResponse.json({
       invitation: {
@@ -37,12 +34,7 @@ export async function POST(request: NextRequest) {
         company: invitation.company.name,
         companyId: invitation.company.id
       },
-      existingAdmin: existingAdmin ? {
-        id: existingAdmin.id,
-        email: existingAdmin.email,
-        hasPassword: !!existingAdmin.password,
-        companyId: existingAdmin.companyId
-      } : null
+      existingAdmin: null // Admin model removed
     });
   } catch (error) {
     console.error('Debug invitation status error:', error);

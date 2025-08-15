@@ -50,15 +50,10 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
     
     const { campaignId, limit, offset, includeDetails } = validation.data;
     
-    // Get user's company
-    const admin = await prisma.admin.findUnique({
-      where: { email: req.user.email },
-      include: {
-        company: true
-      }
-    });
+    // Get user's company from session (Admin model removed)
+    const companyId = req.user.companyId;
     
-    if (!admin?.company) {
+    if (!companyId) {
       logger.warn({ requestId }, 'User has no company association');
       return NextResponse.json(
         { error: 'No company association found' },
@@ -68,7 +63,7 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
     
     // Build query filter
     const where: any = {
-      companyId: admin.company.id,
+      companyId: companyId,
       status: { in: ['ACTIVE', 'COMPLETED'] }
     };
     
@@ -91,7 +86,7 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
           // Get invitations for this campaign
           const invitations = await tx.invitation.findMany({
             where: {
-              companyId: admin.company?.id,
+              companyId: companyId,
               inviteUrl: {
                 contains: `campaign=${encodeURIComponent(campaign.name)}`
               }

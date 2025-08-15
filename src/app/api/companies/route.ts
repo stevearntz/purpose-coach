@@ -7,7 +7,6 @@ export async function GET(request: NextRequest) {
       include: {
         _count: {
           select: {
-            admins: true,
             invitations: true
           }
         }

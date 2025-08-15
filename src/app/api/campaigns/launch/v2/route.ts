@@ -62,16 +62,14 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
       companyName
     } = validation.data;
     
-    // 2. Verify sender authorization
+    // 2. Verify sender authorization (simplified since Admin model removed)
+    // For now, only allow sending from the authenticated user's email
     if (senderEmail !== req.user.email) {
-      const authorized = await verifySenderAuthorization(req.user.email, senderEmail);
-      if (!authorized) {
-        logger.warn({ requestId, senderEmail }, 'Unauthorized sender email');
-        return NextResponse.json(
-          { error: 'Not authorized to send from this email' },
-          { status: 403 }
-        );
-      }
+      logger.warn({ requestId, senderEmail }, 'Unauthorized sender email');
+      return NextResponse.json(
+        { error: 'Can only send from your authenticated email address' },
+        { status: 403 }
+      );
     }
     
     // 3. Check email service configuration
@@ -263,26 +261,8 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
   }
 });
 
-/**
- * Verify if user can send emails from a different address
- */
-async function verifySenderAuthorization(userEmail: string, senderEmail: string): Promise<boolean> {
-  const admin = await prisma.admin.findUnique({
-    where: { email: userEmail },
-    select: {
-      company: {
-        select: {
-          admins: {
-            where: { email: senderEmail },
-            select: { id: true }
-          }
-        }
-      }
-    }
-  });
-  
-  return !!(admin?.company?.admins && admin.company.admins.length > 0);
-}
+// Removed verifySenderAuthorization function since Admin model is deprecated
+// Users can now only send from their authenticated email address
 
 /**
  * Format name for display

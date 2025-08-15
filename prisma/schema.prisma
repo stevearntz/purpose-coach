@@ -1,134 +1,110 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
 model Company {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  domain      String?  // Company email domain
+  id          String       @id @default(cuid())
+  name        String       @unique
   logo        String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   admins      Admin[]
-  invitations Invitation[]
   campaigns   Campaign[]
+  invitations Invitation[]
 }
 
 model Admin {
-  id               String    @id @default(cuid())
-  email            String    @unique
-  firstName        String?
-  lastName         String?
-  name             String?   // Computed from firstName + lastName (for backward compatibility)
-  password         String?   // Hashed password
-  companyId        String?
-  role             String    @default("ADMIN")
-  isActive         Boolean   @default(true)
-  lastLogin        DateTime?
-  resetToken       String?   @db.Text // Password reset token
-  resetTokenExpiry DateTime? // Token expiration time
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  
-  company          Company?  @relation(fields: [companyId], references: [id])
-  invitations      Invitation[]
+  id          String       @id @default(cuid())
+  email       String       @unique
+  name        String?
+  companyId   String
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  password    String?
+  lastLogin   DateTime?
+  company     Company      @relation(fields: [companyId], references: [id])
+  invitations Invitation[]
 }
 
 model Invitation {
-  id              String   @id @default(cuid())
-  email           String
-  name            String?
-  inviteCode      String   @unique
-  inviteUrl       String
-  status          InvitationStatus @default(PENDING)
-  personalMessage String?
-  companyId       String
-  adminId         String?
-  createdAt       DateTime @default(now())
-  sentAt          DateTime?
-  openedAt        DateTime?
-  startedAt       DateTime?
-  completedAt     DateTime?
-  resentAt        DateTime?
-  currentStage    String?
-  
-  company         Company  @relation(fields: [companyId], references: [id])
-  admin           Admin?   @relation(fields: [adminId], references: [id])
-  metadata        InvitationMetadata?
+  id                String              @id @default(cuid())
+  email             String
+  name              String?
+  inviteCode        String              @unique
+  inviteUrl         String
+  status            InvitationStatus    @default(PENDING)
+  personalMessage   String?
+  companyId         String
+  adminId           String?
+  createdAt         DateTime            @default(now())
+  sentAt            DateTime?
+  openedAt          DateTime?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  resentAt          DateTime?
+  currentStage      String?
   assessmentResults AssessmentResult[]
-  
+  admin             Admin?              @relation(fields: [adminId], references: [id])
+  company           Company             @relation(fields: [companyId], references: [id])
+  metadata          InvitationMetadata?
+
   @@index([email])
   @@index([companyId])
   @@index([status])
 }
 
 model InvitationMetadata {
-  id              String   @id @default(cuid())
-  invitationId    String   @unique
-  role            String?
-  challenges      String[] @default([])
-  toolsAccessed   String[] @default([])
-  accountCreated  Boolean  @default(false)
-  accountEmail    String?
-  isGenericLink   Boolean  @default(false)
-  
-  invitation      Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  id             String     @id @default(cuid())
+  invitationId   String     @unique
+  role           String?
+  challenges     String[]   @default([])
+  toolsAccessed  String[]   @default([])
+  accountCreated Boolean    @default(false)
+  accountEmail   String?
+  isGenericLink  Boolean    @default(false)
+  invitation     Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
 }
 
 model AssessmentResult {
-  id              String   @id @default(cuid())
+  id              String     @id @default(cuid())
   invitationId    String
-  toolId          String   // e.g., "purpose-coach", "values-explorer", etc.
-  toolName        String   // Display name of the tool
-  
-  // Core assessment data
-  responses       Json     // Raw responses from the assessment
-  scores          Json?    // Calculated scores/metrics
-  summary         String?  @db.Text // AI-generated summary
-  insights        Json?    // Detailed insights and analysis
-  recommendations Json?    // Action items and recommendations
-  
-  // User profile data (from the assessment)
-  userProfile     Json?    // Name, role, challenges, etc.
-  
-  // Completion tracking
-  completedAt     DateTime @default(now())
-  shareId         String?  @unique // For sharing results
-  
-  // PDF data if generated
+  toolId          String
+  toolName        String
+  responses       Json
+  scores          Json?
+  summary         String?
+  insights        Json?
+  recommendations Json?
+  userProfile     Json?
+  completedAt     DateTime   @default(now())
+  shareId         String?    @unique
   pdfUrl          String?
   pdfGeneratedAt  DateTime?
-  
-  // Relations
   invitation      Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
-  
+
   @@index([invitationId])
   @@index([toolId])
   @@index([shareId])
 }
 
 model Campaign {
-  id          String   @id @default(cuid())
+  id          String         @id @default(cuid())
   name        String
   description String?
   companyId   String
   status      CampaignStatus @default(DRAFT)
   startDate   DateTime?
   endDate     DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  company     Company  @relation(fields: [companyId], references: [id])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  company     Company        @relation(fields: [companyId], references: [id])
 }
 
 enum InvitationStatus {

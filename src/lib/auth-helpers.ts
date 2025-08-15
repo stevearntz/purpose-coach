@@ -1,27 +1,27 @@
 /**
  * Authentication helpers for API routes
- * Uses Clerk for authentication
+ * Uses Clerk Organizations for multi-tenancy
  */
 
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { auth, currentUser, clerkClient } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 
 export interface AuthUser {
   id: string;
   email: string;
   name?: string;
-  companyId?: string;
-  companyName?: string;
-  role?: string;
+  orgId?: string;
+  orgName?: string;
+  orgRole?: string;
 }
 
 /**
- * Get the current authenticated user in an API route
- * This works with Clerk authentication
+ * Get the current authenticated user with organization context
  */
 export async function getCurrentAuthUser(): Promise<AuthUser | null> {
   try {
-    const { userId } = await auth();
+    const { userId, orgId, orgRole } = await auth();
     
     if (!userId) {
       console.log('[auth-helpers] No userId found');
@@ -35,15 +35,25 @@ export async function getCurrentAuthUser(): Promise<AuthUser | null> {
       return null;
     }
     
-    const publicMetadata = user.publicMetadata as any;
+    // Get organization details if user is in one
+    let orgName: string | undefined;
+    if (orgId) {
+      try {
+        const client = await clerkClient();
+        const org = await client.organizations.getOrganization({ organizationId: orgId });
+        orgName = org.name;
+      } catch (error) {
+        console.error('[auth-helpers] Error fetching organization:', error);
+      }
+    }
     
     return {
       id: user.id,
       email: user.primaryEmailAddress.emailAddress,
       name: user.fullName || user.firstName || undefined,
-      companyId: publicMetadata?.companyId,
-      companyName: publicMetadata?.companyName,
-      role: publicMetadata?.role
+      orgId,
+      orgName,
+      orgRole: orgRole || undefined
     };
   } catch (error) {
     console.error('[auth-helpers] Error getting session:', error);
@@ -52,8 +62,7 @@ export async function getCurrentAuthUser(): Promise<AuthUser | null> {
 }
 
 /**
- * Middleware wrapper for protected API routes
- * Use this instead of withAuth for better reliability
+ * Middleware wrapper for protected API routes requiring organization
  */
 export function withAuthentication(
   handler: (req: NextRequest, user: AuthUser) => Promise<NextResponse>
@@ -67,6 +76,16 @@ export function withAuthentication(
           { error: 'Authentication required' },
           { status: 401 }
         );
+      }
+      
+      // For dashboard/company routes, require organization
+      if (req.url.includes('/api/company') || req.url.includes('/api/campaigns')) {
+        if (!user.orgId) {
+          return NextResponse.json(
+            { error: 'Organization membership required' },
+            { status: 403 }
+          );
+        }
       }
       
       // Call the handler with the authenticated user
@@ -112,21 +131,38 @@ export async function getUserEmail(req: NextRequest): Promise<string | null> {
 }
 
 /**
- * Get company information for the authenticated user
- * Uses Clerk metadata instead of Admin table lookup
+ * Get company information for the authenticated user's organization
+ * Maps Clerk Organization to Company in database
  */
 export async function getUserCompany(): Promise<{ id: string; name: string } | null> {
   try {
     const user = await getCurrentAuthUser();
     
-    if (!user?.companyId) {
-      console.log('[auth-helpers] No companyId in user metadata');
+    if (!user?.orgId || !user?.orgName) {
+      console.log('[auth-helpers] No organization found for user');
       return null;
     }
     
+    // Check if company exists in database for this org
+    let company = await prisma.company.findFirst({
+      where: { 
+        name: user.orgName 
+      }
+    });
+    
+    // If company doesn't exist, create it
+    if (!company) {
+      company = await prisma.company.create({
+        data: {
+          name: user.orgName
+        }
+      });
+      console.log('[auth-helpers] Created new company for organization:', user.orgName);
+    }
+    
     return {
-      id: user.companyId,
-      name: user.companyName || 'Unknown Company'
+      id: company.id,
+      name: company.name
     };
   } catch (error) {
     console.error('[auth-helpers] Error getting company info:', error);

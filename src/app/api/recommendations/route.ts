@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentAuthUser } from '@/lib/auth-helpers';
+import { getCurrentAuthUser, getUserCompany } from '@/lib/auth-helpers';
 import prisma from '@/lib/prisma';
 import OpenAI from 'openai';
 
@@ -592,8 +592,8 @@ function calculateRelevanceScore(
 export async function GET(request: NextRequest) {
   try {
     const user = await getCurrentAuthUser();
-    if (!user?.companyId) {
-      // Return empty recommendations if no company yet
+    if (!user) {
+      // Return empty recommendations if no auth
       return NextResponse.json({ 
         recommendations: {
           courses: [],
@@ -613,9 +613,7 @@ export async function GET(request: NextRequest) {
       });
     }
     
-    const company = await prisma.company.findUnique({
-      where: { id: user.companyId }
-    });
+    const company = await getUserCompany();
     
     if (!company) {
       return NextResponse.json({ 

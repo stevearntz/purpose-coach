@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useSignIn, useSignUp } from '@clerk/nextjs'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function VerifyPage() {
+function VerifyContent() {
   const { isLoaded: signInLoaded, signIn, setActive } = useSignIn()
   const { isLoaded: signUpLoaded, signUp } = useSignUp()
   const [verificationCode, setVerificationCode] = useState('')
@@ -146,5 +146,17 @@ export default function VerifyPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    }>
+      <VerifyContent />
+    </Suspense>
   )
 }

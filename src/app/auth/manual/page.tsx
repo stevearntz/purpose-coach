@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useSignIn } from '@clerk/nextjs'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function ManualSignInPage() {
+function ManualSignInContent() {
   const { isLoaded, signIn, setActive } = useSignIn()
   const searchParams = useSearchParams()
   const [email, setEmail] = useState(searchParams.get('email') || '')
@@ -139,5 +139,17 @@ export default function ManualSignInPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ManualSignInPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    }>
+      <ManualSignInContent />
+    </Suspense>
   )
 }

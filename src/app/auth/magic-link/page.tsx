@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSignIn, useSignUp } from '@clerk/nextjs'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function MagicLinkPage() {
+function MagicLinkContent() {
   const { isLoaded: signInLoaded, signIn } = useSignIn()
   const { isLoaded: signUpLoaded, signUp } = useSignUp()
   const [error, setError] = useState('')
@@ -147,5 +147,17 @@ export default function MagicLinkPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function MagicLinkPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    }>
+      <MagicLinkContent />
+    </Suspense>
   )
 }

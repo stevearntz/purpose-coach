@@ -40,7 +40,7 @@ export default function SignUpPage() {
               dividerText: "text-gray-500"
             }
           }}
-          redirectUrl="/dashboard"
+          fallbackRedirectUrl="/dashboard"
           signInUrl="/sign-in"
         />
       </div>

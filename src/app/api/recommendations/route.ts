@@ -592,27 +592,49 @@ function calculateRelevanceScore(
 export async function GET(request: NextRequest) {
   try {
     const user = await getServerSession();
-    if (!user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!user?.companyId) {
+      // Return empty recommendations if no company yet
+      return NextResponse.json({ 
+        recommendations: {
+          courses: [],
+          tools: [],
+          insights: {
+            topChallenges: [],
+            topSkills: [],
+            topNeeds: [],
+            topFocusAreas: [],
+            aiSummary: null
+          },
+          metadata: {
+            totalAssessments: 0,
+            lastUpdated: new Date().toISOString()
+          }
+        }
+      });
     }
     
-    // Get user's latest assessment results
-    const admin = await prisma.admin.findUnique({
-      where: { email: user.email }
-    });
-    
-    if (!admin) {
-      return NextResponse.json({ recommendations: [] });
-    }
-    
-    const company = await prisma.company.findFirst({
-      where: { 
-        admins: { some: { id: admin.id } }
-      }
+    const company = await prisma.company.findUnique({
+      where: { id: user.companyId }
     });
     
     if (!company) {
-      return NextResponse.json({ recommendations: [] });
+      return NextResponse.json({ 
+        recommendations: {
+          courses: [],
+          tools: [],
+          insights: {
+            topChallenges: [],
+            topSkills: [],
+            topNeeds: [],
+            topFocusAreas: [],
+            aiSummary: null
+          },
+          metadata: {
+            totalAssessments: 0,
+            lastUpdated: new Date().toISOString()
+          }
+        }
+      });
     }
     
     // Get all completed assessments for this company

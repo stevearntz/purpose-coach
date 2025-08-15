@@ -1,11 +1,13 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
   Target, Heart, Briefcase, Brain, Users, ShieldCheck, 
   Lightbulb, ArrowRight, ClipboardCheck, MessageCircle, BookOpen
 } from 'lucide-react'
+import CampaignCreationWizard from './CampaignCreationWizard'
+import { ToastProvider } from '@/hooks/useToast'
 
 export type ToolType = 'assessment' | 'reflection' | 'conversation-guide'
 
@@ -165,6 +167,8 @@ export default function ToolsLibrary({
   showTypeBadges = true 
 }: ToolsLibraryProps) {
   const router = useRouter()
+  const [selectedTool, setSelectedTool] = useState<Tool | null>(null)
+  const [showWizard, setShowWizard] = useState(false)
   
   // Filter tools based on type
   const filteredTools = filterType === 'all' 
@@ -172,8 +176,14 @@ export default function ToolsLibrary({
     : tools.filter(tool => tool.type === filterType)
 
   const handleToolClick = (tool: Tool) => {
-    // Navigate to the campaign creation page for this tool
-    router.push(`/dashboard/tools/${tool.id}/invite`)
+    // For assessments, show the campaign creation wizard
+    if (tool.type === 'assessment') {
+      setSelectedTool(tool)
+      setShowWizard(true)
+    } else {
+      // For other tool types, navigate directly to the tool
+      router.push(tool.path)
+    }
   }
 
   const getTypeIcon = (type: ToolType) => {
@@ -210,8 +220,24 @@ export default function ToolsLibrary({
   }
 
   return (
-    <div>
-      <div className="mb-6">
+    <ToastProvider>
+      <div>
+        {/* Campaign Creation Wizard */}
+        {showWizard && selectedTool && (
+          <CampaignCreationWizard
+            toolId={selectedTool.id}
+            toolTitle={selectedTool.title}
+            toolPath={selectedTool.path}
+            toolGradient={selectedTool.gradient}
+            toolIcon={selectedTool.icon}
+            onClose={() => {
+              setShowWizard(false)
+              setSelectedTool(null)
+            }}
+          />
+        )}
+        
+        <div className="mb-6">
         <h2 className="text-2xl font-bold text-white mb-3">
           {filterType === 'assessment' && 'Launch Assessment Campaigns'}
           {filterType === 'reflection' && 'Reflection Tools'}
@@ -280,7 +306,8 @@ export default function ToolsLibrary({
           <p className="text-white/60">No tools available in this category</p>
         </div>
       )}
-    </div>
+      </div>
+    </ToastProvider>
   )
 }
 

@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { Users, Mail, Send, Check, X, ArrowLeft } from 'lucide-react'
-import ViewportContainer from '@/components/ViewportContainer'
 import { useToast } from '@/hooks/useToast'
 import { ToastProvider } from '@/hooks/useToast'
 
@@ -89,32 +88,37 @@ function InviteTeamContent() {
   }
 
   return (
-    <ViewportContainer className="bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 min-h-screen">
-      <div className="relative z-10 p-8">
-        <div className="max-w-3xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="flex items-center gap-2 text-white/70 hover:text-white transition-colors mb-4"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              Back to Dashboard
-            </button>
-            
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                <Users className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-white">Invite Your Team</h1>
-                <p className="text-white/70">Add team members to {companyName}</p>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 p-6">
+      {/* Background Effects */}
+      <div className="absolute inset-0">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-pink-500/30 rounded-full blur-3xl animate-pulse delay-700" />
+      </div>
+      
+      <div className="relative z-10 max-w-3xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-white/70 hover:text-white transition-colors mb-4"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back
+          </button>
+          
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <Users className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-white">Invite Your Team</h1>
+              <p className="text-white/70">Add team members to {companyName}</p>
             </div>
           </div>
+        </div>
 
-          {/* Main Card */}
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+        {/* Main Card */}
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
             <div className="space-y-4">
               <div>
                 <label className="block text-white mb-2 font-medium">
@@ -184,7 +188,7 @@ function InviteTeamContent() {
               {/* Action Buttons */}
               <div className="flex gap-3 pt-4">
                 <button
-                  onClick={() => router.push('/dashboard')}
+                  onClick={() => router.back()}
                   className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg font-medium transition-colors"
                 >
                   Cancel
@@ -205,18 +209,17 @@ function InviteTeamContent() {
                 </button>
               </div>
             </div>
-          </div>
+        </div>
 
-          {/* Info Box */}
-          <div className="mt-6 bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-            <p className="text-blue-300 text-sm">
-              <strong>How it works:</strong> Team members will receive an email invitation to create their account. 
-              Once they sign up, they'll automatically be added to {companyName} with access to all tools and assessments.
-            </p>
-          </div>
+        {/* Info Box */}
+        <div className="mt-6 bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+          <p className="text-blue-300 text-sm">
+            <strong>How it works:</strong> Team members will receive an email invitation to create their account. 
+            Once they sign up, they'll automatically be added to {companyName} with access to all tools and assessments.
+          </p>
         </div>
       </div>
-    </ViewportContainer>
+    </div>
   )
 }
 

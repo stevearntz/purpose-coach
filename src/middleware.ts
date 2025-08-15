@@ -20,10 +20,13 @@ const isPublicRoute = createRouteMatcher([
 
 const isApiRoute = createRouteMatcher(['/api(.*)'])
 const isOnboardingRoute = createRouteMatcher(['/onboarding(.*)'])
-const isDashboardRoute = createRouteMatcher(['/dashboard(.*)'])
+const isDashboardRoute = createRouteMatcher([
+  '/dashboard',
+  '/dashboard/(.*)'
+])
 
 export default clerkMiddleware(async (auth, req) => {
-  const { userId, sessionClaims } = await auth()
+  const { userId, orgId, sessionClaims } = await auth()
   
   // Allow public routes
   if (isPublicRoute(req)) return
@@ -38,21 +41,15 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(signInUrl)
   }
   
-  // Check if user needs onboarding (now that publicMetadata is in sessionClaims)
-  const publicMetadata = sessionClaims?.publicMetadata as any
-  const hasCompany = publicMetadata?.companyId
-  const isOnboardingComplete = publicMetadata?.onboardingComplete
-  
-  // User needs onboarding if they don't have a company OR haven't completed onboarding
-  const needsOnboarding = userId && (!hasCompany || !isOnboardingComplete)
-  
-  // Redirect to onboarding if needed (but not if already on onboarding page)
-  if (needsOnboarding && !isOnboardingRoute(req)) {
+  // Check if user has selected or created an organization
+  // If they're on dashboard or protected routes, they need an org
+  if (isDashboardRoute(req) && !orgId) {
+    // Redirect to onboarding to create/select organization
     return NextResponse.redirect(new URL('/onboarding', req.url))
   }
   
-  // Redirect from onboarding to dashboard if onboarding is complete
-  if (!needsOnboarding && isOnboardingRoute(req)) {
+  // If user has an org and tries to access onboarding, redirect to dashboard
+  if (isOnboardingRoute(req) && orgId) {
     return NextResponse.redirect(new URL('/dashboard', req.url))
   }
 })

@@ -87,7 +87,7 @@ export default function CampaignCreationWizard({
         const draft = JSON.parse(savedDraft)
         setCampaignData(draft)
         // Update selected users based on draft
-        const selectedIds = new Set(draft.participants.filter((p: any) => p.isExistingUser).map((p: any) => p.userId))
+        const selectedIds = new Set<string>(draft.participants.filter((p: any) => p.isExistingUser).map((p: any) => p.userId))
         setSelectedExistingUsers(selectedIds)
         // Clear the draft
         localStorage.removeItem('campaignDraft')

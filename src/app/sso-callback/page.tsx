@@ -26,7 +26,7 @@ export default function SSOCallbackPage() {
           router.push('/dashboard')
           return
         } else {
-          sessionStorage.setItem('authError', error?.errors?>[0]?.message || 'Unable to complete sign in. Please try again.')
+          sessionStorage.setItem('authError', error?.errors?.[0]?.message || 'Unable to complete sign in. Please try again.')
         }
         router.push('/auth')
       }

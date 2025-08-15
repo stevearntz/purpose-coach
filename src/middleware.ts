@@ -2,8 +2,11 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher([
-  '/sign-in(.*)',
-  '/sign-up(.*)',
+  '/auth(.*)',
+  '/sign-in(.*)',  // Keep for backwards compatibility
+  '/sign-up(.*)',  // Keep for backwards compatibility
+  '/forgot-password(.*)',
+  '/sso-callback(.*)',
   '/',
   '/toolkit(.*)',
   // Assessment tools are public
@@ -36,9 +39,9 @@ export default clerkMiddleware(async (auth, req) => {
   
   // Require authentication for all other routes
   if (!userId) {
-    const signInUrl = new URL('/sign-in', req.url)
-    signInUrl.searchParams.set('redirect_url', req.url)
-    return NextResponse.redirect(signInUrl)
+    const authUrl = new URL('/auth', req.url)
+    authUrl.searchParams.set('redirect_url', req.url)
+    return NextResponse.redirect(authUrl)
   }
   
   // Check if user has selected or created an organization

@@ -54,8 +54,15 @@ function MagicLinkContent() {
       // Check if it's a CAPTCHA error and provide a cleaner message
       if (err.errors?.[0]?.code === 'captcha_required' || err.message?.includes('CAPTCHA')) {
         setError('Please try again. If the problem persists, use Google sign-in.')
+      } else if (err.errors?.[0]?.code === 'form_identifier_not_found') {
+        setError('No account found with this email. Please check the email or create a new account.')
+      } else if (err.errors?.[0]?.code === 'session_exists') {
+        setError('You are already signed in. Redirecting to dashboard...')
+        setTimeout(() => router.push('/dashboard'), 1500)
+      } else if (err.errors?.[0]?.message?.includes('rate')) {
+        setError('Too many attempts. Please wait a moment and try again.')
       } else {
-        setError(err.errors?.[0]?.message || 'Failed to send magic link')
+        setError(err.errors?.[0]?.message || 'Unable to send magic link. Please try signing in manually.')
       }
     } finally {
       setIsLoading(false)

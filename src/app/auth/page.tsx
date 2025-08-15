@@ -16,6 +16,15 @@ export default function AuthEmailPage() {
 
   const isLoaded = signInLoaded && signUpLoaded && userLoaded
 
+  // Check for errors from SSO callback
+  useEffect(() => {
+    const storedError = sessionStorage.getItem('authError')
+    if (storedError) {
+      setError(storedError)
+      sessionStorage.removeItem('authError')
+    }
+  }, [])
+
   // Redirect if already signed in
   useEffect(() => {
     if (isSignedIn && userLoaded) {

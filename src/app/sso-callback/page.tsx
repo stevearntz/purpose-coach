@@ -16,8 +16,18 @@ export default function SSOCallbackPage() {
           afterSignInUrl: '/dashboard',
           afterSignUpUrl: '/onboarding'
         })
-      } catch (error) {
+      } catch (error: any) {
         console.error('SSO callback error:', error)
+        // Store error message in session storage to display on auth page
+        if (error?.errors?.[0]?.code === 'invalid_magic_link') {
+          sessionStorage.setItem('authError', 'This magic link has expired or already been used. Please request a new one.')
+        } else if (error?.errors?.[0]?.code === 'session_exists') {
+          // Already signed in, just redirect
+          router.push('/dashboard')
+          return
+        } else {
+          sessionStorage.setItem('authError', error?.errors?>[0]?.message || 'Unable to complete sign in. Please try again.')
+        }
         router.push('/auth')
       }
     }

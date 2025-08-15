@@ -1,19 +1,45 @@
 'use client'
 
-import { useState } from 'react'
-import { useSignIn, useSignUp } from '@clerk/nextjs'
+import { useState, useEffect } from 'react'
+import { useSignIn, useSignUp, useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import AuthLeftPanel from '@/components/AuthLeftPanel'
 
 export default function AuthEmailPage() {
   const { isLoaded: signInLoaded, signIn } = useSignIn()
   const { isLoaded: signUpLoaded, signUp } = useSignUp()
+  const { isSignedIn, isLoaded: userLoaded } = useUser()
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  const isLoaded = signInLoaded && signUpLoaded
+  const isLoaded = signInLoaded && signUpLoaded && userLoaded
+
+  // Redirect if already signed in
+  useEffect(() => {
+    if (isSignedIn && userLoaded) {
+      router.push('/dashboard')
+    }
+  }, [isSignedIn, userLoaded, router])
+  
+  // Show loading state while checking auth status
+  if (!userLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    )
+  }
+  
+  // If signed in but not redirected yet, show loading
+  if (isSignedIn) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    )
+  }
 
   // Check if email exists and determine next step
   const handleEmailSubmit = async (e: React.FormEvent) => {
@@ -51,6 +77,12 @@ export default function AuthEmailPage() {
 
   const handleGoogleSignIn = async () => {
     if (!isLoaded || !signIn) return
+    
+    // If already signed in, just redirect
+    if (isSignedIn) {
+      router.push('/dashboard')
+      return
+    }
     
     try {
       await signIn.authenticateWithRedirect({

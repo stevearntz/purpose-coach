@@ -11,10 +11,14 @@ export default function SSOCallbackPage() {
   useEffect(() => {
     async function handleCallback() {
       try {
-        await handleRedirectCallback()
+        await handleRedirectCallback({
+          redirectUrl: '/dashboard',
+          afterSignInUrl: '/dashboard',
+          afterSignUpUrl: '/onboarding'
+        })
       } catch (error) {
         console.error('SSO callback error:', error)
-        router.push('/sign-in')
+        router.push('/auth')
       }
     }
     

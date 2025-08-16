@@ -79,16 +79,22 @@ model AssessmentResult {
 }
 
 model Campaign {
-  id          String         @id @default(cuid())
-  name        String
-  description String?
-  companyId   String
-  status      CampaignStatus @default(DRAFT)
-  startDate   DateTime?
-  endDate     DateTime?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  company     Company        @relation(fields: [companyId], references: [id])
+  id           String         @id @default(cuid())
+  name         String
+  description  String?
+  companyId    String
+  status       CampaignStatus @default(DRAFT)
+  startDate    DateTime?
+  endDate      DateTime?
+  toolId       String?
+  toolName     String?
+  toolPath     String?
+  campaignCode String?        @unique
+  campaignLink String?
+  createdBy    String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  company      Company        @relation(fields: [companyId], references: [id])
 }
 
 enum InvitationStatus {

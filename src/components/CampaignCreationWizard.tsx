@@ -6,7 +6,7 @@ import { useUser, useOrganization } from '@clerk/nextjs'
 import { 
   Users, Mail, Calendar, MessageSquare, Rocket, 
   ChevronRight, ChevronLeft, ChevronDown, X, Plus, Check, 
-  AlertCircle, Loader2, Clock, User, Search, Filter
+  AlertCircle, Loader2, Clock, User, Search, Filter, Copy
 } from 'lucide-react'
 import { useToast } from '@/hooks/useToast'
 
@@ -56,6 +56,12 @@ export default function CampaignCreationWizard({
   const [isLoading, setIsLoading] = useState(false)
   const [existingUsers, setExistingUsers] = useState<any[]>([])
   const [loadingUsers, setLoadingUsers] = useState(true)
+  const [showEmailHelper, setShowEmailHelper] = useState(false)
+  const [emailHelperData, setEmailHelperData] = useState<{
+    emails: string
+    template: string
+    campaignLink: string
+  }>({ emails: '', template: '', campaignLink: '' })
   
   // Campaign data state
   const [campaignData, setCampaignData] = useState<CampaignData>({
@@ -253,7 +259,7 @@ export default function CampaignCreationWizard({
     setIsLoading(true)
     
     try {
-      const response = await fetch('/api/campaigns/launch/v2', {
+      const response = await fetch('/api/campaigns/launch/v3', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -285,28 +291,19 @@ export default function CampaignCreationWizard({
       // Log the response for debugging
       console.log('Campaign launch response:', result)
       
-      // The API returns summary with both invitations created and emails sent
+      // Store email helper data for modal
       const inviteCount = result.summary?.invitationsCreated || result.summary?.totalParticipants || 0
-      const emailsSent = result.summary?.emailsSent || 0
-      const emailsFailed = result.summary?.emailsFailed || 0
       
-      // Log failed emails if any
-      if (result.details && emailsFailed > 0) {
-        const failedEmails = result.details.filter((d: any) => !d.emailSent)
-        console.warn('Failed to send emails to:', failedEmails)
-      }
+      // Show success and email helper modal
+      showSuccess(`Assessment created! ${inviteCount} participant${inviteCount !== 1 ? 's' : ''} added.`)
       
-      // Show detailed success message
-      if (emailsFailed > 0) {
-        showSuccess(`Assessment launched! ${inviteCount} participant${inviteCount !== 1 ? 's' : ''} added. ${emailsSent} email${emailsSent !== 1 ? 's' : ''} sent, ${emailsFailed} failed.`)
-      } else {
-        showSuccess(`Assessment launched! ${inviteCount} participant${inviteCount !== 1 ? 's' : ''} added and notified successfully.`)
-      }
-      
-      // Call onClose to return to the list view
-      setTimeout(() => {
-        onClose()
-      }, 1500)
+      // Set email helper data to show modal
+      setEmailHelperData({
+        emails: result.emailHelper?.participantEmails || '',
+        template: result.emailHelper?.emailTemplate || '',
+        campaignLink: result.summary?.campaignLink || ''
+      })
+      setShowEmailHelper(true)
       
     } catch (error) {
       console.error('Failed to launch campaign:', error)
@@ -760,6 +757,161 @@ Thanks!`}
                 )}
               </button>
             )}
+        </div>
+      </div>
+      
+      {/* Email Helper Modal */}
+      {showEmailHelper && (
+        <EmailHelperModal
+          emails={emailHelperData.emails}
+          template={emailHelperData.template}
+          campaignLink={emailHelperData.campaignLink}
+          onClose={() => {
+            setShowEmailHelper(false)
+            onClose() // Return to campaign list
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+// Email Helper Modal Component
+function EmailHelperModal({ 
+  emails, 
+  template, 
+  campaignLink, 
+  onClose 
+}: { 
+  emails: string
+  template: string
+  campaignLink: string
+  onClose: () => void 
+}) {
+  const [emailTemplate, setEmailTemplate] = useState(template)
+  const [copiedEmails, setCopiedEmails] = useState(false)
+  const [copiedTemplate, setCopiedTemplate] = useState(false)
+  
+  const copyEmails = () => {
+    navigator.clipboard.writeText(emails)
+    setCopiedEmails(true)
+    setTimeout(() => setCopiedEmails(false), 2000)
+  }
+  
+  const copyTemplate = () => {
+    navigator.clipboard.writeText(emailTemplate)
+    setCopiedTemplate(true)
+    setTimeout(() => setCopiedTemplate(false), 2000)
+  }
+  
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 rounded-2xl shadow-2xl max-w-3xl w-full border border-white/20">
+        {/* Header */}
+        <div className="p-6 border-b border-white/10">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-white">Send Assessment Invitations</h2>
+              <p className="text-white/70 mt-1">Copy the email addresses and template to send via your email client</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            >
+              <X className="w-6 h-6 text-white/70" />
+            </button>
+          </div>
+        </div>
+        
+        {/* Content */}
+        <div className="p-6 space-y-6">
+          {/* Instructions */}
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-blue-400 mt-0.5" />
+              <div>
+                <p className="text-blue-300 font-medium mb-2">How to send invitations:</p>
+                <ol className="text-blue-300/80 text-sm space-y-1 list-decimal list-inside">
+                  <li>Copy the email addresses below</li>
+                  <li>Copy the email template</li>
+                  <li>Open your email client (Gmail, Outlook, etc.)</li>
+                  <li>Paste the addresses in the "To" or "BCC" field</li>
+                  <li>Paste and customize the template</li>
+                  <li>Send!</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+          
+          {/* Email Addresses */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-white font-medium">Participant Email Addresses</label>
+              <button
+                onClick={copyEmails}
+                className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm transition-colors"
+              >
+                {copiedEmails ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    Copy Emails
+                  </>
+                )}
+              </button>
+            </div>
+            <div className="bg-white/10 border border-white/20 rounded-lg p-3">
+              <p className="text-white/90 text-sm font-mono break-all">{emails}</p>
+            </div>
+          </div>
+          
+          {/* Email Template */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-white font-medium">Email Template</label>
+              <button
+                onClick={copyTemplate}
+                className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm transition-colors"
+              >
+                {copiedTemplate ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    Copy Template
+                  </>
+                )}
+              </button>
+            </div>
+            <textarea
+              value={emailTemplate}
+              onChange={(e) => setEmailTemplate(e.target.value)}
+              className="w-full h-64 px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/40 resize-none font-mono text-sm"
+            />
+          </div>
+          
+          {/* Campaign Link Reference */}
+          <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+            <p className="text-white/60 text-sm mb-1">Campaign Link (included in template):</p>
+            <p className="text-white/90 text-sm font-mono break-all">{campaignLink}</p>
+          </div>
+        </div>
+        
+        {/* Footer */}
+        <div className="p-6 border-t border-white/10 flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
+          >
+            Done
+          </button>
         </div>
       </div>
     </div>

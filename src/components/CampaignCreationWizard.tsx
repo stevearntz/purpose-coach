@@ -56,13 +56,15 @@ export default function CampaignCreationWizard({
   const [isLoading, setIsLoading] = useState(false)
   const [existingUsers, setExistingUsers] = useState<any[]>([])
   const [loadingUsers, setLoadingUsers] = useState(true)
-  const [showEmailHelper, setShowEmailHelper] = useState(false)
-  const [emailHelperData, setEmailHelperData] = useState<{
-    emails: string
-    template: string
-    campaignLink: string
-    subject: string
-  }>({ emails: '', template: '', campaignLink: '', subject: '' })
+  // Removed launchComplete state - not needed anymore
+  
+  // Email helper data state - integrated into wizard
+  const [emailSubject, setEmailSubject] = useState('')
+  const [emailTemplate, setEmailTemplate] = useState('')
+  const [campaignLink, setCampaignLink] = useState('')
+  const [copiedEmails, setCopiedEmails] = useState(false)
+  const [copiedTemplate, setCopiedTemplate] = useState(false)
+  const [copiedSubject, setCopiedSubject] = useState(false)
   
   // Campaign data state
   const [campaignData, setCampaignData] = useState<CampaignData>({
@@ -100,160 +102,160 @@ export default function CampaignCreationWizard({
         // Clear the draft
         localStorage.removeItem('campaignDraft')
         localStorage.removeItem('campaignDraftTool')
-        showSuccess('Campaign draft restored')
       } catch (error) {
-        console.error('Failed to restore draft:', error)
+        console.error('Error loading draft:', error)
       }
     }
     
-    // Fetch real participants from API
-    const loadParticipants = async () => {
-      try {
-        const response = await fetch('/api/company/users/v2')
-        if (response.ok) {
-          const data = await response.json()
-          
-          // Transform API response to match our interface
-          const transformedUsers = data.users?.map((user: any) => {
-            // Combine firstName and lastName for display
-            let displayName = ''
-            if (user.firstName && user.lastName && user.firstName !== user.lastName) {
-              displayName = `${user.firstName} ${user.lastName}`.trim()
-            } else if (user.firstName) {
-              displayName = user.firstName
-            } else {
-              displayName = user.email.split('@')[0]
-            }
-            
-            return {
-              id: user.email, // Use email as ID since we don't have a separate ID
-              email: user.email,
-              name: displayName,
-              department: user.department || ''
-            }
-          }) || []
-          
-          setExistingUsers(transformedUsers)
-        } else {
-          console.error('Failed to load participants')
-          setExistingUsers([])
-        }
-      } catch (error) {
-        console.error('Failed to fetch participants:', error)
-        setExistingUsers([])
-      } finally {
-        setLoadingUsers(false)
-      }
-    }
-    
+    // Load participants
     loadParticipants()
-  }, [toolId, showSuccess]) // Add dependencies
+  }, [toolId])
   
+  const loadParticipants = async () => {
+    setLoadingUsers(true)
+    try {
+      const response = await fetch('/api/company/users/v2', {
+        credentials: 'include',
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to load participants')
+      }
+      
+      const data = await response.json()
+      
+      // Transform the data to match our expected format
+      const transformedUsers = data.users.map((user: any) => ({
+        id: user.id,
+        email: user.email,
+        name: user.name || user.email.split('@')[0],
+        department: user.department || null,
+        isActive: user.status === 'ACTIVE' || user.status === 'COMPLETED'
+      }))
+      
+      setExistingUsers(transformedUsers)
+    } catch (error) {
+      console.error('Error loading participants:', error)
+      showError('Failed to load participants')
+    } finally {
+      setLoadingUsers(false)
+    }
+  }
   
-  // Get unique departments from existing users
-  const departments = Array.from(new Set(
-    existingUsers
-      .map(user => user.department)
-      .filter(dept => dept && dept.trim() !== '')
-  )).sort()
+  // Get unique departments from users
+  const departments = [...new Set(existingUsers
+    .map(u => u.department)
+    .filter(Boolean)
+  )].sort()
   
-  // Filter users based on search term and department
+  // Filter users based on search and department
   const filteredUsers = existingUsers.filter(user => {
-    const searchLower = userSearchTerm.toLowerCase()
-    const matchesSearch = user.name.toLowerCase().includes(searchLower) || 
-           user.email.toLowerCase().includes(searchLower) ||
-           (user.department && user.department.toLowerCase().includes(searchLower))
+    const matchesSearch = userSearchTerm === '' || 
+      user.name.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(userSearchTerm.toLowerCase())
     
-    const matchesDepartment = selectedDepartment === 'all' || 
-           user.department === selectedDepartment ||
-           (selectedDepartment === 'none' && (!user.department || user.department.trim() === ''))
+    const matchesDepartment = selectedDepartment === 'all' ||
+      (selectedDepartment === 'none' && !user.department) ||
+      user.department === selectedDepartment
     
     return matchesSearch && matchesDepartment
   })
   
   const handleToggleExistingUser = (userId: string) => {
     const newSelected = new Set(selectedExistingUsers)
+    const user = existingUsers.find(u => u.id === userId)
+    
     if (newSelected.has(userId)) {
       newSelected.delete(userId)
+      // Remove from participants
+      setCampaignData(prev => ({
+        ...prev,
+        participants: prev.participants.filter(p => p.userId !== userId)
+      }))
     } else {
       newSelected.add(userId)
-    }
-    setSelectedExistingUsers(newSelected)
-    
-    // Update participants list
-    const user = existingUsers.find(u => u.id === userId)
-    if (user) {
-      if (newSelected.has(userId)) {
-        // Add user
+      // Add to participants
+      if (user) {
         setCampaignData(prev => ({
           ...prev,
-          participants: [
-            ...prev.participants.filter(p => p.userId !== userId),
-            {
-              email: user.email,
-              name: user.name || user.email.split('@')[0],
-              isExistingUser: true,
-              userId: user.id
-            }
-          ]
-        }))
-      } else {
-        // Remove user
-        setCampaignData(prev => ({
-          ...prev,
-          participants: prev.participants.filter(p => p.userId !== userId)
+          participants: [...prev.participants, {
+            email: user.email,
+            name: user.name,
+            isExistingUser: true,
+            userId: user.id
+          }]
         }))
       }
+    }
+    
+    setSelectedExistingUsers(newSelected)
+    
+    // Update select all state
+    if (newSelected.size === filteredUsers.length) {
+      setSelectAll(true)
+    } else {
+      setSelectAll(false)
     }
   }
   
   const handleSelectAll = () => {
     if (selectAll) {
-      // Deselect all
-      setSelectedExistingUsers(new Set())
+      // Deselect all filtered users
+      const newSelected = new Set(selectedExistingUsers)
+      filteredUsers.forEach(user => {
+        newSelected.delete(user.id)
+      })
+      setSelectedExistingUsers(newSelected)
+      
+      // Remove from participants
       setCampaignData(prev => ({
         ...prev,
-        participants: prev.participants.filter(p => !p.isExistingUser)
+        participants: prev.participants.filter(p => !filteredUsers.find(u => u.id === p.userId))
       }))
+      
+      setSelectAll(false)
     } else {
       // Select all filtered users
-      const allUserIds = new Set(filteredUsers.map(u => u.id))
-      setSelectedExistingUsers(allUserIds)
+      const newSelected = new Set(selectedExistingUsers)
+      const newParticipants: Participant[] = []
       
-      // Add all filtered users to participants
-      const newParticipants = filteredUsers.map(user => ({
-        email: user.email,
-        name: user.name || user.email.split('@')[0],
-        isExistingUser: true,
-        userId: user.id
-      }))
+      filteredUsers.forEach(user => {
+        newSelected.add(user.id)
+        // Only add if not already in participants
+        if (!campaignData.participants.find(p => p.userId === user.id)) {
+          newParticipants.push({
+            email: user.email,
+            name: user.name,
+            isExistingUser: true,
+            userId: user.id
+          })
+        }
+      })
       
+      setSelectedExistingUsers(newSelected)
       setCampaignData(prev => ({
         ...prev,
-        participants: [
-          ...prev.participants.filter(p => !p.isExistingUser),
-          ...newParticipants
-        ]
+        participants: [...prev.participants, ...newParticipants]
       }))
+      
+      setSelectAll(true)
     }
-    setSelectAll(!selectAll)
   }
   
   const handleRemoveParticipant = (email: string) => {
+    const participant = campaignData.participants.find(p => p.email === email)
+    
+    if (participant?.isExistingUser && participant.userId) {
+      // Also update selectedExistingUsers
+      const newSelected = new Set(selectedExistingUsers)
+      newSelected.delete(participant.userId)
+      setSelectedExistingUsers(newSelected)
+    }
+    
     setCampaignData(prev => ({
       ...prev,
       participants: prev.participants.filter(p => p.email !== email)
     }))
-    
-    // Also update selected existing users if needed
-    const participant = campaignData.participants.find(p => p.email === email)
-    if (participant?.userId) {
-      setSelectedExistingUsers(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(participant.userId!)
-        return newSet
-      })
-    }
   }
   
   const handleLaunchCampaign = async () => {
@@ -289,64 +291,82 @@ export default function CampaignCreationWizard({
       
       const result = await response.json()
       
-      // Log the response for debugging
-      console.log('Campaign launch response:', result)
+      // Store email helper data
+      setEmailSubject(result.emailHelper?.emailSubject || `Action Required: Complete Your ${campaignData.toolTitle}`)
+      setEmailTemplate(result.emailHelper?.emailTemplate || '')
+      setCampaignLink(result.summary?.campaignLink || '')
       
-      // Store email helper data for modal
+      // Show success and stay on step 4 with email helper data
       const inviteCount = result.summary?.invitationsCreated || result.summary?.totalParticipants || 0
-      
-      // Show success and email helper modal
       showSuccess(`Assessment created! ${inviteCount} participant${inviteCount !== 1 ? 's' : ''} added.`)
       
-      // Set email helper data to show modal
-      setEmailHelperData({
-        emails: result.emailHelper?.participantEmails || '',
-        template: result.emailHelper?.emailTemplate || '',
-        campaignLink: result.summary?.campaignLink || '',
-        subject: result.emailHelper?.emailSubject || 'Assessment Invitation'
-      })
-      setShowEmailHelper(true)
+      // Stay on step 4 to show the email helper
+      setCurrentStep(4)
       
     } catch (error) {
-      console.error('Failed to launch campaign:', error)
-      showError('Failed to launch campaign. Please try again.')
+      console.error('Campaign launch error:', error)
+      showError(error instanceof Error ? error.message : 'Failed to launch campaign')
     } finally {
       setIsLoading(false)
     }
   }
   
-  const renderStepIndicator = () => (
-    <div className="flex items-center justify-between mb-8">
-      {[1, 2, 3, 4].map((step) => (
-        <div key={step} className="flex items-center flex-1">
-          <div className="flex items-center">
-            <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
-                currentStep >= step
-                  ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white'
-                  : 'bg-white/10 text-white/50 border border-white/20'
-              }`}
-            >
-              {currentStep > step ? <Check className="w-5 h-5" /> : step}
+  const copyEmails = () => {
+    const emailList = campaignData.participants.map(p => p.email).join(', ')
+    navigator.clipboard.writeText(emailList)
+    setCopiedEmails(true)
+    setTimeout(() => setCopiedEmails(false), 2000)
+  }
+  
+  const copyTemplate = () => {
+    navigator.clipboard.writeText(emailTemplate)
+    setCopiedTemplate(true)
+    setTimeout(() => setCopiedTemplate(false), 2000)
+  }
+  
+  const copySubject = () => {
+    navigator.clipboard.writeText(emailSubject)
+    setCopiedSubject(true)
+    setTimeout(() => setCopiedSubject(false), 2000)
+  }
+  
+  const renderStepIndicator = () => {
+    const steps = ['Participants', 'Details', 'Review', 'Send']
+    const totalSteps = steps.length
+    
+    return (
+      <div className="flex items-center justify-between mb-8">
+        {steps.map((label, index) => {
+          const stepNumber = index + 1
+          return (
+            <div key={stepNumber} className="flex items-center flex-1">
+              <div className="flex items-center">
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
+                    currentStep >= stepNumber
+                      ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white'
+                      : 'bg-white/10 text-white/50 border border-white/20'
+                  }`}
+                >
+                  {currentStep > stepNumber ? <Check className="w-5 h-5" /> : stepNumber}
+                </div>
+                <span className={`ml-3 font-medium ${
+                  currentStep >= stepNumber ? 'text-white' : 'text-white/50'
+                }`}>
+                  {label}
+                </span>
+              </div>
+              {stepNumber < totalSteps && (
+                <div className={`flex-1 h-0.5 mx-4 ${
+                  currentStep > stepNumber ? 'bg-purple-600' : 'bg-white/10'
+                }`} />
+              )}
             </div>
-            <span className={`ml-3 font-medium ${
-              currentStep >= step ? 'text-white' : 'text-white/50'
-            }`}>
-              {step === 1 && 'Participants'}
-              {step === 2 && 'Details'}
-              {step === 3 && 'Message'}
-              {step === 4 && 'Review'}
-            </span>
-          </div>
-          {step < 4 && (
-            <div className={`flex-1 h-0.5 mx-4 ${
-              currentStep > step ? 'bg-purple-600' : 'bg-white/10'
-            }`} />
-          )}
-        </div>
-      ))}
-    </div>
-  )
+          )
+        })}
+      </div>
+    )
+  }
   
   const renderStep1 = () => (
     <div className="space-y-6">
@@ -587,42 +607,8 @@ export default function CampaignCreationWizard({
   const renderStep3 = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-semibold text-white mb-2">Custom Message</h3>
-        <p className="text-white/70">Add a personal message to include in the invitation email (optional).</p>
-      </div>
-      
-      <div>
-        <label className="block text-white mb-2 font-medium">
-          <MessageSquare className="w-4 h-4 inline mr-2" />
-          Your Message
-        </label>
-        <textarea
-          value={campaignData.customMessage}
-          onChange={(e) => setCampaignData(prev => ({ ...prev, customMessage: e.target.value }))}
-          placeholder={`Hi team,
-
-I'd like you to complete this assessment to help us better understand your needs and how we can support you.
-
-Thanks!`}
-          rows={8}
-          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/40 resize-none"
-        />
-      </div>
-      
-      <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-        <p className="text-purple-300 text-sm">
-          <Mail className="w-4 h-4 inline mr-2" />
-          This message will be included in the invitation email along with instructions on how to complete the assessment.
-        </p>
-      </div>
-    </div>
-  )
-  
-  const renderStep4 = () => (
-    <div className="space-y-6">
-      <div>
         <h3 className="text-xl font-semibold text-white mb-2">Review & Launch</h3>
-        <p className="text-white/70">Review your campaign details before sending invitations.</p>
+        <p className="text-white/70">Review your campaign details before creating the assessment.</p>
       </div>
       
       <div className="space-y-4">
@@ -670,24 +656,175 @@ Thanks!`}
             ))}
           </div>
         </div>
-        
-        {/* Custom Message */}
-        {campaignData.customMessage && (
-          <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-            <p className="text-white/60 text-sm mb-2">Custom Message</p>
-            <p className="text-white whitespace-pre-wrap">{campaignData.customMessage}</p>
-          </div>
-        )}
       </div>
       
       <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
         <p className="text-yellow-300 text-sm">
           <AlertCircle className="w-4 h-4 inline mr-2" />
-          <strong>Ready to launch?</strong> {campaignData.participants.length} invitation{campaignData.participants.length !== 1 ? 's' : ''} will be sent immediately.
+          <strong>Ready to launch?</strong> Click continue to create the assessment and get your email template.
         </p>
       </div>
     </div>
   )
+  
+  const renderStep4 = () => {
+    // If we haven't launched yet, show the message input
+    if (!emailSubject) {
+      return (
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-xl font-semibold text-white mb-2">Custom Message</h3>
+            <p className="text-white/70">Add a personal message to include in the invitation email (optional).</p>
+          </div>
+          
+          <div>
+            <label className="block text-white mb-2 font-medium">
+              <MessageSquare className="w-4 h-4 inline mr-2" />
+              Your Message
+            </label>
+            <textarea
+              value={campaignData.customMessage}
+              onChange={(e) => setCampaignData(prev => ({ ...prev, customMessage: e.target.value }))}
+              placeholder={`Hi team,
+
+I'd like you to complete this assessment to help us better understand your needs and how we can support you.
+
+Thanks!`}
+              rows={8}
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/40 resize-none"
+            />
+          </div>
+          
+          <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+            <p className="text-purple-300 text-sm">
+              <Mail className="w-4 h-4 inline mr-2" />
+              This message will be included in the invitation email along with instructions on how to complete the assessment.
+            </p>
+          </div>
+        </div>
+      )
+    }
+    
+    // After launch, show the email helper
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-xl font-semibold text-white mb-2">Send Assessment Invitations</h3>
+          <p className="text-white/70">Copy the email addresses and template to send via your email client.</p>
+      </div>
+      
+      {/* Instructions */}
+      <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-blue-400 mt-0.5" />
+          <div>
+            <p className="text-blue-300 font-medium mb-2">How to send invitations:</p>
+            <ol className="text-blue-300/80 text-sm space-y-1 list-decimal list-inside">
+              <li>Copy the email addresses below</li>
+              <li>Copy the email template</li>
+              <li>Open your email client (Gmail, Outlook, etc.)</li>
+              <li>Paste the addresses in the "To" or "BCC" field</li>
+              <li>Paste and customize the template</li>
+              <li>Send!</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+      
+      {/* Email Addresses */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-white font-medium">Participant Email Addresses</label>
+          <button
+            onClick={copyEmails}
+            className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm transition-colors"
+          >
+            {copiedEmails ? (
+              <>
+                <Check className="w-4 h-4" />
+                Copied!
+              </>
+            ) : (
+              <>
+                <Copy className="w-4 h-4" />
+                Copy Emails
+              </>
+            )}
+          </button>
+        </div>
+        <div className="bg-white/10 border border-white/20 rounded-lg p-3">
+          <p className="text-white/90 text-sm font-mono break-all">
+            {campaignData.participants.map(p => p.email).join(', ')}
+          </p>
+        </div>
+      </div>
+      
+      {/* Email Subject */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-white font-medium">Email Subject</label>
+          <button
+            onClick={copySubject}
+            className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm transition-colors"
+          >
+            {copiedSubject ? (
+              <>
+                <Check className="w-4 h-4" />
+                Copied!
+              </>
+            ) : (
+              <>
+                <Copy className="w-4 h-4" />
+                Copy Subject
+              </>
+            )}
+          </button>
+        </div>
+        <input
+          type="text"
+          value={emailSubject}
+          onChange={(e) => setEmailSubject(e.target.value)}
+          className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/40"
+        />
+      </div>
+      
+      {/* Email Template */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-white font-medium">Email Template</label>
+          <button
+            onClick={copyTemplate}
+            className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm transition-colors"
+          >
+            {copiedTemplate ? (
+              <>
+                <Check className="w-4 h-4" />
+                Copied!
+              </>
+            ) : (
+              <>
+                <Copy className="w-4 h-4" />
+                Copy Template
+              </>
+            )}
+          </button>
+        </div>
+        <textarea
+          value={emailTemplate}
+          onChange={(e) => setEmailTemplate(e.target.value)}
+          rows={10}
+          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white font-mono text-sm focus:outline-none focus:border-white/40 resize-none"
+        />
+      </div>
+      
+      {/* Campaign Link */}
+      <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+        <p className="text-purple-300 text-sm font-medium mb-2">Campaign Link (included in template):</p>
+        <p className="text-purple-300 font-mono text-xs break-all">{campaignLink}</p>
+      </div>
+    </div>
+    )
+  }
   
   return (
     <div className="bg-gradient-to-br from-gray-900/50 via-purple-900/50 to-indigo-900/50 rounded-2xl shadow-xl border border-white/20">
@@ -731,16 +868,7 @@ Thanks!`}
               Back
             </button>
             
-            {currentStep < 4 ? (
-              <button
-                onClick={() => setCurrentStep(prev => prev + 1)}
-                disabled={currentStep === 1 && campaignData.participants.length === 0}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                Continue
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            ) : (
+            {currentStep === 3 ? (
               <button
                 onClick={handleLaunchCampaign}
                 disabled={isLoading || campaignData.participants.length === 0}
@@ -758,202 +886,44 @@ Thanks!`}
                   </>
                 )}
               </button>
+            ) : currentStep === 4 ? (
+              emailSubject ? (
+              <button
+                onClick={onClose}
+                className="px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg font-semibold transition-all flex items-center gap-2"
+              >
+                <Check className="w-5 h-5" />
+                Done
+              </button>
+              ) : (
+                <button
+                  onClick={handleLaunchCampaign}
+                  disabled={isLoading || campaignData.participants.length === 0}
+                  className="px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Launching...
+                    </>
+                  ) : (
+                    <>
+                      <Rocket className="w-5 h-5" />
+                      Launch & Get Email Template
+                    </>
+                  )}
+                </button>
+              )
+            ) : (
+              <button
+                onClick={() => setCurrentStep(prev => prev + 1)}
+                disabled={currentStep === 1 && campaignData.participants.length === 0}
+                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                Continue
+                <ChevronRight className="w-5 h-5" />
+              </button>
             )}
-        </div>
-      </div>
-      
-      {/* Email Helper Modal */}
-      {showEmailHelper && (
-        <EmailHelperModal
-          emails={emailHelperData.emails}
-          template={emailHelperData.template}
-          campaignLink={emailHelperData.campaignLink}
-          subject={emailHelperData.subject}
-          onClose={() => {
-            setShowEmailHelper(false)
-            onClose() // Return to campaign list
-          }}
-        />
-      )}
-    </div>
-  )
-}
-
-// Email Helper Modal Component
-function EmailHelperModal({ 
-  emails, 
-  template, 
-  campaignLink,
-  subject,
-  onClose 
-}: { 
-  emails: string
-  template: string
-  campaignLink: string
-  subject: string
-  onClose: () => void 
-}) {
-  const [emailTemplate, setEmailTemplate] = useState(template)
-  const [emailSubject, setEmailSubject] = useState(subject)
-  const [copiedEmails, setCopiedEmails] = useState(false)
-  const [copiedTemplate, setCopiedTemplate] = useState(false)
-  const [copiedSubject, setCopiedSubject] = useState(false)
-  
-  const copyEmails = () => {
-    navigator.clipboard.writeText(emails)
-    setCopiedEmails(true)
-    setTimeout(() => setCopiedEmails(false), 2000)
-  }
-  
-  const copyTemplate = () => {
-    navigator.clipboard.writeText(emailTemplate)
-    setCopiedTemplate(true)
-    setTimeout(() => setCopiedTemplate(false), 2000)
-  }
-  
-  const copySubject = () => {
-    navigator.clipboard.writeText(emailSubject)
-    setCopiedSubject(true)
-    setTimeout(() => setCopiedSubject(false), 2000)
-  }
-  
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 rounded-2xl shadow-2xl max-w-3xl w-full border border-white/20">
-        {/* Header */}
-        <div className="p-6 border-b border-white/10">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-white">Send Assessment Invitations</h2>
-              <p className="text-white/70 mt-1">Copy the email addresses and template to send via your email client</p>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-            >
-              <X className="w-6 h-6 text-white/70" />
-            </button>
-          </div>
-        </div>
-        
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* Instructions */}
-          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-blue-400 mt-0.5" />
-              <div>
-                <p className="text-blue-300 font-medium mb-2">How to send invitations:</p>
-                <ol className="text-blue-300/80 text-sm space-y-1 list-decimal list-inside">
-                  <li>Copy the email addresses below</li>
-                  <li>Copy the email template</li>
-                  <li>Open your email client (Gmail, Outlook, etc.)</li>
-                  <li>Paste the addresses in the "To" or "BCC" field</li>
-                  <li>Paste and customize the template</li>
-                  <li>Send!</li>
-                </ol>
-              </div>
-            </div>
-          </div>
-          
-          {/* Email Addresses */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-white font-medium">Participant Email Addresses</label>
-              <button
-                onClick={copyEmails}
-                className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm transition-colors"
-              >
-                {copiedEmails ? (
-                  <>
-                    <Check className="w-4 h-4" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4" />
-                    Copy Emails
-                  </>
-                )}
-              </button>
-            </div>
-            <div className="bg-white/10 border border-white/20 rounded-lg p-3">
-              <p className="text-white/90 text-sm font-mono break-all">{emails}</p>
-            </div>
-          </div>
-          
-          {/* Email Subject */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-white font-medium">Email Subject</label>
-              <button
-                onClick={copySubject}
-                className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm transition-colors"
-              >
-                {copiedSubject ? (
-                  <>
-                    <Check className="w-4 h-4" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4" />
-                    Copy Subject
-                  </>
-                )}
-              </button>
-            </div>
-            <input
-              type="text"
-              value={emailSubject}
-              onChange={(e) => setEmailSubject(e.target.value)}
-              className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/40"
-            />
-          </div>
-          
-          {/* Email Template */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-white font-medium">Email Template</label>
-              <button
-                onClick={copyTemplate}
-                className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm transition-colors"
-              >
-                {copiedTemplate ? (
-                  <>
-                    <Check className="w-4 h-4" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4" />
-                    Copy Template
-                  </>
-                )}
-              </button>
-            </div>
-            <textarea
-              value={emailTemplate}
-              onChange={(e) => setEmailTemplate(e.target.value)}
-              className="w-full h-64 px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/40 resize-none font-mono text-sm"
-            />
-          </div>
-          
-          {/* Campaign Link Reference */}
-          <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-            <p className="text-white/60 text-sm mb-1">Campaign Link (included in template):</p>
-            <p className="text-white/90 text-sm font-mono break-all">{campaignLink}</p>
-          </div>
-        </div>
-        
-        {/* Footer */}
-        <div className="p-6 border-t border-white/10 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
-          >
-            Done
-          </button>
         </div>
       </div>
     </div>

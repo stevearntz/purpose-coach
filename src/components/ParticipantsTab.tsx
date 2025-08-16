@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { 
   Users, Plus, ChevronDown, ChevronUp, Upload, Download,
   Search, Filter, Link, Trash2, Edit3, Mail,
@@ -18,6 +18,15 @@ interface Participant {
   joinedDate: string
 }
 
+interface ParticipantRow {
+  id: string
+  name: string
+  email: string
+  department: string
+  nameError: boolean
+  emailError: boolean
+}
+
 export default function ParticipantsTab() {
   const [participants, setParticipants] = useState<Participant[]>([])
   const [loading, setLoading] = useState(true)
@@ -31,12 +40,15 @@ export default function ParticipantsTab() {
   const { user } = useUser()
   
   // Form state for multiple participants
-  const [participantRows, setParticipantRows] = useState([{
+  const [participantRows, setParticipantRows] = useState<ParticipantRow[]>([{
     id: Date.now().toString(),
     name: '',
     email: '',
-    department: ''
+    department: '',
+    nameError: false,
+    emailError: false
   }])
+  const nameInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({})
   
   // CSV upload state
   const [csvFile, setCsvFile] = useState<File | null>(null)
@@ -95,12 +107,20 @@ export default function ParticipantsTab() {
   }
 
   const addParticipantRow = () => {
+    const newId = Date.now().toString()
     setParticipantRows([...participantRows, {
-      id: Date.now().toString(),
+      id: newId,
       name: '',
       email: '',
-      department: ''
+      department: '',
+      nameError: false,
+      emailError: false
     }])
+    
+    // Focus on the new row's name field after a short delay
+    setTimeout(() => {
+      nameInputRefs.current[newId]?.focus()
+    }, 50)
   }
 
   const removeParticipantRow = (id: string) => {
@@ -110,22 +130,48 @@ export default function ParticipantsTab() {
   }
 
   const updateParticipantRow = (id: string, field: string, value: string) => {
-    setParticipantRows(participantRows.map(row => 
-      row.id === id ? { ...row, [field]: value } : row
-    ))
+    setParticipantRows(participantRows.map(row => {
+      if (row.id === id) {
+        const updated = { ...row, [field]: value }
+        // Clear error when user types
+        if (field === 'name' && value) updated.nameError = false
+        if (field === 'email' && value) updated.emailError = false
+        return updated
+      }
+      return row
+    }))
   }
 
   const handleKeyDown = (e: React.KeyboardEvent, rowId: string, field: string) => {
-    if (e.key === 'Enter' && field === 'department') {
+    if (e.key === 'Enter') {
       e.preventDefault()
-      const currentIndex = participantRows.findIndex(row => row.id === rowId)
-      const currentRow = participantRows[currentIndex]
+      const currentRow = participantRows.find(row => row.id === rowId)
       
-      // Only add a new row if the current row has name and email
+      if (!currentRow) return
+      
+      // Check if required fields are filled
       if (currentRow.name && currentRow.email) {
+        // Add a new row
         addParticipantRow()
+      } else {
+        // Show validation errors for empty required fields
+        setParticipantRows(participantRows.map(row => {
+          if (row.id === rowId) {
+            return {
+              ...row,
+              nameError: !row.name,
+              emailError: !row.email
+            }
+          }
+          return row
+        }))
       }
     }
+  }
+
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return re.test(email)
   }
 
   const handleAddParticipants = async () => {
@@ -169,7 +215,9 @@ export default function ParticipantsTab() {
         id: Date.now().toString(),
         name: '',
         email: '',
-        department: ''
+        department: '',
+        nameError: false,
+        emailError: false
       }])
       setShowAddSection(false)
     } catch (error) {
@@ -344,12 +392,17 @@ export default function ParticipantsTab() {
                     <div key={row.id} className="grid grid-cols-12 gap-4 items-center">
                       <div className="col-span-4">
                         <input
+                          ref={(el) => { nameInputRefs.current[row.id] = el }}
                           type="text"
                           value={row.name}
                           onChange={(e) => updateParticipantRow(row.id, 'name', e.target.value)}
                           onKeyDown={(e) => handleKeyDown(e, row.id, 'name')}
-                          placeholder="John Doe"
-                          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          placeholder={row.nameError ? 'Name required' : 'John Doe'}
+                          className={`w-full px-4 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors ${
+                            row.nameError 
+                              ? 'border-red-500 placeholder-red-400' 
+                              : 'border-white/20 placeholder-white/40'
+                          }`}
                         />
                       </div>
                       <div className="col-span-4">
@@ -358,8 +411,18 @@ export default function ParticipantsTab() {
                           value={row.email}
                           onChange={(e) => updateParticipantRow(row.id, 'email', e.target.value)}
                           onKeyDown={(e) => handleKeyDown(e, row.id, 'email')}
-                          placeholder="john@example.com"
-                          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          onBlur={(e) => {
+                            // Validate email on blur
+                            if (e.target.value && !validateEmail(e.target.value)) {
+                              updateParticipantRow(row.id, 'emailError', 'true')
+                            }
+                          }}
+                          placeholder={row.emailError ? 'Email required' : 'john@example.com'}
+                          className={`w-full px-4 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors ${
+                            row.emailError 
+                              ? 'border-red-500 placeholder-red-400' 
+                              : 'border-white/20 placeholder-white/40'
+                          }`}
                         />
                       </div>
                       <div className="col-span-3">
@@ -397,7 +460,7 @@ export default function ParticipantsTab() {
                 
                 {/* Help text */}
                 <p className="text-sm text-white/60">
-                  Press Enter in the department field to add another row, or click the + button
+                  Populate required fields and hit Enter to add a new row, or click the + button
                 </p>
                 
                 {/* Submit button */}

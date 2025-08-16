@@ -170,7 +170,7 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
             year: 'numeric'
           }) : 'soon',
           companyName: result.company.name,
-          senderName: req.user.firstName || req.user.email.split('@')[0]
+          senderName: req.user.firstName || req.user.name?.split(' ')[0] || req.user.email.split('@')[0]
         }),
         emailSubject: `Action Required: Complete Your ${toolName}`
       }

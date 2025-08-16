@@ -186,7 +186,7 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
       
       try {
         emailResults = await sendInvitationEmailBatch(emailBatch, {
-          maxConcurrent: 3,
+          maxConcurrent: 2,  // Resend limit is 2 per second
           delayBetweenBatches: 1500,
           retryFailures: true,
           maxRetries: 2

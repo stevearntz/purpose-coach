@@ -27,7 +27,7 @@ export async function sendEmailBatch(
   options: BatchEmailOptions = {}
 ): Promise<BatchEmailResult[]> {
   const {
-    maxConcurrent = 3,  // Send 3 emails at a time
+    maxConcurrent = 2,  // Resend limit: 2 emails per second
     delayBetweenBatches = 1000,  // 1 second between batches
     retryFailures = true,
     maxRetries = 2

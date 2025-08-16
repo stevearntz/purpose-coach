@@ -11,15 +11,19 @@ function MagicLinkContent() {
   const { isLoaded: signUpLoaded, signUp } = useSignUp()
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [useMagicLink] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   
   const email = searchParams.get('email') || ''
   const userExists = searchParams.get('exists') === 'true'
   const isLoaded = signInLoaded && signUpLoaded
+  
+  // We're using verification codes for better conversion rates
+  // Based on Clerk's recommendation
 
-  // Send magic link (for both sign-in and sign-up)
-  const handleSendMagicLink = async () => {
+  // Send verification code (for both sign-in and sign-up)
+  const handleSendVerificationCode = async () => {
     if (!isLoaded || !signIn || !signUp) return
 
     setError('')
@@ -27,16 +31,25 @@ function MagicLinkContent() {
 
     try {
       if (userExists) {
-        // Existing user - sign in with TRUE magic link (email_link)
-        await signIn.create({
-          strategy: 'email_link',
-          identifier: email,
-          redirectUrl: `${window.location.origin}/sso-callback`,
-        })
-        // Show success message and let them know to check email
-        router.push(`/auth/check-email?email=${encodeURIComponent(email)}`)
+        // Existing user - sign in
+        await signIn.create({ identifier: email })
+        
+        // Always use email code for better conversion rates
+        const emailCodeFactor = signIn.supportedFirstFactors?.find(
+          (factor) => factor.strategy === 'email_code'
+        )
+        
+        if (emailCodeFactor && 'emailAddressId' in emailCodeFactor) {
+          await signIn.prepareFirstFactor({
+            strategy: 'email_code',
+            emailAddressId: emailCodeFactor.emailAddressId,
+          })
+          router.push(`/auth/verify?email=${encodeURIComponent(email)}&exists=${userExists}`)
+        } else {
+          throw new Error('Email verification not available')
+        }
       } else {
-        // New user - For sign-ups, we need to use email_code since Clerk doesn't support email_link for sign-ups
+        // New user - use email_code for sign-ups
         // First create the user with a temporary password (Clerk requirement)
         const tempPassword = Math.random().toString(36).slice(-16) + 'Aa1!'
         
@@ -50,7 +63,7 @@ function MagicLinkContent() {
         router.push(`/auth/verify?email=${encodeURIComponent(email)}&exists=${userExists}`)
       }
     } catch (err: any) {
-      console.error('Magic link error:', err)
+      console.error('Verification code error:', err)
       // Check if it's a CAPTCHA error and provide a cleaner message
       if (err.errors?.[0]?.code === 'captcha_required' || err.message?.includes('CAPTCHA')) {
         setError('Please try again. If the problem persists, use Google sign-in.')
@@ -62,7 +75,7 @@ function MagicLinkContent() {
       } else if (err.errors?.[0]?.message?.includes('rate')) {
         setError('Too many attempts. Please wait a moment and try again.')
       } else {
-        setError(err.errors?.[0]?.message || 'Unable to send magic link. Please try signing in manually.')
+        setError(err.errors?.[0]?.message || 'Unable to send verification code. Please try again.')
       }
     } finally {
       setIsLoading(false)
@@ -117,17 +130,15 @@ function MagicLinkContent() {
 
           <div className="space-y-4">
             <button
-              onClick={handleSendMagicLink}
+              onClick={handleSendVerificationCode}
               disabled={isLoading}
               className="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed uppercase"
             >
-              {isLoading ? 'Sending...' : (userExists ? 'Send Magic Link' : 'Send Verification Code')}
+              {isLoading ? 'Sending...' : 'Send Verification Code'}
             </button>
 
             <p className="text-center text-gray-600 text-sm">
-              {userExists 
-                ? "We'll email you a link for instant sign in."
-                : "We'll email you a code to verify your account."}
+              We'll email you a code to verify your account.
             </p>
 
             {/* Hidden CAPTCHA element for Clerk to use when needed */}

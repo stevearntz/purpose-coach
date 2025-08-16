@@ -1,10 +1,11 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { 
   Lightbulb, Sparkles, BookOpen, Wrench, Brain, Target,
   Users, TrendingUp, Clock, Star, ExternalLink, Loader2,
-  RefreshCw, AlertCircle, CheckCircle
+  RefreshCw, AlertCircle, CheckCircle, Rocket
 } from 'lucide-react'
 
 interface Course {
@@ -48,6 +49,7 @@ interface RecommendationsData {
 }
 
 export default function RecommendationsTab() {
+  const router = useRouter()
   const [recommendations, setRecommendations] = useState<RecommendationsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -163,10 +165,13 @@ export default function RecommendationsTab() {
           <p className="text-white/60 mb-6 max-w-md mx-auto">
             AI-powered recommendations will appear here once your team completes assessments
           </p>
-          <div className="flex items-center justify-center gap-2 text-white/50 text-sm">
-            <Sparkles className="w-4 h-4" />
-            <span>Powered by advanced analytics</span>
-          </div>
+          <button
+            onClick={() => router.push('/dashboard/assessments')}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl"
+          >
+            <Rocket className="w-5 h-5" />
+            Go to Assessments
+          </button>
         </div>
       </div>
     )

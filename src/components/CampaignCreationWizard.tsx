@@ -275,12 +275,16 @@ export default function CampaignCreationWizard({
       })
       
       if (!response.ok) {
-        throw new Error('Failed to launch campaign')
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage = errorData.error || errorData.message || 'Failed to launch campaign'
+        throw new Error(errorMessage)
       }
       
       const result = await response.json()
       
-      showSuccess(`Assessment launched! ${result.sentCount} invitations sent successfully.`)
+      // The API returns summary.invitationsCreated for the number of participants added
+      const inviteCount = result.summary?.invitationsCreated || result.summary?.totalParticipants || 0
+      showSuccess(`Assessment launched! ${inviteCount} participant${inviteCount !== 1 ? 's' : ''} added successfully.`)
       
       // Call onClose to return to the list view
       setTimeout(() => {

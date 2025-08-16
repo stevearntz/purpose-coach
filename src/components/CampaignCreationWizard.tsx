@@ -412,13 +412,11 @@ export default function CampaignCreationWizard({
                 className="pl-10 pr-8 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-white/40 text-sm appearance-none cursor-pointer"
               >
                 <option value="all" className="bg-gray-900">All Departments</option>
+                {departments.length > 0 && departments.map(dept => (
+                  <option key={dept} value={dept} className="bg-gray-900">{dept}</option>
+                ))}
                 {departments.length > 0 && (
-                  <>
-                    {departments.map(dept => (
-                      <option key={dept} value={dept} className="bg-gray-900">{dept}</option>
-                    ))}
-                    <option value="none" className="bg-gray-900">No Department</option>
-                  </>
+                  <option key="none" value="none" className="bg-gray-900">No Department</option>
                 )}
               </select>
               <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-white/40 pointer-events-none" />

@@ -117,15 +117,17 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
       
       // Admin model removed - no admin users to add
       
-      // Add invitations as invited/created users
+      // Add invitations with proper status mapping
       invitations.forEach(inv => {
         const nameParts = (inv.name || inv.email.split('@')[0]).split(' ');
-        let userStatus: 'active' | 'invited' | 'created' = 'invited';
+        let userStatus: 'active' | 'invited' | 'new' = 'new';
         
         if (inv.status === 'COMPLETED') {
-          userStatus = 'active';
-        } else if (inv.status === 'STARTED') {
-          userStatus = 'created';
+          userStatus = 'active';  // Has completed an assessment
+        } else if (inv.status === 'SENT' || inv.status === 'OPENED' || inv.status === 'STARTED') {
+          userStatus = 'invited';  // Has been invited through a campaign
+        } else if (inv.status === 'PENDING') {
+          userStatus = 'new';  // Just added, not yet invited
         }
         
         allUsers.push({

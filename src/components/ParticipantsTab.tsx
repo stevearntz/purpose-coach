@@ -12,7 +12,7 @@ interface Participant {
   id: string
   name: string
   email: string
-  status: 'active' | 'invited' | 'inactive'
+  status: 'new' | 'invited' | 'active'
   department?: string
   lastActive?: string
   joinedDate: string
@@ -87,7 +87,7 @@ export default function ParticipantsTab() {
           id: user.email, // Use email as ID since we don't have a separate ID
           name: displayName,
           email: user.email,
-          status: user.status || 'invited',
+          status: user.status || 'new',
           department: user.department || '',
           lastActive: user.lastSignIn ? new Date(user.lastSignIn).toLocaleDateString() : undefined,
           joinedDate: new Date(user.createdAt || Date.now()).toLocaleDateString('en-US', {
@@ -302,8 +302,8 @@ export default function ParticipantsTab() {
         return 'bg-green-100 text-green-700 border-green-200'
       case 'invited':
         return 'bg-blue-100 text-blue-700 border-blue-200'
-      case 'inactive':
-        return 'bg-gray-100 text-gray-600 border-gray-200'
+      case 'new':
+        return 'bg-purple-100 text-purple-700 border-purple-200'
       default:
         return 'bg-gray-100 text-gray-600 border-gray-200'
     }
@@ -315,6 +315,8 @@ export default function ParticipantsTab() {
         return <CheckCircle className="w-3 h-3 inline mr-1" />
       case 'invited':
         return <Mail className="w-3 h-3 inline mr-1" />
+      case 'new':
+        return <Clock className="w-3 h-3 inline mr-1" />
       default:
         return <Clock className="w-3 h-3 inline mr-1" />
     }
@@ -703,7 +705,7 @@ export default function ParticipantsTab() {
                     {participant.lastActive || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    {participant.status !== 'active' && (
+                    {participant.status === 'new' && (
                       <button
                         onClick={() => copyParticipantInviteLink(participant.id, participant.email)}
                         className="p-2 hover:bg-gray-100 rounded-lg transition-colors group"

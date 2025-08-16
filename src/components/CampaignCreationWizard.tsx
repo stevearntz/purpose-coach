@@ -37,6 +37,8 @@ interface CampaignCreationWizardProps {
   toolGradient: string
   toolIcon: React.ReactNode
   onClose: () => void
+  editingCampaign?: any // Campaign being edited
+  initialStep?: number // Initial step to show
 }
 
 export default function CampaignCreationWizard({
@@ -45,14 +47,16 @@ export default function CampaignCreationWizard({
   toolPath,
   toolGradient,
   toolIcon,
-  onClose
+  onClose,
+  editingCampaign,
+  initialStep = 1
 }: CampaignCreationWizardProps) {
   const router = useRouter()
   const { user } = useUser()
   const { organization } = useOrganization()
   const { showSuccess, showError } = useToast()
   
-  const [currentStep, setCurrentStep] = useState(1)
+  const [currentStep, setCurrentStep] = useState(initialStep)
   const [isLoading, setIsLoading] = useState(false)
   const [existingUsers, setExistingUsers] = useState<any[]>([])
   const [loadingUsers, setLoadingUsers] = useState(true)
@@ -87,30 +91,122 @@ export default function CampaignCreationWizard({
   const [selectedDepartment, setSelectedDepartment] = useState<string>('all')
   const [selectAll, setSelectAll] = useState(false)
   
-  // Load existing users and check for draft
+  // Load existing users and check for draft or editing campaign
   useEffect(() => {
-    // Check for saved draft
-    const savedDraft = localStorage.getItem('campaignDraft')
-    const savedToolId = localStorage.getItem('campaignDraftTool')
-    
-    if (savedDraft && savedToolId === toolId) {
-      try {
-        const draft = JSON.parse(savedDraft)
-        setCampaignData(draft)
-        // Update selected users based on draft
-        const selectedIds = new Set<string>(draft.participants.filter((p: any) => p.isExistingUser).map((p: any) => p.userId))
-        setSelectedExistingUsers(selectedIds)
-        // Clear the draft
-        localStorage.removeItem('campaignDraft')
-        localStorage.removeItem('campaignDraftTool')
-      } catch (error) {
-        console.error('Error loading draft:', error)
+    // If editing a campaign, populate the data
+    if (editingCampaign) {
+      let metadata: any = {}
+      
+      // Parse metadata from description if it's JSON
+      if (editingCampaign.description) {
+        try {
+          metadata = JSON.parse(editingCampaign.description)
+        } catch {
+          // If it's not JSON, treat it as custom message
+          metadata.message = editingCampaign.description
+        }
+      }
+      
+      // Load participants for this campaign
+      const loadCampaignParticipants = async () => {
+        try {
+          const response = await fetch(`/api/campaigns/${editingCampaign.id}/participants`, {
+            credentials: 'include'
+          })
+          if (response.ok) {
+            const data = await response.json()
+            const participants = data.participants || []
+            
+            // Set participants in campaign data
+            setCampaignData(prev => ({
+              ...prev,
+              participants: participants.map((p: any) => ({
+                email: p.email,
+                name: p.name,
+                isExistingUser: true
+              }))
+            }))
+            
+            // If jumping to email step, set the email list
+            if (initialStep === 4) {
+              const emails = participants.map((p: any) => p.email).join(', ')
+              // This will be set after emailSubject is set
+              setTimeout(() => {
+                const emailField = document.querySelector('[data-email-addresses]') as HTMLInputElement
+                if (emailField) emailField.value = emails
+              }, 100)
+            }
+          }
+        } catch (error) {
+          console.error('Failed to load campaign participants:', error)
+        }
+      }
+      
+      loadCampaignParticipants()
+      
+      setCampaignData({
+        toolId: metadata.toolId || toolId,
+        toolTitle: metadata.toolName || toolTitle,
+        toolPath: metadata.toolPath || toolPath,
+        toolGradient,
+        toolIcon,
+        campaignName: editingCampaign.name,
+        participants: [], // Will be populated from API above
+        startDate: editingCampaign.startDate ? new Date(editingCampaign.startDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        deadline: editingCampaign.endDate ? new Date(editingCampaign.endDate).toISOString().split('T')[0] : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        customMessage: metadata.message || ''
+      })
+      
+      // Set campaign link if available
+      if (metadata.campaignLink) {
+        setCampaignLink(metadata.campaignLink)
+      }
+      
+      // If we're jumping to the email step, populate the email helper data
+      if (initialStep === 4) {
+        // Generate email helper content for existing campaign
+        const link = metadata.campaignLink || `${window.location.origin}/assessment/${metadata.campaignCode || editingCampaign.id}`
+        setCampaignLink(link)
+        setEmailSubject(`Action Required: Complete Your ${metadata.toolName || toolTitle}`)
+        setEmailTemplate(`Hi team,
+
+I've set up an assessment for our team to better understand how we can improve our ${(metadata.toolName || toolTitle).toLowerCase().replace('assessment', '').trim()} processes.
+
+Please take 5 minutes to complete this assessment by ${editingCampaign.endDate ? new Date(editingCampaign.endDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'soon'}:
+${link}
+
+Your responses are confidential and will help us identify areas for improvement and better support our team's needs.
+
+Thanks for your participation!
+
+Best,
+${user?.firstName || 'Your Name'}`)
+      }
+    } 
+    // Otherwise check for saved draft
+    else {
+      const savedDraft = localStorage.getItem('campaignDraft')
+      const savedToolId = localStorage.getItem('campaignDraftTool')
+      
+      if (savedDraft && savedToolId === toolId) {
+        try {
+          const draft = JSON.parse(savedDraft)
+          setCampaignData(draft)
+            // Update selected users based on draft
+          const selectedIds = new Set<string>(draft.participants.filter((p: any) => p.isExistingUser).map((p: any) => p.userId))
+          setSelectedExistingUsers(selectedIds)
+          // Clear the draft
+          localStorage.removeItem('campaignDraft')
+          localStorage.removeItem('campaignDraftTool')
+        } catch (error) {
+          console.error('Error loading draft:', error)
+        }
       }
     }
     
     // Load participants
     loadParticipants()
-  }, [toolId])
+  }, [toolId, editingCampaign])
   
   const loadParticipants = async () => {
     setLoadingUsers(true)
@@ -263,6 +359,16 @@ export default function CampaignCreationWizard({
     setIsLoading(true)
     
     try {
+      // For editing campaigns, we'd need to update the existing campaign
+      // This would require an update API endpoint
+      // For now, we'll note that certain fields shouldn't be editable after campaign creation
+      if (editingCampaign) {
+        // TODO: Implement campaign update API
+        showError('Campaign editing functionality is being implemented')
+        setIsLoading(false)
+        return
+      }
+      
       const response = await fetch('/api/campaigns/launch/v3', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -383,7 +489,14 @@ export default function CampaignCreationWizard({
       </div>
       
       {/* Existing Users Section */}
-      {existingUsers.length > 0 && (
+      {loadingUsers ? (
+        <div className="bg-white/5 rounded-lg border border-white/10 p-8">
+          <div className="flex items-center justify-center">
+            <Loader2 className="w-6 h-6 animate-spin text-white/50 mr-3" />
+            <span className="text-white/60">Loading team members...</span>
+          </div>
+        </div>
+      ) : existingUsers.length > 0 ? (
         <div>
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-lg font-medium text-white">Team Members</h4>
@@ -412,11 +525,11 @@ export default function CampaignCreationWizard({
                 className="pl-10 pr-8 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-white/40 text-sm appearance-none cursor-pointer"
               >
                 <option value="all" className="bg-gray-900">All Departments</option>
-                {departments.length > 0 && departments.map(dept => (
+                {departments.map(dept => (
                   <option key={dept} value={dept} className="bg-gray-900">{dept}</option>
                 ))}
                 {departments.length > 0 && (
-                  <option key="none" value="none" className="bg-gray-900">No Department</option>
+                  <option value="none" className="bg-gray-900">No Department</option>
                 )}
               </select>
               <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-white/40 pointer-events-none" />
@@ -463,7 +576,13 @@ export default function CampaignCreationWizard({
                       <div className="ml-3 flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold">
-                            {user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
+                            {(() => {
+                              if (!user.name) return 'U'
+                              const parts = user.name.split(' ')
+                              const first = parts[0]?.[0] || ''
+                              const second = parts[1]?.[0] || ''
+                              return (first + second).toUpperCase() || 'U'
+                            })()}
                           </div>
                           <div className="min-w-0">
                             <div className="text-white font-medium text-sm truncate">{user.name || 'Unnamed User'}</div>
@@ -490,6 +609,14 @@ export default function CampaignCreationWizard({
               Tip: Use search to quickly find specific team members
             </p>
           )}
+        </div>
+      ) : (
+        <div className="bg-white/5 rounded-lg border border-white/10 p-8">
+          <div className="text-center">
+            <Users className="w-12 h-12 text-white/40 mx-auto mb-3" />
+            <p className="text-white/60">No participants found</p>
+            <p className="text-white/40 text-sm mt-2">Add participants in the Participants tab first</p>
+          </div>
         </div>
       )}
       
@@ -556,7 +683,11 @@ export default function CampaignCreationWizard({
     <div className="space-y-6">
       <div>
         <h3 className="text-xl font-semibold text-white mb-2">Campaign Details</h3>
-        <p className="text-white/70">Set the name and timeline for your assessment campaign.</p>
+        <p className="text-white/70">
+          {editingCampaign 
+            ? 'Update the campaign details. Note: Some fields cannot be changed after campaign creation.'
+            : 'Set the name and timeline for your assessment campaign.'}
+        </p>
       </div>
       
       <div>
@@ -862,8 +993,12 @@ Thanks!`}
                 {toolIcon}
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-white">Launch {toolTitle}</h2>
-                <p className="text-white/70">Create a new assessment campaign</p>
+                <h2 className="text-2xl font-bold text-white">
+                  {editingCampaign ? 'Edit' : 'Launch'} {toolTitle}
+                </h2>
+                <p className="text-white/70">
+                  {editingCampaign ? 'Update your assessment campaign' : 'Create a new assessment campaign'}
+                </p>
               </div>
             </div>
             <div className="text-sm text-white/60">

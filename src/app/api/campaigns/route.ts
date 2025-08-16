@@ -74,13 +74,36 @@ export async function GET(request: NextRequest) {
     // Get invitation counts for each campaign
     const campaignsWithStats = await Promise.all(
       campaigns.map(async (campaign) => {
-        // Count invitations for this campaign (by matching campaign name in URL)
+        // Parse campaign metadata to get campaign code
+        let campaignCode = '';
+        if (campaign.description) {
+          try {
+            const metadata = JSON.parse(campaign.description);
+            campaignCode = metadata.campaignCode || '';
+          } catch {
+            // Not JSON
+          }
+        }
+        
+        // Count invitations for this campaign (by matching campaign code in URL or by date range)
         const invitations = await prisma.invitation.findMany({
           where: {
             companyId: company.id,
-            inviteUrl: {
-              contains: `campaign=${encodeURIComponent(campaign.name)}`
-            }
+            OR: [
+              // Match by campaign code in URL
+              campaignCode ? {
+                inviteUrl: {
+                  contains: `/assessment/${campaignCode}`
+                }
+              } : {},
+              // Or match by creation date (invitations created around the same time as campaign)
+              {
+                createdAt: {
+                  gte: new Date(campaign.createdAt.getTime() - 60000), // 1 minute before
+                  lte: new Date(campaign.createdAt.getTime() + 60000)  // 1 minute after
+                }
+              }
+            ]
           }
         });
         

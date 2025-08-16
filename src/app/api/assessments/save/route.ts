@@ -102,12 +102,7 @@ export async function POST(request: NextRequest) {
       })
     }
     
-    console.log('[assessment-save] Assessment result saved:', {
-      id: assessmentResult.id,
-      invitationId: invitation.id,
-      toolId: data.toolId,
-      shareId
-    })
+    // Assessment result saved
     
     return NextResponse.json({
       success: true,

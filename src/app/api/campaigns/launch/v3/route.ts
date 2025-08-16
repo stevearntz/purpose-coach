@@ -114,6 +114,10 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
       for (const participant of participants) {
         const inviteCode = nanoid(10);
         
+        // Create individual link for this participant
+        // Format: /assessment/campaignCode?invite=inviteCode
+        const individualLink = `${baseUrl}/assessment/${campaignCode}?invite=${inviteCode}`;
+        
         // Check for existing invitation
         let invitation = await tx.invitation.findFirst({
           where: { 
@@ -123,17 +127,33 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
         });
         
         if (!invitation) {
-          // Create new invitation
+          // Create new invitation with individual link
           invitation = await tx.invitation.create({
             data: {
               email: participant.email,
               name: participant.name || participant.email.split('@')[0],
               inviteCode,
-              inviteUrl: campaignLink, // Same link for everyone
+              inviteUrl: individualLink, // Individual link with invite code
               personalMessage: customMessage,
               companyId: company.id,
               status: 'PENDING', // Not sent, just created
               sentAt: null // No email sent
+            }
+          });
+        } else {
+          // Update existing invitation to link it to this campaign
+          // Preserve their existing invite code if they have one
+          const existingCode = invitation.inviteCode || inviteCode;
+          const updatedLink = `${baseUrl}/assessment/${campaignCode}?invite=${existingCode}`;
+          
+          invitation = await tx.invitation.update({
+            where: { id: invitation.id },
+            data: {
+              inviteCode: existingCode,
+              inviteUrl: updatedLink, // Update URL to individual campaign link
+              personalMessage: customMessage || invitation.personalMessage,
+              // Keep existing status unless it's already completed
+              status: invitation.status === 'COMPLETED' ? 'COMPLETED' : 'PENDING'
             }
           });
         }
@@ -170,7 +190,7 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
             year: 'numeric'
           }) : 'soon',
           companyName: result.company.name,
-          senderName: req.user.firstName || req.user.name?.split(' ')[0] || req.user.email.split('@')[0]
+          senderName: req.user.name?.split(' ')[0] || req.user.email.split('@')[0]
         }),
         emailSubject: `Action Required: Complete Your ${toolName}`
       }

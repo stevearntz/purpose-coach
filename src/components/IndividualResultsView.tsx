@@ -1,10 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { 
   User, Mail, Calendar, Building2, ChevronDown, ChevronUp,
   AlertCircle, Target, Shield, Heart, Brain, MessageSquare,
-  Clock, CheckCircle, TrendingUp, Users, Hash
+  Clock, CheckCircle, TrendingUp, Users, Hash, Rocket
 } from 'lucide-react'
 
 interface IndividualResult {
@@ -78,6 +79,7 @@ const categoryColors: Record<string, string> = {
 }
 
 export default function IndividualResultsView({ results, loading = false }: Props) {
+  const router = useRouter()
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<string>('all')
@@ -138,14 +140,21 @@ export default function IndividualResultsView({ results, loading = false }: Prop
   
   if (results.length === 0) {
     return (
-      <div className="bg-gray-50 rounded-xl p-12 text-center">
-        <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+      <div className="bg-white/5 backdrop-blur-sm rounded-xl p-12 border border-white/10 text-center">
+        <Users className="w-16 h-16 text-white/40 mx-auto mb-4" />
+        <h3 className="text-xl font-semibold text-white mb-2">
           No Individual Results Yet
         </h3>
-        <p className="text-gray-600 max-w-md mx-auto">
+        <p className="text-white/60 max-w-md mx-auto mb-6">
           Individual assessment results will appear here as participants complete their assessments
         </p>
+        <button
+          onClick={() => router.push('/dashboard/assessments')}
+          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl"
+        >
+          <Rocket className="w-5 h-5" />
+          Go to Assessments
+        </button>
       </div>
     )
   }

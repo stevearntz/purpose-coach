@@ -45,7 +45,9 @@ export default function CampaignsTab() {
   const [showParticipantsModal, setShowParticipantsModal] = useState(false)
   const [copiedCampaign, setCopiedCampaign] = useState<string | null>(null)
   const [copiedLink, setCopiedLink] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState<'list' | 'create'>('list')
+  const [viewMode, setViewMode] = useState<'list' | 'create' | 'email'>('list')
+  const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null)
+  const [wizardInitialStep, setWizardInitialStep] = useState(1)
 
   useEffect(() => {
     loadCampaigns()
@@ -208,6 +210,12 @@ export default function CampaignsTab() {
     }
   }
 
+  const handleEmailCampaign = (campaign: Campaign) => {
+    setEditingCampaign(campaign)
+    setWizardInitialStep(4) // Jump directly to step 4 - the Send/Email Helper step
+    setViewMode('email')
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
@@ -261,29 +269,62 @@ export default function CampaignsTab() {
     )
   }
 
-  // Render the creation wizard inline
-  if (viewMode === 'create') {
+  // Render the creation/email wizard inline
+  if (viewMode === 'create' || viewMode === 'email') {
+    const isEmailMode = viewMode === 'email'
+    const campaign = editingCampaign
+    
+    // Parse campaign metadata if in email mode
+    let toolData = {
+      toolId: 'hr-partnership',
+      toolTitle: 'HR Partnership',
+      toolPath: '/hr-partnership',
+      toolGradient: 'from-purple-600 to-purple-700'
+    }
+    
+    if (isEmailMode && campaign?.description) {
+      try {
+        const metadata = JSON.parse(campaign.description)
+        toolData = {
+          toolId: metadata.toolId || toolData.toolId,
+          toolTitle: metadata.toolName || toolData.toolTitle,
+          toolPath: metadata.toolPath || toolData.toolPath,
+          toolGradient: toolData.toolGradient // Keep default gradient
+        }
+      } catch (e) {
+        // Use defaults if parsing fails
+      }
+    }
+    
     return (
       <ToastProvider>
         <div>
           {/* Back link */}
           <button
-            onClick={() => setViewMode('list')}
+            onClick={() => {
+              setViewMode('list')
+              setEditingCampaign(null)
+              setWizardInitialStep(1)
+            }}
             className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to assessments</span>
+            <span>Back to campaigns</span>
           </button>
           
           {/* Inline wizard */}
           <CampaignCreationWizard
-            toolId="hr-partnership"
-            toolTitle="HR Partnership"
-            toolPath="/hr-partnership"
-            toolGradient="from-purple-600 to-purple-700"
+            toolId={toolData.toolId}
+            toolTitle={toolData.toolTitle}
+            toolPath={toolData.toolPath}
+            toolGradient={toolData.toolGradient}
             toolIcon={<Target className="w-6 h-6" />}
+            editingCampaign={campaign}
+            initialStep={wizardInitialStep}
             onClose={() => {
               setViewMode('list')
+              setEditingCampaign(null)
+              setWizardInitialStep(1)
               loadCampaigns() // Refresh the list
             }}
           />
@@ -349,6 +390,15 @@ export default function CampaignsTab() {
                   <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(campaign.status)}`}>
                     {campaign.status}
                   </span>
+                  
+                  {/* Email Helper Icon */}
+                  <button
+                    onClick={() => handleEmailCampaign(campaign)}
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
+                    title="Email helper"
+                  >
+                    <Mail className="w-4 h-4 text-white/60 group-hover:text-white" />
+                  </button>
                   
                   {/* Copy Link Icon */}
                   <button

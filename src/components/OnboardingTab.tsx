@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { 
   CheckCircle, Circle, Users, Target, Lightbulb, Calendar, Send,
-  ArrowRight, Sparkles
+  ArrowRight, Sparkles, ExternalLink
 } from 'lucide-react'
 
 interface OnboardingTask {
@@ -173,10 +173,13 @@ export default function OnboardingTab({ onNavigate }: OnboardingTabProps) {
 
                 {/* Content */}
                 <div className="flex-1">
-                  <h3 className={`text-lg font-semibold mb-1 ${
+                  <h3 className={`text-lg font-semibold mb-1 flex items-center gap-2 ${
                     task.completed ? 'text-white/60 line-through' : 'text-white'
                   }`}>
                     {task.title}
+                    {task.link?.startsWith('http') && (
+                      <ExternalLink className="w-4 h-4 opacity-60" />
+                    )}
                   </h3>
                   <p className={`text-sm ${
                     task.completed ? 'text-white/40' : 'text-white/70'

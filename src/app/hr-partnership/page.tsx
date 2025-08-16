@@ -442,32 +442,79 @@ function HRPartnershipContent() {
       
       // Save assessment to database with campaign tracking
       try {
-        // Save to new assessment results table
-        const assessmentData = {
-          inviteCode,
-          toolId: 'hr-partnership',
-          toolName: 'HR Partnership Assessment',
-          responses: managerData,
-          scores: {
-            challengeCount,
-            categoryCount: managerData.selectedCategories.length,
-            skillGapCount: managerData.skillGaps.length,
-            supportNeedCount: managerData.supportNeeds.length
-          },
-          summary: `Manager assessment completed with ${challengeCount} challenges identified across ${managerData.selectedCategories.length} categories`,
-          insights,
-          recommendations,
-          userProfile: {
-            name: managerData.name,
-            email: managerData.email,
-            role: 'Manager',
-            department: managerData.department,
-            teamSize: managerData.teamSize
-          }
-        }
+        let saveResult;
         
-        const saveResult = await saveAssessmentResult(assessmentData)
-        console.log('Assessment saved to database:', saveResult)
+        // If we have a campaign but no invite code, use campaign-based saving
+        if (campaignName && !inviteCode && managerData.email) {
+          // Saving with campaign code
+          
+          const response = await fetch('/api/assessments/save-campaign', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              campaignCode: campaignName,
+              email: managerData.email,
+              name: managerData.name,
+              toolId: 'hr-partnership',
+              toolName: 'HR Partnership Assessment',
+              responses: managerData,
+              scores: {
+                challengeCount,
+                categoryCount: managerData.selectedCategories.length,
+                skillGapCount: managerData.skillGaps.length,
+                supportNeedCount: managerData.supportNeeds.length
+              },
+              summary: `Manager assessment completed with ${challengeCount} challenges identified across ${managerData.selectedCategories.length} categories`,
+              insights,
+              recommendations,
+              userProfile: {
+                name: managerData.name,
+                email: managerData.email,
+                role: 'Manager',
+                department: managerData.department,
+                teamSize: managerData.teamSize
+              }
+            })
+          })
+          
+          if (!response.ok) {
+            const error = await response.json()
+            throw new Error(error.error || 'Failed to save assessment')
+          }
+          
+          saveResult = await response.json()
+        } else if (inviteCode) {
+          // Use original invite code based saving
+          // Saving with invite code
+          const assessmentData = {
+            inviteCode,
+            toolId: 'hr-partnership',
+            toolName: 'HR Partnership Assessment',
+            responses: managerData,
+            scores: {
+              challengeCount,
+              categoryCount: managerData.selectedCategories.length,
+              skillGapCount: managerData.skillGaps.length,
+              supportNeedCount: managerData.supportNeeds.length
+            },
+            summary: `Manager assessment completed with ${challengeCount} challenges identified across ${managerData.selectedCategories.length} categories`,
+            insights,
+            recommendations,
+            userProfile: {
+              name: managerData.name,
+              email: managerData.email,
+              role: 'Manager',
+              department: managerData.department,
+              teamSize: managerData.teamSize
+            }
+          }
+          
+          saveResult = await saveAssessmentResult(assessmentData)
+        } else {
+          // No campaign or invite code - can't save
+          // No campaign or invite code - skipping database save
+        }
+        // Assessment saved to database
         
         // Also save to original endpoint for backward compatibility
         const response = await fetch('/api/hr-assessments', {

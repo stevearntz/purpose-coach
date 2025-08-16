@@ -45,9 +45,15 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    // Get all invitations for this company
+    // Get all invitations for this company with their assessment results
     const invitations = await prisma.invitation.findMany({
       where: whereClause,
+      include: {
+        assessmentResults: {
+          orderBy: { completedAt: 'desc' },
+          take: 1 // Get the most recent assessment for each invitation
+        }
+      },
       orderBy: { completedAt: 'desc' }
     });
     
@@ -57,21 +63,54 @@ export async function GET(request: NextRequest) {
         // Extract campaign name from URL if present
         let campaignName = null;
         if (invitation.inviteUrl) {
-          const match = invitation.inviteUrl.match(/campaign=([^&]+)/);
-          if (match) {
-            campaignName = decodeURIComponent(match[1]);
+          // Try new format first: /assessment/campaignCode
+          const newFormatMatch = invitation.inviteUrl.match(/\/assessment\/([a-zA-Z0-9]+)/);
+          if (newFormatMatch) {
+            // Get campaign by code from metadata
+            const campaigns = await prisma.campaign.findMany({
+              where: { companyId: company.id }
+            });
+            
+            for (const campaign of campaigns) {
+              if (campaign.description) {
+                try {
+                  const metadata = JSON.parse(campaign.description);
+                  if (metadata.campaignCode === newFormatMatch[1]) {
+                    campaignName = campaign.name;
+                    break;
+                  }
+                } catch {}
+              }
+            }
+          }
+          
+          // Fallback to old format: campaign=name
+          if (!campaignName) {
+            const oldFormatMatch = invitation.inviteUrl.match(/campaign=([^&]+)/);
+            if (oldFormatMatch) {
+              campaignName = decodeURIComponent(oldFormatMatch[1]);
+            }
           }
         }
+        
+        // Get assessment data if available
+        const latestAssessment = invitation.assessmentResults?.[0];
         
         return {
           id: invitation.id,
           participantName: invitation.name || invitation.email.split('@')[0],
           participantEmail: invitation.email,
-          assessmentType: 'HR Partnership Assessment', // Would be dynamic
+          assessmentType: latestAssessment?.toolName || 'HR Partnership Assessment',
           campaignName,
           completedAt: invitation.completedAt?.toISOString() || null,
           status: invitation.status,
-          inviteCode: invitation.inviteCode
+          inviteCode: invitation.inviteCode,
+          // Include actual assessment data if needed
+          department: (latestAssessment?.responses as any)?.department || 
+                     (latestAssessment?.userProfile as any)?.department || null,
+          teamSize: (latestAssessment?.responses as any)?.teamSize || null,
+          hasResults: !!latestAssessment,
+          assessmentId: latestAssessment?.id || null
         };
       })
     );

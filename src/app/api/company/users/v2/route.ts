@@ -122,12 +122,18 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
         const nameParts = (inv.name || inv.email.split('@')[0]).split(' ');
         let userStatus: 'active' | 'invited' | 'new' = 'new';
         
+        // Simplified status logic:
+        // Active - they've completed assessments (actively using tools)
+        // Invited - they have invitations but haven't completed anything
+        // New - no invitations sent yet
         if (inv.status === 'COMPLETED') {
-          userStatus = 'active';  // Has completed an assessment
-        } else if (inv.status === 'SENT' || inv.status === 'OPENED' || inv.status === 'STARTED') {
-          userStatus = 'invited';  // Has been invited through a campaign
-        } else if (inv.status === 'PENDING') {
-          userStatus = 'new';  // Just added, not yet invited
+          userStatus = 'active';  // Has completed an assessment - they're active users
+        } else if (inv.status === 'SENT' || inv.status === 'OPENED' || inv.status === 'STARTED' || inv.status === 'PENDING') {
+          // PENDING means they were added to a campaign (invitation created)
+          // Even though email might not be sent, they're "invited" to participate
+          userStatus = 'invited';  // Has been invited (campaign or direct)
+        } else {
+          userStatus = 'new';  // Brand new, no activity
         }
         
         allUsers.push({
@@ -137,7 +143,7 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
           status: userStatus,
           role: inv.metadata?.role || 'Member',
           department: inv.metadata?.department || '',
-          lastSignIn: inv.completedAt?.toISOString(),
+          lastActive: inv.completedAt?.toISOString(), // Last active = last completed assessment
           invitedAt: inv.sentAt?.toISOString(),
           createdAt: inv.createdAt.toISOString()
         });

@@ -1,9 +1,10 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { 
   Building2, ChevronDown, ChevronUp,
-  Clock, CheckCircle, Users, Hash, Loader2, Mail, TrendingUp, X, Copy
+  Clock, CheckCircle, Users, Hash, Loader2, Mail, TrendingUp, X, Copy, Rocket
 } from 'lucide-react'
 
 interface AssessmentData {
@@ -92,6 +93,7 @@ const toolColors: Record<string, string> = {
 }
 
 export default function IndividualResultsViewEnhanced({ results, loading = false, companyId }: Props) {
+  const router = useRouter()
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<string>('all')
@@ -354,25 +356,25 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
     
     return (
       <div className="space-y-4">
-        <div className="space-y-4">
+        <div className="space-y-4 bg-white/5 rounded-lg p-6">
           {/* Only show insights for HR Partnership */}
           {assessment.toolId === 'hr-partnership' && assessment.insights && typeof assessment.insights === 'object' && (
-            <div className="space-y-4">
+            <div className="space-y-6">
                 {/* Challenge Areas - Main focus */}
                 {assessment.insights.mainChallengeAreas && (
                   <div>
-                    <h5 className="font-medium text-gray-800 mb-3">Challenge Areas</h5>
+                    <h3 className="text-lg font-semibold text-white mb-3">Challenge Areas</h3>
                     <div className="space-y-3">
                       {(Array.isArray(assessment.insights.mainChallengeAreas) 
                         ? assessment.insights.mainChallengeAreas 
                         : Object.values(assessment.insights.mainChallengeAreas)
                       ).map((area: any, idx: number) => (
                         <div key={idx} className="border-l-4 border-red-400 pl-4">
-                          <h6 className="font-medium text-gray-800 mb-2">{area.category}</h6>
+                          <h4 className="font-medium text-white/90 mb-2">{area.category}</h4>
                           {area.challenges && Array.isArray(area.challenges) && (
                             <div className="flex flex-wrap gap-2 mb-2">
                               {area.challenges.map((challenge: string, cidx: number) => (
-                                <span key={cidx} className="px-3 py-1 bg-red-50 text-red-700 rounded-full text-sm">
+                                <span key={cidx} className="px-3 py-1 bg-red-500/20 text-red-300 rounded-full text-sm">
                                   {challenge}
                                 </span>
                               ))}
@@ -380,7 +382,7 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                           )}
                           {/* Challenge area details/comments */}
                           {area.details && area.details.trim() && (
-                            <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600 text-sm mt-2">
+                            <blockquote className="border-l-4 border-white/30 pl-4 italic text-white/70 text-sm mt-2">
                               "{area.details}"
                             </blockquote>
                           )}
@@ -393,20 +395,20 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                 {/* Skills to Develop */}
                 {assessment.insights.skillGaps && (
                   <div>
-                    <h5 className="font-medium text-gray-800 mb-2">Skills to Develop</h5>
+                    <h3 className="text-lg font-semibold text-white mb-3">Skills to Develop</h3>
                     <div className="flex flex-wrap gap-2 mb-2">
                       {(Array.isArray(assessment.insights.skillGaps) 
                         ? assessment.insights.skillGaps 
                         : Object.values(assessment.insights.skillGaps).flat()
                       ).map((skill: string, idx: number) => (
-                        <span key={idx} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+                        <span key={idx} className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm">
                           {skill}
                         </span>
                       ))}
                     </div>
                     {/* Skills details/comments */}
                     {assessment.responses?.skillDetails && assessment.responses.skillDetails.trim() && (
-                      <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600 text-sm">
+                      <blockquote className="border-l-4 border-white/30 pl-4 italic text-white/70 text-sm">
                         "{assessment.responses.skillDetails}"
                       </blockquote>
                     )}
@@ -416,20 +418,20 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                 {/* Support Needs - as pills */}
                 {assessment.insights.supportNeeds && (
                   <div>
-                    <h5 className="font-medium text-gray-800 mb-2">Support Needs</h5>
+                    <h3 className="text-lg font-semibold text-white mb-3">Support Needs</h3>
                     <div className="flex flex-wrap gap-2 mb-2">
                       {(Array.isArray(assessment.insights.supportNeeds) 
                         ? assessment.insights.supportNeeds 
                         : Object.values(assessment.insights.supportNeeds).flat()
                       ).map((need: string, idx: number) => (
-                        <span key={idx} className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm">
+                        <span key={idx} className="px-3 py-1 bg-yellow-500/20 text-yellow-300 rounded-full text-sm">
                           {need}
                         </span>
                       ))}
                     </div>
                     {/* Support details/comments */}
                     {assessment.responses?.supportDetails && assessment.responses.supportDetails.trim() && (
-                      <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600 text-sm">
+                      <blockquote className="border-l-4 border-white/30 pl-4 italic text-white/70 text-sm">
                         "{assessment.responses.supportDetails}"
                       </blockquote>
                     )}
@@ -439,20 +441,20 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                 {/* Focus Areas (Priorities) with full names */}
                 {assessment.insights.priorities && (
                   <div>
-                    <h5 className="font-medium text-gray-800 mb-2">Focus Areas</h5>
+                    <h3 className="text-lg font-semibold text-white mb-3">Focus Areas</h3>
                     <div className="flex flex-wrap gap-2 mb-2">
                       {(Array.isArray(assessment.insights.priorities) 
                         ? assessment.insights.priorities 
                         : Object.values(assessment.insights.priorities).flat()
                       ).map((priority: string, idx: number) => (
-                        <span key={idx} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
+                        <span key={idx} className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">
                           {priorityLabels[priority] || priority}
                         </span>
                       ))}
                     </div>
                     {/* Team priorities comments */}
                     {assessment.responses?.teamPriorities && assessment.responses.teamPriorities.trim() && (
-                      <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600 text-sm">
+                      <blockquote className="border-l-4 border-white/30 pl-4 italic text-white/70 text-sm">
                         "{assessment.responses.teamPriorities}"
                       </blockquote>
                     )}
@@ -462,8 +464,8 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                 {/* Additional Insights - always show if present */}
                 {assessment.responses?.additionalInsights && assessment.responses.additionalInsights.trim() && (
                   <div>
-                    <h5 className="font-medium text-gray-800 mb-2">Additional Insights</h5>
-                    <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600">
+                    <h3 className="text-lg font-semibold text-white mb-3">Additional Insights</h3>
+                    <blockquote className="border-l-4 border-white/30 pl-4 italic text-white/70">
                       "{assessment.responses.additionalInsights}"
                     </blockquote>
                   </div>
@@ -488,14 +490,21 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
   
   if (results.length === 0) {
     return (
-      <div className="bg-gray-50 rounded-xl p-12 text-center">
-        <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+      <div className="bg-white/5 backdrop-blur-sm rounded-xl p-12 border border-white/10 text-center">
+        <Users className="w-16 h-16 text-white/40 mx-auto mb-4" />
+        <h3 className="text-xl font-semibold text-white mb-2">
           No Individual Results Yet
         </h3>
-        <p className="text-gray-600 max-w-md mx-auto">
+        <p className="text-white/60 max-w-md mx-auto mb-6">
           Individual assessment results will appear here as participants complete their assessments
         </p>
+        <button
+          onClick={() => router.push('/dashboard/assessments')}
+          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl"
+        >
+          <Rocket className="w-5 h-5" />
+          Go to Assessments
+        </button>
       </div>
     )
   }
@@ -503,7 +512,7 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm p-4">
+      <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 p-4">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
           {/* Search box - takes up less space */}
           <div className="md:col-span-4">
@@ -512,7 +521,7 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
               placeholder="Search by name, email, dept..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50"
             />
           </div>
           
@@ -521,13 +530,13 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50"
             >
-              <option value="all">All Status</option>
-              <option value="completed">Completed</option>
-              <option value="started">In Progress</option>
-              <option value="invited">Invited</option>
-              <option value="pending">Pending</option>
+              <option value="all" className="bg-gray-900">All Status</option>
+              <option value="completed" className="bg-gray-900">Completed</option>
+              <option value="started" className="bg-gray-900">In Progress</option>
+              <option value="invited" className="bg-gray-900">Invited</option>
+              <option value="pending" className="bg-gray-900">Pending</option>
             </select>
           </div>
           
@@ -536,13 +545,13 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
             <select
               value={filterCampaign}
               onChange={(e) => setFilterCampaign(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50"
             >
-              <option value="all">All Campaigns</option>
+              <option value="all" className="bg-gray-900">All Campaigns</option>
               {campaigns.map(campaign => (
-                <option key={campaign} value={campaign}>{campaign}</option>
+                <option key={campaign} value={campaign} className="bg-gray-900">{campaign}</option>
               ))}
-              <option value="No Campaign">Individual Assessments</option>
+              <option value="No Campaign" className="bg-gray-900">Individual Assessments</option>
             </select>
           </div>
           
@@ -551,30 +560,30 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
             <select
               value={filterAssessment}
               onChange={(e) => setFilterAssessment(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50"
             >
-              <option value="all">All Assessments</option>
+              <option value="all" className="bg-gray-900">All Assessments</option>
               {assessmentTypes.map(type => (
-                <option key={type} value={type}>{type}</option>
+                <option key={type} value={type} className="bg-gray-900">{type}</option>
               ))}
             </select>
           </div>
         </div>
         
-        <div className="mt-3 text-sm text-gray-600 flex items-center justify-between">
+        <div className="mt-3 text-sm text-white/60 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span>Showing {filteredResults.length} of {deduplicatedResults.length} results</span>
             {results.length > deduplicatedResults.length && (
-              <span className="text-amber-600 text-xs">
+              <span className="text-amber-400 text-xs">
                 ({results.length - deduplicatedResults.length} duplicate{results.length - deduplicatedResults.length > 1 ? 's' : ''} hidden)
               </span>
             )}
             {filteredResults.length > 0 && (
               <>
-                <span className="text-gray-400">•</span>
+                <span className="text-white/40">•</span>
                 <button
                   onClick={copyAllEmails}
-                  className="text-purple-600 hover:text-purple-700 font-medium transition-colors"
+                  className="text-purple-400 hover:text-purple-300 font-medium transition-colors"
                 >
                   {showBulkCopy ? 'Copied!' : 'Copy result emails as CSV'}
                 </button>
@@ -608,7 +617,7 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
           const isLoadingData = loadingAssessments.has(result.id)
           
           return (
-            <div key={result.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div key={result.id} className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 hover:border-white/20 transition-all">
               {/* Card Header - Always Visible */}
               <div 
                 className="p-6 cursor-pointer"
@@ -618,7 +627,7 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                   <div className="flex-1">
                     {/* Top row: Name, Email Pill, Status Pill, Timestamp */}
                     <div className="flex items-center gap-3 mb-3 flex-wrap">
-                      <h3 className="font-semibold text-lg text-gray-900">
+                      <h3 className="font-semibold text-lg text-white">
                         {result.participantName}
                       </h3>
                       
@@ -628,7 +637,7 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                           e.stopPropagation()
                           copyEmail(result.participantEmail)
                         }}
-                        className="px-3 py-1 rounded-full text-sm font-medium border bg-indigo-100 text-indigo-700 border-indigo-200 hover:bg-indigo-200 transition-colors flex items-center gap-1"
+                        className="px-3 py-1 rounded-full text-sm font-medium border bg-indigo-500/20 text-indigo-300 border-indigo-500/30 hover:bg-indigo-500/30 transition-colors flex items-center gap-1"
                       >
                         {copiedEmail === result.participantEmail ? (
                           <>
@@ -651,7 +660,7 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                       
                       {/* Timestamp */}
                       {result.completedAt && (
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-white/60">
                           {formatDate(result.completedAt)}
                         </span>
                       )}
@@ -659,20 +668,20 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                     
                     {/* Meta Information */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-3">
-                      <div className="flex items-center gap-1 text-gray-600">
+                      <div className="flex items-center gap-1 text-white/60">
                         <Building2 className="w-4 h-4" />
-                        <span>Department: <span className="font-medium">{resultAssessments[0]?.responses?.department || result.department || 'N/A'}</span></span>
+                        <span>Department: <span className="font-medium text-white">{resultAssessments[0]?.responses?.department || result.department || 'N/A'}</span></span>
                       </div>
-                      <div className="flex items-center gap-1 text-gray-600">
+                      <div className="flex items-center gap-1 text-white/60">
                         <Users className="w-4 h-4" />
-                        <span>Team Size: <span className="font-medium">{resultAssessments[0]?.responses?.teamSize || result.teamSize || 'N/A'}</span></span>
+                        <span>Team Size: <span className="font-medium text-white">{resultAssessments[0]?.responses?.teamSize || result.teamSize || 'N/A'}</span></span>
                       </div>
-                      <div className="flex items-center gap-1 text-gray-600">
+                      <div className="flex items-center gap-1 text-white/60">
                         <Hash className="w-4 h-4" />
                         <span>{result.assessmentType}</span>
                       </div>
                       {result.campaignName && (
-                        <div className="flex items-center gap-1 text-gray-600">
+                        <div className="flex items-center gap-1 text-white/60">
                           <TrendingUp className="w-4 h-4" />
                           <span>{result.campaignName}</span>
                         </div>

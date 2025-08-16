@@ -1,10 +1,11 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { 
   BarChart3, Users, Calendar, TrendingUp, Download, 
   ChevronRight, ChevronDown, ChevronUp, FileText, Clock, CheckCircle, AlertCircle,
-  Target, Brain, Shield, MessageSquare, Loader2
+  Target, Brain, Shield, MessageSquare, Loader2, Rocket
 } from 'lucide-react'
 import { useUser } from '@clerk/nextjs'
 import IndividualResultsViewEnhanced from './IndividualResultsViewEnhanced'
@@ -38,6 +39,7 @@ interface IndividualResult {
 }
 
 export default function ResultsTab() {
+  const router = useRouter()
   const { user } = useUser()
   const [activeSubTab, setActiveSubTab] = useState<'campaigns' | 'individuals'>('campaigns')
   const [campaignResults, setCampaignResults] = useState<CampaignResult[]>([])
@@ -134,57 +136,64 @@ export default function ResultsTab() {
   const loadAggregatedData = async (campaignId: string) => {
     setLoadingAggregatedData(prev => new Set(prev).add(campaignId))
     try {
-      // IMPORTANT: The API should deduplicate results before aggregation
-      // Only count the most recent submission per user for each assessment
-      // This ensures users who retake assessments are counted once with their latest responses
+      // Fetch actual aggregated data from the API
+      const response = await fetch(`/api/results/campaigns/v2?campaignId=${campaignId}&includeDetails=true`)
+      const data = await response.json()
       
-      // In a real app, this would fetch from API
-      // For now, create mock aggregated data
-      const mockAggregated = {
-        challengeAreas: {
-          individual: {
-            category: 'Individual Performance',
-            challenges: {
-              'High performer growth': 2,
-              'Stretch assignments': 1
-            }
-          },
-          leadership: {
-            category: 'Leadership Skills',
-            challenges: {
-              'Delegation': 1,
-              'Project planning': 2,
-              'Leading through ambiguity': 1
-            }
-          },
-          compliance: {
-            category: 'Compliance & Risk',
-            challenges: {
-              'HR policies': 2,
-              'Feedback and terminations': 1,
-              'Regulatory compliance': 1
-            }
+      if (data.success && data.results && data.results.length > 0) {
+        const campaignResult = data.results[0]
+        
+        // Transform the API response to match our expected format
+        if (campaignResult.aggregatedData) {
+          const aggregated: any = {
+            challengeAreas: {},
+            skills: {},
+            supportNeeds: {},
+            focusAreas: {}
           }
-        },
-        skills: {
-          'Coaching': 2,
-          'Communication': 1,
-          'Decision making': 2
-        },
-        supportNeeds: {
-          'Day-to-day people issues': 2,
-          'Difficult terminations': 1,
-          'Reorganization support': 1,
-          'Mental health resources': 2
-        },
-        focusAreas: {
-          'Revenue, sales, or growth targets': 2,
-          'Team performance or growth': 1,
-          'Strategy or planning': 2,
-          'Risk management or compliance': 1
+          
+          // Process challenges by category
+          if (campaignResult.aggregatedData.topChallenges) {
+            const categorizedChallenges: Record<string, any> = {}
+            
+            campaignResult.aggregatedData.topChallenges.forEach((item: any) => {
+              const [category, challenge] = item.challenge.split(': ')
+              if (!categorizedChallenges[category]) {
+                categorizedChallenges[category] = {
+                  category,
+                  challenges: {}
+                }
+              }
+              categorizedChallenges[category].challenges[challenge] = item.count
+            })
+            
+            aggregated.challengeAreas = categorizedChallenges
+          }
+          
+          // Process skills
+          if (campaignResult.aggregatedData.topSkillGaps) {
+            campaignResult.aggregatedData.topSkillGaps.forEach((item: any) => {
+              aggregated.skills[item.skill] = item.count
+            })
+          }
+          
+          // Process support needs
+          if (campaignResult.aggregatedData.topSupportNeeds) {
+            campaignResult.aggregatedData.topSupportNeeds.forEach((item: any) => {
+              aggregated.supportNeeds[item.need] = item.count
+            })
+          }
+          
+          // Process focus areas
+          if (campaignResult.aggregatedData.topPriorities) {
+            campaignResult.aggregatedData.topPriorities.forEach((item: any) => {
+              aggregated.focusAreas[item.priority] = item.count
+            })
+          }
+          
+          setAggregatedData(prev => ({ ...prev, [campaignId]: aggregated }))
         }
       }
-      setAggregatedData(prev => ({ ...prev, [campaignId]: mockAggregated }))
     } catch (error) {
       console.error('Failed to load aggregated data:', error)
     } finally {
@@ -314,9 +323,16 @@ export default function ResultsTab() {
             <h3 className="text-xl font-semibold text-white mb-2">
               No Campaign Results Yet
             </h3>
-            <p className="text-white/60 max-w-md mx-auto">
+            <p className="text-white/60 max-w-md mx-auto mb-6">
               Complete assessment campaigns to see aggregated results and insights here
             </p>
+            <button
+              onClick={() => router.push('/dashboard/assessments')}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl"
+            >
+              <Rocket className="w-5 h-5" />
+              Go to Assessments
+            </button>
           </div>
         ) : (
           <div className="space-y-4">

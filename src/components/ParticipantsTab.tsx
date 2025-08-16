@@ -1,10 +1,11 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { 
   Users, Plus, ChevronDown, ChevronUp, Upload, Download,
-  Search, Filter, Link, Trash2, Edit3, Mail,
-  CheckCircle, Clock, X, Loader2
+  Search, Filter, Trash2, Edit3, Mail,
+  CheckCircle, Clock, X, Loader2, Rocket
 } from 'lucide-react'
 import { useOrganization, useUser } from '@clerk/nextjs'
 
@@ -28,12 +29,12 @@ interface ParticipantRow {
 }
 
 export default function ParticipantsTab() {
+  const router = useRouter()
   const [participants, setParticipants] = useState<Participant[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [showAddSection, setShowAddSection] = useState(false)
   const [addMode, setAddMode] = useState<'single' | 'bulk'>('single')
-  const [copiedParticipantId, setCopiedParticipantId] = useState<string | null>(null)
   const [isAddingParticipants, setIsAddingParticipants] = useState(false)
   const [addingProgress, setAddingProgress] = useState({ current: 0, total: 0 })
   
@@ -89,7 +90,7 @@ export default function ParticipantsTab() {
           email: user.email,
           status: user.status || 'new',
           department: user.department || '',
-          lastActive: user.lastSignIn ? new Date(user.lastSignIn).toLocaleDateString() : undefined,
+          lastActive: user.lastActive ? new Date(user.lastActive).toLocaleDateString() : undefined,
           joinedDate: new Date(user.createdAt || Date.now()).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
@@ -281,14 +282,6 @@ export default function ParticipantsTab() {
     window.URL.revokeObjectURL(url)
   }
 
-  const copyParticipantInviteLink = (participantId: string, participantEmail: string) => {
-    // Create a participant-specific assessment link
-    const link = `${window.location.origin}/assessment?participant=${participantId}&email=${encodeURIComponent(participantEmail)}`
-    navigator.clipboard.writeText(link)
-    setCopiedParticipantId(participantId)
-    setTimeout(() => setCopiedParticipantId(null), 1500)
-  }
-
   const filteredParticipants = participants.filter(participant => 
     searchTerm === '' ||
     participant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -299,13 +292,13 @@ export default function ParticipantsTab() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-700 border-green-200'
+        return 'bg-green-500/20 text-green-400 border-green-500/30'
       case 'invited':
-        return 'bg-blue-100 text-blue-700 border-blue-200'
+        return 'bg-blue-500/20 text-blue-400 border-blue-500/30'
       case 'new':
-        return 'bg-purple-100 text-purple-700 border-purple-200'
+        return 'bg-purple-500/20 text-purple-400 border-purple-500/30'
       default:
-        return 'bg-gray-100 text-gray-600 border-gray-200'
+        return 'bg-gray-500/20 text-gray-400 border-gray-500/30'
     }
   }
 
@@ -422,7 +415,7 @@ export default function ParticipantsTab() {
                           onKeyDown={(e) => handleKeyDown(e, row.id, 'name')}
                           placeholder={row.nameError ? 'Name required' : 'John Doe'}
                           disabled={isAddingParticipants}
-                          className={`w-full px-4 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors ${
+                          className={`w-full px-4 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-colors ${
                             row.nameError 
                               ? 'border-red-500 placeholder-red-400' 
                               : 'border-white/20 placeholder-white/40'
@@ -443,7 +436,7 @@ export default function ParticipantsTab() {
                           }}
                           placeholder={row.emailError ? 'Email required' : 'john@example.com'}
                           disabled={isAddingParticipants}
-                          className={`w-full px-4 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors ${
+                          className={`w-full px-4 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-colors ${
                             row.emailError 
                               ? 'border-red-500 placeholder-red-400' 
                               : 'border-white/20 placeholder-white/40'
@@ -458,7 +451,7 @@ export default function ParticipantsTab() {
                           onKeyDown={(e) => handleKeyDown(e, row.id, 'department')}
                           placeholder="Engineering"
                           disabled={isAddingParticipants}
-                          className={`w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500 ${isAddingParticipants ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          className={`w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 ${isAddingParticipants ? 'opacity-50 cursor-not-allowed' : ''}`}
                         />
                       </div>
                       <div className="col-span-1 flex gap-1">
@@ -587,19 +580,19 @@ export default function ParticipantsTab() {
       </div>
 
       {/* Search Bar */}
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+      <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 p-4 mb-6">
         <div className="flex items-center gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/40" />
             <input
               type="text"
               placeholder="Search users by name, email, or department..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50"
             />
           </div>
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-white/60">
             {filteredParticipants.length} participants
           </span>
         </div>
@@ -607,20 +600,20 @@ export default function ParticipantsTab() {
 
       {/* Users Table or Empty State */}
       {filteredParticipants.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm p-12">
+        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-12 border border-white/10">
           <div className="max-w-md mx-auto text-center">
             {/* Icon */}
-            <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Users className="w-10 h-10 text-purple-600" />
+            <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Users className="w-10 h-10 text-white/60" />
             </div>
             
             {/* Title */}
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-semibold text-white mb-2">
               No participants yet
             </h3>
             
             {/* Description */}
-            <p className="text-gray-600 mb-8">
+            <p className="text-white/70 mb-8">
               Get started by adding your first participants. They'll receive invitations to complete assessments and provide valuable insights.
             </p>
             
@@ -649,44 +642,41 @@ export default function ParticipantsTab() {
             </div>
             
             {/* Help text */}
-            <p className="text-sm text-gray-500 mt-8">
+            <p className="text-sm text-white/50 mt-8">
               Tip: You can bulk import participants using a CSV file with names and email addresses
             </p>
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-white/10 border-b border-white/10">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
                   Participant
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
                   Department
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
                   Last Active
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Invite
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="divide-y divide-white/5">
               {filteredParticipants.map((participant) => (
-                <tr key={participant.id} className="hover:bg-gray-50">
+                <tr key={participant.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">
                         {participant.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{participant.name}</div>
-                        <div className="text-sm text-gray-500">{participant.email}</div>
+                        <div className="text-sm font-medium text-white">{participant.name}</div>
+                        <div className="text-sm text-white/60">{participant.email}</div>
                       </div>
                     </div>
                   </td>
@@ -698,26 +688,11 @@ export default function ParticipantsTab() {
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white/70">
                     {participant.department || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white/50">
                     {participant.lastActive || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    {participant.status === 'new' && (
-                      <button
-                        onClick={() => copyParticipantInviteLink(participant.id, participant.email)}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
-                        title="Copy invite link"
-                      >
-                        {copiedParticipantId === participant.id ? (
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                        ) : (
-                          <Link className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
-                        )}
-                      </button>
-                    )}
                   </td>
                 </tr>
               ))}

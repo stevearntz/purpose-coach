@@ -9,7 +9,9 @@ const isPublicRoute = createRouteMatcher([
   '/sso-callback(.*)',
   '/',
   '/toolkit(.*)',
-  // Assessment tools are public
+  // Assessment tools and campaign links are public
+  '/assessment(.*)',
+  '/hr-partnership(.*)',
   '/purpose(.*)',
   '/values(.*)',
   '/strengths(.*)',

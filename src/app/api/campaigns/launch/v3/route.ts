@@ -169,8 +169,10 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
             day: 'numeric',
             year: 'numeric'
           }) : 'soon',
-          companyName: result.company.name
-        })
+          companyName: result.company.name,
+          senderName: req.user.firstName || req.user.email.split('@')[0]
+        }),
+        emailSubject: `Action Required: Complete Your ${toolName}`
       }
     };
     
@@ -195,16 +197,16 @@ function generateEmailTemplate({
   toolName,
   campaignLink,
   deadline,
-  companyName
+  companyName,
+  senderName
 }: {
   toolName: string;
   campaignLink: string;
   deadline: string;
   companyName: string;
+  senderName: string;
 }) {
-  return `Subject: Action Required: Complete Your ${toolName}
-
-Hi team,
+  return `Hi team,
 
 I've set up an assessment for our team to better understand how we can improve our ${toolName.toLowerCase().replace('assessment', '').trim()} processes.
 
@@ -216,5 +218,5 @@ Your responses are confidential and will help us identify areas for improvement 
 Thanks for your participation!
 
 Best,
-[Your Name]`;
+${senderName}`;
 }

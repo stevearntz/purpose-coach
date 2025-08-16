@@ -61,7 +61,8 @@ export default function CampaignCreationWizard({
     emails: string
     template: string
     campaignLink: string
-  }>({ emails: '', template: '', campaignLink: '' })
+    subject: string
+  }>({ emails: '', template: '', campaignLink: '', subject: '' })
   
   // Campaign data state
   const [campaignData, setCampaignData] = useState<CampaignData>({
@@ -301,7 +302,8 @@ export default function CampaignCreationWizard({
       setEmailHelperData({
         emails: result.emailHelper?.participantEmails || '',
         template: result.emailHelper?.emailTemplate || '',
-        campaignLink: result.summary?.campaignLink || ''
+        campaignLink: result.summary?.campaignLink || '',
+        subject: result.emailHelper?.emailSubject || 'Assessment Invitation'
       })
       setShowEmailHelper(true)
       
@@ -766,6 +768,7 @@ Thanks!`}
           emails={emailHelperData.emails}
           template={emailHelperData.template}
           campaignLink={emailHelperData.campaignLink}
+          subject={emailHelperData.subject}
           onClose={() => {
             setShowEmailHelper(false)
             onClose() // Return to campaign list
@@ -780,17 +783,21 @@ Thanks!`}
 function EmailHelperModal({ 
   emails, 
   template, 
-  campaignLink, 
+  campaignLink,
+  subject,
   onClose 
 }: { 
   emails: string
   template: string
   campaignLink: string
+  subject: string
   onClose: () => void 
 }) {
   const [emailTemplate, setEmailTemplate] = useState(template)
+  const [emailSubject, setEmailSubject] = useState(subject)
   const [copiedEmails, setCopiedEmails] = useState(false)
   const [copiedTemplate, setCopiedTemplate] = useState(false)
+  const [copiedSubject, setCopiedSubject] = useState(false)
   
   const copyEmails = () => {
     navigator.clipboard.writeText(emails)
@@ -802,6 +809,12 @@ function EmailHelperModal({
     navigator.clipboard.writeText(emailTemplate)
     setCopiedTemplate(true)
     setTimeout(() => setCopiedTemplate(false), 2000)
+  }
+  
+  const copySubject = () => {
+    navigator.clipboard.writeText(emailSubject)
+    setCopiedSubject(true)
+    setTimeout(() => setCopiedSubject(false), 2000)
   }
   
   return (
@@ -867,6 +880,35 @@ function EmailHelperModal({
             <div className="bg-white/10 border border-white/20 rounded-lg p-3">
               <p className="text-white/90 text-sm font-mono break-all">{emails}</p>
             </div>
+          </div>
+          
+          {/* Email Subject */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-white font-medium">Email Subject</label>
+              <button
+                onClick={copySubject}
+                className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm transition-colors"
+              >
+                {copiedSubject ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    Copy Subject
+                  </>
+                )}
+              </button>
+            </div>
+            <input
+              type="text"
+              value={emailSubject}
+              onChange={(e) => setEmailSubject(e.target.value)}
+              className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/40"
+            />
           </div>
           
           {/* Email Template */}

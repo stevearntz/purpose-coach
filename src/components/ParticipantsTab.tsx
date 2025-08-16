@@ -6,6 +6,7 @@ import {
   Search, Filter, Link, Trash2, Edit3, Mail,
   CheckCircle, Clock, X, Loader2
 } from 'lucide-react'
+import { useOrganization, useUser } from '@clerk/nextjs'
 
 interface Participant {
   id: string
@@ -26,6 +27,10 @@ export default function ParticipantsTab() {
   const [addMode, setAddMode] = useState<'single' | 'bulk'>('single')
   const [copiedParticipantId, setCopiedParticipantId] = useState<string | null>(null)
   
+  // Get organization context from Clerk
+  const { organization } = useOrganization()
+  const { user } = useUser()
+  
   // Form state for single participant
   const [newParticipantName, setNewParticipantName] = useState('')
   const [newParticipantEmail, setNewParticipantEmail] = useState('')
@@ -43,42 +48,35 @@ export default function ParticipantsTab() {
   const loadParticipants = async () => {
     setLoading(true)
     try {
-      // In production, this would fetch from API
-      // For now, use mock data
-      const mockParticipants: Participant[] = [
-        {
-          id: '1',
-          name: 'Steve Arntz',
-          email: 'steve@getcampfire.com',
-          status: 'active',
-          role: 'Admin',
-          department: 'Product',
-          lastActive: '2 hours ago',
-          joinedDate: 'Aug 10, 2025'
-        },
-        {
-          id: '2',
-          name: 'Ella Wright',
-          email: 'ella@getcampfire.com',
-          status: 'invited',
-          role: 'Member',
-          department: 'Engineering',
-          joinedDate: 'Aug 11, 2025'
-        },
-        {
-          id: '3',
-          name: 'Test Participant',
-          email: 'test@example.com',
-          status: 'active',
-          role: 'Member',
-          department: 'Product',
-          lastActive: '1 day ago',
-          joinedDate: 'Aug 12, 2025'
-        }
-      ]
-      setParticipants(mockParticipants)
+      // Fetch participants from API - filtered by organization
+      const response = await fetch('/api/company/users/v2')
+      if (!response.ok) {
+        throw new Error('Failed to fetch participants')
+      }
+      
+      const data = await response.json()
+      
+      // Transform API response to match our Participant interface
+      const transformedParticipants: Participant[] = data.users?.map((user: any) => ({
+        id: user.email, // Use email as ID since we don't have a separate ID
+        name: `${user.firstName} ${user.lastName}`.trim() || user.email.split('@')[0],
+        email: user.email,
+        status: user.status || 'invited',
+        role: user.role || 'Member',
+        department: user.department || '',
+        lastActive: user.lastSignIn ? new Date(user.lastSignIn).toLocaleDateString() : undefined,
+        joinedDate: new Date(user.createdAt || Date.now()).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        })
+      })) || []
+      
+      setParticipants(transformedParticipants)
     } catch (error) {
       console.error('Failed to load participants:', error)
+      // Set empty array on error to show no participants rather than stale data
+      setParticipants([])
     } finally {
       setLoading(false)
     }
@@ -87,29 +85,41 @@ export default function ParticipantsTab() {
   const handleAddSingleParticipant = async () => {
     if (!newParticipantName || !newParticipantEmail) return
     
-    // TODO: API call to add participant
-    const newParticipant: Participant = {
-      id: Date.now().toString(),
-      name: newParticipantName,
-      email: newParticipantEmail,
-      status: 'invited',
-      role: newParticipantRole || 'Member',
-      department: newParticipantDepartment,
-      joinedDate: new Date().toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
+    try {
+      // API call to invite participant to the organization
+      const response = await fetch('/api/company/invite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          emails: [newParticipantEmail], // API expects array
+          senderEmail: user?.primaryEmailAddress?.emailAddress || '',
+          company: organization?.name || user?.primaryEmailAddress?.emailAddress?.split('@')[1] || '',
+          message: `You've been invited to join ${organization?.name || 'our team'} on Campfire`
+        })
       })
+      
+      if (!response.ok) {
+        const error = await response.json()
+        console.error('Failed to add participant:', error)
+        alert(error.error || 'Failed to add participant')
+        return
+      }
+      
+      // Reload participants to show the new addition
+      await loadParticipants()
+      
+      // Reset form
+      setNewParticipantName('')
+      setNewParticipantEmail('')
+      setNewParticipantDepartment('')
+      setNewParticipantRole('')
+      setShowAddSection(false)
+    } catch (error) {
+      console.error('Failed to add participant:', error)
+      alert('Failed to add participant. Please try again.')
     }
-    
-    setParticipants([...participants, newParticipant])
-    
-    // Reset form
-    setNewParticipantName('')
-    setNewParticipantEmail('')
-    setNewParticipantDepartment('')
-    setNewParticipantRole('')
-    setShowAddSection(false)
   }
 
   const handleCSVUpload = async () => {

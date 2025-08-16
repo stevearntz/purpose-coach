@@ -151,7 +151,7 @@ export default function AuthLeftPanel() {
             style={{
               left: '40px',
               top: '180px',
-              height: '80px',
+              height: '120px',
               background: 'linear-gradient(180deg, #C084FC 0%, #EC4899 100%)',
               maskImage: 'repeating-linear-gradient(to bottom, black 0, black 4px, transparent 4px, transparent 8px)',
               WebkitMaskImage: 'repeating-linear-gradient(to bottom, black 0, black 4px, transparent 4px, transparent 8px)'

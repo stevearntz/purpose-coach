@@ -263,12 +263,14 @@ export default function CampaignCreationWizard({
           toolPath: campaignData.toolPath,
           campaignName: campaignData.campaignName,
           customMessage: campaignData.customMessage,
-          startDate: campaignData.startDate,
-          deadline: campaignData.deadline,
-          participants: campaignData.participants,
+          startDate: new Date(campaignData.startDate).toISOString(),
+          deadline: new Date(campaignData.deadline).toISOString(),
+          participants: campaignData.participants.map(p => ({
+            email: p.email,
+            name: p.name
+          })),
           senderEmail: user?.primaryEmailAddress?.emailAddress,
-          companyName: organization?.name,
-          companyId: user?.publicMetadata?.companyId
+          companyName: organization?.name
         })
       })
       

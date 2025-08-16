@@ -65,6 +65,7 @@ export default function CampaignCreationWizard({
   const [copiedEmails, setCopiedEmails] = useState(false)
   const [copiedTemplate, setCopiedTemplate] = useState(false)
   const [copiedSubject, setCopiedSubject] = useState(false)
+  const [copiedLink, setCopiedLink] = useState(false)
   
   // Campaign data state
   const [campaignData, setCampaignData] = useState<CampaignData>({
@@ -328,6 +329,12 @@ export default function CampaignCreationWizard({
     navigator.clipboard.writeText(emailSubject)
     setCopiedSubject(true)
     setTimeout(() => setCopiedSubject(false), 2000)
+  }
+  
+  const copyLink = () => {
+    navigator.clipboard.writeText(campaignLink)
+    setCopiedLink(true)
+    setTimeout(() => setCopiedLink(false), 2000)
   }
   
   const renderStepIndicator = () => {
@@ -818,9 +825,30 @@ Thanks!`}
       </div>
       
       {/* Campaign Link */}
-      <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-        <p className="text-purple-300 text-sm font-medium mb-2">Campaign Link (included in template):</p>
-        <p className="text-purple-300 font-mono text-xs break-all">{campaignLink}</p>
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-white font-medium">Campaign Link</label>
+          <button
+            onClick={copyLink}
+            className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm transition-colors"
+          >
+            {copiedLink ? (
+              <>
+                <Check className="w-4 h-4" />
+                Copied!
+              </>
+            ) : (
+              <>
+                <Copy className="w-4 h-4" />
+                Copy Link
+              </>
+            )}
+          </button>
+        </div>
+        <div className="bg-white/10 border border-white/20 rounded-lg p-3">
+          <p className="text-white/90 font-mono text-xs break-all">{campaignLink}</p>
+        </div>
+        <p className="text-white/50 text-xs mt-2">This link is already included in the email template above</p>
       </div>
     </div>
     )

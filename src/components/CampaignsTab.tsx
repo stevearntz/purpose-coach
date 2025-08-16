@@ -314,11 +314,11 @@ export default function CampaignsTab() {
             Launch your first assessment to start gathering insights from your team
           </p>
           <button
-            onClick={() => setViewMode('create')}
+            onClick={() => router.push('/dashboard/assessments')}
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl"
           >
-            <Plus className="w-5 h-5" />
-            Launch First Assessment
+            <Rocket className="w-5 h-5" />
+            Go to Assessments
           </button>
         </div>
       ) : (

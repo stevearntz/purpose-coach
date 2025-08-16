@@ -13,7 +13,6 @@ interface Participant {
   name: string
   email: string
   status: 'active' | 'invited' | 'inactive'
-  role?: string
   department?: string
   lastActive?: string
   joinedDate: string
@@ -31,11 +30,13 @@ export default function ParticipantsTab() {
   const { organization } = useOrganization()
   const { user } = useUser()
   
-  // Form state for single participant
-  const [newParticipantName, setNewParticipantName] = useState('')
-  const [newParticipantEmail, setNewParticipantEmail] = useState('')
-  const [newParticipantDepartment, setNewParticipantDepartment] = useState('')
-  const [newParticipantRole, setNewParticipantRole] = useState('')
+  // Form state for multiple participants
+  const [participantRows, setParticipantRows] = useState([{
+    id: Date.now().toString(),
+    name: '',
+    email: '',
+    department: ''
+  }])
   
   // CSV upload state
   const [csvFile, setCsvFile] = useState<File | null>(null)
@@ -73,7 +74,6 @@ export default function ParticipantsTab() {
           name: displayName,
           email: user.email,
           status: user.status || 'invited',
-          role: user.role || 'Member',
           department: user.department || '',
           lastActive: user.lastSignIn ? new Date(user.lastSignIn).toLocaleDateString() : undefined,
           joinedDate: new Date(user.createdAt || Date.now()).toLocaleDateString('en-US', {
@@ -94,46 +94,87 @@ export default function ParticipantsTab() {
     }
   }
 
-  const handleAddSingleParticipant = async () => {
-    if (!newParticipantName || !newParticipantEmail) return
+  const addParticipantRow = () => {
+    setParticipantRows([...participantRows, {
+      id: Date.now().toString(),
+      name: '',
+      email: '',
+      department: ''
+    }])
+  }
+
+  const removeParticipantRow = (id: string) => {
+    if (participantRows.length > 1) {
+      setParticipantRows(participantRows.filter(row => row.id !== id))
+    }
+  }
+
+  const updateParticipantRow = (id: string, field: string, value: string) => {
+    setParticipantRows(participantRows.map(row => 
+      row.id === id ? { ...row, [field]: value } : row
+    ))
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent, rowId: string, field: string) => {
+    if (e.key === 'Enter' && field === 'department') {
+      e.preventDefault()
+      const currentIndex = participantRows.findIndex(row => row.id === rowId)
+      const currentRow = participantRows[currentIndex]
+      
+      // Only add a new row if the current row has name and email
+      if (currentRow.name && currentRow.email) {
+        addParticipantRow()
+      }
+    }
+  }
+
+  const handleAddParticipants = async () => {
+    // Filter out empty rows and validate
+    const validParticipants = participantRows.filter(row => row.name && row.email)
+    
+    if (validParticipants.length === 0) {
+      alert('Please fill in at least one participant with name and email')
+      return
+    }
     
     try {
-      // API call to invite participant to the organization
-      const response = await fetch('/api/company/invite', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          emails: [newParticipantEmail], // API expects array
-          name: newParticipantName, // Add the actual name
-          department: newParticipantDepartment, // Add department
-          role: newParticipantRole || 'Member', // Add role
-          senderEmail: user?.primaryEmailAddress?.emailAddress || '',
-          company: organization?.name || user?.primaryEmailAddress?.emailAddress?.split('@')[1] || '',
-          message: `You've been invited to join ${organization?.name || 'our team'} on Campfire`
+      // Add all participants
+      for (const participant of validParticipants) {
+        const response = await fetch('/api/company/invite', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            emails: [participant.email],
+            name: participant.name,
+            department: participant.department,
+            senderEmail: user?.primaryEmailAddress?.emailAddress || '',
+            company: organization?.name || user?.primaryEmailAddress?.emailAddress?.split('@')[1] || '',
+            message: `You've been invited to join ${organization?.name || 'our team'} on Campfire`
+          })
         })
-      })
-      
-      if (!response.ok) {
-        const error = await response.json()
-        console.error('Failed to add participant:', error)
-        alert(error.error || 'Failed to add participant')
-        return
+        
+        if (!response.ok) {
+          const error = await response.json()
+          console.error(`Failed to add participant ${participant.email}:`, error)
+        }
       }
       
-      // Reload participants to show the new addition
+      // Reload participants to show the new additions
       await loadParticipants()
       
       // Reset form
-      setNewParticipantName('')
-      setNewParticipantEmail('')
-      setNewParticipantDepartment('')
-      setNewParticipantRole('')
+      setParticipantRows([{
+        id: Date.now().toString(),
+        name: '',
+        email: '',
+        department: ''
+      }])
       setShowAddSection(false)
     } catch (error) {
-      console.error('Failed to add participant:', error)
-      alert('Failed to add participant. Please try again.')
+      console.error('Failed to add participants:', error)
+      alert('Failed to add some participants. Please try again.')
     }
   }
 
@@ -260,7 +301,7 @@ export default function ParticipantsTab() {
                     : 'bg-white/10 text-white/60 hover:bg-white/20'
                 }`}
               >
-                Add Single Participant
+                Add Participants
               </button>
               <button
                 onClick={() => setAddMode('bulk')}
@@ -275,68 +316,105 @@ export default function ParticipantsTab() {
             </div>
 
             {addMode === 'single' ? (
-              /* Single Participant Form */
+              /* Multiple Participants Form */
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-white/80 mb-2">
+                {/* Header row with labels */}
+                <div className="grid grid-cols-12 gap-4 mb-2">
+                  <div className="col-span-4">
+                    <label className="block text-sm font-medium text-white/80">
                       Name *
                     </label>
-                    <input
-                      type="text"
-                      value={newParticipantName}
-                      onChange={(e) => setNewParticipantName(e.target.value)}
-                      placeholder="John Doe"
-                      className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-white/80 mb-2">
+                  <div className="col-span-4">
+                    <label className="block text-sm font-medium text-white/80">
                       Email *
                     </label>
-                    <input
-                      type="email"
-                      value={newParticipantEmail}
-                      onChange={(e) => setNewParticipantEmail(e.target.value)}
-                      placeholder="john@example.com"
-                      className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-white/80 mb-2">
+                  <div className="col-span-3">
+                    <label className="block text-sm font-medium text-white/80">
                       Department
                     </label>
-                    <input
-                      type="text"
-                      value={newParticipantDepartment}
-                      onChange={(e) => setNewParticipantDepartment(e.target.value)}
-                      placeholder="Engineering"
-                      className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-white/80 mb-2">
-                      Role
-                    </label>
-                    <select
-                      value={newParticipantRole}
-                      onChange={(e) => setNewParticipantRole(e.target.value)}
-                      className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    >
-                      <option value="">Select role</option>
-                      <option value="Admin">Admin</option>
-                      <option value="Member">Member</option>
-                      <option value="Viewer">Viewer</option>
-                    </select>
-                  </div>
+                  <div className="col-span-1"></div>
                 </div>
+                
+                {/* Participant rows */}
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {participantRows.map((row, index) => (
+                    <div key={row.id} className="grid grid-cols-12 gap-4 items-center">
+                      <div className="col-span-4">
+                        <input
+                          type="text"
+                          value={row.name}
+                          onChange={(e) => updateParticipantRow(row.id, 'name', e.target.value)}
+                          onKeyDown={(e) => handleKeyDown(e, row.id, 'name')}
+                          placeholder="John Doe"
+                          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        />
+                      </div>
+                      <div className="col-span-4">
+                        <input
+                          type="email"
+                          value={row.email}
+                          onChange={(e) => updateParticipantRow(row.id, 'email', e.target.value)}
+                          onKeyDown={(e) => handleKeyDown(e, row.id, 'email')}
+                          placeholder="john@example.com"
+                          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        />
+                      </div>
+                      <div className="col-span-3">
+                        <input
+                          type="text"
+                          value={row.department}
+                          onChange={(e) => updateParticipantRow(row.id, 'department', e.target.value)}
+                          onKeyDown={(e) => handleKeyDown(e, row.id, 'department')}
+                          placeholder="Engineering"
+                          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        />
+                      </div>
+                      <div className="col-span-1 flex gap-1">
+                        {index === participantRows.length - 1 ? (
+                          <button
+                            onClick={addParticipantRow}
+                            className="p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                            title="Add another participant"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => removeParticipantRow(row.id)}
+                            className="p-2 bg-white/10 text-white/60 rounded-lg hover:bg-red-500/20 hover:text-red-400 transition-colors"
+                            title="Remove this participant"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Help text */}
+                <p className="text-sm text-white/60">
+                  Press Enter in the department field to add another row, or click the + button
+                </p>
+                
+                {/* Submit button */}
                 <div className="flex justify-end">
                   <button
-                    onClick={handleAddSingleParticipant}
-                    disabled={!newParticipantName || !newParticipantEmail}
+                    onClick={handleAddParticipants}
+                    disabled={!participantRows.some(row => row.name && row.email)}
                     className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Add Participant
+                    {(() => {
+                      const validCount = participantRows.filter(row => row.name && row.email).length
+                      return validCount > 1 
+                        ? `Add ${validCount} Participants`
+                        : validCount === 1
+                        ? 'Add Participant'
+                        : 'Add Participants'
+                    })()}
                   </button>
                 </div>
               </div>
@@ -447,7 +525,7 @@ export default function ParticipantsTab() {
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
               >
                 <Plus className="w-5 h-5" />
-                Add Single Participant
+                Add Participants
               </button>
               <button
                 onClick={() => {
@@ -482,9 +560,6 @@ export default function ParticipantsTab() {
                   Department
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Last Active
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -516,9 +591,6 @@ export default function ParticipantsTab() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {participant.department || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {participant.role || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {participant.lastActive || '-'}

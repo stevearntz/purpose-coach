@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation'
 import { 
   Plus, Rocket, Calendar, Users, BarChart3, Clock, 
   Link, Download, CheckCircle, AlertCircle, X,
-  Loader2, Copy, Mail
+  Loader2, Copy, Mail, ArrowLeft, Target
 } from 'lucide-react'
+import CampaignCreationWizard from './CampaignCreationWizard'
+import { ToastProvider } from '@/hooks/useToast'
 
 interface Campaign {
   id: string
@@ -40,6 +42,7 @@ export default function CampaignsTab() {
   const [showParticipantsModal, setShowParticipantsModal] = useState(false)
   const [copiedCampaign, setCopiedCampaign] = useState<string | null>(null)
   const [copiedLink, setCopiedLink] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<'list' | 'create'>('list')
 
   useEffect(() => {
     loadCampaigns()
@@ -254,11 +257,42 @@ export default function CampaignsTab() {
     )
   }
 
+  // Render the creation wizard inline
+  if (viewMode === 'create') {
+    return (
+      <ToastProvider>
+        <div>
+          {/* Back link */}
+          <button
+            onClick={() => setViewMode('list')}
+            className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-6 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to assessments</span>
+          </button>
+          
+          {/* Inline wizard */}
+          <CampaignCreationWizard
+            toolId="hr-partnership"
+            toolTitle="HR Partnership"
+            toolPath="/hr-partnership"
+            toolGradient="from-purple-600 to-purple-700"
+            toolIcon={<Target className="w-6 h-6" />}
+            onClose={() => {
+              setViewMode('list')
+              loadCampaigns() // Refresh the list
+            }}
+          />
+        </div>
+      </ToastProvider>
+    )
+  }
+
   return (
     <div>
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-white mb-3">
-          Active Campaigns
+          Active Assessments
         </h2>
         <p className="text-lg text-white/80">
           Manage and monitor your assessment campaigns
@@ -270,22 +304,32 @@ export default function CampaignsTab() {
         <div className="bg-white/5 backdrop-blur-sm rounded-xl p-12 border border-white/10 text-center">
           <Rocket className="w-16 h-16 text-white/40 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-white mb-2">
-            No Active Campaigns
+            No Active Assessments
           </h3>
           <p className="text-white/60 mb-6 max-w-md mx-auto">
-            Launch your first assessment campaign to start gathering insights from your team
+            Launch your first assessment to start gathering insights from your team
           </p>
           <button
-            onClick={() => router.push('/dashboard?tab=tools')}
+            onClick={() => setViewMode('create')}
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl"
           >
             <Plus className="w-5 h-5" />
-            Launch First Campaign
+            Launch First Assessment
           </button>
         </div>
       ) : (
         /* Campaign List */
         <div className="space-y-4">
+          {/* Add Assessment Button */}
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={() => setViewMode('create')}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              New Assessment
+            </button>
+          </div>
           {campaigns.map((campaign) => (
             <div
               key={campaign.id}

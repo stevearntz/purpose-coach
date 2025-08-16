@@ -252,11 +252,11 @@ export default function CampaignCreationWizard({
       
       const result = await response.json()
       
-      showSuccess(`Campaign launched! ${result.sentCount} invitations sent successfully.`)
+      showSuccess(`Assessment launched! ${result.sentCount} invitations sent successfully.`)
       
-      // Redirect to campaigns page
+      // Call onClose to return to the list view
       setTimeout(() => {
-        router.push('/dashboard/campaigns')
+        onClose()
       }, 1500)
       
     } catch (error) {
@@ -623,8 +623,7 @@ Thanks!`}
   )
   
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-white/20">
+    <div className="bg-gradient-to-br from-gray-900/50 via-purple-900/50 to-indigo-900/50 rounded-2xl shadow-xl border border-white/20">
         {/* Header */}
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center justify-between">
@@ -637,12 +636,9 @@ Thanks!`}
                 <p className="text-white/70">Create a new assessment campaign</p>
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-            >
-              <X className="w-6 h-6 text-white/70" />
-            </button>
+            <div className="text-sm text-white/60">
+              Step {currentStep} of 4
+            </div>
           </div>
         </div>
         
@@ -691,12 +687,11 @@ Thanks!`}
                 ) : (
                   <>
                     <Rocket className="w-5 h-5" />
-                    Launch Campaign
+                    Launch Assessment
                   </>
                 )}
               </button>
             )}
-          </div>
         </div>
       </div>
     </div>

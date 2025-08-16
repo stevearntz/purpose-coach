@@ -1,7 +1,23 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import OnboardingTab from '@/components/OnboardingTab'
 
 export default function OnboardingPage() {
-  return <OnboardingTab />
+  const router = useRouter()
+  
+  const handleNavigate = (tab: string) => {
+    // Map the tab names to actual routes
+    const routes: Record<string, string> = {
+      participants: '/dashboard/participants',
+      assessments: '/dashboard/assessments',
+      recommendations: '/dashboard/recommendations'
+    }
+    
+    if (routes[tab]) {
+      router.push(routes[tab])
+    }
+  }
+  
+  return <OnboardingTab onNavigate={handleNavigate} />
 }

@@ -34,6 +34,8 @@ export default function ParticipantsTab() {
   const [showAddSection, setShowAddSection] = useState(false)
   const [addMode, setAddMode] = useState<'single' | 'bulk'>('single')
   const [copiedParticipantId, setCopiedParticipantId] = useState<string | null>(null)
+  const [isAddingParticipants, setIsAddingParticipants] = useState(false)
+  const [addingProgress, setAddingProgress] = useState({ current: 0, total: 0 })
   
   // Get organization context from Clerk
   const { organization } = useOrganization()
@@ -183,9 +185,17 @@ export default function ParticipantsTab() {
       return
     }
     
+    setIsAddingParticipants(true)
+    setAddingProgress({ current: 0, total: validParticipants.length })
+    
     try {
+      let successCount = 0
+      
       // Add all participants
-      for (const participant of validParticipants) {
+      for (let i = 0; i < validParticipants.length; i++) {
+        const participant = validParticipants[i]
+        setAddingProgress({ current: i + 1, total: validParticipants.length })
+        
         const response = await fetch('/api/company/invite', {
           method: 'POST',
           headers: {
@@ -201,7 +211,9 @@ export default function ParticipantsTab() {
           })
         })
         
-        if (!response.ok) {
+        if (response.ok) {
+          successCount++
+        } else {
           const error = await response.json()
           console.error(`Failed to add participant ${participant.email}:`, error)
         }
@@ -220,9 +232,18 @@ export default function ParticipantsTab() {
         emailError: false
       }])
       setShowAddSection(false)
+      
+      // Show success message if some participants were added
+      if (successCount > 0) {
+        // Could add a toast notification here if you have a toast system
+        console.log(`Successfully added ${successCount} participant(s)`)
+      }
     } catch (error) {
       console.error('Failed to add participants:', error)
       alert('Failed to add some participants. Please try again.')
+    } finally {
+      setIsAddingParticipants(false)
+      setAddingProgress({ current: 0, total: 0 })
     }
   }
 
@@ -398,11 +419,12 @@ export default function ParticipantsTab() {
                           onChange={(e) => updateParticipantRow(row.id, 'name', e.target.value)}
                           onKeyDown={(e) => handleKeyDown(e, row.id, 'name')}
                           placeholder={row.nameError ? 'Name required' : 'John Doe'}
+                          disabled={isAddingParticipants}
                           className={`w-full px-4 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors ${
                             row.nameError 
                               ? 'border-red-500 placeholder-red-400' 
                               : 'border-white/20 placeholder-white/40'
-                          }`}
+                          } ${isAddingParticipants ? 'opacity-50 cursor-not-allowed' : ''}`}
                         />
                       </div>
                       <div className="col-span-4">
@@ -418,11 +440,12 @@ export default function ParticipantsTab() {
                             }
                           }}
                           placeholder={row.emailError ? 'Email required' : 'john@example.com'}
+                          disabled={isAddingParticipants}
                           className={`w-full px-4 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors ${
                             row.emailError 
                               ? 'border-red-500 placeholder-red-400' 
                               : 'border-white/20 placeholder-white/40'
-                          }`}
+                          } ${isAddingParticipants ? 'opacity-50 cursor-not-allowed' : ''}`}
                         />
                       </div>
                       <div className="col-span-3">
@@ -432,14 +455,16 @@ export default function ParticipantsTab() {
                           onChange={(e) => updateParticipantRow(row.id, 'department', e.target.value)}
                           onKeyDown={(e) => handleKeyDown(e, row.id, 'department')}
                           placeholder="Engineering"
-                          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          disabled={isAddingParticipants}
+                          className={`w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500 ${isAddingParticipants ? 'opacity-50 cursor-not-allowed' : ''}`}
                         />
                       </div>
                       <div className="col-span-1 flex gap-1">
                         {index === participantRows.length - 1 ? (
                           <button
                             onClick={addParticipantRow}
-                            className="p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                            disabled={isAddingParticipants}
+                            className={`p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors ${isAddingParticipants ? 'opacity-50 cursor-not-allowed' : ''}`}
                             title="Add another participant"
                           >
                             <Plus className="w-4 h-4" />
@@ -447,7 +472,8 @@ export default function ParticipantsTab() {
                         ) : (
                           <button
                             onClick={() => removeParticipantRow(row.id)}
-                            className="p-2 bg-white/10 text-white/60 rounded-lg hover:bg-red-500/20 hover:text-red-400 transition-colors"
+                            disabled={isAddingParticipants}
+                            className={`p-2 bg-white/10 text-white/60 rounded-lg hover:bg-red-500/20 hover:text-red-400 transition-colors ${isAddingParticipants ? 'opacity-50 cursor-not-allowed' : ''}`}
                             title="Remove this participant"
                           >
                             <X className="w-4 h-4" />
@@ -464,20 +490,38 @@ export default function ParticipantsTab() {
                 </p>
                 
                 {/* Submit button */}
-                <div className="flex justify-end">
+                <div className="flex justify-between items-center">
+                  {/* Progress indicator */}
+                  {isAddingParticipants && addingProgress.total > 0 && (
+                    <div className="flex items-center gap-3 text-white/60">
+                      <Loader2 className="animate-spin h-4 w-4" />
+                      <span className="text-sm">
+                        Adding participant {addingProgress.current} of {addingProgress.total}...
+                      </span>
+                    </div>
+                  )}
+                  {!isAddingParticipants && <div />}
+                  
                   <button
                     onClick={handleAddParticipants}
-                    disabled={!participantRows.some(row => row.name && row.email)}
-                    className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isAddingParticipants || !participantRows.some(row => row.name && row.email)}
+                    className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
-                    {(() => {
-                      const validCount = participantRows.filter(row => row.name && row.email).length
-                      return validCount > 1 
-                        ? `Add ${validCount} Participants`
-                        : validCount === 1
-                        ? 'Add Participant'
-                        : 'Add Participants'
-                    })()}
+                    {isAddingParticipants ? (
+                      <>
+                        <Loader2 className="animate-spin h-4 w-4" />
+                        Adding...
+                      </>
+                    ) : (
+                      (() => {
+                        const validCount = participantRows.filter(row => row.name && row.email).length
+                        return validCount > 1 
+                          ? `Add ${validCount} Participants`
+                          : validCount === 1
+                          ? 'Add Participant'
+                          : 'Add Participants'
+                      })()
+                    )}
                   </button>
                 </div>
               </div>

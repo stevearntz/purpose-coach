@@ -90,10 +90,24 @@ export async function GET(request: NextRequest) {
           ? Math.round((completedCount / totalParticipants) * 100)
           : 0;
         
+        // Parse campaign metadata from description if it's JSON
+        let metadata: any = {}
+        if (campaign.description) {
+          try {
+            metadata = JSON.parse(campaign.description)
+          } catch {
+            // If not JSON, keep description as is
+            metadata = { message: campaign.description }
+          }
+        }
+        
         return {
           id: campaign.id,
           name: campaign.name,
-          description: campaign.description,
+          description: metadata.message || metadata.customMessage || '',
+          toolName: metadata.toolName,
+          toolId: metadata.toolId,
+          campaignLink: metadata.campaignLink,
           status: campaign.status,
           startDate: campaign.startDate?.toISOString(),
           endDate: campaign.endDate?.toISOString(),

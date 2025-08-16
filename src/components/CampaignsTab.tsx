@@ -14,6 +14,9 @@ interface Campaign {
   id: string
   name: string
   description?: string
+  toolName?: string
+  toolId?: string
+  campaignLink?: string
   status: string
   startDate: string
   endDate?: string
@@ -129,10 +132,11 @@ export default function CampaignsTab() {
     setTimeout(() => setCopiedLink(null), 2000)
   }
 
-  const copyCampaignLink = (campaignId: string) => {
-    const link = `${window.location.origin}/hr-partnership?campaign=${campaignId}`
+  const copyCampaignLink = (campaign: Campaign) => {
+    // Use the actual campaign link from metadata if available
+    const link = campaign.campaignLink || `${window.location.origin}/hr-partnership?campaign=${campaign.id}`
     navigator.clipboard.writeText(link)
-    setCopiedCampaign(campaignId)
+    setCopiedCampaign(campaign.id)
     setTimeout(() => setCopiedCampaign(null), 1500)
   }
 
@@ -292,7 +296,7 @@ export default function CampaignsTab() {
     <div>
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-white mb-3">
-          Active Assessments
+          Active Campaigns
         </h2>
         <p className="text-lg text-white/80">
           Manage and monitor your assessment campaigns
@@ -304,7 +308,7 @@ export default function CampaignsTab() {
         <div className="bg-white/5 backdrop-blur-sm rounded-xl p-12 border border-white/10 text-center">
           <Rocket className="w-16 h-16 text-white/40 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-white mb-2">
-            No Active Assessments
+            No Active Campaigns
           </h3>
           <p className="text-white/60 mb-6 max-w-md mx-auto">
             Launch your first assessment to start gathering insights from your team
@@ -320,16 +324,6 @@ export default function CampaignsTab() {
       ) : (
         /* Campaign List */
         <div className="space-y-4">
-          {/* Add Assessment Button */}
-          <div className="flex justify-end mb-4">
-            <button
-              onClick={() => setViewMode('create')}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              New Assessment
-            </button>
-          </div>
           {campaigns.map((campaign) => (
             <div
               key={campaign.id}
@@ -340,9 +334,14 @@ export default function CampaignsTab() {
                   <h3 className="text-lg font-semibold text-white mb-1">
                     {campaign.name}
                   </h3>
-                  {campaign.description && (
+                  {campaign.toolName && (
                     <p className="text-sm text-white/60">
-                      {campaign.description}
+                      {campaign.toolName} Assessment
+                    </p>
+                  )}
+                  {campaign.description && (
+                    <p className="text-sm text-white/50 italic mt-1">
+                      "{campaign.description}"
                     </p>
                   )}
                 </div>
@@ -353,7 +352,7 @@ export default function CampaignsTab() {
                   
                   {/* Copy Link Icon */}
                   <button
-                    onClick={() => copyCampaignLink(campaign.id)}
+                    onClick={() => copyCampaignLink(campaign)}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
                     title="Copy campaign link"
                   >

@@ -282,9 +282,26 @@ export default function CampaignCreationWizard({
       
       const result = await response.json()
       
-      // The API returns summary.invitationsCreated for the number of participants added
+      // Log the response for debugging
+      console.log('Campaign launch response:', result)
+      
+      // The API returns summary with both invitations created and emails sent
       const inviteCount = result.summary?.invitationsCreated || result.summary?.totalParticipants || 0
-      showSuccess(`Assessment launched! ${inviteCount} participant${inviteCount !== 1 ? 's' : ''} added successfully.`)
+      const emailsSent = result.summary?.emailsSent || 0
+      const emailsFailed = result.summary?.emailsFailed || 0
+      
+      // Log failed emails if any
+      if (result.details && emailsFailed > 0) {
+        const failedEmails = result.details.filter((d: any) => !d.emailSent)
+        console.warn('Failed to send emails to:', failedEmails)
+      }
+      
+      // Show detailed success message
+      if (emailsFailed > 0) {
+        showSuccess(`Assessment launched! ${inviteCount} participant${inviteCount !== 1 ? 's' : ''} added. ${emailsSent} email${emailsSent !== 1 ? 's' : ''} sent, ${emailsFailed} failed.`)
+      } else {
+        showSuccess(`Assessment launched! ${inviteCount} participant${inviteCount !== 1 ? 's' : ''} added and notified successfully.`)
+      }
       
       // Call onClose to return to the list view
       setTimeout(() => {

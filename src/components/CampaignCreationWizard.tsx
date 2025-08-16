@@ -98,36 +98,48 @@ export default function CampaignCreationWizard({
       }
     }
     
-    // Generate more realistic mock data for testing large lists
-    const departments = ['Engineering', 'Product', 'Design', 'Marketing', 'Sales', 'HR', 'Finance']
-    const firstNames = ['Steve', 'Ella', 'John', 'Jane', 'Mike', 'Sarah', 'David', 'Emma', 'Chris', 'Lisa']
-    const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Wilson', 'Martinez']
+    // Fetch real participants from API
+    const loadParticipants = async () => {
+      try {
+        const response = await fetch('/api/company/users/v2')
+        if (response.ok) {
+          const data = await response.json()
+          
+          // Transform API response to match our interface
+          const transformedUsers = data.users?.map((user: any) => {
+            // Combine firstName and lastName for display
+            let displayName = ''
+            if (user.firstName && user.lastName && user.firstName !== user.lastName) {
+              displayName = `${user.firstName} ${user.lastName}`.trim()
+            } else if (user.firstName) {
+              displayName = user.firstName
+            } else {
+              displayName = user.email.split('@')[0]
+            }
+            
+            return {
+              id: user.email, // Use email as ID since we don't have a separate ID
+              email: user.email,
+              name: displayName,
+              department: user.department || ''
+            }
+          }) || []
+          
+          setExistingUsers(transformedUsers)
+        } else {
+          console.error('Failed to load participants')
+          setExistingUsers([])
+        }
+      } catch (error) {
+        console.error('Failed to fetch participants:', error)
+        setExistingUsers([])
+      } finally {
+        setLoadingUsers(false)
+      }
+    }
     
-    const mockUsers = []
-    
-    // Add the main users
-    mockUsers.push(
-      { id: '1', email: 'steve@getcampfire.com', name: 'Steve Arntz', department: 'Product' },
-      { id: '2', email: 'ella@getcampfire.com', name: 'Ella Wright', department: 'Engineering' },
-      { id: '3', email: 'test@example.com', name: 'Test Participant', department: 'Product' }
-    )
-    
-    // Generate additional mock users for testing (uncomment to test with more users)
-    // for (let i = 4; i <= 50; i++) {
-    //   const firstName = firstNames[Math.floor(Math.random() * firstNames.length)]
-    //   const lastName = lastNames[Math.floor(Math.random() * lastNames.length)]
-    //   const department = departments[Math.floor(Math.random() * departments.length)]
-    //   mockUsers.push({
-    //     id: i.toString(),
-    //     email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.com`,
-    //     name: `${firstName} ${lastName}`,
-    //     department
-    //   })
-    // }
-    
-    setExistingUsers(mockUsers)
-    setLoadingUsers(false)
-  }, []) // Empty dependency array - runs once on mount
+    loadParticipants()
+  }, [toolId, showSuccess]) // Add dependencies
   
   
   // Filter users based on search term

@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
   Target, Heart, Briefcase, Brain, Users, ShieldCheck, 
-  Lightbulb, ArrowRight, ClipboardCheck, MessageCircle, BookOpen
+  Lightbulb, ArrowRight, ArrowLeft, ClipboardCheck, MessageCircle, BookOpen
 } from 'lucide-react'
 import CampaignCreationWizard from './CampaignCreationWizard'
 import { ToastProvider } from '@/hooks/useToast'
@@ -219,11 +219,24 @@ export default function ToolsLibrary({
     }
   }
 
-  return (
-    <ToastProvider>
-      <div>
-        {/* Campaign Creation Wizard */}
-        {showWizard && selectedTool && (
+  // If wizard is shown, only render wizard with back link
+  if (showWizard && selectedTool) {
+    return (
+      <ToastProvider>
+        <div>
+          {/* Back link */}
+          <button
+            onClick={() => {
+              setShowWizard(false)
+              setSelectedTool(null)
+            }}
+            className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-6 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to assessments</span>
+          </button>
+          
+          {/* Campaign Creation Wizard */}
           <CampaignCreationWizard
             toolId={selectedTool.id}
             toolTitle={selectedTool.title}
@@ -235,8 +248,14 @@ export default function ToolsLibrary({
               setSelectedTool(null)
             }}
           />
-        )}
-        
+        </div>
+      </ToastProvider>
+    )
+  }
+
+  return (
+    <ToastProvider>
+      <div>
         <div className="mb-6">
         <h2 className="text-2xl font-bold text-white mb-3">
           {filterType === 'assessment' && 'Launch Assessment Campaigns'}

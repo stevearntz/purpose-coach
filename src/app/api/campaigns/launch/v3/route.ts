@@ -88,21 +88,24 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
         });
       }
       
-      // Create campaign with link
+      // Create campaign (store extra data in description for now)
+      const campaignData = {
+        toolId,
+        toolName,
+        toolPath,
+        campaignCode,
+        campaignLink,
+        message: customMessage
+      };
+      
       const campaign = await tx.campaign.create({
         data: {
           name: campaignName,
-          description: customMessage,
-          toolId,
-          toolName,
-          toolPath,
+          description: JSON.stringify(campaignData), // Store as JSON in description field
           status: 'ACTIVE',
           startDate: new Date(startDate),
           endDate: deadline ? new Date(deadline) : null,
-          companyId: company.id,
-          createdBy: req.user.email,
-          campaignCode,
-          campaignLink
+          companyId: company.id
         }
       });
       

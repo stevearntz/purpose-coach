@@ -47,6 +47,7 @@ model InvitationMetadata {
   id             String     @id @default(cuid())
   invitationId   String     @unique
   role           String?
+  department     String?
   challenges     String[]   @default([])
   toolsAccessed  String[]   @default([])
   accountCreated Boolean    @default(false)

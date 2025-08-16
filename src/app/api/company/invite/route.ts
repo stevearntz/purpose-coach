@@ -5,7 +5,7 @@ import { sendInvitationEmail, isEmailServiceConfigured } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
-    const { emails, message, senderEmail, company: companyName } = await request.json();
+    const { emails, message, senderEmail, company: companyName, name, department, role } = await request.json();
     
     if (!emails || !Array.isArray(emails) || emails.length === 0) {
       return NextResponse.json({ error: 'Emails are required' }, { status: 400 });
@@ -38,13 +38,16 @@ export async function POST(request: NextRequest) {
     
     for (const email of emails) {
       try {
-        // Parse name from email if not provided
-        const emailParts = email.trim().split('@')[0];
-        // Handle both dot and underscore separators
-        const nameParts = emailParts.split(/[._-]/).filter((p: string) => p.length > 0);
-        const fullName = nameParts.map((part: string) => 
-          part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-        ).join(' ');
+        // Use provided name or parse from email
+        let fullName = name;
+        if (!fullName) {
+          const emailParts = email.trim().split('@')[0];
+          // Handle both dot and underscore separators
+          const nameParts = emailParts.split(/[._-]/).filter((p: string) => p.length > 0);
+          fullName = nameParts.map((part: string) => 
+            part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+          ).join(' ');
+        }
         
         console.log('[invite] Creating invitation for:', email, 'with name:', fullName);
         
@@ -81,10 +84,17 @@ export async function POST(request: NextRequest) {
             personalMessage: message || `You've been invited to join ${company.name} on Campfire`,
             companyId: company.id,
             status: 'PENDING', // Not invited yet, just created
-            sentAt: null // No email sent yet
+            sentAt: null, // No email sent yet
+            metadata: {
+              create: {
+                role: role || 'Member',
+                department: department || null
+              }
+            }
           },
           include: {
-            company: true
+            company: true,
+            metadata: true
           }
         });
         

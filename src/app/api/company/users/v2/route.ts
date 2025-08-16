@@ -102,7 +102,13 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
           status: true,
           sentAt: true,
           completedAt: true,
-          createdAt: true
+          createdAt: true,
+          metadata: {
+            select: {
+              role: true,
+              department: true
+            }
+          }
         }
       });
       
@@ -127,6 +133,8 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
           firstName: nameParts[0] || '',
           lastName: nameParts.slice(1).join(' ') || '',
           status: userStatus,
+          role: inv.metadata?.role || 'Member',
+          department: inv.metadata?.department || '',
           lastSignIn: inv.completedAt?.toISOString(),
           invitedAt: inv.sentAt?.toISOString(),
           createdAt: inv.createdAt.toISOString()

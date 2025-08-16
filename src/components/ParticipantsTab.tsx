@@ -57,20 +57,32 @@ export default function ParticipantsTab() {
       const data = await response.json()
       
       // Transform API response to match our Participant interface
-      const transformedParticipants: Participant[] = data.users?.map((user: any) => ({
-        id: user.email, // Use email as ID since we don't have a separate ID
-        name: `${user.firstName} ${user.lastName}`.trim() || user.email.split('@')[0],
-        email: user.email,
-        status: user.status || 'invited',
-        role: user.role || 'Member',
-        department: user.department || '',
-        lastActive: user.lastSignIn ? new Date(user.lastSignIn).toLocaleDateString() : undefined,
-        joinedDate: new Date(user.createdAt || Date.now()).toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric'
-        })
-      })) || []
+      const transformedParticipants: Participant[] = data.users?.map((user: any) => {
+        // Combine firstName and lastName, but if they're both empty or the same, just use one
+        let displayName = '';
+        if (user.firstName && user.lastName && user.firstName !== user.lastName) {
+          displayName = `${user.firstName} ${user.lastName}`.trim();
+        } else if (user.firstName) {
+          displayName = user.firstName;
+        } else {
+          displayName = user.email.split('@')[0];
+        }
+        
+        return {
+          id: user.email, // Use email as ID since we don't have a separate ID
+          name: displayName,
+          email: user.email,
+          status: user.status || 'invited',
+          role: user.role || 'Member',
+          department: user.department || '',
+          lastActive: user.lastSignIn ? new Date(user.lastSignIn).toLocaleDateString() : undefined,
+          joinedDate: new Date(user.createdAt || Date.now()).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          })
+        };
+      }) || []
       
       setParticipants(transformedParticipants)
     } catch (error) {
@@ -94,6 +106,9 @@ export default function ParticipantsTab() {
         },
         body: JSON.stringify({
           emails: [newParticipantEmail], // API expects array
+          name: newParticipantName, // Add the actual name
+          department: newParticipantDepartment, // Add department
+          role: newParticipantRole || 'Member', // Add role
           senderEmail: user?.primaryEmailAddress?.emailAddress || '',
           company: organization?.name || user?.primaryEmailAddress?.emailAddress?.split('@')[1] || '',
           message: `You've been invited to join ${organization?.name || 'our team'} on Campfire`
@@ -403,82 +418,132 @@ export default function ParticipantsTab() {
         </div>
       </div>
 
-      {/* Users Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Participant
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Department
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Role
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Last Active
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Invite
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredParticipants.map((participant) => (
-              <tr key={participant.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">
-                      {participant.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{participant.name}</div>
-                      <div className="text-sm text-gray-500">{participant.email}</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex">
-                    <span className={`px-2 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-full border ${getStatusColor(participant.status)}`}>
-                      {getStatusIcon(participant.status)}
-                      {participant.status}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {participant.department || '-'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {participant.role || '-'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {participant.lastActive || '-'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  {participant.status !== 'active' && (
-                    <button
-                      onClick={() => copyParticipantInviteLink(participant.id, participant.email)}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
-                      title="Copy invite link"
-                    >
-                      {copiedParticipantId === participant.id ? (
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                      ) : (
-                        <Link className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
-                      )}
-                    </button>
-                  )}
-                </td>
+      {/* Users Table or Empty State */}
+      {filteredParticipants.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-sm p-12">
+          <div className="max-w-md mx-auto text-center">
+            {/* Icon */}
+            <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Users className="w-10 h-10 text-purple-600" />
+            </div>
+            
+            {/* Title */}
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              No participants yet
+            </h3>
+            
+            {/* Description */}
+            <p className="text-gray-600 mb-8">
+              Get started by adding your first participants. They'll receive invitations to complete assessments and provide valuable insights.
+            </p>
+            
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button
+                onClick={() => {
+                  setShowAddSection(true)
+                  setAddMode('single')
+                }}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+              >
+                <Plus className="w-5 h-5" />
+                Add Single Participant
+              </button>
+              <button
+                onClick={() => {
+                  setShowAddSection(true)
+                  setAddMode('bulk')
+                }}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-purple-600 border-2 border-purple-600 rounded-lg hover:bg-purple-50 transition-colors font-medium"
+              >
+                <Upload className="w-5 h-5" />
+                Upload CSV
+              </button>
+            </div>
+            
+            {/* Help text */}
+            <p className="text-sm text-gray-500 mt-8">
+              Tip: You can bulk import participants using a CSV file with names and email addresses
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Participant
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Department
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Role
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Last Active
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Invite
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredParticipants.map((participant) => (
+                <tr key={participant.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">
+                        {participant.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900">{participant.name}</div>
+                        <div className="text-sm text-gray-500">{participant.email}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex">
+                      <span className={`px-2 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-full border ${getStatusColor(participant.status)}`}>
+                        {getStatusIcon(participant.status)}
+                        {participant.status}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {participant.department || '-'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {participant.role || '-'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {participant.lastActive || '-'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    {participant.status !== 'active' && (
+                      <button
+                        onClick={() => copyParticipantInviteLink(participant.id, participant.email)}
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
+                        title="Copy invite link"
+                      >
+                        {copiedParticipantId === participant.id ? (
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                        ) : (
+                          <Link className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
+                        )}
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }

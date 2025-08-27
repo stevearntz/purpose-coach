@@ -22,6 +22,7 @@ export default function UsersPage() {
   const [members, setMembers] = useState<OrganizationMember[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedMember, setSelectedMember] = useState<string | null>(null)
+  const [copiedEmail, setCopiedEmail] = useState<string | null>(null)
 
   useEffect(() => {
     fetchMembers()
@@ -223,12 +224,25 @@ export default function UsersPage() {
                         </div>
                       </td>
                       <td className="py-4 px-6">
-                        <div className="flex items-center gap-2">
-                          <Mail className="w-4 h-4 text-white/40" />
-                          <span className="text-white/80 text-sm">
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(member.publicUserData.identifier)
+                            setCopiedEmail(member.publicUserData.identifier)
+                            setTimeout(() => setCopiedEmail(null), 2000)
+                          }}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors group relative"
+                          title="Click to copy email"
+                        >
+                          <Mail className="w-3.5 h-3.5 text-white/60 group-hover:text-white" />
+                          <span className="text-white/80 group-hover:text-white text-sm">
                             {member.publicUserData.identifier}
                           </span>
-                        </div>
+                          {copiedEmail === member.publicUserData.identifier && (
+                            <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-green-500 text-white text-xs rounded whitespace-nowrap">
+                              Copied!
+                            </span>
+                          )}
+                        </button>
                       </td>
                       <td className="py-4 px-6">
                         <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${getRoleBadgeColor(member.role)}`}>

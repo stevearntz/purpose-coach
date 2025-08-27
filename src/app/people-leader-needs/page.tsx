@@ -708,8 +708,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                 People Leadership Needs Assessment
               </h1>
               <p className="text-xl text-white/80 max-w-2xl mx-auto mb-8">
-                This assessment helps all people leaders identify core needs for leading their teams effectively. 
-                Share your challenges and we'll help you get the right support and resources.
+                This assessment helps all people leaders identify core needs for leading their teams effectively so that we can help you get the right support and resources.
               </p>
             </div>
             

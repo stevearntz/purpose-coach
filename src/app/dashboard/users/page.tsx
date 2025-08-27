@@ -75,8 +75,9 @@ export default function UsersPage() {
   }
 
   const formatRole = (role: string) => {
-    // Remove "org:" prefix if present
-    return role.replace('org:', '')
+    // Remove "org:" prefix if present and capitalize first letter
+    const cleanRole = role.replace('org:', '')
+    return cleanRole.charAt(0).toUpperCase() + cleanRole.slice(1).toLowerCase()
   }
 
   const formatDate = (dateString: string) => {

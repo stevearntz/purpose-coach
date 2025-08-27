@@ -1,0 +1,58 @@
+<testsuites id="" name="" tests="2" failures="1" skipped="0" errors="0" time="7.491059">
+<testsuite name="global.setup.ts" timestamp="2025-08-16T18:00:40.031Z" hostname="global-setup" tests="1" failures="0" skipped="0" time="0.302" errors="0">
+<testcase name="global setup" classname="global.setup.ts" time="0.302">
+<system-out>
+<![CDATA[🔐 Setting up Clerk testing token...
+[dotenv@17.2.1] injecting env (0) from .env.local,.env -- tip: ⚙️  suppress all logs with { quiet: true }
+✅ Clerk testing token configured
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="public-pages.spec.ts" timestamp="2025-08-16T18:00:40.031Z" hostname="public" tests="1" failures="1" skipped="0" time="6.118" errors="0">
+<testcase name="Public Pages › toolkit page shows all tools" classname="public-pages.spec.ts" time="6.118">
+<failure message="public-pages.spec.ts:16:7 toolkit page shows all tools" type="FAILURE">
+<![CDATA[  [public] › public-pages.spec.ts:16:7 › Public Pages › toolkit page shows all tools ───────────────
+
+    Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
+
+    Locator: locator('h1:has-text("Leadership Development Toolkit")')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('h1:has-text("Leadership Development Toolkit")')
+
+
+      18 |     
+      19 |     // Check page loaded
+    > 20 |     await expect(page.locator('h1:has-text("Leadership Development Toolkit")')).toBeVisible()
+         |                                                                                 ^
+      21 |     
+      22 |     // Check assessment tools are listed
+      23 |     await expect(page.locator('text=Burnout Assessment')).toBeVisible()
+        at /Users/stevearntz/Projects/purpose-coach/tests/e2e/public-pages.spec.ts:20:81
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/public-pages-Public-Pages-toolkit-page-shows-all-tools-public/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/public-pages-Public-Pages-toolkit-page-shows-all-tools-public/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-results/public-pages-Public-Pages-toolkit-page-shows-all-tools-public/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|public-pages-Public-Pages-toolkit-page-shows-all-tools-public/test-failed-1.png]]
+
+[[ATTACHMENT|public-pages-Public-Pages-toolkit-page-shows-all-tools-public/video.webm]]
+
+[[ATTACHMENT|public-pages-Public-Pages-toolkit-page-shows-all-tools-public/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>

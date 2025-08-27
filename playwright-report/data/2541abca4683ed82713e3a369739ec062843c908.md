@@ -1,0 +1,139 @@
+# Page snapshot
+
+```yaml
+- button "BACK TO HOME"
+- heading "Team Building Tools" [level=1]
+- paragraph: Evidence-based tools to help you grow as a leader, build stronger teams, and navigate workplace challenges with confidence.
+- heading "Filter by Challenge" [level=2]
+- button "Purpose + Direction"
+- button "Navigating Change"
+- button "Trust + Feedback"
+- button "Empowering Others"
+- button "Decision Making"
+- button "Well-Being"
+- button "Communication"
+- button "Skill Building"
+- button "Alignment + Clarity"
+- link "Team Charter Align your team Create clarity and alignment on your team's purpose, values, and ways of working. Purpose + Direction Alignment + Clarity Communication":
+  - /url: /team-charter
+  - heading "Team Charter" [level=3]
+  - paragraph: Align your team
+  - paragraph: Create clarity and alignment on your team's purpose, values, and ways of working.
+  - text: Purpose + Direction Alignment + Clarity Communication
+- link "Trust Audit Build stronger relationships Assess trust across key dimensions to strengthen your professional relationships. Trust + Feedback Communication":
+  - /url: /trust-audit
+  - heading "Trust Audit" [level=3]
+  - paragraph: Build stronger relationships
+  - paragraph: Assess trust across key dimensions to strengthen your professional relationships.
+  - text: Trust + Feedback Communication
+- link "Burnout Assessment Check your energy levels Evaluate your current state and get strategies for maintaining well-being. Well-Being":
+  - /url: /burnout-assessment
+  - heading "Burnout Assessment" [level=3]
+  - paragraph: Check your energy levels
+  - paragraph: Evaluate your current state and get strategies for maintaining well-being.
+  - text: Well-Being
+- link "Decision Making Audit Improve your decisions Evaluate how you make decisions to identify strengths and growth areas. Decision Making":
+  - /url: /decision-making-audit
+  - heading "Decision Making Audit" [level=3]
+  - paragraph: Improve your decisions
+  - paragraph: Evaluate how you make decisions to identify strengths and growth areas.
+  - text: Decision Making
+- link "Change Style Profile Discover your change persona Understand how you naturally respond to change and get strategies for navigating transitions. Navigating Change Skill Building":
+  - /url: /change-style
+  - heading "Change Style Profile" [level=3]
+  - paragraph: Discover your change persona
+  - paragraph: Understand how you naturally respond to change and get strategies for navigating transitions.
+  - text: Navigating Change Skill Building
+- link "Change Readiness Assessment Navigate change confidently Assess your readiness for change and identify where you need support. Navigating Change":
+  - /url: /change-readiness-assessment
+  - heading "Change Readiness Assessment" [level=3]
+  - paragraph: Navigate change confidently
+  - paragraph: Assess your readiness for change and identify where you need support.
+  - text: Navigating Change
+- link "User Guide Create your user guide Build a shareable guide that helps others collaborate effectively with you. Communication Alignment + Clarity":
+  - /url: /user-guide
+  - heading "User Guide" [level=3]
+  - paragraph: Create your user guide
+  - paragraph: Build a shareable guide that helps others collaborate effectively with you.
+  - text: Communication Alignment + Clarity
+- link "Expectations Reflection Surface team dynamics Create psychological safety by sharing hopes, fears, and expectations. Trust + Feedback Navigating Change Communication":
+  - /url: /expectations-reflection
+  - heading "Expectations Reflection" [level=3]
+  - paragraph: Surface team dynamics
+  - paragraph: Create psychological safety by sharing hopes, fears, and expectations.
+  - text: Trust + Feedback Navigating Change Communication
+- link "Drivers Reflection Understand motivations Identify and prioritize what truly drives you in your career. Purpose + Direction Skill Building":
+  - /url: /drivers-reflection
+  - heading "Drivers Reflection" [level=3]
+  - paragraph: Understand motivations
+  - paragraph: Identify and prioritize what truly drives you in your career.
+  - text: Purpose + Direction Skill Building
+- link "Coaching Cards Guided reflection Use powerful questions to guide self-reflection and growth. Empowering Others Skill Building":
+  - /url: /coaching-cards
+  - heading "Coaching Cards" [level=3]
+  - paragraph: Guided reflection
+  - paragraph: Use powerful questions to guide self-reflection and growth.
+  - text: Empowering Others Skill Building
+- link "Change Reflection 1:1 conversation prep Prepare for meaningful conversations about change with your team members. Navigating Change Empowering Others Communication":
+  - /url: /change-reflection
+  - heading "Change Reflection" [level=3]
+  - paragraph: 1:1 conversation prep
+  - paragraph: Prepare for meaningful conversations about change with your team members.
+  - text: Navigating Change Empowering Others Communication
+- link "Focus Finder 5-minute weekly check-in A rapid weekly reflection to surface what really matters. Focus on outcomes, people, and priorities—not just tasks. Purpose + Direction Alignment + Clarity Skill Building":
+  - /url: /accountability-builder
+  - heading "Focus Finder" [level=3]
+  - paragraph: 5-minute weekly check-in
+  - paragraph: A rapid weekly reflection to surface what really matters. Focus on outcomes, people, and priorities—not just tasks.
+  - text: Purpose + Direction Alignment + Clarity Skill Building
+- link "HR Partnership Assessment Bridge the gap with HR Help managers articulate their needs for growth, support, strategic direction, and culture building to strengthen HR partnerships. Empowering Others Skill Building Alignment + Clarity Communication":
+  - /url: /hr-partnership
+  - heading "HR Partnership Assessment" [level=3]
+  - paragraph: Bridge the gap with HR
+  - paragraph: Help managers articulate their needs for growth, support, strategic direction, and culture building to strengthen HR partnerships.
+  - text: Empowering Others Skill Building Alignment + Clarity Communication
+- button "Book a Demo"
+- heading "More Tools Coming Soon" [level=2]
+- paragraph: We're continuously developing new tools to help you tackle workplace challenges. Have a specific need? Let us know what tools would be most helpful for you.
+- contentinfo:
+  - link "Campfire Logo":
+    - /url: https://www.getcampfire.com
+    - img "Campfire Logo"
+  - paragraph: Campfire 2024. All rights reserved
+  - link:
+    - /url: https://www.instagram.com/getcampfire/
+    - img
+  - link:
+    - /url: https://www.facebook.com/getcampfireco
+    - img
+  - link:
+    - /url: https://twitter.com/get_campfire
+    - img
+  - link:
+    - /url: https://www.linkedin.com/company/getcampfire/
+    - img
+  - heading "Company" [level=3]
+  - list:
+    - listitem:
+      - link "Blog":
+        - /url: https://www.getcampfire.com/blog
+    - listitem:
+      - link "Contact Us":
+        - /url: https://www.getcampfire.com/contact
+  - heading "Resources" [level=3]
+  - list:
+    - listitem:
+      - link "All Tools":
+        - /url: /toolkit
+    - listitem:
+      - link "Course Catalog":
+        - /url: /courses
+  - link "TERMS":
+    - /url: https://meet.getcampfire.com/terms
+  - link "PRIVACY":
+    - /url: https://www.getcampfire.com/privacy
+  - paragraph: Campfire 2024. All rights reserved
+- alert
+- button "Open Next.js Dev Tools":
+  - img
+```

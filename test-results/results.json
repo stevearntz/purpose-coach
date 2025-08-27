@@ -1,0 +1,336 @@
+{
+  "config": {
+    "configFile": "/Users/stevearntz/Projects/purpose-coach/playwright.config.ts",
+    "rootDir": "/Users/stevearntz/Projects/purpose-coach/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results/junit.xml"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/stevearntz/Projects/purpose-coach/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "global-setup",
+        "name": "global-setup",
+        "testDir": "/Users/stevearntz/Projects/purpose-coach/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/global\\.setup\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/stevearntz/Projects/purpose-coach/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "/Users/stevearntz/Projects/purpose-coach/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/auth-auto\\.setup\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/stevearntz/Projects/purpose-coach/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "public",
+        "name": "public",
+        "testDir": "/Users/stevearntz/Projects/purpose-coach/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*public.*\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/stevearntz/Projects/purpose-coach/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/stevearntz/Projects/purpose-coach/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/stevearntz/Projects/purpose-coach/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/stevearntz/Projects/purpose-coach/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/stevearntz/Projects/purpose-coach/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/stevearntz/Projects/purpose-coach/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/stevearntz/Projects/purpose-coach/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "/Users/stevearntz/Projects/purpose-coach/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/stevearntz/Projects/purpose-coach/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "/Users/stevearntz/Projects/purpose-coach/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.2",
+    "workers": 5,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:3000",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "global.setup.ts",
+      "file": "global.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "global setup",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "global-setup",
+              "projectName": "global-setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 302,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "🔐 Setting up Clerk testing token...\n"
+                    },
+                    {
+                      "text": "[dotenv@17.2.1] injecting env (0) from .env.local,.env -- tip: ⚙️  suppress all logs with { quiet: true }\n"
+                    },
+                    {
+                      "text": "✅ Clerk testing token configured\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-08-16T18:00:40.335Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e4eb4d1272d956fb120f-3fef6f4476d6add24759",
+          "file": "global.setup.ts",
+          "line": 10,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "public-pages.spec.ts",
+      "file": "public-pages.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Public Pages",
+          "file": "public-pages.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "toolkit page shows all tools",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "public",
+                  "projectName": "public",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 6118,
+                      "error": {
+                        "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('h1:has-text(\"Leadership Development Toolkit\")')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1:has-text(\"Leadership Development Toolkit\")')\u001b[22m\n",
+                        "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('h1:has-text(\"Leadership Development Toolkit\")')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1:has-text(\"Leadership Development Toolkit\")')\u001b[22m\n\n    at /Users/stevearntz/Projects/purpose-coach/tests/e2e/public-pages.spec.ts:20:81",
+                        "location": {
+                          "file": "/Users/stevearntz/Projects/purpose-coach/tests/e2e/public-pages.spec.ts",
+                          "column": 81,
+                          "line": 20
+                        },
+                        "snippet": "  18 |     \n  19 |     // Check page loaded\n> 20 |     await expect(page.locator('h1:has-text(\"Leadership Development Toolkit\")')).toBeVisible()\n     |                                                                                 ^\n  21 |     \n  22 |     // Check assessment tools are listed\n  23 |     await expect(page.locator('text=Burnout Assessment')).toBeVisible()"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/stevearntz/Projects/purpose-coach/tests/e2e/public-pages.spec.ts",
+                            "column": 81,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('h1:has-text(\"Leadership Development Toolkit\")')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1:has-text(\"Leadership Development Toolkit\")')\u001b[22m\n\n\n  18 |     \n  19 |     // Check page loaded\n> 20 |     await expect(page.locator('h1:has-text(\"Leadership Development Toolkit\")')).toBeVisible()\n     |                                                                                 ^\n  21 |     \n  22 |     // Check assessment tools are listed\n  23 |     await expect(page.locator('text=Burnout Assessment')).toBeVisible()\n    at /Users/stevearntz/Projects/purpose-coach/tests/e2e/public-pages.spec.ts:20:81"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T18:00:40.984Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/stevearntz/Projects/purpose-coach/test-results/public-pages-Public-Pages-toolkit-page-shows-all-tools-public/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/stevearntz/Projects/purpose-coach/test-results/public-pages-Public-Pages-toolkit-page-shows-all-tools-public/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/stevearntz/Projects/purpose-coach/test-results/public-pages-Public-Pages-toolkit-page-shows-all-tools-public/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/stevearntz/Projects/purpose-coach/tests/e2e/public-pages.spec.ts",
+                        "column": 81,
+                        "line": 20
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "e87f96acaad393366f41-3627c7cd1fc55e40af23",
+              "file": "public-pages.spec.ts",
+              "line": 16,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-08-16T18:00:39.721Z",
+    "duration": 7491.059,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

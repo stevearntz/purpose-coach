@@ -9,7 +9,7 @@ export default function OnboardingPage() {
   const handleNavigate = (tab: string) => {
     // Map the tab names to actual routes
     const routes: Record<string, string> = {
-      participants: '/dashboard/participants',
+      participants: '/dashboard/users',
       assessments: '/dashboard/assessments',
       recommendations: '/dashboard/recommendations'
     }

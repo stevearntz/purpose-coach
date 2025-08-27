@@ -615,7 +615,7 @@ ${user?.firstName || 'Your Name'}`)
           <div className="text-center">
             <Users className="w-12 h-12 text-white/40 mx-auto mb-3" />
             <p className="text-white/60">No participants found</p>
-            <p className="text-white/40 text-sm mt-2">Add participants in the Participants tab first</p>
+            <p className="text-white/40 text-sm mt-2">Add participants in the Users tab first</p>
           </div>
         </div>
       )}
@@ -627,20 +627,20 @@ ${user?.firstName || 'Your Name'}`)
           <div className="flex-1">
             <p className="text-blue-300 text-sm font-medium mb-1">Need to add someone new?</p>
             <p className="text-blue-300/80 text-sm mb-3">
-              Add new team members in the Participants tab first, then return here to include them in your campaign.
+              Add new team members in the Users tab first, then return here to include them in your campaign.
             </p>
             <button
               onClick={() => {
                 // Save draft state to localStorage
                 localStorage.setItem('campaignDraft', JSON.stringify(campaignData))
                 localStorage.setItem('campaignDraftTool', toolId)
-                // Navigate to participants tab
-                router.push('/dashboard/participants')
+                // Navigate to users tab
+                router.push('/dashboard/users')
               }}
               className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 rounded-lg text-sm font-medium transition-colors"
             >
               <Users className="w-4 h-4" />
-              Go to Participants Tab
+              Go to Users Tab
             </button>
           </div>
         </div>

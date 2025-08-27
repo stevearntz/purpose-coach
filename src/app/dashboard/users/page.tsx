@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useOrganization } from '@clerk/nextjs'
-import { Edit2, Trash2, UserPlus, MoreVertical, Mail, Shield, Calendar, Clock } from 'lucide-react'
+import { Edit2, Trash2, UserPlus, MoreVertical, Mail, Shield, Calendar, Clock, CheckCircle } from 'lucide-react'
 
 interface OrganizationMember {
   id: string
@@ -230,17 +230,25 @@ export default function UsersPage() {
                             setCopiedEmail(member.publicUserData.identifier)
                             setTimeout(() => setCopiedEmail(null), 2000)
                           }}
-                          className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors group relative"
+                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
+                            copiedEmail === member.publicUserData.identifier 
+                              ? 'bg-green-500/20 border border-green-500/40' 
+                              : 'bg-white/10 hover:bg-white/20'
+                          }`}
                           title="Click to copy email"
                         >
-                          <Mail className="w-3.5 h-3.5 text-white/60 group-hover:text-white" />
-                          <span className="text-white/80 group-hover:text-white text-sm">
-                            {member.publicUserData.identifier}
-                          </span>
-                          {copiedEmail === member.publicUserData.identifier && (
-                            <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-green-500 text-white text-xs rounded whitespace-nowrap">
-                              Copied!
-                            </span>
+                          {copiedEmail === member.publicUserData.identifier ? (
+                            <>
+                              <CheckCircle className="w-3.5 h-3.5 text-green-400" />
+                              <span className="text-green-400 text-sm">Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Mail className="w-3.5 h-3.5 text-white/60" />
+                              <span className="text-white/80 text-sm">
+                                {member.publicUserData.identifier}
+                              </span>
+                            </>
                           )}
                         </button>
                       </td>

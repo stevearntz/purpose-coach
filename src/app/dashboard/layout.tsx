@@ -25,6 +25,7 @@ export default function DashboardLayout({
     { id: 'campaigns', label: 'Campaigns', href: '/dashboard/campaigns' },
     { id: 'results', label: 'Results', href: '/dashboard/results' },
     { id: 'recommendations', label: 'Recommendations', href: '/dashboard/recommendations' },
+    { id: 'users', label: 'Users', href: '/dashboard/users' },
   ]
 
   return (

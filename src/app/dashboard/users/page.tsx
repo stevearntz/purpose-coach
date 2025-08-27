@@ -42,7 +42,7 @@ interface ParticipantRow {
   id: string
   name: string
   email: string
-  department: string
+  role: 'participant' | 'member' | 'admin'
   nameError: boolean
   emailError: boolean
 }
@@ -64,7 +64,7 @@ export default function UsersPage() {
     id: Date.now().toString(),
     name: '',
     email: '',
-    department: '',
+    role: 'participant',
     nameError: false,
     emailError: false
   }])
@@ -207,7 +207,7 @@ export default function UsersPage() {
       id: newId,
       name: '',
       email: '',
-      department: '',
+      role: 'participant',
       nameError: false,
       emailError: false
     }])
@@ -282,16 +282,23 @@ export default function UsersPage() {
         const participant = validParticipants[i]
         setAddingProgress({ current: i + 1, total: validParticipants.length })
         
-        const response = await fetch('/api/company/invite', {
+        // Different endpoints based on role
+        const endpoint = participant.role === 'participant' 
+          ? '/api/company/invite' 
+          : '/api/company/invite-member'
+        
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             emails: [participant.email],
             name: participant.name,
-            department: participant.department,
+            role: participant.role,
             senderEmail: user?.primaryEmailAddress?.emailAddress || '',
             company: organization?.name || user?.primaryEmailAddress?.emailAddress?.split('@')[1] || '',
-            message: `You've been invited to join ${organization?.name || 'our team'} on Campfire`
+            message: participant.role === 'participant'
+              ? undefined  // Participants don't get welcome emails
+              : `You've been invited to join ${organization?.name || 'our team'} on Campfire`
           })
         })
         
@@ -308,7 +315,7 @@ export default function UsersPage() {
         id: Date.now().toString(),
         name: '',
         email: '',
-        department: '',
+        role: 'participant',
         nameError: false,
         emailError: false
       }])
@@ -413,7 +420,7 @@ export default function UsersPage() {
                 <label className="block text-sm font-medium text-white/80">Email *</label>
               </div>
               <div className="col-span-3">
-                <label className="block text-sm font-medium text-white/80">Department</label>
+                <label className="block text-sm font-medium text-white/80">Role</label>
               </div>
               <div className="col-span-1"></div>
             </div>
@@ -455,15 +462,27 @@ export default function UsersPage() {
                     />
                   </div>
                   <div className="col-span-3">
-                    <input
-                      type="text"
-                      value={row.department}
-                      onChange={(e) => updateParticipantRow(row.id, 'department', e.target.value)}
-                      onKeyDown={(e) => handleKeyDown(e, row.id)}
-                      placeholder="Engineering"
+                    <select
+                      value={row.role}
+                      onChange={(e) => updateParticipantRow(row.id, 'role', e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleKeyDown(e, row.id)
+                        }
+                      }}
                       disabled={isAddingParticipants}
-                      className={`w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 ${isAddingParticipants ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    />
+                      className={`w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 appearance-none cursor-pointer ${isAddingParticipants ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='white' fill-opacity='0.6' d='M6 9L2 5h8z'/></svg>")`,
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'right 1rem center',
+                        paddingRight: '2.5rem'
+                      }}
+                    >
+                      <option value="participant" className="bg-gray-900 text-white">Participant</option>
+                      <option value="member" className="bg-gray-900 text-white">Member</option>
+                      <option value="admin" className="bg-gray-900 text-white">Admin</option>
+                    </select>
                   </div>
                   <div className="col-span-1 flex gap-1">
                     {index === participantRows.length - 1 ? (
@@ -490,10 +509,25 @@ export default function UsersPage() {
               ))}
             </div>
             
-            {/* Help text */}
-            <p className="text-sm text-white/60 mt-4">
-              Populate required fields and hit Enter to add a new row, or click the + button
-            </p>
+            {/* Help text - Dynamic based on roles */}
+            <div className="text-sm text-white/60 mt-4 space-y-1">
+              <p>Populate required fields and hit Enter to add a new row, or click the + button</p>
+              {participantRows.some(r => r.role === 'participant' && r.name && r.email) && (
+                <p className="text-purple-300/80">
+                  <span className="font-medium">Participants:</span> Added to assessment pool, no welcome email sent
+                </p>
+              )}
+              {participantRows.some(r => r.role === 'member' && r.name && r.email) && (
+                <p className="text-blue-300/80">
+                  <span className="font-medium">Members:</span> Will receive welcome email with platform access
+                </p>
+              )}
+              {participantRows.some(r => r.role === 'admin' && r.name && r.email) && (
+                <p className="text-orange-300/80">
+                  <span className="font-medium">Admins:</span> Will receive welcome email with full dashboard access
+                </p>
+              )}
+            </div>
             
             {/* Submit button and progress */}
             <div className="flex justify-between items-center mt-6">
@@ -516,7 +550,34 @@ export default function UsersPage() {
                     : 'hover:bg-purple-700'
                 }`}
               >
-                {isAddingParticipants ? 'Adding...' : `Add ${participantRows.filter(row => row.name && row.email).length} User${participantRows.filter(row => row.name && row.email).length !== 1 ? 's' : ''}`}
+                {(() => {
+                  if (isAddingParticipants) return 'Processing...'
+                  const validRows = participantRows.filter(row => row.name && row.email)
+                  const participantCount = validRows.filter(r => r.role === 'participant').length
+                  const memberCount = validRows.filter(r => r.role === 'member').length
+                  const adminCount = validRows.filter(r => r.role === 'admin').length
+                  
+                  if (validRows.length === 0) return 'Add Users'
+                  
+                  // If all same type
+                  if (participantCount === validRows.length) {
+                    return `Add ${participantCount} Participant${participantCount !== 1 ? 's' : ''}`
+                  }
+                  if (memberCount === validRows.length) {
+                    return `Invite ${memberCount} Member${memberCount !== 1 ? 's' : ''}`
+                  }
+                  if (adminCount === validRows.length) {
+                    return `Invite ${adminCount} Admin${adminCount !== 1 ? 's' : ''}`
+                  }
+                  
+                  // Mixed types
+                  const parts = []
+                  if (participantCount > 0) parts.push(`${participantCount} Participant${participantCount !== 1 ? 's' : ''}`)
+                  if (memberCount > 0) parts.push(`${memberCount} Member${memberCount !== 1 ? 's' : ''}`)
+                  if (adminCount > 0) parts.push(`${adminCount} Admin${adminCount !== 1 ? 's' : ''}`)
+                  
+                  return `Add ${parts.join(', ')}`
+                })()}
               </button>
             </div>
           </div>

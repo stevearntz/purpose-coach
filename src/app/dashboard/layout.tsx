@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation'
 import { useUser, UserButton, useOrganization } from '@clerk/nextjs'
-import { Flame, UserPlus } from 'lucide-react'
+import { Flame } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
@@ -54,17 +54,8 @@ export default function DashboardLayout({
               </div>
 
               <div className="flex items-center gap-4">
-                {/* Invite Admins Button */}
-                <button
-                  onClick={() => router.push('/invite')}
-                  className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
-                >
-                  <UserPlus className="w-4 h-4" />
-                  <span className="text-sm font-medium">Invite Admins</span>
-                </button>
-                
                 {/* User Account Management */}
-                <div className="flex items-center gap-3 pl-4 border-l border-white/20">
+                <div className="flex items-center gap-3">
                   <UserButton 
                     appearance={{
                       elements: {

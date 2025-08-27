@@ -63,7 +63,8 @@ export default function UsersPage() {
   }
 
   const getRoleBadgeColor = (role: string) => {
-    switch (role.toLowerCase()) {
+    const cleanRole = role.replace('org:', '').toLowerCase()
+    switch (cleanRole) {
       case 'admin':
         return 'bg-purple-100 text-purple-700 border-purple-200'
       case 'member':
@@ -71,6 +72,11 @@ export default function UsersPage() {
       default:
         return 'bg-gray-100 text-gray-700 border-gray-200'
     }
+  }
+
+  const formatRole = (role: string) => {
+    // Remove "org:" prefix if present
+    return role.replace('org:', '')
   }
 
   const formatDate = (dateString: string) => {
@@ -127,7 +133,7 @@ export default function UsersPage() {
             <div>
               <p className="text-white/60 text-sm">Admins</p>
               <p className="text-3xl font-bold text-white mt-1">
-                {members.filter(m => m.role === 'admin').length}
+                {members.filter(m => m.role === 'org:admin').length}
               </p>
             </div>
             <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
@@ -251,7 +257,7 @@ export default function UsersPage() {
                       </td>
                       <td className="py-4 px-6">
                         <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${getRoleBadgeColor(member.role)}`}>
-                          {member.role}
+                          {formatRole(member.role)}
                         </span>
                       </td>
                       <td className="py-4 px-6">

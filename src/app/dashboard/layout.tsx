@@ -20,12 +20,11 @@ export default function DashboardLayout({
   const tabs = [
     { id: 'start', label: 'Start', href: '/dashboard/start' },
     { id: 'onboarding', label: 'Onboarding', href: '/dashboard/onboarding' },
-    { id: 'participants', label: 'Participants', href: '/dashboard/participants' },
+    { id: 'users', label: 'Users', href: '/dashboard/users' },
     { id: 'assessments', label: 'Assessments', href: '/dashboard/assessments' },
     { id: 'campaigns', label: 'Campaigns', href: '/dashboard/campaigns' },
     { id: 'results', label: 'Results', href: '/dashboard/results' },
     { id: 'recommendations', label: 'Recommendations', href: '/dashboard/recommendations' },
-    { id: 'users', label: 'Users', href: '/dashboard/users' },
   ]
 
   return (

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useOrganization, useUser } from '@clerk/nextjs'
-import { Edit2, Trash2, UserPlus, Mail, Shield, Calendar, CheckCircle, UserCheck, Clock, AlertCircle, Plus, ChevronDown, ChevronUp, X, Loader2, Upload, Download } from 'lucide-react'
+import { Edit2, Trash2, UserPlus, Mail, Shield, Calendar, CheckCircle, UserCheck, Clock, AlertCircle, Plus, ChevronDown, ChevronUp, X, Loader2, Upload, Download, Check } from 'lucide-react'
 
 interface OrganizationMember {
   id: string
@@ -69,10 +69,26 @@ export default function UsersPage() {
     emailError: false
   }])
   const nameInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({})
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
+  const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
 
   useEffect(() => {
     fetchAllUsers()
   }, [organization])
+  
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (openDropdownId && dropdownRefs.current[openDropdownId]) {
+        if (!dropdownRefs.current[openDropdownId]?.contains(event.target as Node)) {
+          setOpenDropdownId(null)
+        }
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [openDropdownId])
 
   const fetchAllUsers = async () => {
     if (!organization) {
@@ -462,27 +478,98 @@ export default function UsersPage() {
                     />
                   </div>
                   <div className="col-span-3">
-                    <select
-                      value={row.role}
-                      onChange={(e) => updateParticipantRow(row.id, 'role', e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          handleKeyDown(e, row.id)
-                        }
-                      }}
-                      disabled={isAddingParticipants}
-                      className={`w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 appearance-none cursor-pointer ${isAddingParticipants ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      style={{
-                        backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='white' fill-opacity='0.6' d='M6 9L2 5h8z'/></svg>")`,
-                        backgroundRepeat: 'no-repeat',
-                        backgroundPosition: 'right 1rem center',
-                        paddingRight: '2.5rem'
-                      }}
-                    >
-                      <option value="participant" className="bg-gray-900 text-white">Participant</option>
-                      <option value="member" className="bg-gray-900 text-white">Member</option>
-                      <option value="admin" className="bg-gray-900 text-white">Admin</option>
-                    </select>
+                    <div className="relative" ref={(el) => { dropdownRefs.current[row.id] = el }}>
+                      <button
+                        type="button"
+                        onClick={() => setOpenDropdownId(openDropdownId === row.id ? null : row.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            setOpenDropdownId(openDropdownId === row.id ? null : row.id)
+                          } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                            e.preventDefault()
+                            setOpenDropdownId(row.id)
+                          } else if (e.key === 'Tab') {
+                            setOpenDropdownId(null)
+                          }
+                        }}
+                        disabled={isAddingParticipants}
+                        className={`w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all ${
+                          isAddingParticipants ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/20'
+                        }`}
+                      >
+                        <span className="capitalize">
+                          {row.role === 'participant' && '✓ Participant'}
+                          {row.role === 'member' && 'Member'}
+                          {row.role === 'admin' && 'Admin'}
+                        </span>
+                        <ChevronDown className={`w-4 h-4 text-white/60 transition-transform ${
+                          openDropdownId === row.id ? 'rotate-180' : ''
+                        }`} />
+                      </button>
+                      
+                      {/* Custom Dropdown Menu */}
+                      {openDropdownId === row.id && (
+                        <div className="absolute z-10 w-full mt-1 bg-gray-900/95 backdrop-blur-sm border border-white/20 rounded-lg shadow-xl overflow-hidden">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateParticipantRow(row.id, 'role', 'participant')
+                              setOpenDropdownId(null)
+                            }}
+                            className={`w-full px-4 py-3 text-left hover:bg-white/10 transition-colors flex items-center justify-between ${
+                              row.role === 'participant' ? 'bg-white/5' : ''
+                            }`}
+                          >
+                            <div>
+                              <div className="text-white font-medium">Participant</div>
+                              <div className="text-white/60 text-xs mt-0.5">No welcome email</div>
+                            </div>
+                            {row.role === 'participant' && (
+                              <Check className="w-4 h-4 text-purple-400" />
+                            )}
+                          </button>
+                          
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateParticipantRow(row.id, 'role', 'member')
+                              setOpenDropdownId(null)
+                            }}
+                            className={`w-full px-4 py-3 text-left hover:bg-white/10 transition-colors flex items-center justify-between border-t border-white/10 ${
+                              row.role === 'member' ? 'bg-white/5' : ''
+                            }`}
+                          >
+                            <div>
+                              <div className="text-white font-medium">Member</div>
+                              <div className="text-white/60 text-xs mt-0.5">Gets platform access</div>
+                            </div>
+                            {row.role === 'member' && (
+                              <Check className="w-4 h-4 text-blue-400" />
+                            )}
+                          </button>
+                          
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateParticipantRow(row.id, 'role', 'admin')
+                              setOpenDropdownId(null)
+                            }}
+                            className={`w-full px-4 py-3 text-left hover:bg-white/10 transition-colors flex items-center justify-between border-t border-white/10 ${
+                              row.role === 'admin' ? 'bg-white/5' : ''
+                            }`}
+                          >
+                            <div>
+                              <div className="text-white font-medium">Admin</div>
+                              <div className="text-white/60 text-xs mt-0.5">Full dashboard access</div>
+                            </div>
+                            {row.role === 'admin' && (
+                              <Check className="w-4 h-4 text-orange-400" />
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="col-span-1 flex gap-1">
                     {index === participantRows.length - 1 ? (

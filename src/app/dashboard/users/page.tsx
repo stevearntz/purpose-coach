@@ -183,9 +183,6 @@ export default function UsersPage() {
                   <th className="text-left py-4 px-6 text-white/80 font-medium text-sm uppercase tracking-wider">
                     Added
                   </th>
-                  <th className="text-left py-4 px-6 text-white/80 font-medium text-sm uppercase tracking-wider">
-                    Last Sign In
-                  </th>
                   <th className="text-right py-4 px-6 text-white/80 font-medium text-sm uppercase tracking-wider">
                     Actions
                   </th>
@@ -264,9 +261,6 @@ export default function UsersPage() {
                             {formatDate(member.createdAt)}
                           </span>
                         </div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <span className="text-white/60 text-sm">—</span>
                       </td>
                       <td className="py-4 px-6">
                         <div className="flex items-center justify-end gap-2">

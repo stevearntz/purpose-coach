@@ -60,6 +60,12 @@ export const toolConfigs = {
     subtitle: "Bridge the gap between HR and managers.",
     description: "Help managers articulate their needs for growth, support, strategic direction, and culture building. Creates actionable insights for HR leaders to better support their teams."
   },
+  peopleLeaderNeeds: {
+    gradient: "from-[#30C7C7] to-[#2A74B9]",
+    title: "People Leadership Needs Assessment",
+    subtitle: "Identify core needs for leading teams effectively.",
+    description: "This assessment helps all people leaders identify core needs for leading their teams effectively. Share your challenges and get the right support and resources."
+  },
   // Add more tools here as you create them
 }
 

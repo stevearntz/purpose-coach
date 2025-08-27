@@ -174,7 +174,7 @@ export default function UsersPage() {
                   <th className="text-left py-4 px-6 text-white/80 font-medium text-sm uppercase tracking-wider">
                     Name
                   </th>
-                  <th className="text-left py-4 px-6 text-white/80 font-medium text-sm uppercase tracking-wider">
+                  <th className="text-left py-4 px-6 text-white/80 font-medium text-sm uppercase tracking-wider min-w-[250px]">
                     Email
                   </th>
                   <th className="text-left py-4 px-6 text-white/80 font-medium text-sm uppercase tracking-wider">
@@ -220,14 +220,14 @@ export default function UsersPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="py-4 px-6">
+                      <td className="py-4 px-6 min-w-[250px]">
                         <button
                           onClick={() => {
                             navigator.clipboard.writeText(member.publicUserData.identifier)
                             setCopiedEmail(member.publicUserData.identifier)
                             setTimeout(() => setCopiedEmail(null), 2000)
                           }}
-                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
+                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full transition-all min-w-[120px] ${
                             copiedEmail === member.publicUserData.identifier 
                               ? 'bg-green-500/20 border border-green-500/40' 
                               : 'bg-white/10 hover:bg-white/20'
@@ -242,7 +242,7 @@ export default function UsersPage() {
                           ) : (
                             <>
                               <Mail className="w-3.5 h-3.5 text-white/60" />
-                              <span className="text-white/80 text-sm">
+                              <span className="text-white/80 text-sm truncate">
                                 {member.publicUserData.identifier}
                               </span>
                             </>

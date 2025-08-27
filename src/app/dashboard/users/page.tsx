@@ -55,7 +55,7 @@ export default function UsersPage() {
   const [selectedMember, setSelectedMember] = useState<string | null>(null)
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null)
   
-  // Add participant functionality
+  // Add user functionality
   const [showAddSection, setShowAddSection] = useState(false)
   const [addMode, setAddMode] = useState<'single' | 'bulk'>('single')
   const [isAddingParticipants, setIsAddingParticipants] = useState(false)
@@ -200,7 +200,7 @@ export default function UsersPage() {
     // Implementation depends on Clerk's invitation/signup flow
   }
   
-  // Add participant functions
+  // Add user functions
   const addParticipantRow = () => {
     const newId = Date.now().toString()
     setParticipantRows([...participantRows, {
@@ -268,7 +268,7 @@ export default function UsersPage() {
     const validParticipants = participantRows.filter(row => row.name && row.email)
     
     if (validParticipants.length === 0) {
-      alert('Please fill in at least one participant with name and email')
+      alert('Please fill in at least one user with name and email')
       return
     }
     
@@ -298,7 +298,7 @@ export default function UsersPage() {
         if (response.ok) {
           successCount++
         } else {
-          console.error(`Failed to add participant ${participant.email}`)
+          console.error(`Failed to add user ${participant.email}`)
         }
       }
       
@@ -315,11 +315,11 @@ export default function UsersPage() {
       setShowAddSection(false)
       
       if (successCount > 0) {
-        console.log(`Successfully added ${successCount} participant(s)`)
+        console.log(`Successfully added ${successCount} user(s)`)
       }
     } catch (error) {
-      console.error('Failed to add participants:', error)
-      alert('Failed to add some participants. Please try again.')
+      console.error('Failed to add users:', error)
+      alert('Failed to add some users. Please try again.')
     } finally {
       setIsAddingParticipants(false)
       setAddingProgress({ current: 0, total: 0 })
@@ -385,7 +385,7 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {/* Add Participants Section - Collapsible */}
+      {/* Add Users Section - Collapsible */}
       <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 mb-6">
         <button
           onClick={() => setShowAddSection(!showAddSection)}
@@ -393,7 +393,7 @@ export default function UsersPage() {
         >
           <div className="flex items-center gap-3">
             <Plus className="w-5 h-5 text-purple-400" />
-            <span className="font-medium text-white">Add Participants</span>
+            <span className="font-medium text-white">Add Users</span>
           </div>
           {showAddSection ? (
             <ChevronUp className="w-5 h-5 text-white/40" />
@@ -418,7 +418,7 @@ export default function UsersPage() {
               <div className="col-span-1"></div>
             </div>
             
-            {/* Participant rows */}
+            {/* User rows */}
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {participantRows.map((row, index) => (
                 <div key={row.id} className="grid grid-cols-12 gap-4 items-center">
@@ -471,7 +471,7 @@ export default function UsersPage() {
                         onClick={addParticipantRow}
                         disabled={isAddingParticipants}
                         className={`p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors ${isAddingParticipants ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        title="Add another participant"
+                        title="Add another user"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
@@ -480,7 +480,7 @@ export default function UsersPage() {
                         onClick={() => removeParticipantRow(row.id)}
                         disabled={isAddingParticipants}
                         className={`p-2 bg-white/10 text-white/60 rounded-lg hover:bg-red-500/20 hover:text-red-400 transition-colors ${isAddingParticipants ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        title="Remove this participant"
+                        title="Remove this user"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -501,7 +501,7 @@ export default function UsersPage() {
                 <div className="flex items-center gap-3 text-white/60">
                   <Loader2 className="animate-spin h-4 w-4" />
                   <span className="text-sm">
-                    Adding participant {addingProgress.current} of {addingProgress.total}...
+                    Adding user {addingProgress.current} of {addingProgress.total}...
                   </span>
                 </div>
               )}
@@ -516,7 +516,7 @@ export default function UsersPage() {
                     : 'hover:bg-purple-700'
                 }`}
               >
-                {isAddingParticipants ? 'Adding...' : `Add ${participantRows.filter(row => row.name && row.email).length} Participant${participantRows.filter(row => row.name && row.email).length !== 1 ? 's' : ''}`}
+                {isAddingParticipants ? 'Adding...' : `Add ${participantRows.filter(row => row.name && row.email).length} User${participantRows.filter(row => row.name && row.email).length !== 1 ? 's' : ''}`}
               </button>
             </div>
           </div>

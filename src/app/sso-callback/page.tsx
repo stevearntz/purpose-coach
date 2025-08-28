@@ -13,7 +13,7 @@ export default function SSOCallbackPage() {
       try {
         await handleRedirectCallback({
           redirectUrl: '/dashboard',
-          afterSignInUrl: '/dashboard',
+          fallbackRedirectUrl: '/dashboard',
           afterSignUpUrl: '/onboarding'
         })
       } catch (error: any) {

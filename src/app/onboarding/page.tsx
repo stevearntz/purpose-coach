@@ -16,9 +16,10 @@ export default function OnboardingPage() {
     },
   })
   
-  // Check if this is a domain user
+  // Check if this is a domain user (skip in development to avoid issues)
   const email = user?.emailAddresses?.[0]?.emailAddress
-  const isDomainUser = email?.includes('@getcampfire.com')
+  const isDevelopment = window.location.hostname === 'localhost'
+  const isDomainUser = !isDevelopment && email?.includes('@getcampfire.com')
   
   useEffect(() => {
     // Once everything is loaded, check if user has an org
@@ -38,20 +39,26 @@ export default function OnboardingPage() {
         // For domain users, wait before showing org creation
         setWaitingForWebhook(true)
         
-        // Wait 4 seconds then reload once to check if webhook has processed
-        const timer = setTimeout(() => {
-          window.location.reload()
-        }, 4000)
+        // Check if we've already tried reloading (to prevent infinite loop)
+        const hasReloaded = sessionStorage.getItem('onboarding-reloaded')
         
-        // Fallback: if we're still here after 8 seconds, show org creation
-        const fallbackTimer = setTimeout(() => {
-          setWaitingForWebhook(false)
-          setShowOrgCreation(true)
-        }, 8000)
-        
-        return () => {
-          clearTimeout(timer)
-          clearTimeout(fallbackTimer)
+        if (!hasReloaded) {
+          // Wait 4 seconds then reload once to check if webhook has processed
+          const timer = setTimeout(() => {
+            sessionStorage.setItem('onboarding-reloaded', 'true')
+            window.location.reload()
+          }, 4000)
+          
+          return () => clearTimeout(timer)
+        } else {
+          // We've already reloaded once, show org creation after a short delay
+          const timer = setTimeout(() => {
+            sessionStorage.removeItem('onboarding-reloaded') // Clean up for next time
+            setWaitingForWebhook(false)
+            setShowOrgCreation(true)
+          }, 2000)
+          
+          return () => clearTimeout(timer)
         }
       } else {
         // For non-domain users, show org creation immediately

@@ -547,7 +547,15 @@ export default function UsersPage() {
                           const options = ['participant', 'member', 'admin']
                           const currentIndex = options.indexOf(row.role)
                           
-                          if (e.key === 'Enter' || e.key === ' ') {
+                          if (e.key === 'Enter') {
+                            // Let Enter key add a new row (don't prevent default)
+                            if (openDropdownId === row.id) {
+                              // Close dropdown if it's open
+                              setOpenDropdownId(null)
+                            }
+                            // Let it bubble up to trigger handleKeyDown for adding new row
+                            handleKeyDown(e, row.id)
+                          } else if (e.key === ' ') {
                             e.preventDefault()
                             setOpenDropdownId(openDropdownId === row.id ? null : row.id)
                             setFocusedOptionIndex(currentIndex)

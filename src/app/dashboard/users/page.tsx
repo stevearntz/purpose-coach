@@ -75,6 +75,7 @@ export default function UsersPage() {
   const [isMounted, setIsMounted] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
   const lastOrganizationIdRef = useRef<string | null>(null)
+  const [focusedOptionIndex, setFocusedOptionIndex] = useState(0)
 
   useEffect(() => {
     setIsMounted(true)
@@ -536,14 +537,47 @@ export default function UsersPage() {
                     <div className="relative z-50" ref={(el) => { dropdownRefs.current[row.id] = el }}>
                       <button
                         type="button"
-                        onClick={() => setOpenDropdownId(openDropdownId === row.id ? null : row.id)}
+                        onClick={() => {
+                          const options = ['participant', 'member', 'admin']
+                          const currentIndex = options.indexOf(row.role)
+                          setOpenDropdownId(openDropdownId === row.id ? null : row.id)
+                          setFocusedOptionIndex(currentIndex)
+                        }}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
+                          const options = ['participant', 'member', 'admin']
+                          const currentIndex = options.indexOf(row.role)
+                          
+                          if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault()
                             setOpenDropdownId(openDropdownId === row.id ? null : row.id)
-                          } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                            setFocusedOptionIndex(currentIndex)
+                          } else if (e.key === 'ArrowDown') {
                             e.preventDefault()
-                            setOpenDropdownId(row.id)
+                            if (openDropdownId === row.id) {
+                              // Navigate down in open dropdown
+                              const nextIndex = (focusedOptionIndex + 1) % options.length
+                              setFocusedOptionIndex(nextIndex)
+                              updateParticipantRow(row.id, 'role', options[nextIndex])
+                            } else {
+                              // Open dropdown
+                              setOpenDropdownId(row.id)
+                              setFocusedOptionIndex(currentIndex)
+                            }
+                          } else if (e.key === 'ArrowUp') {
+                            e.preventDefault()
+                            if (openDropdownId === row.id) {
+                              // Navigate up in open dropdown
+                              const prevIndex = focusedOptionIndex === 0 ? options.length - 1 : focusedOptionIndex - 1
+                              setFocusedOptionIndex(prevIndex)
+                              updateParticipantRow(row.id, 'role', options[prevIndex])
+                            } else {
+                              // Open dropdown
+                              setOpenDropdownId(row.id)
+                              setFocusedOptionIndex(currentIndex)
+                            }
+                          } else if (e.key === 'Escape') {
+                            e.preventDefault()
+                            setOpenDropdownId(null)
                           } else if (e.key === 'Tab') {
                             setOpenDropdownId(null)
                           }
@@ -582,7 +616,7 @@ export default function UsersPage() {
                             }}
                             className={`w-full px-4 py-3 text-left hover:bg-white/10 transition-colors flex items-center justify-between ${
                               row.role === 'participant' ? 'bg-white/5' : ''
-                            }`}
+                            } ${focusedOptionIndex === 0 && openDropdownId === row.id ? 'bg-white/10' : ''}`}
                           >
                             <div>
                               <div className="text-white font-medium">Participant</div>
@@ -601,7 +635,7 @@ export default function UsersPage() {
                             }}
                             className={`w-full px-4 py-3 text-left hover:bg-white/10 transition-colors flex items-center justify-between border-t border-white/10 ${
                               row.role === 'member' ? 'bg-white/5' : ''
-                            }`}
+                            } ${focusedOptionIndex === 1 && openDropdownId === row.id ? 'bg-white/10' : ''}`}
                           >
                             <div>
                               <div className="text-white font-medium">Member</div>
@@ -620,7 +654,7 @@ export default function UsersPage() {
                             }}
                             className={`w-full px-4 py-3 text-left hover:bg-white/10 transition-colors flex items-center justify-between border-t border-white/10 ${
                               row.role === 'admin' ? 'bg-white/5' : ''
-                            }`}
+                            } ${focusedOptionIndex === 2 && openDropdownId === row.id ? 'bg-white/10' : ''}`}
                           >
                             <div>
                               <div className="text-white font-medium">Admin</div>

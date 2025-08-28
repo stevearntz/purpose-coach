@@ -166,7 +166,7 @@ export default function RecommendationsTab() {
             AI-powered recommendations will appear here once your team completes assessments
           </p>
           <button
-            onClick={() => router.push('/dashboard/assessments')}
+            onClick={() => router.push('/dashboard/launch')}
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl"
           >
             <Rocket className="w-5 h-5" />

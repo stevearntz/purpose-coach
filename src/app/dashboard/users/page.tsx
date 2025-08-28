@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useOrganization, useUser } from '@clerk/nextjs'
-import { Edit2, Trash2, Mail, Shield, Calendar, CheckCircle, UserCheck, Clock, AlertCircle, Plus } from 'lucide-react'
+import { Edit2, Trash2, Mail, Shield, Calendar, CheckCircle, UserCheck, Clock, AlertCircle, Plus, Search } from 'lucide-react'
 
 interface OrganizationMember {
   id: string
@@ -48,6 +48,7 @@ export default function UsersPage() {
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null)
   const [isFetching, setIsFetching] = useState(false)
   const lastOrganizationIdRef = useRef<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     const currentOrgId = organization?.id
@@ -227,6 +228,17 @@ export default function UsersPage() {
     return name.substring(0, 2).toUpperCase()
   }
 
+  // Filter users based on search query
+  const filteredUsers = unifiedUsers.filter(user => {
+    const query = searchQuery.toLowerCase()
+    return (
+      user.name.toLowerCase().includes(query) ||
+      user.status.toLowerCase().includes(query) ||
+      user.email.toLowerCase().includes(query) ||
+      user.role.toLowerCase().includes(query)
+    )
+  })
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -244,13 +256,32 @@ export default function UsersPage() {
         </button>
       </div>
 
+      {/* Search Bar */}
+      <div className="flex items-center justify-between bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
+        <div className="flex items-center gap-3 flex-1">
+          <Search className="w-5 h-5 text-white/40" />
+          <input
+            type="text"
+            placeholder="Search users by name, status, email, or role..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="bg-transparent border-none outline-none text-white placeholder-white/40 flex-1"
+          />
+        </div>
+        {filteredUsers.length !== unifiedUsers.length && (
+          <div className="text-white/60 text-sm">
+            {filteredUsers.length} {filteredUsers.length === 1 ? 'participant' : 'participants'}
+          </div>
+        )}
+      </div>
+
       {/* Users Table */}
       <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden">
         {loading ? (
           <div className="p-12 text-center">
             <p className="text-white/60">Loading users...</p>
           </div>
-        ) : unifiedUsers.length === 0 ? (
+        ) : filteredUsers.length === 0 ? (
           <div className="p-12 text-center">
             <p className="text-white/60">No users found</p>
           </div>
@@ -280,7 +311,7 @@ export default function UsersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10">
-                {unifiedUsers.map((user) => {
+                {filteredUsers.map((user) => {
                   const isCurrentUser = user.isClerkUser && membership?.publicUserData?.identifier === user.email
                   
                   return (

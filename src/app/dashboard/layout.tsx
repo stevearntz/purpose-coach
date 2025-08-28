@@ -38,8 +38,9 @@ export default function DashboardLayout({
     { 
       id: 'assessments', 
       label: 'Assessments', 
-      href: '/dashboard/assessments',
+      href: '/dashboard/launch',
       secondary: [
+        { id: 'launch', label: 'Launch', href: '/dashboard/launch' },
         { id: 'campaigns', label: 'Campaigns', href: '/dashboard/campaigns' },
         { id: 'results', label: 'Results', href: '/dashboard/results' }
       ]
@@ -60,7 +61,7 @@ export default function DashboardLayout({
     if (pathname.includes('/dashboard/users')) {
       return 'users'
     }
-    if (pathname.includes('/dashboard/assessments') || pathname.includes('/dashboard/campaigns') || pathname.includes('/dashboard/results')) {
+    if (pathname.includes('/dashboard/launch') || pathname.includes('/dashboard/campaigns') || pathname.includes('/dashboard/results')) {
       return 'assessments'
     }
     if (pathname.includes('/dashboard/recommendations')) {
@@ -120,7 +121,7 @@ export default function DashboardLayout({
             </div>
 
             {/* Primary Navigation */}
-            <nav className="flex gap-8 overflow-x-auto border-b border-white/10 pb-3">
+            <nav className={`flex gap-8 overflow-x-auto pb-3 ${secondaryTabs.length > 0 ? 'border-b border-white/10' : ''}`}>
               {primaryTabs.map((tab) => {
                 const isActive = tab.id === activePrimary
                 return (

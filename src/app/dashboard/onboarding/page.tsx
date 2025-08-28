@@ -11,7 +11,7 @@ export default function OnboardingPage() {
     const routes: Record<string, string> = {
       users: '/dashboard/users',
       participants: '/dashboard/users', // Keep for backward compatibility
-      assessments: '/dashboard/assessments',
+      assessments: '/dashboard/launch',
       recommendations: '/dashboard/recommendations'
     }
     

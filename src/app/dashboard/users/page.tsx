@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useOrganization, useUser } from '@clerk/nextjs'
 import { Edit2, Trash2, UserPlus, Mail, Shield, Calendar, CheckCircle, UserCheck, Clock, AlertCircle, Plus, ChevronDown, ChevronUp, X, Loader2, Upload, Download, Check } from 'lucide-react'
 
@@ -71,12 +72,22 @@ export default function UsersPage() {
   const nameInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({})
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
+  const [isMounted, setIsMounted] = useState(false)
+  const [isFetching, setIsFetching] = useState(false)
+  const lastOrganizationIdRef = useRef<string | null>(null)
 
   useEffect(() => {
-    fetchAllUsers()
-  }, [organization])
+    setIsMounted(true)
+    const currentOrgId = organization?.id
+    
+    // Only fetch if organization ID has changed and we're not currently fetching
+    if (currentOrgId && currentOrgId !== lastOrganizationIdRef.current && !isFetching) {
+      lastOrganizationIdRef.current = currentOrgId
+      fetchAllUsers()
+    }
+  }, [organization?.id]) // Only depend on organization ID
   
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside, scrolling, or resizing
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (openDropdownId && dropdownRefs.current[openDropdownId]) {
@@ -86,23 +97,48 @@ export default function UsersPage() {
       }
     }
     
+    const handleScroll = () => {
+      if (openDropdownId) {
+        setOpenDropdownId(null)
+      }
+    }
+    
+    const handleResize = () => {
+      if (openDropdownId) {
+        setOpenDropdownId(null)
+      }
+    }
+    
     document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    window.addEventListener('scroll', handleScroll, true)
+    window.addEventListener('resize', handleResize)
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      window.removeEventListener('scroll', handleScroll, true)
+      window.removeEventListener('resize', handleResize)
+    }
   }, [openDropdownId])
 
-  const fetchAllUsers = async () => {
+  const fetchAllUsers = async (showLoading = true) => {
     if (!organization) {
       setLoading(false)
       return
     }
 
+    // Prevent concurrent fetches
+    if (isFetching) {
+      return
+    }
+
     try {
-      setLoading(true)
+      setIsFetching(true)
+      if (showLoading) {
+        setLoading(true)
+      }
       
       // Fetch Clerk members
-      const membershipList = await organization.getMemberships({
-        limit: 100,
-      })
+      const membershipList = await organization.getMemberships()
       const clerkMembers = membershipList.data as unknown as OrganizationMember[]
       
       // Fetch participants from API
@@ -177,6 +213,7 @@ export default function UsersPage() {
       setUnifiedUsers([])
     } finally {
       setLoading(false)
+      setIsFetching(false)
     }
   }
 
@@ -198,7 +235,7 @@ export default function UsersPage() {
         })
         if (!response.ok) throw new Error('Failed to remove participant')
       }
-      await fetchAllUsers()
+      await fetchAllUsers(false) // Don't show loading when refreshing after user removal
     } catch (error) {
       console.error('Error removing user:', error)
       alert('Failed to remove user')
@@ -325,7 +362,7 @@ export default function UsersPage() {
         }
       }
       
-      await fetchAllUsers()
+      await fetchAllUsers(false) // Don't show loading when refreshing after adding participants
       
       setParticipantRows([{
         id: Date.now().toString(),
@@ -390,6 +427,18 @@ export default function UsersPage() {
     })
   }
 
+  const getDropdownPosition = (rowId: string) => {
+    const element = dropdownRefs.current[rowId]
+    if (!element) return { top: 0, left: 0, width: 0 }
+    
+    const rect = element.getBoundingClientRect()
+    return {
+      top: rect.bottom + 4,
+      left: rect.left,
+      width: rect.width
+    }
+  }
+
   if (!organization) {
     return (
       <div className="text-center py-12">
@@ -426,7 +475,7 @@ export default function UsersPage() {
         </button>
 
         {showAddSection && (
-          <div className="border-t border-white/10 p-6 overflow-visible">
+          <div className="border-t border-white/10 p-6 overflow-visible relative">
             {/* Header row with labels */}
             <div className="grid grid-cols-12 gap-4 mb-2">
               <div className="col-span-4">
@@ -442,7 +491,7 @@ export default function UsersPage() {
             </div>
             
             {/* User rows */}
-            <div className="space-y-2 relative">
+            <div className="space-y-2 relative" style={{ zIndex: 1 }}>
               {participantRows.map((row, index) => (
                 <div key={row.id} className="grid grid-cols-12 gap-4 items-center">
                   <div className="col-span-4">
@@ -478,7 +527,7 @@ export default function UsersPage() {
                     />
                   </div>
                   <div className="col-span-3">
-                    <div className="relative" ref={(el) => { dropdownRefs.current[row.id] = el }}>
+                    <div className="relative z-50" ref={(el) => { dropdownRefs.current[row.id] = el }}>
                       <button
                         type="button"
                         onClick={() => setOpenDropdownId(openDropdownId === row.id ? null : row.id)}
@@ -508,9 +557,17 @@ export default function UsersPage() {
                         }`} />
                       </button>
                       
-                      {/* Custom Dropdown Menu */}
-                      {openDropdownId === row.id && (
-                        <div className="absolute z-50 w-full mt-1 bg-gray-900/95 backdrop-blur-sm border border-white/20 rounded-lg shadow-xl overflow-hidden">
+                      {/* Custom Dropdown Menu Portal */}
+                      {openDropdownId === row.id && isMounted && createPortal(
+                        <div 
+                          className="fixed z-[9999] bg-gray-900/95 backdrop-blur-sm border border-white/20 rounded-lg shadow-xl overflow-hidden"
+                          style={{
+                            top: getDropdownPosition(row.id).top,
+                            left: getDropdownPosition(row.id).left,
+                            width: getDropdownPosition(row.id).width,
+                            maxHeight: '300px'
+                          }}
+                        >
                           <button
                             type="button"
                             onClick={() => {
@@ -567,7 +624,8 @@ export default function UsersPage() {
                               <Check className="w-4 h-4 text-orange-400" />
                             )}
                           </button>
-                        </div>
+                        </div>,
+                        document.body
                       )}
                     </div>
                   </div>
@@ -671,48 +729,6 @@ export default function UsersPage() {
         )}
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-white/60 text-sm">Total Users</p>
-              <p className="text-3xl font-bold text-white mt-1">{unifiedUsers.length}</p>
-            </div>
-            <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
-              <Shield className="w-6 h-6 text-purple-400" />
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-white/60 text-sm">Admins</p>
-              <p className="text-3xl font-bold text-white mt-1">
-                {unifiedUsers.filter(u => u.role === 'Admin').length}
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
-              <Shield className="w-6 h-6 text-purple-400" />
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-white/60 text-sm">Participants</p>
-              <p className="text-3xl font-bold text-white mt-1">
-                {unifiedUsers.filter(u => u.role === 'Participant').length}
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-              <UserCheck className="w-6 h-6 text-blue-400" />
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Users Table */}
       <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 overflow-hidden">

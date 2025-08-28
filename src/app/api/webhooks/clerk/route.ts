@@ -75,6 +75,13 @@ export async function POST(req: NextRequest) {
       }
     });
     
+    console.log('Webhook processing:', {
+      userEmail,
+      emailDomain,
+      matchingCompany: matchingCompany ? matchingCompany.name : 'NOT FOUND',
+      clerkOrgId: matchingCompany?.clerkOrgId
+    });
+    
     if (matchingCompany && matchingCompany.clerkOrgId) {
       try {
         // Check if user is already a member
@@ -107,8 +114,16 @@ export async function POST(req: NextRequest) {
         // This requires the user to sign in again to pick up the change
         // Or we need to handle it in the onboarding flow
         
-      } catch (error) {
-        // Silently fail - webhook will be retried
+      } catch (error: any) {
+        // Log the error for debugging
+        console.error('Webhook error:', {
+          error: error.message,
+          userId,
+          userEmail,
+          matchingCompany: matchingCompany.name,
+          clerkOrgId: matchingCompany.clerkOrgId
+        });
+        // Don't throw - return success so webhook doesn't retry
       }
     }
   }

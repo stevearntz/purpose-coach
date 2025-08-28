@@ -15,7 +15,7 @@ export default function DashboardLayout({
   const pathname = usePathname()
   const router = useRouter()
   const { user } = useUser()
-  const { organization, membership } = useOrganization()
+  const { organization, membership, isLoaded } = useOrganization()
   const { userMemberships } = useOrganizationList({
     userMemberships: {
       infinite: false,
@@ -69,8 +69,10 @@ export default function DashboardLayout({
     },
   ]
   
-  // Filter tabs based on user role
-  const primaryTabs = isMember 
+  // Filter tabs based on user role - show only Start while loading
+  const primaryTabs = !isLoaded 
+    ? allTabs.filter(tab => tab.id === 'start') // Only show Start tab while loading
+    : isMember 
     ? allTabs.filter(tab => tab.allowedRoles.includes('member'))
     : allTabs // Admins see everything
   

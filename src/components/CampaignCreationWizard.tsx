@@ -284,12 +284,6 @@ ${user?.firstName || 'Your Name'}`)
     }
   }
   
-  // Get unique departments from users
-  const departments = [...new Set(existingUsers
-    .map(u => u.department)
-    .filter(Boolean)
-  )].sort()
-  
   // Filter users based on search only
   const filteredUsers = existingUsers.filter(user => {
     const matchesSearch = userSearchTerm === '' || 
@@ -582,7 +576,6 @@ ${user?.firstName || 'Your Name'}`)
                   <div className="flex items-center text-xs text-white/60 uppercase tracking-wider">
                     <div className="w-8"></div>
                     <div className="flex-1 ml-3">Name / Email / Role</div>
-                    <div className="w-32 text-right">Department</div>
                   </div>
                 </div>
                 <div className="divide-y divide-white/5">
@@ -627,13 +620,6 @@ ${user?.firstName || 'Your Name'}`)
                             <div className="text-white/50 text-xs truncate">{user.email}</div>
                           </div>
                         </div>
-                      </div>
-                      <div className="w-32 text-right">
-                        {user.department && (
-                          <span className="inline-flex px-2 py-1 bg-white/10 rounded text-xs text-white/70">
-                            {user.department}
-                          </span>
-                        )}
                       </div>
                     </label>
                   ))}

@@ -91,7 +91,13 @@ export default function UsersPage() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (openDropdownId && dropdownRefs.current[openDropdownId]) {
-        if (!dropdownRefs.current[openDropdownId]?.contains(event.target as Node)) {
+        const target = event.target as Node
+        const dropdownEl = dropdownRefs.current[openDropdownId]
+        // Check if click is on the dropdown button or the portal dropdown menu
+        const isDropdownButton = dropdownEl?.contains(target)
+        const isDropdownMenu = (target as HTMLElement)?.closest('.dropdown-menu-portal')
+        
+        if (!isDropdownButton && !isDropdownMenu) {
           setOpenDropdownId(null)
         }
       }
@@ -560,7 +566,7 @@ export default function UsersPage() {
                       {/* Custom Dropdown Menu Portal */}
                       {openDropdownId === row.id && isMounted && createPortal(
                         <div 
-                          className="fixed z-[9999] bg-gray-900/95 backdrop-blur-sm border border-white/20 rounded-lg shadow-xl overflow-hidden"
+                          className="dropdown-menu-portal fixed z-[9999] bg-gray-900/95 backdrop-blur-sm border border-white/20 rounded-lg shadow-xl overflow-hidden"
                           style={{
                             top: getDropdownPosition(row.id).top,
                             left: getDropdownPosition(row.id).left,

@@ -2,13 +2,14 @@
 
 import { CreateOrganization, OrganizationList, useOrganizationList, useUser } from '@clerk/nextjs'
 import ViewportContainer from '@/components/ViewportContainer'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function OnboardingPage() {
   const router = useRouter()
   const { user } = useUser()
   const [isCheckingDomain, setIsCheckingDomain] = useState(false)
+  const hasSetOrg = useRef(false) // Prevent multiple redirects
   const { userMemberships, setActive, isLoaded } = useOrganizationList({
     userMemberships: {
       infinite: false,
@@ -17,52 +18,66 @@ export default function OnboardingPage() {
   
   useEffect(() => {
     // Check if user already belongs to an organization
-    if (userMemberships?.data && userMemberships.data.length > 0 && setActive) {
+    if (!hasSetOrg.current && userMemberships?.data && userMemberships.data.length > 0 && setActive) {
+      hasSetOrg.current = true
       // User has organizations - set the first one as active and redirect
       const firstOrg = userMemberships.data[0]
+      console.log('Setting active organization:', firstOrg.organization.name)
       setActive({ organization: firstOrg.organization.id }).then(() => {
-        router.push('/dashboard')
+        console.log('Organization set, redirecting to dashboard')
+        // Force a hard navigation to ensure session is updated
+        window.location.href = '/dashboard'
       })
     }
-  }, [userMemberships, setActive, router])
+  }, [userMemberships, setActive])
   
   useEffect(() => {
-    // For domain-matched users (e.g., @getcampfire.com), the webhook might still be processing
-    // Wait a bit and then check again for memberships
-    if (user?.primaryEmailAddress?.emailAddress?.endsWith('@getcampfire.com')) {
+    // For domain-matched users, check if webhook has added them to org
+    const emailDomain = user?.primaryEmailAddress?.emailAddress?.split('@')[1]
+    const isDomainUser = emailDomain === 'getcampfire.com'
+    
+    if (isDomainUser && isLoaded && !hasSetOrg.current) {
       setIsCheckingDomain(true)
       
       let attempts = 0
-      const maxAttempts = 5
+      const maxAttempts = 8
       
-      // Give the webhook a moment to process initially
-      const initialDelay = setTimeout(() => {
+      // Poll for organization membership
+      const checkForMembership = async () => {
         const checkInterval = setInterval(async () => {
           attempts++
+          console.log(`Checking for org membership (attempt ${attempts}/${maxAttempts})...`)
           
-          // Force a re-check of memberships
-          if (userMemberships?.revalidate) {
-            await userMemberships.revalidate()
+          try {
+            // Force a fresh fetch of memberships
+            if (userMemberships?.revalidate) {
+              await userMemberships.revalidate()
+            }
+          } catch (error) {
+            console.error('Error checking memberships:', error)
           }
           
           // Check if memberships are now available
-          if (userMemberships?.data && userMemberships.data.length > 0) {
+          const memberships = userMemberships?.data || []
+          if (memberships.length > 0 && !hasSetOrg.current) {
+            console.log('Organization membership found!', memberships[0].organization.name)
             clearInterval(checkInterval)
             setIsCheckingDomain(false)
-            // The other useEffect will handle the redirect
+            // The other useEffect will handle setting active org and redirect
           } else if (attempts >= maxAttempts) {
+            console.log('Max attempts reached, showing create org screen')
             clearInterval(checkInterval)
             setIsCheckingDomain(false)
-            // After 5 attempts, show the create org screen
           }
-        }, 1000) // Check every second
+        }, 2000) // Check every 2 seconds
         
         return () => clearInterval(checkInterval)
-      }, 1500) // Initial delay of 1.5 seconds
+      }
       
-      return () => clearTimeout(initialDelay)
+      // Start checking after a brief delay to let webhook process
+      setTimeout(checkForMembership, 1000)
     }
-  }, [user])
+  }, [user, isLoaded, userMemberships])
   
   // Show loading state while checking domain
   if (isCheckingDomain || !isLoaded) {

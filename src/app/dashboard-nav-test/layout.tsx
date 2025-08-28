@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useUser, UserButton, useOrganization } from '@clerk/nextjs'
 import { Flame } from 'lucide-react'
@@ -7,7 +8,44 @@ import ViewportContainer from '@/components/ViewportContainer'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 
-export default function DashboardLayout({
+// Primary navigation structure with secondary nav items
+const navigationStructure = [
+  {
+    id: 'start',
+    label: 'Start',
+    href: '/dashboard-nav-test/start',
+    secondary: [
+      { id: 'onboarding', label: 'Onboarding', href: '/dashboard-nav-test/start/onboarding' }
+    ]
+  },
+  {
+    id: 'users',
+    label: 'Users',
+    href: '/dashboard-nav-test/users',
+    secondary: [
+      { id: 'users-list', label: 'Users', href: '/dashboard-nav-test/users' },
+      { id: 'add-users', label: 'Add Users', href: '/dashboard-nav-test/users/add' }
+    ]
+  },
+  {
+    id: 'assessments',
+    label: 'Assessments',
+    href: '/dashboard-nav-test/assessments',
+    secondary: [
+      { id: 'assessments-list', label: 'Assessments', href: '/dashboard-nav-test/assessments' },
+      { id: 'campaigns', label: 'Campaigns', href: '/dashboard-nav-test/assessments/campaigns' },
+      { id: 'results', label: 'Results', href: '/dashboard-nav-test/assessments/results' }
+    ]
+  },
+  {
+    id: 'recommendations',
+    label: 'Recommendations',
+    href: '/dashboard-nav-test/recommendations',
+    secondary: [] // No secondary nav for recommendations
+  }
+]
+
+export default function DashboardNavTestLayout({
   children,
 }: {
   children: React.ReactNode
@@ -16,60 +54,26 @@ export default function DashboardLayout({
   const router = useRouter()
   const { user } = useUser()
   const { organization } = useOrganization()
+  const [activePrimary, setActivePrimary] = useState<string>('start')
   
-  // Primary navigation with secondary items
-  const primaryTabs = [
-    { 
-      id: 'start', 
-      label: 'Start', 
-      href: '/dashboard/start',
-      secondary: [
-        { id: 'onboarding', label: 'Onboarding', href: '/dashboard/onboarding' }
-      ]
-    },
-    { 
-      id: 'users', 
-      label: 'Users', 
-      href: '/dashboard/users',
-      secondary: []
-    },
-    { 
-      id: 'assessments', 
-      label: 'Assessments', 
-      href: '/dashboard/assessments',
-      secondary: [
-        { id: 'campaigns', label: 'Campaigns', href: '/dashboard/campaigns' },
-        { id: 'results', label: 'Results', href: '/dashboard/results' }
-      ]
-    },
-    { 
-      id: 'recommendations', 
-      label: 'Recommendations', 
-      href: '/dashboard/recommendations',
-      secondary: []
-    },
-  ]
+  useEffect(() => {
+    // Determine active primary nav based on pathname
+    const path = pathname.replace('/dashboard-nav-test/', '')
+    const primarySection = path.split('/')[0]
+    
+    if (primarySection) {
+      const navItem = navigationStructure.find(item => 
+        item.id === primarySection || item.href.includes(primarySection)
+      )
+      if (navItem) {
+        setActivePrimary(navItem.id)
+      }
+    }
+  }, [pathname])
   
-  // Determine active primary tab based on pathname
-  const getActivePrimary = () => {
-    if (pathname.includes('/dashboard/start') || pathname.includes('/dashboard/onboarding')) {
-      return 'start'
-    }
-    if (pathname.includes('/dashboard/users')) {
-      return 'users'
-    }
-    if (pathname.includes('/dashboard/assessments') || pathname.includes('/dashboard/campaigns') || pathname.includes('/dashboard/results')) {
-      return 'assessments'
-    }
-    if (pathname.includes('/dashboard/recommendations')) {
-      return 'recommendations'
-    }
-    return 'start'
-  }
-  
-  const activePrimary = getActivePrimary()
-  const activeTab = primaryTabs.find(tab => tab.id === activePrimary)
-  const secondaryTabs = activeTab?.secondary || []
+  // Get secondary navigation items for active primary
+  const activeNavItem = navigationStructure.find(item => item.id === activePrimary)
+  const secondaryNav = activeNavItem?.secondary || []
 
   return (
     <ViewportContainer className="bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900">
@@ -83,7 +87,7 @@ export default function DashboardLayout({
         {/* Header */}
         <div className="px-4 py-6 border-b border-white/10 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-4">
                 {/* Company Logo/Name */}
                 <div className="flex items-center gap-3">
@@ -118,44 +122,47 @@ export default function DashboardLayout({
             </div>
 
             {/* Primary Navigation */}
-            <nav className="flex gap-8 overflow-x-auto border-b border-white/10 pb-3">
-              {primaryTabs.map((tab) => {
-                const isActive = tab.id === activePrimary
+            <nav className="flex gap-8 overflow-x-auto mb-4">
+              {navigationStructure.map((item) => {
+                const isActive = activePrimary === item.id
                 return (
-                  <Link
-                    key={tab.id}
-                    href={tab.href}
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setActivePrimary(item.id)
+                      router.push(item.href)
+                    }}
                     className={`pb-3 px-1 font-medium transition-colors relative whitespace-nowrap ${
                       isActive
                         ? 'text-white'
                         : 'text-white/60 hover:text-white/80'
                     }`}
                   >
-                    {tab.label}
+                    {item.label}
                     {isActive && (
                       <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-500" />
                     )}
-                  </Link>
+                  </button>
                 )
               })}
             </nav>
-            
+
             {/* Secondary Navigation */}
-            {secondaryTabs.length > 0 && (
-              <nav className="flex gap-6 pt-3">
-                {secondaryTabs.map((tab) => {
-                  const isActive = pathname === tab.href
+            {secondaryNav.length > 0 && (
+              <nav className="flex gap-6 border-t border-white/10 pt-3">
+                {secondaryNav.map((item) => {
+                  const isActive = pathname === item.href
                   return (
                     <Link
-                      key={tab.id}
-                      href={tab.href}
+                      key={item.id}
+                      href={item.href}
                       className={`text-sm font-medium transition-colors ${
                         isActive
                           ? 'text-purple-400'
                           : 'text-white/50 hover:text-white/70'
                       }`}
                     >
-                      {tab.label}
+                      {item.label}
                     </Link>
                   )
                 })}

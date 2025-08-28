@@ -40,14 +40,14 @@ export async function POST(req: NextRequest) {
   // Handle the webhook
   const eventType = evt.type;
   
-  if (eventType === 'user.created' || eventType === 'session.created') {
+  if (eventType === 'user.created' || eventType === 'user.updated' || eventType === 'session.created') {
     const client = await clerkClient();
     
     // Get user data
     let userId: string;
     let userEmail: string | undefined;
     
-    if (eventType === 'user.created') {
+    if (eventType === 'user.created' || eventType === 'user.updated') {
       const userData = evt.data;
       userId = userData.id;
       userEmail = userData.email_addresses.find(e => e.id === userData.primary_email_address_id)?.email_address;

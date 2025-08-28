@@ -8,13 +8,17 @@ import { useRouter } from 'next/navigation'
 export default function OnboardingPage() {
   const router = useRouter()
   const { user } = useUser()
-  const { organizationList, setActive } = useOrganizationList()
+  const { userMemberships, setActive } = useOrganizationList({
+    userMemberships: {
+      infinite: false,
+    },
+  })
   
   useEffect(() => {
     // Check if user already belongs to an organization
-    if (organizationList && organizationList.length > 0) {
+    if (userMemberships?.data && userMemberships.data.length > 0 && setActive) {
       // User has organizations - set the first one as active and redirect
-      const firstOrg = organizationList[0]
+      const firstOrg = userMemberships.data[0]
       setActive({ organization: firstOrg.organization.id }).then(() => {
         router.push('/dashboard')
       })
@@ -26,7 +30,7 @@ export default function OnboardingPage() {
       // If they're here, something went wrong - redirect them to dashboard anyway
       router.push('/dashboard')
     }
-  }, [organizationList, user, router, setActive])
+  }, [userMemberships, user, router, setActive])
   
   return (
     <ViewportContainer className="bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900">

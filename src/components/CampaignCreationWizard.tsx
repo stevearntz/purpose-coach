@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { useUser, useOrganization } from '@clerk/nextjs'
 import { 
   Users, Mail, Calendar, MessageSquare, Rocket, 
-  ChevronRight, ChevronLeft, ChevronDown, X, Plus, Check, 
-  AlertCircle, Loader2, Clock, User, Search, Filter, Copy
+  ChevronRight, ChevronLeft, X, Plus, Check, 
+  AlertCircle, Loader2, Clock, User, Search, Copy
 } from 'lucide-react'
 import { useToast } from '@/hooks/useToast'
 
@@ -88,7 +88,6 @@ export default function CampaignCreationWizard({
   // State for selecting participants
   const [selectedExistingUsers, setSelectedExistingUsers] = useState<Set<string>>(new Set())
   const [userSearchTerm, setUserSearchTerm] = useState('')
-  const [selectedDepartment, setSelectedDepartment] = useState<string>('all')
   const [selectAll, setSelectAll] = useState(false)
   
   // Load existing users and check for draft or editing campaign
@@ -291,17 +290,13 @@ ${user?.firstName || 'Your Name'}`)
     .filter(Boolean)
   )].sort()
   
-  // Filter users based on search and department
+  // Filter users based on search only
   const filteredUsers = existingUsers.filter(user => {
     const matchesSearch = userSearchTerm === '' || 
       user.name.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(userSearchTerm.toLowerCase())
     
-    const matchesDepartment = selectedDepartment === 'all' ||
-      (selectedDepartment === 'none' && !user.department) ||
-      user.department === selectedDepartment
-    
-    return matchesSearch && matchesDepartment
+    return matchesSearch
   })
   
   const handleToggleExistingUser = (userId: string) => {
@@ -562,23 +557,6 @@ ${user?.firstName || 'Your Name'}`)
                 onChange={(e) => setUserSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/40 text-sm"
               />
-            </div>
-            <div className="relative">
-              <Filter className="absolute left-3 top-3 w-4 h-4 text-white/40 pointer-events-none" />
-              <select
-                value={selectedDepartment}
-                onChange={(e) => setSelectedDepartment(e.target.value)}
-                className="pl-10 pr-8 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-white/40 text-sm appearance-none cursor-pointer"
-              >
-                <option value="all" className="bg-gray-900">All Departments</option>
-                {departments.map(dept => (
-                  <option key={dept} value={dept} className="bg-gray-900">{dept}</option>
-                ))}
-                {departments.length > 0 && (
-                  <option key="none" value="none" className="bg-gray-900">No Department</option>
-                )}
-              </select>
-              <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-white/40 pointer-events-none" />
             </div>
             <button
               onClick={handleSelectAll}

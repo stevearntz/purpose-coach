@@ -11,6 +11,7 @@ function VerifyContent() {
   const [verificationCode, setVerificationCode] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isSettingUpOrg, setIsSettingUpOrg] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -51,10 +52,11 @@ function VerifyContent() {
           const userEmail = email.toLowerCase()
           if (userEmail.endsWith('@getcampfire.com')) {
             // Show loading state and wait for webhook
-            setIsLoading(true)
+            setIsSettingUpOrg(true)
+            setIsLoading(false)
             setError('') // Clear any errors
-            // Wait 3.5 seconds for webhook to process
-            await new Promise(resolve => setTimeout(resolve, 3500))
+            // Wait 5 seconds for webhook to process
+            await new Promise(resolve => setTimeout(resolve, 5000))
           }
           
           router.push('/onboarding')
@@ -86,6 +88,36 @@ function VerifyContent() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Show loading state when setting up organization
+  if (isSettingUpOrg) {
+    return (
+      <div className="relative min-h-screen flex items-center justify-center">
+        <img
+          src="/purple-sign-in-background.png"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        
+        <div className="relative z-10 w-full max-w-7xl mx-4 flex shadow-2xl rounded-3xl overflow-hidden">
+          <AuthLeftPanel />
+          
+          <div className="flex-1 bg-white p-8 lg:p-16 flex flex-col justify-center max-w-md mx-auto w-full">
+            <div className="text-center">
+              <img
+                src="/campfire-logo-new.png"
+                alt="Campfire"
+                className="h-10 w-auto mb-8 mx-auto"
+              />
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Finding your organization...</h2>
+              <p className="text-gray-600">Setting up your Campfire workspace</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -26,20 +26,20 @@ export default function OnboardingPage() {
       setActive({ organization: firstOrg.organization.id }).then(() => {
         router.push('/dashboard')
       })
-    } else if (isLoaded && isDomainUser && checkAttempts < 3) {
-      // For domain users, recheck a few times in case webhook is still processing
+    } else if (isLoaded && isDomainUser && checkAttempts < 5) {
+      // For domain users, recheck several times in case webhook is still processing
       const timer = setTimeout(() => {
         setCheckAttempts(prev => prev + 1)
         // Force a re-check
         window.location.reload()
-      }, 1500)
+      }, 1000)
       
       return () => clearTimeout(timer)
     }
   }, [isLoaded, userMemberships, setActive, router, isDomainUser, checkAttempts])
   
   // Show loading state for domain users while checking
-  if (!isLoaded || (isDomainUser && checkAttempts < 3 && (!userMemberships?.data || userMemberships.data.length === 0))) {
+  if (!isLoaded || (isDomainUser && checkAttempts < 5 && (!userMemberships?.data || userMemberships.data.length === 0))) {
     return (
       <ViewportContainer className="bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900">
         <div className="absolute inset-0">

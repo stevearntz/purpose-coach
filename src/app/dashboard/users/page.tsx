@@ -76,6 +76,8 @@ export default function UsersPage() {
   const [isFetching, setIsFetching] = useState(false)
   const lastOrganizationIdRef = useRef<string | null>(null)
   const [focusedOptionIndex, setFocusedOptionIndex] = useState(0)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [pendingUsers, setPendingUsers] = useState<ParticipantRow[]>([])
 
   useEffect(() => {
     setIsMounted(true)
@@ -324,7 +326,7 @@ export default function UsersPage() {
     return re.test(email)
   }
   
-  const handleAddParticipants = async () => {
+  const handleAddParticipants = () => {
     const validParticipants = participantRows.filter(row => row.name && row.email)
     
     if (validParticipants.length === 0) {
@@ -332,15 +334,22 @@ export default function UsersPage() {
       return
     }
     
+    // Show confirmation modal
+    setPendingUsers(validParticipants)
+    setShowConfirmModal(true)
+  }
+  
+  const confirmAddParticipants = async () => {
+    setShowConfirmModal(false)
     setIsAddingParticipants(true)
-    setAddingProgress({ current: 0, total: validParticipants.length })
+    setAddingProgress({ current: 0, total: pendingUsers.length })
     
     try {
       let successCount = 0
       
-      for (let i = 0; i < validParticipants.length; i++) {
-        const participant = validParticipants[i]
-        setAddingProgress({ current: i + 1, total: validParticipants.length })
+      for (let i = 0; i < pendingUsers.length; i++) {
+        const participant = pendingUsers[i]
+        setAddingProgress({ current: i + 1, total: pendingUsers.length })
         
         // Different endpoints based on role
         const endpoint = participant.role === 'participant' 
@@ -390,6 +399,7 @@ export default function UsersPage() {
     } finally {
       setIsAddingParticipants(false)
       setAddingProgress({ current: 0, total: 0 })
+      setPendingUsers([])
     }
   }
 
@@ -743,34 +753,7 @@ export default function UsersPage() {
                     : 'hover:bg-purple-700'
                 }`}
               >
-                {(() => {
-                  if (isAddingParticipants) return 'Processing...'
-                  const validRows = participantRows.filter(row => row.name && row.email)
-                  const participantCount = validRows.filter(r => r.role === 'participant').length
-                  const memberCount = validRows.filter(r => r.role === 'member').length
-                  const adminCount = validRows.filter(r => r.role === 'admin').length
-                  
-                  if (validRows.length === 0) return 'Add Users'
-                  
-                  // If all same type
-                  if (participantCount === validRows.length) {
-                    return `Add ${participantCount} Participant${participantCount !== 1 ? 's' : ''}`
-                  }
-                  if (memberCount === validRows.length) {
-                    return `Invite ${memberCount} Member${memberCount !== 1 ? 's' : ''}`
-                  }
-                  if (adminCount === validRows.length) {
-                    return `Invite ${adminCount} Admin${adminCount !== 1 ? 's' : ''}`
-                  }
-                  
-                  // Mixed types
-                  const parts = []
-                  if (participantCount > 0) parts.push(`${participantCount} Participant${participantCount !== 1 ? 's' : ''}`)
-                  if (memberCount > 0) parts.push(`${memberCount} Member${memberCount !== 1 ? 's' : ''}`)
-                  if (adminCount > 0) parts.push(`${adminCount} Admin${adminCount !== 1 ? 's' : ''}`)
-                  
-                  return `Add ${parts.join(', ')}`
-                })()}
+                {isAddingParticipants ? 'Processing...' : `Add ${participantRows.filter(row => row.name && row.email).length} User${participantRows.filter(row => row.name && row.email).length !== 1 ? 's' : ''}`}
               </button>
             </div>
           </div>
@@ -926,5 +909,103 @@ export default function UsersPage() {
         )}
       </div>
     </div>
+
+    {/* Confirmation Modal */}
+    {showConfirmModal && (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[10000] p-4">
+        <div className="bg-gray-900 rounded-xl border border-white/20 max-w-md w-full">
+          <div className="p-6">
+            <h3 className="text-xl font-semibold text-white mb-4">Confirm User Actions</h3>
+            
+            <div className="space-y-4 mb-6">
+              {(() => {
+                const participantCount = pendingUsers.filter(u => u.role === 'participant').length
+                const memberCount = pendingUsers.filter(u => u.role === 'member').length
+                const adminCount = pendingUsers.filter(u => u.role === 'admin').length
+                
+                return (
+                  <>
+                    {participantCount > 0 && (
+                      <div className="bg-purple-500/10 rounded-lg p-3 border border-purple-500/20">
+                        <div className="flex items-start gap-3">
+                          <UserCheck className="w-5 h-5 text-purple-400 mt-0.5" />
+                          <div>
+                            <p className="text-white font-medium">
+                              {participantCount} Participant{participantCount !== 1 ? 's' : ''}
+                            </p>
+                            <p className="text-white/60 text-sm mt-1">
+                              Will be added to the assessment pool. No email will be sent.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {memberCount > 0 && (
+                      <div className="bg-blue-500/10 rounded-lg p-3 border border-blue-500/20">
+                        <div className="flex items-start gap-3">
+                          <Mail className="w-5 h-5 text-blue-400 mt-0.5" />
+                          <div>
+                            <p className="text-white font-medium">
+                              {memberCount} Member{memberCount !== 1 ? 's' : ''}
+                            </p>
+                            <p className="text-white/60 text-sm mt-1">
+                              Will receive a welcome email with platform access to view their assessment results.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {adminCount > 0 && (
+                      <div className="bg-orange-500/10 rounded-lg p-3 border border-orange-500/20">
+                        <div className="flex items-start gap-3">
+                          <Shield className="w-5 h-5 text-orange-400 mt-0.5" />
+                          <div>
+                            <p className="text-white font-medium">
+                              {adminCount} Admin{adminCount !== 1 ? 's' : ''}
+                            </p>
+                            <p className="text-white/60 text-sm mt-1">
+                              Will receive a welcome email with full dashboard access to manage the organization.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )
+              })()}
+            </div>
+            
+            <div className="bg-yellow-500/10 rounded-lg p-3 border border-yellow-500/20 mb-6">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5" />
+                <div>
+                  <p className="text-yellow-300 font-medium">Are you sure?</p>
+                  <p className="text-yellow-200/80 text-sm mt-1">
+                    This action will send {pendingUsers.filter(u => u.role !== 'participant').length} welcome email{pendingUsers.filter(u => u.role !== 'participant').length !== 1 ? 's' : ''} immediately.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmAddParticipants}
+                className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-medium transition-colors"
+              >
+                Confirm & Add Users
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
   )
 }

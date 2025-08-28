@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser, useOrganization } from '@clerk/nextjs'
 import { 
@@ -60,6 +60,8 @@ export default function CampaignCreationWizard({
   const [isLoading, setIsLoading] = useState(false)
   const [existingUsers, setExistingUsers] = useState<any[]>([])
   const [loadingUsers, setLoadingUsers] = useState(true)
+  const [isFetching, setIsFetching] = useState(false)
+  const lastOrganizationIdRef = useRef<string | null>(null)
   // Removed launchComplete state - not needed anymore
   
   // Email helper data state - integrated into wizard
@@ -203,11 +205,21 @@ ${user?.firstName || 'Your Name'}`)
       }
     }
     
-    // Load participants
-    loadParticipants()
-  }, [toolId, editingCampaign, organization])
+    // Load participants only if organization ID has changed
+    const currentOrgId = organization?.id
+    if (currentOrgId && currentOrgId !== lastOrganizationIdRef.current && !isFetching) {
+      lastOrganizationIdRef.current = currentOrgId
+      loadParticipants()
+    }
+  }, [toolId, editingCampaign, organization?.id])
   
   const loadParticipants = async () => {
+    // Prevent concurrent fetches
+    if (isFetching) {
+      return
+    }
+    
+    setIsFetching(true)
     setLoadingUsers(true)
     try {
       const allUsers: any[] = []
@@ -281,6 +293,7 @@ ${user?.firstName || 'Your Name'}`)
       showError('Failed to load participants')
     } finally {
       setLoadingUsers(false)
+      setIsFetching(false)
     }
   }
   

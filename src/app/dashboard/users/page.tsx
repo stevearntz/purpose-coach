@@ -409,7 +409,7 @@ export default function UsersPage() {
       </div>
 
       {/* Add Users Section - Collapsible */}
-      <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 mb-6">
+      <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 mb-6 overflow-visible">
         <button
           onClick={() => setShowAddSection(!showAddSection)}
           className="w-full p-4 flex items-center justify-between hover:bg-white/5 transition-colors"
@@ -426,7 +426,7 @@ export default function UsersPage() {
         </button>
 
         {showAddSection && (
-          <div className="border-t border-white/10 p-6 relative">
+          <div className="border-t border-white/10 p-6 overflow-visible">
             {/* Header row with labels */}
             <div className="grid grid-cols-12 gap-4 mb-2">
               <div className="col-span-4">
@@ -441,8 +441,8 @@ export default function UsersPage() {
               <div className="col-span-1"></div>
             </div>
             
-            {/* User rows - Added pb-32 to ensure dropdown space */}
-            <div className="space-y-2 pb-32">
+            {/* User rows */}
+            <div className="space-y-2 relative">
               {participantRows.map((row, index) => (
                 <div key={row.id} className="grid grid-cols-12 gap-4 items-center">
                   <div className="col-span-4">

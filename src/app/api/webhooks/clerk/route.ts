@@ -40,6 +40,58 @@ export async function POST(req: NextRequest) {
   // Handle the webhook
   const eventType = evt.type;
   
+  // Handle organization events to keep database in sync
+  if (eventType === 'organization.created') {
+    const orgData = evt.data;
+    
+    // Create or update the company in our database
+    await prisma.company.upsert({
+      where: { clerkOrgId: orgData.id },
+      update: { 
+        name: orgData.name,
+        updatedAt: new Date()
+      },
+      create: {
+        name: orgData.name,
+        clerkOrgId: orgData.id,
+        domains: [] // Will be updated when admin sets them
+      }
+    });
+    
+    console.log('Organization created in database:', {
+      name: orgData.name,
+      clerkOrgId: orgData.id
+    });
+  }
+  
+  if (eventType === 'organization.updated') {
+    const orgData = evt.data;
+    
+    // Update the company in our database
+    await prisma.company.update({
+      where: { clerkOrgId: orgData.id },
+      data: { 
+        name: orgData.name,
+        updatedAt: new Date()
+      }
+    });
+    
+    console.log('Organization updated in database:', {
+      name: orgData.name,
+      clerkOrgId: orgData.id
+    });
+  }
+  
+  if (eventType === 'organization.deleted') {
+    const orgData = evt.data;
+    
+    // Optionally delete or mark as inactive in database
+    // For now, we'll keep it for historical data but you might want to handle differently
+    console.log('Organization deleted in Clerk (keeping in database):', {
+      clerkOrgId: orgData.id
+    });
+  }
+  
   if (eventType === 'user.created' || eventType === 'user.updated' || eventType === 'session.created') {
     const client = await clerkClient();
     

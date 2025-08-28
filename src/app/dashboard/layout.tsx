@@ -34,7 +34,9 @@ export default function DashboardLayout({
       label: 'Start', 
       href: '/dashboard/start',
       secondary: [
-        { id: 'onboarding', label: 'Onboarding', href: '/dashboard/onboarding' }
+        { id: 'onboarding', label: 'Onboarding', href: '/dashboard/start/onboarding' },
+        { id: 'dashboard', label: 'Dashboard', href: '/dashboard/start/dashboard' },
+        { id: 'profile', label: 'Profile', href: '/dashboard/start/profile' }
       ],
       allowedRoles: ['admin', 'member'] // Both can see Start
     },
@@ -74,7 +76,7 @@ export default function DashboardLayout({
   
   // Determine active primary tab based on pathname
   const getActivePrimary = () => {
-    if (pathname.includes('/dashboard/start') || pathname.includes('/dashboard/onboarding')) {
+    if (pathname.includes('/dashboard/start')) {
       return 'start'
     }
     if (pathname.includes('/dashboard/users')) {

@@ -529,7 +529,7 @@ ${user?.firstName || 'Your Name'}`)
                   <option key={dept} value={dept} className="bg-gray-900">{dept}</option>
                 ))}
                 {departments.length > 0 && (
-                  <option value="none" className="bg-gray-900">No Department</option>
+                  <option key="none" value="none" className="bg-gray-900">No Department</option>
                 )}
               </select>
               <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-white/40 pointer-events-none" />

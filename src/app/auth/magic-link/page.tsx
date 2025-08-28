@@ -34,6 +34,8 @@ function MagicLinkContent() {
         // Existing user - sign in
         await signIn.create({ identifier: email })
         
+        console.log('[Auth] Supported first factors:', signIn.supportedFirstFactors)
+        
         // Always use email code for better conversion rates
         const emailCodeFactor = signIn.supportedFirstFactors?.find(
           (factor) => factor.strategy === 'email_code'
@@ -46,21 +48,46 @@ function MagicLinkContent() {
           })
           router.push(`/auth/verify?email=${encodeURIComponent(email)}&exists=${userExists}`)
         } else {
-          throw new Error('Email verification not available')
+          console.error('[Auth] Email code factor not found. Available factors:', signIn.supportedFirstFactors)
+          // Try password-based sign-in if email code isn't available
+          const passwordFactor = signIn.supportedFirstFactors?.find(
+            (factor) => factor.strategy === 'password'
+          )
+          if (passwordFactor) {
+            console.log('[Auth] Falling back to password authentication')
+            router.push(`/auth/manual?email=${encodeURIComponent(email)}`)
+          } else {
+            throw new Error('No authentication methods available. Check Clerk configuration.')
+          }
         }
       } else {
         // New user - use email_code for sign-ups
         // First create the user with a temporary password (Clerk requirement)
         const tempPassword = Math.random().toString(36).slice(-16) + 'Aa1!'
         
-        await signUp.create({
-          emailAddress: email,
-          password: tempPassword,
-        })
+        console.log('[Auth] Creating new user with email:', email)
         
-        // Then immediately prepare email verification
-        await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
-        router.push(`/auth/verify?email=${encodeURIComponent(email)}&exists=${userExists}`)
+        try {
+          await signUp.create({
+            emailAddress: email,
+            password: tempPassword,
+          })
+          
+          console.log('[Auth] User created, preparing email verification')
+          
+          // Then immediately prepare email verification
+          await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
+          router.push(`/auth/verify?email=${encodeURIComponent(email)}&exists=${userExists}`)
+        } catch (signUpErr: any) {
+          console.error('[Auth] Sign-up error:', signUpErr)
+          if (signUpErr.errors?.[0]?.code === 'form_identifier_exists') {
+            // User actually exists, redirect to sign-in flow
+            console.log('[Auth] User already exists, redirecting to sign-in')
+            router.push(`/auth/magic-link?email=${encodeURIComponent(email)}&exists=true`)
+          } else {
+            throw signUpErr
+          }
+        }
       }
     } catch (err: any) {
       console.error('Verification code error:', err)

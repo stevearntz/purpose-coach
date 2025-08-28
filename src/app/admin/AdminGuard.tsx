@@ -22,9 +22,11 @@ export default function AdminGuard({ children }: AdminGuardProps) {
       return
     }
     
-    // Check if user is from Campfire company (system admin)
-    const companyName = user.publicMetadata?.companyName as string
-    if (companyName?.toLowerCase() === 'campfire') {
+    // Check if user is a Campfire admin by email
+    const adminEmails = ['steve@getcampfire.com']
+    const userEmail = user.primaryEmailAddress?.emailAddress?.toLowerCase()
+    
+    if (userEmail && adminEmails.includes(userEmail)) {
       setIsAuthorized(true)
     } else {
       // Not a Campfire admin, redirect to regular dashboard

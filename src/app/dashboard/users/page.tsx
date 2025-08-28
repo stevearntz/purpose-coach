@@ -426,7 +426,7 @@ export default function UsersPage() {
         </button>
 
         {showAddSection && (
-          <div className="border-t border-white/10 p-6">
+          <div className="border-t border-white/10 p-6 relative">
             {/* Header row with labels */}
             <div className="grid grid-cols-12 gap-4 mb-2">
               <div className="col-span-4">
@@ -441,8 +441,8 @@ export default function UsersPage() {
               <div className="col-span-1"></div>
             </div>
             
-            {/* User rows */}
-            <div className="space-y-2 max-h-96 overflow-y-auto">
+            {/* User rows - Added pb-32 to ensure dropdown space */}
+            <div className="space-y-2 pb-32">
               {participantRows.map((row, index) => (
                 <div key={row.id} className="grid grid-cols-12 gap-4 items-center">
                   <div className="col-span-4">
@@ -510,7 +510,7 @@ export default function UsersPage() {
                       
                       {/* Custom Dropdown Menu */}
                       {openDropdownId === row.id && (
-                        <div className="absolute z-10 w-full mt-1 bg-gray-900/95 backdrop-blur-sm border border-white/20 rounded-lg shadow-xl overflow-hidden">
+                        <div className="absolute z-50 w-full mt-1 bg-gray-900/95 backdrop-blur-sm border border-white/20 rounded-lg shadow-xl overflow-hidden">
                           <button
                             type="button"
                             onClick={() => {

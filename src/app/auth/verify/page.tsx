@@ -46,17 +46,20 @@ function VerifyContent() {
         })
 
         if (result.status === 'complete') {
+          console.log('[Verify] Sign-up complete, setting active session')
           await setActive({ session: result.createdSessionId })
           
           // For domain users, give webhook time to add them to org
           const userEmail = email.toLowerCase()
           if (userEmail.endsWith('@getcampfire.com')) {
+            console.log('[Verify] Domain user detected:', userEmail, '- waiting 5s for webhook')
             // Show loading state and wait for webhook
             setIsSettingUpOrg(true)
             setIsLoading(false)
             setError('') // Clear any errors
             // Wait 5 seconds for webhook to process
             await new Promise(resolve => setTimeout(resolve, 5000))
+            console.log('[Verify] Wait complete, redirecting to onboarding')
           }
           
           router.push('/onboarding')

@@ -28,22 +28,43 @@ export default function OnboardingPage() {
   const emailAddress = user?.primaryEmailAddress?.emailAddress || ''
   const isDomainUser = emailAddress.endsWith('@getcampfire.com')
   
+  // Debug logging
+  console.log('[Onboarding] Current state:', {
+    userLoaded,
+    isLoaded,
+    emailAddress,
+    isDomainUser,
+    checkAttempts,
+    membershipCount: userMemberships?.data?.length || 0,
+    memberships: userMemberships?.data?.map(m => ({ 
+      orgId: m.organization.id, 
+      name: m.organization.name 
+    }))
+  })
+  
   useEffect(() => {
+    console.log('[Onboarding] useEffect triggered')
     // Check if user already belongs to an organization
     if (isLoaded && userMemberships?.data && userMemberships.data.length > 0 && setActive) {
       // User has organizations - set the first one as active and redirect
       const firstOrg = userMemberships.data[0]
+      console.log('[Onboarding] Found organization, setting active:', firstOrg.organization.name, firstOrg.organization.id)
       // Clear the attempts counter
       sessionStorage.removeItem('onboarding-check-attempts')
       setActive({ organization: firstOrg.organization.id }).then(() => {
+        console.log('[Onboarding] Organization set active, redirecting to dashboard')
         router.push('/dashboard')
+      }).catch(err => {
+        console.error('[Onboarding] Failed to set active organization:', err)
       })
     } else if (isLoaded && userLoaded && isDomainUser && checkAttempts < 5) {
       // For domain users, recheck several times in case webhook is still processing
+      console.log(`[Onboarding] Domain user, attempt ${checkAttempts + 1}/5, will reload in 1.5s`)
       const timer = setTimeout(() => {
         const newAttempts = checkAttempts + 1
         sessionStorage.setItem('onboarding-check-attempts', newAttempts.toString())
         setCheckAttempts(newAttempts)
+        console.log('[Onboarding] Reloading page to check for membership...')
         // Force a re-check
         window.location.reload()
       }, 1500) // Give it a bit more time between checks
@@ -51,7 +72,16 @@ export default function OnboardingPage() {
       return () => clearTimeout(timer)
     } else if (checkAttempts >= 5) {
       // Max attempts reached, clear the counter
+      console.log('[Onboarding] Max attempts reached, showing org creation screen')
       sessionStorage.removeItem('onboarding-check-attempts')
+    } else {
+      console.log('[Onboarding] Conditions not met:', {
+        isLoaded,
+        userLoaded,
+        isDomainUser,
+        checkAttempts,
+        hasMemberships: userMemberships?.data?.length > 0
+      })
     }
   }, [isLoaded, userLoaded, userMemberships, setActive, router, isDomainUser, checkAttempts])
   

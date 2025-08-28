@@ -143,14 +143,24 @@ export async function POST(req: NextRequest) {
         });
         
         const isMember = memberships.data.some((m: any) => m.userId === userId);
+        console.log('Webhook: Checking membership for', userEmail, {
+          organizationId: matchingCompany.clerkOrgId,
+          organizationName: matchingCompany.name,
+          isMember,
+          userId
+        });
         
         if (!isMember) {
           // Add user to the organization as a member (not admin)
+          console.log('Webhook: Adding user to organization...');
           await client.organizations.createOrganizationMembership({
             organizationId: matchingCompany.clerkOrgId,
             userId: userId,
             role: 'org:member'
           });
+          console.log('Webhook: Successfully added user to', matchingCompany.name);
+        } else {
+          console.log('Webhook: User already member of', matchingCompany.name);
         }
         
         // Update user's metadata to include the organization

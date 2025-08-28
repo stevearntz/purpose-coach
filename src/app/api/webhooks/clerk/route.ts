@@ -98,9 +98,14 @@ export async function POST(req: NextRequest) {
         await client.users.updateUserMetadata(userId, {
           publicMetadata: {
             organizationId: matchingCompany.clerkOrgId,
-            companyName: matchingCompany.name
+            companyName: matchingCompany.name,
+            onboardingComplete: true
           }
         });
+        
+        // IMPORTANT: Set this as their active organization
+        // This requires the user to sign in again to pick up the change
+        // Or we need to handle it in the onboarding flow
         
       } catch (error) {
         // Silently fail - webhook will be retried

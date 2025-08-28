@@ -80,7 +80,7 @@ export default function OnboardingPage() {
         userLoaded,
         isDomainUser,
         checkAttempts,
-        hasMemberships: userMemberships?.data?.length > 0
+        hasMemberships: (userMemberships?.data?.length || 0) > 0
       })
     }
   }, [isLoaded, userLoaded, userMemberships, setActive, router, isDomainUser, checkAttempts])

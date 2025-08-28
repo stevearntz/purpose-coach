@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { createPortal } from 'react-dom'
+import { useRouter } from 'next/navigation'
 import { useOrganization, useUser } from '@clerk/nextjs'
-import { Edit2, Trash2, UserPlus, Mail, Shield, Calendar, CheckCircle, UserCheck, Clock, AlertCircle, Plus, ChevronDown, ChevronUp, X, Loader2, Upload, Download, Check } from 'lucide-react'
+import { Edit2, Trash2, Mail, Shield, Calendar, CheckCircle, UserCheck, Clock, AlertCircle, Plus } from 'lucide-react'
 
 interface OrganizationMember {
   id: string
@@ -22,65 +22,34 @@ interface Participant {
   id: string
   name: string
   email: string
-  status: 'new' | 'invited' | 'active'
+  status: string
   department?: string
   joinedDate: string
 }
 
-type UnifiedUser = {
+interface UnifiedUser {
   id: string
   name: string
   email: string
   role: 'Admin' | 'Member' | 'Participant'
-  status: 'Active' | 'Invited' | 'New'
+  status: string
   createdAt: string
   isClerkUser: boolean
   profileImageUrl?: string | null
   department?: string
 }
 
-interface ParticipantRow {
-  id: string
-  name: string
-  email: string
-  role: 'participant' | 'member' | 'admin'
-  nameError: boolean
-  emailError: boolean
-}
-
 export default function UsersPage() {
+  const router = useRouter()
   const { organization, membership } = useOrganization()
   const { user } = useUser()
   const [unifiedUsers, setUnifiedUsers] = useState<UnifiedUser[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedMember, setSelectedMember] = useState<string | null>(null)
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null)
-  
-  // Add user functionality
-  const [showAddSection, setShowAddSection] = useState(false)
-  const [addMode, setAddMode] = useState<'single' | 'bulk'>('single')
-  const [isAddingParticipants, setIsAddingParticipants] = useState(false)
-  const [addingProgress, setAddingProgress] = useState({ current: 0, total: 0 })
-  const [participantRows, setParticipantRows] = useState<ParticipantRow[]>([{
-    id: Date.now().toString(),
-    name: '',
-    email: '',
-    role: 'participant',
-    nameError: false,
-    emailError: false
-  }])
-  const nameInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({})
-  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
-  const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
-  const [isMounted, setIsMounted] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
   const lastOrganizationIdRef = useRef<string | null>(null)
-  const [focusedOptionIndex, setFocusedOptionIndex] = useState(0)
-  const [showConfirmModal, setShowConfirmModal] = useState(false)
-  const [pendingUsers, setPendingUsers] = useState<ParticipantRow[]>([])
 
   useEffect(() => {
-    setIsMounted(true)
     const currentOrgId = organization?.id
     
     // Only fetch if organization ID has changed and we're not currently fetching
@@ -88,46 +57,7 @@ export default function UsersPage() {
       lastOrganizationIdRef.current = currentOrgId
       fetchAllUsers()
     }
-  }, [organization?.id]) // Only depend on organization ID
-  
-  // Close dropdown when clicking outside, scrolling, or resizing
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (openDropdownId && dropdownRefs.current[openDropdownId]) {
-        const target = event.target as Node
-        const dropdownEl = dropdownRefs.current[openDropdownId]
-        // Check if click is on the dropdown button or the portal dropdown menu
-        const isDropdownButton = dropdownEl?.contains(target)
-        const isDropdownMenu = (target as HTMLElement)?.closest('.dropdown-menu-portal')
-        
-        if (!isDropdownButton && !isDropdownMenu) {
-          setOpenDropdownId(null)
-        }
-      }
-    }
-    
-    const handleScroll = () => {
-      if (openDropdownId) {
-        setOpenDropdownId(null)
-      }
-    }
-    
-    const handleResize = () => {
-      if (openDropdownId) {
-        setOpenDropdownId(null)
-      }
-    }
-    
-    document.addEventListener('mousedown', handleClickOutside)
-    window.addEventListener('scroll', handleScroll, true)
-    window.addEventListener('resize', handleResize)
-    
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      window.removeEventListener('scroll', handleScroll, true)
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [openDropdownId])
+  }, [organization?.id])
 
   const fetchAllUsers = async (showLoading = true) => {
     if (!organization) {
@@ -244,163 +174,23 @@ export default function UsersPage() {
         })
         if (!response.ok) throw new Error('Failed to remove participant')
       }
-      await fetchAllUsers(false) // Don't show loading when refreshing after user removal
+      await fetchAllUsers(false)
     } catch (error) {
-      console.error('Error removing user:', error)
+      console.error('Failed to remove user:', error)
       alert('Failed to remove user')
     }
   }
-  
-  // TODO: Implement participant to member conversion
-  // When a participant completes an assessment and creates an account:
-  // 1. They sign up/sign in via Clerk
-  // 2. Link their Clerk account to their participant data via email
-  // 3. Transfer their assessment results to their Clerk profile
-  // 4. Update their role from 'Participant' to 'Member'
-  const handleConvertParticipant = async (participantEmail: string) => {
-    // This would be triggered when a participant claims their profile
-    // Implementation depends on Clerk's invitation/signup flow
+
+  const formatRole = (role: string): string => {
+    if (role === 'org:admin' || role === 'admin') return 'Admin'
+    if (role === 'org:member' || role === 'member') return 'Member'
+    return 'Participant'
   }
-  
-  // Add user functions
-  const addParticipantRow = () => {
-    const newId = Date.now().toString()
-    setParticipantRows([...participantRows, {
-      id: newId,
-      name: '',
-      email: '',
-      role: 'participant',
-      nameError: false,
-      emailError: false
-    }])
-    
-    setTimeout(() => {
-      nameInputRefs.current[newId]?.focus()
-    }, 50)
-  }
-  
-  const removeParticipantRow = (id: string) => {
-    if (participantRows.length > 1) {
-      setParticipantRows(participantRows.filter(row => row.id !== id))
-    }
-  }
-  
-  const updateParticipantRow = (id: string, field: string, value: string) => {
-    setParticipantRows(participantRows.map(row => {
-      if (row.id === id) {
-        const updated = { ...row, [field]: value }
-        if (field === 'name' && value) updated.nameError = false
-        if (field === 'email' && value) updated.emailError = false
-        return updated
-      }
-      return row
-    }))
-  }
-  
-  const handleKeyDown = (e: React.KeyboardEvent, rowId: string) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      const currentRow = participantRows.find(row => row.id === rowId)
-      
-      if (!currentRow) return
-      
-      if (currentRow.name && currentRow.email) {
-        addParticipantRow()
-      } else {
-        setParticipantRows(participantRows.map(row => {
-          if (row.id === rowId) {
-            return {
-              ...row,
-              nameError: !row.name,
-              emailError: !row.email
-            }
-          }
-          return row
-        }))
-      }
-    }
-  }
-  
-  const validateEmail = (email: string) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return re.test(email)
-  }
-  
-  const handleAddParticipants = () => {
-    const validParticipants = participantRows.filter(row => row.name && row.email)
-    
-    if (validParticipants.length === 0) {
-      alert('Please fill in at least one user with name and email')
-      return
-    }
-    
-    // Show confirmation modal
-    setPendingUsers(validParticipants)
-    setShowConfirmModal(true)
-  }
-  
-  const confirmAddParticipants = async () => {
-    setShowConfirmModal(false)
-    setIsAddingParticipants(true)
-    setAddingProgress({ current: 0, total: pendingUsers.length })
-    
-    try {
-      let successCount = 0
-      
-      for (let i = 0; i < pendingUsers.length; i++) {
-        const participant = pendingUsers[i]
-        setAddingProgress({ current: i + 1, total: pendingUsers.length })
-        
-        // Different endpoints based on role
-        const endpoint = participant.role === 'participant' 
-          ? '/api/company/invite' 
-          : '/api/company/invite-member'
-        
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            emails: [participant.email],
-            name: participant.name,
-            role: participant.role,
-            senderEmail: user?.primaryEmailAddress?.emailAddress || '',
-            company: organization?.name || user?.primaryEmailAddress?.emailAddress?.split('@')[1] || '',
-            message: participant.role === 'participant'
-              ? undefined  // Participants don't get welcome emails
-              : `You've been invited to join ${organization?.name || 'our team'} on Campfire`
-          })
-        })
-        
-        if (response.ok) {
-          successCount++
-        } else {
-          console.error(`Failed to add user ${participant.email}`)
-        }
-      }
-      
-      await fetchAllUsers(false) // Don't show loading when refreshing after adding participants
-      
-      setParticipantRows([{
-        id: Date.now().toString(),
-        name: '',
-        email: '',
-        role: 'participant',
-        nameError: false,
-        emailError: false
-      }])
-      setShowAddSection(false)
-      
-      if (successCount > 0) {
-        console.log(`Successfully added ${successCount} user(s)`)
-      }
-    } catch (error) {
-      console.error('Failed to add users:', error)
-      alert('Failed to add some users. Please try again.')
-    } finally {
-      setIsAddingParticipants(false)
-      setAddingProgress({ current: 0, total: 0 })
-      setPendingUsers([])
-    }
+
+  const copyEmail = (email: string) => {
+    navigator.clipboard.writeText(email)
+    setCopiedEmail(email)
+    setTimeout(() => setCopiedEmail(null), 2000)
   }
 
   const getRoleBadgeColor = (role: string) => {
@@ -429,43 +219,15 @@ export default function UsersPage() {
     }
   }
 
-  const formatRole = (role: string) => {
-    // Remove "org:" prefix if present and capitalize first letter
-    const cleanRole = role.replace('org:', '')
-    return cleanRole.charAt(0).toUpperCase() + cleanRole.slice(1).toLowerCase()
-  }
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
-    })
-  }
-
-  const getDropdownPosition = (rowId: string) => {
-    const element = dropdownRefs.current[rowId]
-    if (!element) return { top: 0, left: 0, width: 0 }
-    
-    const rect = element.getBoundingClientRect()
-    return {
-      top: rect.bottom + 4,
-      left: rect.left,
-      width: rect.width
+  const getInitials = (name: string) => {
+    const parts = name.split(' ').filter(Boolean)
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
     }
-  }
-
-  if (!organization) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-white/60">No organization selected</p>
-      </div>
-    )
+    return name.substring(0, 2).toUpperCase()
   }
 
   return (
-    <>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -473,297 +235,17 @@ export default function UsersPage() {
           <h2 className="text-3xl font-bold text-white">Users</h2>
           <p className="text-white/60 mt-1">Manage your team members and their permissions</p>
         </div>
-      </div>
-
-      {/* Add Users Section - Collapsible */}
-      <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 mb-6 overflow-visible">
         <button
-          onClick={() => setShowAddSection(!showAddSection)}
-          className="w-full p-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+          onClick={() => router.push('/dashboard/users/add')}
+          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
         >
-          <div className="flex items-center gap-3">
-            <Plus className="w-5 h-5 text-purple-400" />
-            <span className="font-medium text-white">Add Users</span>
-          </div>
-          {showAddSection ? (
-            <ChevronUp className="w-5 h-5 text-white/40" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-white/40" />
-          )}
+          <Plus className="w-4 h-4" />
+          Add Users
         </button>
-
-        {showAddSection && (
-          <div className="border-t border-white/10 p-6 overflow-visible relative">
-            {/* Header row with labels */}
-            <div className="grid grid-cols-12 gap-4 mb-2">
-              <div className="col-span-4">
-                <label className="block text-sm font-medium text-white/80">Name *</label>
-              </div>
-              <div className="col-span-4">
-                <label className="block text-sm font-medium text-white/80">Email *</label>
-              </div>
-              <div className="col-span-3">
-                <label className="block text-sm font-medium text-white/80">Role</label>
-              </div>
-              <div className="col-span-1"></div>
-            </div>
-            
-            {/* User rows */}
-            <div className="space-y-2 relative" style={{ zIndex: 1 }}>
-              {participantRows.map((row, index) => (
-                <div key={row.id} className="grid grid-cols-12 gap-4 items-center">
-                  <div className="col-span-4">
-                    <input
-                      ref={(el) => { nameInputRefs.current[row.id] = el }}
-                      type="text"
-                      value={row.name}
-                      onChange={(e) => updateParticipantRow(row.id, 'name', e.target.value)}
-                      onKeyDown={(e) => handleKeyDown(e, row.id)}
-                      placeholder={row.nameError ? 'Name required' : 'John Doe'}
-                      disabled={isAddingParticipants}
-                      className={`w-full px-4 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-colors ${
-                        row.nameError ? 'border-red-500 placeholder-red-400' : 'border-white/20 placeholder-white/40'
-                      } ${isAddingParticipants ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    />
-                  </div>
-                  <div className="col-span-4">
-                    <input
-                      type="email"
-                      value={row.email}
-                      onChange={(e) => updateParticipantRow(row.id, 'email', e.target.value)}
-                      onKeyDown={(e) => handleKeyDown(e, row.id)}
-                      onBlur={(e) => {
-                        if (e.target.value && !validateEmail(e.target.value)) {
-                          updateParticipantRow(row.id, 'emailError', 'true')
-                        }
-                      }}
-                      placeholder={row.emailError ? 'Email required' : 'john@example.com'}
-                      disabled={isAddingParticipants}
-                      className={`w-full px-4 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-colors ${
-                        row.emailError ? 'border-red-500 placeholder-red-400' : 'border-white/20 placeholder-white/40'
-                      } ${isAddingParticipants ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    />
-                  </div>
-                  <div className="col-span-3">
-                    <div className="relative z-50" ref={(el) => { dropdownRefs.current[row.id] = el }}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const options = ['participant', 'member', 'admin']
-                          const currentIndex = options.indexOf(row.role)
-                          setOpenDropdownId(openDropdownId === row.id ? null : row.id)
-                          setFocusedOptionIndex(currentIndex)
-                        }}
-                        onKeyDown={(e) => {
-                          const options = ['participant', 'member', 'admin']
-                          const currentIndex = options.indexOf(row.role)
-                          
-                          if (e.key === 'Enter') {
-                            // Let Enter key add a new row (don't prevent default)
-                            if (openDropdownId === row.id) {
-                              // Close dropdown if it's open
-                              setOpenDropdownId(null)
-                            }
-                            // Let it bubble up to trigger handleKeyDown for adding new row
-                            handleKeyDown(e, row.id)
-                          } else if (e.key === ' ') {
-                            e.preventDefault()
-                            setOpenDropdownId(openDropdownId === row.id ? null : row.id)
-                            setFocusedOptionIndex(currentIndex)
-                          } else if (e.key === 'ArrowDown') {
-                            e.preventDefault()
-                            if (openDropdownId === row.id) {
-                              // Navigate down in open dropdown
-                              const nextIndex = (focusedOptionIndex + 1) % options.length
-                              setFocusedOptionIndex(nextIndex)
-                              updateParticipantRow(row.id, 'role', options[nextIndex])
-                            } else {
-                              // Open dropdown
-                              setOpenDropdownId(row.id)
-                              setFocusedOptionIndex(currentIndex)
-                            }
-                          } else if (e.key === 'ArrowUp') {
-                            e.preventDefault()
-                            if (openDropdownId === row.id) {
-                              // Navigate up in open dropdown
-                              const prevIndex = focusedOptionIndex === 0 ? options.length - 1 : focusedOptionIndex - 1
-                              setFocusedOptionIndex(prevIndex)
-                              updateParticipantRow(row.id, 'role', options[prevIndex])
-                            } else {
-                              // Open dropdown
-                              setOpenDropdownId(row.id)
-                              setFocusedOptionIndex(currentIndex)
-                            }
-                          } else if (e.key === 'Escape') {
-                            e.preventDefault()
-                            setOpenDropdownId(null)
-                          } else if (e.key === 'Tab') {
-                            setOpenDropdownId(null)
-                          }
-                        }}
-                        disabled={isAddingParticipants}
-                        className={`w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all ${
-                          isAddingParticipants ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/20'
-                        }`}
-                      >
-                        <span className="capitalize">
-                          {row.role === 'participant' && 'Participant'}
-                          {row.role === 'member' && 'Member'}
-                          {row.role === 'admin' && 'Admin'}
-                        </span>
-                        <ChevronDown className={`w-4 h-4 text-white/60 transition-transform ${
-                          openDropdownId === row.id ? 'rotate-180' : ''
-                        }`} />
-                      </button>
-                      
-                      {/* Custom Dropdown Menu Portal */}
-                      {openDropdownId === row.id && isMounted && createPortal(
-                        <div 
-                          className="dropdown-menu-portal fixed z-[9999] bg-gray-900/95 backdrop-blur-sm border border-white/20 rounded-lg shadow-xl overflow-hidden"
-                          style={{
-                            top: getDropdownPosition(row.id).top,
-                            left: getDropdownPosition(row.id).left,
-                            width: getDropdownPosition(row.id).width,
-                            maxHeight: '300px'
-                          }}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => {
-                              updateParticipantRow(row.id, 'role', 'participant')
-                              setOpenDropdownId(null)
-                            }}
-                            className={`w-full px-4 py-3 text-left hover:bg-white/10 transition-colors flex items-center justify-between ${
-                              row.role === 'participant' ? 'bg-white/5' : ''
-                            } ${focusedOptionIndex === 0 && openDropdownId === row.id ? 'bg-white/10' : ''}`}
-                          >
-                            <div>
-                              <div className="text-white font-medium">Participant</div>
-                              <div className="text-white/60 text-xs mt-0.5">No welcome email</div>
-                            </div>
-                            {row.role === 'participant' && (
-                              <Check className="w-4 h-4 text-purple-400" />
-                            )}
-                          </button>
-                          
-                          <button
-                            type="button"
-                            onClick={() => {
-                              updateParticipantRow(row.id, 'role', 'member')
-                              setOpenDropdownId(null)
-                            }}
-                            className={`w-full px-4 py-3 text-left hover:bg-white/10 transition-colors flex items-center justify-between border-t border-white/10 ${
-                              row.role === 'member' ? 'bg-white/5' : ''
-                            } ${focusedOptionIndex === 1 && openDropdownId === row.id ? 'bg-white/10' : ''}`}
-                          >
-                            <div>
-                              <div className="text-white font-medium">Member</div>
-                              <div className="text-white/60 text-xs mt-0.5">Gets platform access</div>
-                            </div>
-                            {row.role === 'member' && (
-                              <Check className="w-4 h-4 text-blue-400" />
-                            )}
-                          </button>
-                          
-                          <button
-                            type="button"
-                            onClick={() => {
-                              updateParticipantRow(row.id, 'role', 'admin')
-                              setOpenDropdownId(null)
-                            }}
-                            className={`w-full px-4 py-3 text-left hover:bg-white/10 transition-colors flex items-center justify-between border-t border-white/10 ${
-                              row.role === 'admin' ? 'bg-white/5' : ''
-                            } ${focusedOptionIndex === 2 && openDropdownId === row.id ? 'bg-white/10' : ''}`}
-                          >
-                            <div>
-                              <div className="text-white font-medium">Admin</div>
-                              <div className="text-white/60 text-xs mt-0.5">Full dashboard access</div>
-                            </div>
-                            {row.role === 'admin' && (
-                              <Check className="w-4 h-4 text-orange-400" />
-                            )}
-                          </button>
-                        </div>,
-                        document.body
-                      )}
-                    </div>
-                  </div>
-                  <div className="col-span-1 flex gap-1">
-                    {index === participantRows.length - 1 ? (
-                      <button
-                        onClick={addParticipantRow}
-                        disabled={isAddingParticipants}
-                        className={`p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors ${isAddingParticipants ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        title="Add another user"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => removeParticipantRow(row.id)}
-                        disabled={isAddingParticipants}
-                        className={`p-2 bg-white/10 text-white/60 rounded-lg hover:bg-red-500/20 hover:text-red-400 transition-colors ${isAddingParticipants ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        title="Remove this user"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            {/* Help text - Dynamic based on roles */}
-            <div className="text-sm text-white/60 mt-4 space-y-1">
-              <p>Populate required fields and hit Enter to add a new row, or click the + button</p>
-              {participantRows.some(r => r.role === 'participant' && r.name && r.email) && (
-                <p className="text-purple-300/80">
-                  <span className="font-medium">Participants:</span> Added to assessment pool, no welcome email sent
-                </p>
-              )}
-              {participantRows.some(r => r.role === 'member' && r.name && r.email) && (
-                <p className="text-blue-300/80">
-                  <span className="font-medium">Members:</span> Will receive welcome email with platform access
-                </p>
-              )}
-              {participantRows.some(r => r.role === 'admin' && r.name && r.email) && (
-                <p className="text-orange-300/80">
-                  <span className="font-medium">Admins:</span> Will receive welcome email with full dashboard access
-                </p>
-              )}
-            </div>
-            
-            {/* Submit button and progress */}
-            <div className="flex justify-between items-center mt-6">
-              {isAddingParticipants && addingProgress.total > 0 && (
-                <div className="flex items-center gap-3 text-white/60">
-                  <Loader2 className="animate-spin h-4 w-4" />
-                  <span className="text-sm">
-                    Adding user {addingProgress.current} of {addingProgress.total}...
-                  </span>
-                </div>
-              )}
-              {!isAddingParticipants && <div />}
-              
-              <button
-                onClick={handleAddParticipants}
-                disabled={isAddingParticipants || participantRows.every(row => !row.name || !row.email)}
-                className={`px-6 py-2 bg-purple-600 text-white rounded-lg font-medium transition-colors ${
-                  isAddingParticipants || participantRows.every(row => !row.name || !row.email)
-                    ? 'opacity-50 cursor-not-allowed'
-                    : 'hover:bg-purple-700'
-                }`}
-              >
-                {isAddingParticipants ? 'Processing...' : `Add ${participantRows.filter(row => row.name && row.email).length} User${participantRows.filter(row => row.name && row.email).length !== 1 ? 's' : ''}`}
-              </button>
-            </div>
-          </div>
-        )}
       </div>
-
 
       {/* Users Table */}
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 overflow-hidden">
+      <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden">
         {loading ? (
           <div className="p-12 text-center">
             <p className="text-white/60">Loading users...</p>
@@ -801,36 +283,22 @@ export default function UsersPage() {
                 {unifiedUsers.map((user) => {
                   const isCurrentUser = user.isClerkUser && membership?.publicUserData?.identifier === user.email
                   
-                  // Get initials for avatar (first two letters of first and last name)
-                  const getInitials = (name: string) => {
-                    const parts = name.split(' ').filter(Boolean)
-                    if (parts.length >= 2) {
-                      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-                    }
-                    return name.substring(0, 2).toUpperCase()
-                  }
-                  
                   return (
                     <tr key={user.id} className="hover:bg-white/5 transition-colors">
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
                           {user.profileImageUrl ? (
-                            <img
-                              src={user.profileImageUrl}
+                            <img 
+                              src={user.profileImageUrl} 
                               alt={user.name}
-                              className="w-10 h-10 rounded-full"
+                              className="w-8 h-8 rounded-full"
                             />
                           ) : (
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-medium text-sm">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-sm font-semibold">
                               {getInitials(user.name)}
                             </div>
                           )}
-                          <div>
-                            <p className="text-white font-medium">{user.name}</p>
-                            {isCurrentUser && (
-                              <p className="text-xs text-purple-400">You</p>
-                            )}
-                          </div>
+                          <span className="font-medium text-white">{user.name}</span>
                         </div>
                       </td>
                       <td className="py-4 px-6">
@@ -839,31 +307,24 @@ export default function UsersPage() {
                           <span className="text-white/80 text-sm">{user.status}</span>
                         </div>
                       </td>
-                      <td className="py-4 px-6 min-w-[250px]">
+                      <td className="py-4 px-6">
                         <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(user.email)
-                            setCopiedEmail(user.email)
-                            setTimeout(() => setCopiedEmail(null), 2000)
-                          }}
-                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full transition-all min-w-[120px] ${
-                            copiedEmail === user.email 
-                              ? 'bg-green-500/20 border border-green-500/40' 
-                              : 'bg-white/10 hover:bg-white/20'
+                          onClick={() => copyEmail(user.email)}
+                          className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm transition-all ${
+                            copiedEmail === user.email
+                              ? 'bg-green-500/20 text-green-300'
+                              : 'bg-white/10 text-white/80 hover:bg-white/20'
                           }`}
-                          title="Click to copy email"
                         >
                           {copiedEmail === user.email ? (
                             <>
-                              <CheckCircle className="w-3.5 h-3.5 text-green-400" />
-                              <span className="text-green-400 text-sm">Copied!</span>
+                              <CheckCircle className="w-3 h-3" />
+                              Copied!
                             </>
                           ) : (
                             <>
-                              <Mail className="w-3.5 h-3.5 text-white/60" />
-                              <span className="text-white/80 text-sm truncate">
-                                {user.email}
-                              </span>
+                              <Mail className="w-3 h-3" />
+                              {user.email}
                             </>
                           )}
                         </button>
@@ -874,32 +335,20 @@ export default function UsersPage() {
                         </span>
                       </td>
                       <td className="py-4 px-6">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-white/40" />
-                          <span className="text-white/80 text-sm">
-                            {formatDate(user.createdAt)}
-                          </span>
+                        <div className="flex items-center gap-1 text-white/60 text-sm">
+                          <Calendar className="w-4 h-4" />
+                          {new Date(user.createdAt).toLocaleDateString()}
                         </div>
                       </td>
-                      <td className="py-4 px-6">
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="py-4 px-6 text-right">
+                        {!isCurrentUser && (
                           <button
-                            onClick={() => setSelectedMember(user.id)}
-                            className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
-                            title="Edit user"
+                            onClick={() => handleRemoveUser(user)}
+                            className="p-2 text-white/60 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
                           >
-                            <Edit2 className="w-4 h-4 text-white/60 group-hover:text-white" />
+                            <Trash2 className="w-4 h-4" />
                           </button>
-                          {!isCurrentUser && (
-                            <button
-                              onClick={() => handleRemoveUser(user)}
-                              className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
-                              title="Remove user"
-                            >
-                              <Trash2 className="w-4 h-4 text-white/60 group-hover:text-red-400" />
-                            </button>
-                          )}
-                        </div>
+                        )}
                       </td>
                     </tr>
                   )
@@ -910,104 +359,5 @@ export default function UsersPage() {
         )}
       </div>
     </div>
-
-    {/* Confirmation Modal */}
-    {showConfirmModal && (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[10000] p-4">
-        <div className="bg-gray-900 rounded-xl border border-white/20 max-w-md w-full">
-          <div className="p-6">
-            <h3 className="text-xl font-semibold text-white mb-4">Confirm User Actions</h3>
-            
-            <div className="space-y-4 mb-6">
-              {(() => {
-                const participantCount = pendingUsers.filter(u => u.role === 'participant').length
-                const memberCount = pendingUsers.filter(u => u.role === 'member').length
-                const adminCount = pendingUsers.filter(u => u.role === 'admin').length
-                
-                return (
-                  <>
-                    {participantCount > 0 && (
-                      <div className="bg-purple-500/10 rounded-lg p-3 border border-purple-500/20">
-                        <div className="flex items-start gap-3">
-                          <UserCheck className="w-5 h-5 text-purple-400 mt-0.5" />
-                          <div>
-                            <p className="text-white font-medium">
-                              {participantCount} Participant{participantCount !== 1 ? 's' : ''}
-                            </p>
-                            <p className="text-white/60 text-sm mt-1">
-                              Will be added to the assessment pool. No email will be sent.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {memberCount > 0 && (
-                      <div className="bg-blue-500/10 rounded-lg p-3 border border-blue-500/20">
-                        <div className="flex items-start gap-3">
-                          <Mail className="w-5 h-5 text-blue-400 mt-0.5" />
-                          <div>
-                            <p className="text-white font-medium">
-                              {memberCount} Member{memberCount !== 1 ? 's' : ''}
-                            </p>
-                            <p className="text-white/60 text-sm mt-1">
-                              Will receive a welcome email with platform access to view their assessment results.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {adminCount > 0 && (
-                      <div className="bg-orange-500/10 rounded-lg p-3 border border-orange-500/20">
-                        <div className="flex items-start gap-3">
-                          <Shield className="w-5 h-5 text-orange-400 mt-0.5" />
-                          <div>
-                            <p className="text-white font-medium">
-                              {adminCount} Admin{adminCount !== 1 ? 's' : ''}
-                            </p>
-                            <p className="text-white/60 text-sm mt-1">
-                              Will receive a welcome email with full dashboard access to manage the organization.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )
-              })()}
-            </div>
-            
-            <div className="bg-yellow-500/10 rounded-lg p-3 border border-yellow-500/20 mb-6">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5" />
-                <div>
-                  <p className="text-yellow-300 font-medium">Are you sure?</p>
-                  <p className="text-yellow-200/80 text-sm mt-1">
-                    This action will send {pendingUsers.filter(u => u.role !== 'participant').length} welcome email{pendingUsers.filter(u => u.role !== 'participant').length !== 1 ? 's' : ''} immediately.
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowConfirmModal(false)}
-                className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmAddParticipants}
-                className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-medium transition-colors"
-              >
-                Confirm & Add Users
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )}
-    </>
   )
 }

@@ -31,7 +31,9 @@ export default function DashboardLayout({
       id: 'users', 
       label: 'Users', 
       href: '/dashboard/users',
-      secondary: []
+      secondary: [
+        { id: 'add-users', label: 'Add Users', href: '/dashboard/users/add' }
+      ]
     },
     { 
       id: 'assessments', 

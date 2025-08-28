@@ -206,31 +206,77 @@ ${user?.firstName || 'Your Name'}`)
     
     // Load participants
     loadParticipants()
-  }, [toolId, editingCampaign])
+  }, [toolId, editingCampaign, organization])
   
   const loadParticipants = async () => {
     setLoadingUsers(true)
     try {
+      const allUsers: any[] = []
+      const emailSet = new Set<string>()
+      
+      // Fetch Clerk members if organization is available
+      if (organization) {
+        try {
+          const membershipList = await organization.getMemberships()
+          const clerkMembers = membershipList.data as any[]
+          
+          // Add Clerk members first (they take priority)
+          clerkMembers.forEach(member => {
+            const fullName = [
+              member.publicUserData.firstName,
+              member.publicUserData.lastName
+            ].filter(Boolean).join(' ') || member.publicUserData.identifier.split('@')[0]
+            
+            allUsers.push({
+              id: member.id,
+              email: member.publicUserData.identifier,
+              name: fullName,
+              department: null,
+              isActive: true,
+              isClerkUser: true,
+              role: member.role
+            })
+            emailSet.add(member.publicUserData.identifier.toLowerCase())
+          })
+        } catch (error) {
+          console.error('Error fetching Clerk members:', error)
+        }
+      }
+      
+      // Fetch participants from API
       const response = await fetch('/api/company/users/v2', {
         credentials: 'include',
       })
       
-      if (!response.ok) {
-        throw new Error('Failed to load participants')
+      if (response.ok) {
+        const data = await response.json()
+        
+        // Add participants that aren't already Clerk members
+        data.users?.forEach((user: any) => {
+          if (!emailSet.has(user.email.toLowerCase())) {
+            let displayName = ''
+            if (user.firstName && user.lastName && user.firstName !== user.lastName) {
+              displayName = `${user.firstName} ${user.lastName}`.trim()
+            } else if (user.firstName) {
+              displayName = user.firstName
+            } else {
+              displayName = user.email.split('@')[0]
+            }
+            
+            allUsers.push({
+              id: user.email, // Use email as ID for participants
+              email: user.email,
+              name: displayName,
+              department: user.department || null,
+              isActive: user.status === 'active' || user.status === 'ACTIVE' || user.status === 'COMPLETED',
+              isClerkUser: false,
+              role: 'participant'
+            })
+          }
+        })
       }
       
-      const data = await response.json()
-      
-      // Transform the data to match our expected format
-      const transformedUsers = data.users.map((user: any) => ({
-        id: user.id,
-        email: user.email,
-        name: user.name || user.email.split('@')[0],
-        department: user.department || null,
-        isActive: user.status === 'ACTIVE' || user.status === 'COMPLETED'
-      }))
-      
-      setExistingUsers(transformedUsers)
+      setExistingUsers(allUsers)
     } catch (error) {
       console.error('Error loading participants:', error)
       showError('Failed to load participants')
@@ -557,7 +603,7 @@ ${user?.firstName || 'Your Name'}`)
                 <div className="sticky top-0 bg-white/10 backdrop-blur-sm border-b border-white/10 px-3 py-2">
                   <div className="flex items-center text-xs text-white/60 uppercase tracking-wider">
                     <div className="w-8"></div>
-                    <div className="flex-1 ml-3">Name / Email</div>
+                    <div className="flex-1 ml-3">Name / Email / Role</div>
                     <div className="w-32 text-right">Department</div>
                   </div>
                 </div>
@@ -585,7 +631,21 @@ ${user?.firstName || 'Your Name'}`)
                             })()}
                           </div>
                           <div className="min-w-0">
-                            <div className="text-white font-medium text-sm truncate">{user.name || 'Unnamed User'}</div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-white font-medium text-sm truncate">{user.name || 'Unnamed User'}</span>
+                              {user.isClerkUser && (
+                                <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                                  user.role === 'org:admin' ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'
+                                }`}>
+                                  {user.role === 'org:admin' ? 'Admin' : 'Member'}
+                                </span>
+                              )}
+                              {!user.isClerkUser && (
+                                <span className="px-1.5 py-0.5 bg-gray-500/20 text-gray-300 rounded text-xs font-medium">
+                                  Participant
+                                </span>
+                              )}
+                            </div>
                             <div className="text-white/50 text-xs truncate">{user.email}</div>
                           </div>
                         </div>

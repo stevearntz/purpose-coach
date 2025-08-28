@@ -7,8 +7,17 @@ import { useRouter } from 'next/navigation'
 
 export default function OnboardingPage() {
   const router = useRouter()
-  const { user } = useUser()
-  const [checkAttempts, setCheckAttempts] = useState(0)
+  const { user, isLoaded: userLoaded } = useUser()
+  
+  // Use sessionStorage to persist attempts across reloads
+  const [checkAttempts, setCheckAttempts] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem('onboarding-check-attempts')
+      return stored ? parseInt(stored, 10) : 0
+    }
+    return 0
+  })
+  
   const { userMemberships, setActive, isLoaded } = useOrganizationList({
     userMemberships: {
       infinite: false,
@@ -16,30 +25,44 @@ export default function OnboardingPage() {
   })
   
   // Check for @getcampfire.com users
-  const isDomainUser = user?.primaryEmailAddress?.emailAddress?.endsWith('@getcampfire.com')
+  const emailAddress = user?.primaryEmailAddress?.emailAddress || ''
+  const isDomainUser = emailAddress.endsWith('@getcampfire.com')
   
   useEffect(() => {
     // Check if user already belongs to an organization
     if (isLoaded && userMemberships?.data && userMemberships.data.length > 0 && setActive) {
       // User has organizations - set the first one as active and redirect
       const firstOrg = userMemberships.data[0]
+      // Clear the attempts counter
+      sessionStorage.removeItem('onboarding-check-attempts')
       setActive({ organization: firstOrg.organization.id }).then(() => {
         router.push('/dashboard')
       })
-    } else if (isLoaded && isDomainUser && checkAttempts < 5) {
+    } else if (isLoaded && userLoaded && isDomainUser && checkAttempts < 5) {
       // For domain users, recheck several times in case webhook is still processing
       const timer = setTimeout(() => {
-        setCheckAttempts(prev => prev + 1)
+        const newAttempts = checkAttempts + 1
+        sessionStorage.setItem('onboarding-check-attempts', newAttempts.toString())
+        setCheckAttempts(newAttempts)
         // Force a re-check
         window.location.reload()
-      }, 1000)
+      }, 1500) // Give it a bit more time between checks
       
       return () => clearTimeout(timer)
+    } else if (checkAttempts >= 5) {
+      // Max attempts reached, clear the counter
+      sessionStorage.removeItem('onboarding-check-attempts')
     }
-  }, [isLoaded, userMemberships, setActive, router, isDomainUser, checkAttempts])
+  }, [isLoaded, userLoaded, userMemberships, setActive, router, isDomainUser, checkAttempts])
   
-  // Show loading state for domain users while checking
-  if (!isLoaded || (isDomainUser && checkAttempts < 5 && (!userMemberships?.data || userMemberships.data.length === 0))) {
+  // ALWAYS show loading state while we figure out if user is a domain user
+  // or while we're checking their membership status
+  const shouldShowLoading = 
+    !userLoaded || // Still loading user data
+    !isLoaded || // Still loading memberships
+    (isDomainUser && checkAttempts < 5 && (!userMemberships?.data || userMemberships.data.length === 0)) // Domain user still being processed
+  
+  if (shouldShowLoading) {
     return (
       <ViewportContainer className="bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900">
         <div className="absolute inset-0">

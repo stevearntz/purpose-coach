@@ -47,6 +47,10 @@ function VerifyContent() {
         if (result.status === 'complete') {
           await setActive({ session: result.createdSessionId })
           router.push('/onboarding')
+        } else {
+          // Sign-up not complete - log what's missing
+          console.error('Sign-up incomplete:', result)
+          setError(`Sign-up incomplete: ${result.status}. Please try again.`)
         }
       }
     } catch (err: any) {

@@ -607,7 +607,7 @@ export default function UsersPage() {
                         }`}
                       >
                         <span className="capitalize">
-                          {row.role === 'participant' && '✓ Participant'}
+                          {row.role === 'participant' && 'Participant'}
                           {row.role === 'member' && 'Member'}
                           {row.role === 'admin' && 'Admin'}
                         </span>

@@ -1,5 +1,17 @@
 # Purpose Coach (Chat by the Fire / Campfire)
 
+## 🚨 PRODUCTION SECURITY RULES
+**NO SECURITY HACKS OR BYPASSES IN PRODUCTION CODE**
+- No hardcoded user bypasses or test users
+- No authentication shortcuts or middleware skips  
+- No domain-based authentication bypasses
+- All users must properly authenticate through Clerk
+- All users must have proper organization assignment
+- Never commit secrets or API keys to the repository
+- Always validate and sanitize user inputs
+
+---
+
 A Next.js 15 application providing AI-powered personal development and coaching tools for enterprises. The project is branded as "Chat by the Fire" for individuals and "Campfire" for enterprise clients, offering comprehensive assessment campaigns, reflection tools, and conversation guides for teams.
 
 ## Table of Contents

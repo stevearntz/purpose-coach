@@ -33,12 +33,6 @@ export default clerkMiddleware(async (auth, req) => {
     // Check if user has selected or created an organization
     // If they're on dashboard or protected routes, they need an org
     if (isDashboardRoute(req) && !orgId) {
-      // TEMPORARY: Skip onboarding redirect for getcampfire.com emails
-      const userEmail = sessionClaims?.email as string
-      if (userEmail && userEmail.endsWith('@getcampfire.com')) {
-        // Let them through - they should be in Campfire org
-        return
-      }
       // Redirect to onboarding to create/select organization
       return NextResponse.redirect(new URL('/onboarding', req.url))
     }

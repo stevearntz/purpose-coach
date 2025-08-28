@@ -465,6 +465,7 @@ export default function UsersPage() {
   }
 
   return (
+    <>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -1007,5 +1008,6 @@ export default function UsersPage() {
         </div>
       </div>
     )}
+    </>
   )
 }

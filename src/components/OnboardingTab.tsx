@@ -23,10 +23,10 @@ export default function OnboardingTab({ onNavigate }: OnboardingTabProps) {
   const [tasks, setTasks] = useState<OnboardingTask[]>([
     {
       id: '1',
-      title: 'Add Participants',
+      title: 'Add Users',
       description: 'Invite your team members to get started with assessments',
       completed: false,
-      link: 'participants'
+      link: 'users'
     },
     {
       id: '2',

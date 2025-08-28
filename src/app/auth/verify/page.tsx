@@ -46,6 +46,14 @@ function VerifyContent() {
 
         if (result.status === 'complete') {
           await setActive({ session: result.createdSessionId })
+          
+          // For domain users, give webhook a moment to add them to org
+          const userEmail = email.toLowerCase()
+          if (userEmail.endsWith('@getcampfire.com')) {
+            // Wait 2 seconds for webhook to process
+            await new Promise(resolve => setTimeout(resolve, 2000))
+          }
+          
           router.push('/onboarding')
         } else {
           // Sign-up not complete - log what's missing

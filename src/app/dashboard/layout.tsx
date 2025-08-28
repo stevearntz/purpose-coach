@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
-import { useUser, UserButton, useOrganization } from '@clerk/nextjs'
+import { useUser, UserButton, useOrganization, useOrganizationList } from '@clerk/nextjs'
 import { Flame } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
 import Footer from '@/components/Footer'
@@ -15,17 +15,28 @@ export default function DashboardLayout({
   const pathname = usePathname()
   const router = useRouter()
   const { user } = useUser()
-  const { organization } = useOrganization()
+  const { organization, membership } = useOrganization()
+  const { userMemberships } = useOrganizationList({
+    userMemberships: {
+      infinite: false,
+    },
+  })
   
-  // Primary navigation with secondary items
-  const primaryTabs = [
+  // Get current user's role in the organization
+  const userRole = membership?.role
+  const isAdmin = userRole === 'org:admin'
+  const isMember = userRole === 'org:member'
+  
+  // Primary navigation with secondary items - filter based on role
+  const allTabs = [
     { 
       id: 'start', 
       label: 'Start', 
       href: '/dashboard/start',
       secondary: [
         { id: 'onboarding', label: 'Onboarding', href: '/dashboard/onboarding' }
-      ]
+      ],
+      allowedRoles: ['admin', 'member'] // Both can see Start
     },
     { 
       id: 'users', 
@@ -33,7 +44,8 @@ export default function DashboardLayout({
       href: '/dashboard/users',
       secondary: [
         { id: 'add-users', label: 'Add Users', href: '/dashboard/users/add' }
-      ]
+      ],
+      allowedRoles: ['admin'] // Only admins can manage users
     },
     { 
       id: 'assessments', 
@@ -43,15 +55,22 @@ export default function DashboardLayout({
         { id: 'launch', label: 'Launch', href: '/dashboard/launch' },
         { id: 'campaigns', label: 'Campaigns', href: '/dashboard/campaigns' },
         { id: 'results', label: 'Results', href: '/dashboard/results' }
-      ]
+      ],
+      allowedRoles: ['admin'] // Only admins can manage assessments
     },
     { 
       id: 'recommendations', 
       label: 'Recommendations', 
       href: '/dashboard/recommendations',
-      secondary: []
+      secondary: [],
+      allowedRoles: ['admin'] // Only admins can see recommendations
     },
   ]
+  
+  // Filter tabs based on user role
+  const primaryTabs = isMember 
+    ? allTabs.filter(tab => tab.allowedRoles.includes('member'))
+    : allTabs // Admins see everything
   
   // Determine active primary tab based on pathname
   const getActivePrimary = () => {

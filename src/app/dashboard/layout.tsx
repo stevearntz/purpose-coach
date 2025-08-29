@@ -27,24 +27,15 @@ export default function DashboardLayout({
   const isAdmin = userRole === 'org:admin'
   const isMember = userRole === 'org:member'
   
-  // Primary navigation with secondary items - filter based on role
-  const allTabs = [
+  // Different navigation for admins vs members
+  const adminTabs = [
     { 
       id: 'start', 
       label: 'Start', 
       href: '/dashboard/start',
       secondary: [
-        { id: 'onboarding', label: 'Onboarding', href: '/dashboard/start/onboarding' },
-        { id: 'profile', label: 'Profile', href: '/dashboard/start/profile' }
-      ],
-      allowedRoles: ['admin', 'member'] // Both can see Start
-    },
-    { 
-      id: 'dashboard', 
-      label: 'Dashboard', 
-      href: '/dashboard/start/dashboard',
-      secondary: [],
-      allowedRoles: ['admin', 'member'] // Both can see Dashboard
+        { id: 'onboarding', label: 'Onboarding', href: '/dashboard/onboarding' }
+      ]
     },
     { 
       id: 'users', 
@@ -52,8 +43,7 @@ export default function DashboardLayout({
       href: '/dashboard/users',
       secondary: [
         { id: 'add-users', label: 'Add Users', href: '/dashboard/users/add' }
-      ],
-      allowedRoles: ['admin'] // Only admins can manage users
+      ]
     },
     { 
       id: 'assessments', 
@@ -63,32 +53,53 @@ export default function DashboardLayout({
         { id: 'launch', label: 'Launch', href: '/dashboard/launch' },
         { id: 'campaigns', label: 'Campaigns', href: '/dashboard/campaigns' },
         { id: 'results', label: 'Results', href: '/dashboard/results' }
-      ],
-      allowedRoles: ['admin'] // Only admins can manage assessments
+      ]
     },
     { 
       id: 'recommendations', 
       label: 'Recommendations', 
       href: '/dashboard/recommendations',
-      secondary: [],
-      allowedRoles: ['admin'] // Only admins can see recommendations
+      secondary: []
     },
   ]
   
-  // Filter tabs based on user role - show only Start while loading
+  const memberTabs = [
+    { 
+      id: 'dashboard', 
+      label: 'Dashboard', 
+      href: '/dashboard/member/start/dashboard',
+      secondary: []
+    },
+    { 
+      id: 'profile', 
+      label: 'Profile', 
+      href: '/dashboard/member/start',
+      secondary: [
+        { id: 'onboarding', label: 'Onboarding', href: '/dashboard/member/start/onboarding' },
+        { id: 'myprofile', label: 'My Profile', href: '/dashboard/member/start/profile' }
+      ]
+    },
+  ]
+  
+  // Select tabs based on user role
   const primaryTabs = !isLoaded 
-    ? allTabs.filter(tab => tab.id === 'start') // Only show Start tab while loading
+    ? [] // Show nothing while loading
     : isMember 
-    ? allTabs.filter(tab => tab.allowedRoles.includes('member'))
-    : allTabs // Admins see everything
+    ? memberTabs
+    : adminTabs
   
   // Determine active primary tab based on pathname
   const getActivePrimary = () => {
-    // Check for dashboard first since it's more specific
-    if (pathname === '/dashboard/start/dashboard') {
+    // Member paths
+    if (pathname.includes('/dashboard/member/start/dashboard')) {
       return 'dashboard'
     }
-    if (pathname.includes('/dashboard/start')) {
+    if (pathname.includes('/dashboard/member/start')) {
+      return 'profile'
+    }
+    
+    // Admin paths
+    if (pathname.includes('/dashboard/start') || pathname.includes('/dashboard/onboarding')) {
       return 'start'
     }
     if (pathname.includes('/dashboard/users')) {
@@ -100,7 +111,9 @@ export default function DashboardLayout({
     if (pathname.includes('/dashboard/recommendations')) {
       return 'recommendations'
     }
-    return 'start'
+    
+    // Default
+    return isMember ? 'dashboard' : 'start'
   }
   
   const activePrimary = getActivePrimary()

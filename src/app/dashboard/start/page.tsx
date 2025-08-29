@@ -1,42 +1,54 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useOrganization, useUser } from '@clerk/nextjs'
+import { useOrganization } from '@clerk/nextjs'
 import { useEffect } from 'react'
 import StartTab from '@/components/StartTab'
 
 export default function StartPage() {
   const router = useRouter()
-  const { user } = useUser()
   const { membership, isLoaded } = useOrganization()
   
   // Check if user is a member (not admin)
   const isMember = membership?.role === 'org:member'
-  const isAdmin = membership?.role === 'org:admin'
   
-  // Redirect to appropriate sub-page
+  // Redirect members to their area
   useEffect(() => {
-    if (isLoaded && user) {
-      // Check onboarding status
-      const onboardingComplete = user?.publicMetadata?.onboardingComplete
-      
-      if (onboardingComplete) {
-        // If onboarding is complete, go to profile
-        router.replace('/dashboard/start/profile')
-      } else {
-        // If not complete, go to onboarding
-        router.replace('/dashboard/start/onboarding')
-      }
+    if (isLoaded && isMember) {
+      router.replace('/dashboard/member/start')
     }
-  }, [isLoaded, user, router])
+  }, [isLoaded, isMember, router])
   
-  // Show loading while redirecting
-  return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="text-center">
-        <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-white/60">Loading...</p>
+  // Show loading while checking membership
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white/60">Loading...</p>
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
+  
+  // If member, show loading while redirecting
+  if (isMember) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white/60">Redirecting...</p>
+        </div>
+      </div>
+    )
+  }
+  
+  // For admins, show the full Start tab
+  const handleNavigate = (tab: string) => {
+    if (tab === 'onboarding') {
+      router.push('/dashboard/onboarding')
+    }
+  }
+  
+  return <StartTab onNavigate={handleNavigate} />
 }

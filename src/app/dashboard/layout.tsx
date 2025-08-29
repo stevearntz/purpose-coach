@@ -44,7 +44,7 @@ export default function DashboardLayout({
   
   // Determine effective role based on view mode
   // If admin is viewing in member mode, treat them as a member for navigation
-  const effectiveRole = isAdmin && viewMode === 'member' ? 'member' : userRole
+  const effectiveRole = isAdmin && viewMode === 'member' ? 'org:member' : userRole
   const showAsAdmin = effectiveRole === 'org:admin'
   const showAsMember = effectiveRole === 'org:member'
   

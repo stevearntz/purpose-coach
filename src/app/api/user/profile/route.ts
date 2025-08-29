@@ -6,10 +6,12 @@ const prisma = new PrismaClient()
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await auth()
+    const authResult = await auth()
+    const userId = authResult?.userId
     
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      console.error('No userId found in auth:', authResult)
+      return NextResponse.json({ error: 'Unauthorized - no user ID' }, { status: 401 })
     }
 
     const body = await req.json()
@@ -106,11 +108,13 @@ export async function POST(req: NextRequest) {
     }
 
     // Save to database
+    console.log('Saving profile for user:', userId, 'with data:', createData)
     const profile = await prisma.userProfile.upsert({
       where: { clerkUserId: userId },
       update: dbUpdateData,
       create: createData
     })
+    console.log('Profile saved successfully:', profile.id)
 
     return NextResponse.json({ success: true, profile })
   } catch (error) {
@@ -124,11 +128,15 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const { userId } = await auth()
+    const authResult = await auth()
+    const userId = authResult?.userId
     
     if (!userId) {
+      console.error('GET profile - No userId found in auth:', authResult)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    
+    console.log('Fetching profile for user:', userId)
 
     const profile = await prisma.userProfile.findUnique({
       where: { clerkUserId: userId },

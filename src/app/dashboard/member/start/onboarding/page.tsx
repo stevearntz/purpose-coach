@@ -506,7 +506,11 @@ export default function OnboardingPage() {
         })
         
         if (!response.ok) {
-          console.error('Failed to save profile')
+          const errorData = await response.text()
+          console.error('Failed to save profile:', response.status, errorData)
+        } else {
+          const result = await response.json()
+          console.log('Profile saved successfully:', result)
         }
       } catch (error) {
         console.error('Error saving profile:', error)

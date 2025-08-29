@@ -18,7 +18,7 @@ export default function OnboardingPage() {
   
   // Check if this is a domain user (skip in development to avoid issues)
   const email = user?.emailAddresses?.[0]?.emailAddress
-  const isDevelopment = window.location.hostname === 'localhost'
+  const isDevelopment = typeof window !== 'undefined' && window.location.hostname === 'localhost'
   const isDomainUser = !isDevelopment && email?.includes('@getcampfire.com')
   
   useEffect(() => {

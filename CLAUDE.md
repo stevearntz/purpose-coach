@@ -6,6 +6,43 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Purpose Coach (branded as "Chat by the Fire") is a Next.js 15 application focused on AI-powered personal development and coaching. The project uses TypeScript, Tailwind CSS v4, and integrates with OpenAI's API to provide conversational coaching tools.
 
+## 🚨 CRITICAL: ID Pattern - Clerk vs Database IDs
+
+**THIS IS THE #1 SOURCE OF FOREIGN KEY ERRORS IN THIS PROJECT**
+
+### The Pattern You MUST Understand:
+1. **Clerk IDs**: Look like `org_31KdjD9RIauvRC0OQ29HiOiXQPC` (prefixed with `org_`, `user_`, etc.)
+2. **Database IDs**: Look like `cmeuy0pu70005dq7pdfendzug` (cuid format, no prefix)
+
+### The Problem That Will Waste Hours:
+- Clerk provides organization IDs in their format (`org_xxx`)
+- Our database Company table has its own IDs (cuid)
+- **YOU CANNOT USE CLERK IDs DIRECTLY AS FOREIGN KEYS**
+
+### The Solution Pattern:
+```typescript
+// ❌ WRONG - This will cause foreign key constraint errors
+const profile = {
+  companyId: organization.id  // This is a Clerk ID like "org_xxx"
+}
+
+// ✅ CORRECT - Look up the database ID first
+const companyResponse = await fetch('/api/user/company')
+const { company } = await companyResponse.json()
+const profile = {
+  companyId: company.id  // This is the database ID like "cmeuy..."
+}
+```
+
+### When You See These Errors:
+- `foreign key constraint "UserProfile_companyId_fkey"` → You're using a Clerk ID instead of database ID
+- `insert or update on table "UserProfile" violates foreign key constraint` → Same issue
+
+### The Lookup Pattern:
+1. User has Clerk org ID from `useOrganization()` or `auth()`
+2. Company table has `clerkOrgId` field that maps to database `id`
+3. Always translate: Clerk org ID → Database Company ID → Use in foreign keys
+
 ## Development Commands
 
 ```bash
@@ -28,6 +65,8 @@ npm run lint   # Run ESLint
 - **Styling**: Tailwind CSS v4 with PostCSS
 - **AI**: OpenAI API integration
 - **PDF Generation**: jsPDF for downloadable results
+- **Auth**: Clerk for authentication and organization management
+- **Database**: PostgreSQL with Prisma ORM
 
 ### Project Structure
 - `/src/app/` - Next.js App Router pages and components
@@ -213,3 +252,48 @@ When building ANY new tool:
 - Back to Plan: `/?screen=4`
 - All Tools: `/toolkit`
 - These are centralized in `/src/lib/navigationConfig.ts`
+
+## 🔥 Troubleshooting Guide
+
+### Foreign Key Constraint Errors
+
+**Error:** `insert or update on table "UserProfile" violates foreign key constraint`
+
+**Root Cause:** 99% of the time, you're trying to use a Clerk ID where a database ID is expected.
+
+**How to Debug:**
+1. Check what ID you're sending - does it start with `org_`, `user_`, etc.? That's a Clerk ID!
+2. Check the database table - IDs there look like `cmeuy0pu70005dq7pdfendzug` (cuid format)
+3. You need to translate between them
+
+**Fix Pattern:**
+```typescript
+// Step 1: Get the Clerk org ID
+const { organization } = useOrganization() // Returns { id: "org_xxx", ... }
+
+// Step 2: Look up the database Company
+const response = await fetch('/api/user/company')
+const { company } = await response.json() // Returns { id: "cmeuy...", ... }
+
+// Step 3: Use the database ID for foreign keys
+await saveProfile({ companyId: company.id }) // NOT organization.id!
+```
+
+### Common ID Mismatches
+
+| What You Have | What Database Expects | How to Convert |
+|--------------|----------------------|----------------|
+| Clerk org ID (`org_xxx`) | Company.id (cuid) | Look up Company by clerkOrgId field |
+| Clerk user ID (`user_xxx`) | UserProfile.id (cuid) | Look up UserProfile by clerkUserId field |
+| Organization.id from Clerk | Company.id in database | Use `/api/user/company` endpoint |
+
+### Quick Checks When Debugging
+
+1. **Console.log the IDs** - If it has a prefix like `org_`, it's wrong for the database
+2. **Check the Prisma schema** - Foreign keys reference the `id` field, not `clerkOrgId`
+3. **Remember the mapping fields**:
+   - Company table: `id` (database) ↔ `clerkOrgId` (from Clerk)
+   - UserProfile table: `id` (database) ↔ `clerkUserId` (from Clerk)
+
+### The Golden Rule
+**Never pass Clerk IDs directly to database foreign key fields. Always translate them first.**

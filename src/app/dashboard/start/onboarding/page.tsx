@@ -1,9 +1,1296 @@
 'use client'
 
+import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
+import { useUser, useOrganization } from '@clerk/nextjs'
+import { 
+  ChevronRight, 
+  ChevronLeft, 
+  User, 
+  Users, 
+  Binoculars,
+  Check,
+  Briefcase,
+  Plus,
+  X,
+  Code,
+  TrendingUp,
+  Megaphone,
+  UserCheck,
+  DollarSign,
+  Settings,
+  Target,
+  Palette,
+  Handshake,
+  Scale,
+  HeadphonesIcon,
+  MoreHorizontal,
+  Wrench,
+  Flame,
+  BookOpen,
+  Video,
+  FileText,
+  Lightbulb,
+  Heart,
+  Zap,
+  MessageCircle,
+  Sparkles
+} from 'lucide-react'
+
+interface OnboardingData {
+  firstName: string
+  lastName: string
+  role: string
+  department: string
+  teamSize: string
+  teamPurpose: string
+  teamEmoji: string
+}
+
+const DEPARTMENTS = [
+  { id: 'engineering', label: 'Engineering', Icon: Code },
+  { id: 'sales', label: 'Sales', Icon: TrendingUp },
+  { id: 'marketing', label: 'Marketing', Icon: Megaphone },
+  { id: 'hr', label: 'Human Resources', Icon: UserCheck },
+  { id: 'finance', label: 'Finance', Icon: DollarSign },
+  { id: 'operations', label: 'Operations', Icon: Settings },
+  { id: 'product', label: 'Product', Icon: Target },
+  { id: 'design', label: 'Design', Icon: Palette },
+  { id: 'customer-success', label: 'Customer Success', Icon: Handshake },
+  { id: 'legal', label: 'Legal', Icon: Scale },
+  { id: 'support', label: 'Support', Icon: HeadphonesIcon },
+]
+
+// Primary team emojis - curated selection
+const TEAM_EMOJIS = [
+  '😊', '🎯', '🚀', '💪', '🌟', '🎨', '🧠', '💡',
+  '🦁', '🐻', '🦊', '🐧', '🦋', '🐢', '🦅', '🐙',
+  '🔥', '⚡', '🌈', '🎪', '🎭', '🏆', '💎', '🎵',
+  '🤝', '👑', '🌺', '🍀', '🌞'
+]
+
+// Full emoji library for picker
+const EMOJI_LIBRARY = {
+  'Smileys': ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😉', '😊', '😇', '🥰', '😍', '🤩', '😘'],
+  'Animals': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🦄'],
+  'Nature': ['🌵', '🌲', '🌳', '🌴', '🌱', '🌿', '☘️', '🍀', '🌺', '🌸', '🌼', '🌻', '🌷', '🌹', '🥀', '🌾'],
+  'Objects': ['💎', '💍', '🏆', '🎯', '🎪', '🎨', '🎭', '🎲', '🎮', '🎸', '🎺', '🥁', '🎬', '🎤', '📚', '🎧'],
+  'Symbols': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💝'],
+  'Activities': ['⚽', '🏀', '🏈', '⚾', '🎾', '🏐', '🏉', '🎱', '🏓', '🏸', '🥊', '🥋', '🤸', '🤺', '🏌️', '🏇']
+}
+
 export default function OnboardingPage() {
-  return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <h1 className="text-4xl font-bold text-white">Onboarding Goes Here</h1>
+  const router = useRouter()
+  const { user } = useUser()
+  const { organization } = useOrganization()
+  const [currentQuestion, setCurrentQuestion] = useState(0)
+  const [currentStep, setCurrentStep] = useState(0)
+  const [animating, setAnimating] = useState(false)
+  const [customDepartment, setCustomDepartment] = useState('')
+  const [showCustomDepartment, setShowCustomDepartment] = useState(false)
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [selectedEmojiCategory, setSelectedEmojiCategory] = useState('Smileys')
+  const [hoveredEmoji, setHoveredEmoji] = useState<string | null>(null)
+  const [companyDatabaseId, setCompanyDatabaseId] = useState<string | null>(null)
+  const [isEditMode, setIsEditMode] = useState(false)
+  const emojiRef = useRef<HTMLDivElement>(null)
+  
+  const [data, setData] = useState<OnboardingData>({
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    role: '',
+    department: '',
+    teamSize: '',
+    teamPurpose: '',
+    teamEmoji: ''
+  })
+
+  const [errors, setErrors] = useState<Partial<OnboardingData>>({})
+
+  // Fetch existing profile data and company ID
+  useEffect(() => {
+    const fetchData = async () => {
+      // Fetch existing profile
+      try {
+        const profileResponse = await fetch('/api/user/profile')
+        if (profileResponse.ok) {
+          const profileData = await profileResponse.json()
+          if (profileData.profile) {
+            // Check if department is custom (not in predefined list)
+            const dept = profileData.profile.department
+            const isCustomDept = dept && !DEPARTMENTS.some(d => d.label === dept)
+            
+            if (isCustomDept) {
+              setShowCustomDepartment(true)
+              setCustomDepartment(dept)
+            }
+            
+            // Pre-populate form with existing data
+            setData(prev => ({
+              firstName: profileData.profile.firstName || prev.firstName || '',
+              lastName: profileData.profile.lastName || prev.lastName || '',
+              role: profileData.profile.role || '',
+              department: isCustomDept ? '' : (profileData.profile.department || ''),
+              teamSize: profileData.profile.teamSize || '',
+              teamPurpose: profileData.profile.teamPurpose || '',
+              teamEmoji: profileData.profile.teamEmoji || ''
+            }))
+            
+            // If profile has a company, set it
+            if (profileData.profile.companyId) {
+              setCompanyDatabaseId(profileData.profile.companyId)
+            }
+            
+            // Mark as edit mode if any data exists
+            if (profileData.profile.role || profileData.profile.department || profileData.profile.teamSize) {
+              setIsEditMode(true)
+            }
+            
+            console.log('Loaded existing profile data:', profileData.profile)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error)
+      }
+      
+      // Also fetch company if user is in an organization
+      if (organization?.id) {
+        try {
+          const response = await fetch('/api/user/company')
+          if (response.ok) {
+            const data = await response.json()
+            if (data.company) {
+              setCompanyDatabaseId(data.company.id)
+              console.log('Found company in database:', data.company.name, 'with ID:', data.company.id)
+            } else {
+              console.log('No company found in database for organization:', organization.name)
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching company:', error)
+        }
+      }
+    }
+    
+    fetchData()
+  }, [organization])
+
+  // Load animated emoji font
+  useEffect(() => {
+    const link = document.createElement('link')
+    link.href = 'https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap'
+    link.rel = 'stylesheet'
+    document.head.appendChild(link)
+
+    // Create animated emoji CSS - inspired by Noto Emoji animations
+    const style = document.createElement('style')
+    style.innerHTML = `
+      /* Noto-style smooth bounce animation */
+      @keyframes noto-bounce {
+        0% { 
+          transform: translateY(0) scale(1) rotate(0deg);
+          animation-timing-function: cubic-bezier(0.28, 0.84, 0.42, 1);
+        }
+        20% { 
+          transform: translateY(-8px) scale(1.05) rotate(-3deg);
+          animation-timing-function: cubic-bezier(0.28, 0.84, 0.42, 1);
+        }
+        40% { 
+          transform: translateY(-12px) scale(1.15) rotate(2deg);
+          animation-timing-function: cubic-bezier(0.28, 0.84, 0.42, 1);
+        }
+        50% { 
+          transform: translateY(-14px) scale(1.2) rotate(0deg);
+          animation-timing-function: cubic-bezier(0.28, 0.84, 0.42, 1);
+        }
+        60% { 
+          transform: translateY(-12px) scale(1.15) rotate(-2deg);
+          animation-timing-function: cubic-bezier(0.28, 0.84, 0.42, 1);
+        }
+        80% { 
+          transform: translateY(-4px) scale(1.05) rotate(1deg);
+          animation-timing-function: cubic-bezier(0.28, 0.84, 0.42, 1);
+        }
+        100% { 
+          transform: translateY(0) scale(1) rotate(0deg);
+        }
+      }
+      
+      /* Playful wiggle animation */
+      @keyframes noto-wiggle {
+        0%, 100% { transform: rotate(0deg) scale(1); }
+        10% { transform: rotate(-12deg) scale(1.1); }
+        20% { transform: rotate(12deg) scale(1.1); }
+        30% { transform: rotate(-8deg) scale(1.05); }
+        40% { transform: rotate(8deg) scale(1.05); }
+        50% { transform: rotate(-4deg) scale(1.02); }
+        60% { transform: rotate(4deg) scale(1.02); }
+        70% { transform: rotate(-2deg) scale(1.01); }
+        80% { transform: rotate(2deg) scale(1.01); }
+        90% { transform: rotate(-1deg) scale(1); }
+      }
+      
+      /* Heartbeat pulse */
+      @keyframes noto-heartbeat {
+        0% { transform: scale(1); }
+        14% { transform: scale(1.3); }
+        28% { transform: scale(1); }
+        42% { transform: scale(1.3); }
+        56% { transform: scale(1); }
+        100% { transform: scale(1); }
+      }
+      
+      /* Jello effect */
+      @keyframes noto-jello {
+        0%, 100% { transform: scale(1, 1); }
+        30% { transform: scale(1.25, 0.75); }
+        40% { transform: scale(0.75, 1.25); }
+        50% { transform: scale(1.15, 0.85); }
+        65% { transform: scale(0.95, 1.05); }
+        75% { transform: scale(1.05, 0.95); }
+      }
+      
+      /* Tada celebration */
+      @keyframes noto-tada {
+        0% { transform: scale(1) rotate(0deg); }
+        10%, 20% { transform: scale(0.9) rotate(-3deg); }
+        30%, 50%, 70%, 90% { transform: scale(1.1) rotate(3deg); }
+        40%, 60%, 80% { transform: scale(1.1) rotate(-3deg); }
+        100% { transform: scale(1) rotate(0deg); }
+      }
+      
+      /* Float up animation */
+      @keyframes noto-float {
+        0%, 100% { 
+          transform: translateY(0) scale(1);
+          opacity: 1;
+        }
+        33% { 
+          transform: translateY(-6px) scale(1.05);
+          opacity: 0.9;
+        }
+        66% { 
+          transform: translateY(-10px) scale(1.1);
+          opacity: 0.95;
+        }
+      }
+      
+      /* Base emoji hover styles */
+      .emoji-hover {
+        display: inline-block;
+        transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        cursor: pointer;
+        will-change: transform;
+      }
+      
+      /* Different animation classes */
+      .emoji-hover-bounce:hover {
+        animation: noto-bounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      }
+      
+      .emoji-hover-wiggle:hover {
+        animation: noto-wiggle 0.8s ease-in-out;
+      }
+      
+      .emoji-hover-heartbeat:hover {
+        animation: noto-heartbeat 0.8s ease-in-out;
+      }
+      
+      .emoji-hover-jello:hover {
+        animation: noto-jello 0.8s ease-in-out;
+      }
+      
+      .emoji-hover-tada:hover {
+        animation: noto-tada 0.8s ease-in-out;
+      }
+      
+      .emoji-hover-float:hover {
+        animation: noto-float 0.6s ease-in-out;
+      }
+      
+      /* Selected state with gentle continuous animation */
+      .emoji-selected {
+        animation: noto-float 3s ease-in-out infinite;
+        filter: drop-shadow(0 0 8px rgba(191, 76, 116, 0.4));
+      }
+      
+      /* Prevent animation conflicts */
+      .emoji-hover:not(:hover) {
+        animation: none;
+      }
+    `
+    document.head.appendChild(style)
+  }, [])
+
+  // Update step based on question and set focus
+  useEffect(() => {
+    if (currentQuestion === 0) {
+      setCurrentStep(0)
+    } else {
+      setCurrentStep(currentQuestion <= 3 ? 1 : 2)
+    }
+    
+    // Set focus on the appropriate input after navigation
+    const timer = setTimeout(() => {
+      // Find the first input or textarea (not buttons)
+      const input = document.querySelector(
+        'input:not([disabled]):not([tabindex]), textarea:not([disabled])'
+      ) as HTMLElement
+      
+      if (input) {
+        input.focus()
+      } else {
+        // For question 0 (welcome), focus the "Let's Get Started" button
+        const startButton = document.querySelector('[data-start-button]') as HTMLElement
+        if (startButton) {
+          startButton.focus()
+        }
+      }
+    }, 400) // Wait for animation to complete
+    
+    return () => clearTimeout(timer)
+  }, [currentQuestion])
+
+  const validateQuestion = (question: number): boolean => {
+    const newErrors: Partial<OnboardingData> = {}
+    
+    switch(question) {
+      case 1:
+        if (!data.firstName) newErrors.firstName = 'First name is required'
+        if (!data.lastName) newErrors.lastName = 'Last name is required'
+        break
+      case 2:
+        if (!data.role) newErrors.role = 'Role is required'
+        break
+      case 3:
+        if (!data.department && !customDepartment) newErrors.department = 'Department is required'
+        break
+      case 4:
+        if (!data.teamSize) {
+          newErrors.teamSize = 'Team size is required'
+        } else if (isNaN(Number(data.teamSize)) || Number(data.teamSize) < 0) {
+          newErrors.teamSize = 'Please enter a valid number'
+        }
+        break
+      case 5:
+        if (!data.teamPurpose) newErrors.teamPurpose = 'Team purpose is required'
+        break
+      case 6:
+        if (!data.teamEmoji) newErrors.teamEmoji = 'Please select a team emoji'
+        break
+    }
+    
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const saveProfileData = async (fields: Partial<OnboardingData>) => {
+    try {
+      const payload: any = {
+        ...fields,
+        partialUpdate: true, // Flag for partial update
+      }
+      
+      // Only include companyId if we have the database ID
+      if (companyDatabaseId) {
+        payload.companyId = companyDatabaseId
+      }
+      
+      const response = await fetch('/api/user/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Failed to save profile data:', response.status, errorData)
+      } else {
+        console.log('Profile data saved successfully:', fields)
+      }
+    } catch (error) {
+      console.error('Error saving profile data:', error)
+    }
+  }
+
+  const handleNext = async () => {
+    // For department question, ensure we use customDepartment if that's what's selected
+    if (currentQuestion === 3 && showCustomDepartment && customDepartment) {
+      setData(prev => ({...prev, department: customDepartment}))
+    }
+    
+    if (validateQuestion(currentQuestion)) {
+      // Save data after each step
+      if (currentQuestion === 1 && data.firstName && data.lastName) {
+        // Save first and last name
+        await saveProfileData({
+          firstName: data.firstName,
+          lastName: data.lastName
+        })
+      } else if (currentQuestion === 2 && data.role) {
+        // Save role
+        await saveProfileData({
+          role: data.role
+        })
+      } else if (currentQuestion === 3) {
+        // Save department
+        const deptToSave = showCustomDepartment ? customDepartment : data.department
+        if (deptToSave) {
+          await saveProfileData({
+            department: deptToSave
+          })
+        }
+      } else if (currentQuestion === 4 && data.teamSize) {
+        // Save team size
+        await saveProfileData({
+          teamSize: data.teamSize
+        })
+      } else if (currentQuestion === 5 && data.teamPurpose) {
+        // Save team purpose
+        await saveProfileData({
+          teamPurpose: data.teamPurpose
+        })
+      } else if (currentQuestion === 6 && data.teamEmoji) {
+        // Save team emoji
+        await saveProfileData({
+          teamEmoji: data.teamEmoji
+        })
+      }
+      
+      setAnimating(true)
+      setTimeout(() => {
+        if (currentQuestion < 8) {
+          setCurrentQuestion(currentQuestion + 1)
+        }
+        setAnimating(false)
+      }, 300)
+    }
+  }
+
+  const handleBack = () => {
+    setAnimating(true)
+    setTimeout(() => {
+      if (currentQuestion > 0) {
+        // Skip the mission interlude (7) when going back from offerings (8)
+        if (currentQuestion === 8) {
+          setCurrentQuestion(6) // Go back to team emoji selection
+        } else {
+          setCurrentQuestion(currentQuestion - 1)
+        }
+      }
+      setAnimating(false)
+    }, 300)
+  }
+
+  const handleComplete = async () => {
+    // Clear any previous errors before validating
+    setErrors({})
+    
+    if (validateQuestion(6)) {
+      // Save onboarding data
+      const finalData = {
+        ...data,
+        department: data.department || customDepartment,
+        companyId: companyDatabaseId || null
+      }
+      
+      try {
+        // Save to database and update Clerk
+        const response = await fetch('/api/user/profile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(finalData),
+        })
+        
+        if (!response.ok) {
+          console.error('Failed to save profile')
+        }
+      } catch (error) {
+        console.error('Error saving profile:', error)
+      }
+      
+      // Redirect to profile page regardless of save status
+      router.push('/dashboard/start/profile')
+    }
+  }
+
+  const selectEmoji = (emoji: string) => {
+    // Update data and clear any errors for teamEmoji
+    setData(prev => ({...prev, teamEmoji: emoji}))
+    setErrors(prev => ({...prev, teamEmoji: undefined}))
+    setShowEmojiPicker(false)
+  }
+
+  const renderStepIndicator = () => (
+    <div className="flex flex-col items-center justify-center mb-6">
+      <div className="flex items-center">
+        {[1, 2].map((step) => (
+          <div key={step} className="flex items-center">
+            <div className="flex flex-col items-center">
+              <button
+                onClick={() => {
+                  // Can only navigate to completed steps or current step
+                  if (step === 1 && currentStep >= 1) {
+                    setAnimating(true)
+                    setTimeout(() => {
+                      // If we're on step 2, go back to the last question of step 1 (question 3)
+                      // Otherwise go to question 1
+                      setCurrentQuestion(currentStep === 2 && currentQuestion > 3 ? 3 : 1)
+                      setAnimating(false)
+                    }, 300)
+                  } else if (step === 2 && currentStep >= 2) {
+                    setAnimating(true)
+                    setTimeout(() => {
+                      // If we're past step 2, go to the last question of step 2 (question 6)
+                      // Otherwise go to question 4
+                      setCurrentQuestion(currentQuestion > 6 ? 6 : 4)
+                      setAnimating(false)
+                    }, 300)
+                  }
+                }}
+                disabled={step > currentStep}
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
+                  currentStep >= step
+                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white cursor-pointer hover:scale-110'
+                    : 'bg-white/10 text-white/50 border border-white/20 cursor-not-allowed'
+                }`}
+              >
+                {currentStep > step ? <Check className="w-4 h-4" /> : step}
+              </button>
+              <span className={`text-[10px] mt-1 transition-all ${
+                currentStep >= step ? 'text-white/70' : 'text-white/40'
+              }`}>
+                {step === 1 ? 'You' : 'Your Team'}
+              </span>
+            </div>
+            {step < 2 && (
+              <div
+                className={`w-16 h-0.5 mx-2 mb-4 transition-all duration-500 ${
+                  currentStep > step
+                    ? 'bg-gradient-to-r from-purple-600 to-pink-600'
+                    : 'bg-white/10'
+                }`}
+              />
+            )}
+          </div>
+        ))}
+      </div>
     </div>
+  )
+
+  const renderQuestion = () => {
+    const questionContent = () => {
+      switch(currentQuestion) {
+        case 0:
+          return (
+            <div className="space-y-8 w-full max-w-4xl mx-auto">
+              <div className="text-center">
+                {/* Animated Campfire SVG */}
+                <div className="relative w-64 h-64 mx-auto mb-8">
+                  <svg viewBox="0 0 200 200" className="w-full h-full">
+                    {/* Logs */}
+                    <rect x="70" y="140" width="60" height="15" rx="7" fill="#8B4513" />
+                    <rect x="60" y="150" width="80" height="15" rx="7" fill="#654321" />
+                    
+                    {/* Fire */}
+                    <g className="animate-pulse">
+                      <path 
+                        d="M100 135 Q85 110 90 95 Q95 105 100 95 Q105 105 110 95 Q115 110 100 135" 
+                        fill="url(#fire-gradient)"
+                        className="animate-[flicker_1.5s_ease-in-out_infinite]"
+                      />
+                      <path 
+                        d="M100 125 Q92 105 95 90 Q98 100 100 90 Q102 100 105 90 Q108 105 100 125" 
+                        fill="url(#fire-gradient-inner)"
+                        className="animate-[flicker_1s_ease-in-out_infinite]"
+                      />
+                    </g>
+                    
+                    {/* Sparks */}
+                    <circle r="1.5" fill="#FFA500" className="animate-[float_3s_ease-in-out_infinite]">
+                      <animate attributeName="cy" values="130;60;130" dur="3s" repeatCount="indefinite" />
+                      <animate attributeName="cx" values="95;85;95" dur="3s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="1;0;1" dur="3s" repeatCount="indefinite" />
+                    </circle>
+                    <circle r="1" fill="#FFD700" className="animate-[float_4s_ease-in-out_infinite_0.5s]">
+                      <animate attributeName="cy" values="130;50;130" dur="4s" repeatCount="indefinite" />
+                      <animate attributeName="cx" values="105;115;105" dur="4s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="1;0;1" dur="4s" repeatCount="indefinite" />
+                    </circle>
+                    <circle r="1.2" fill="#FF6347" className="animate-[float_3.5s_ease-in-out_infinite_1s]">
+                      <animate attributeName="cy" values="130;55;130" dur="3.5s" repeatCount="indefinite" />
+                      <animate attributeName="cx" values="100;90;100" dur="3.5s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="1;0;1" dur="3.5s" repeatCount="indefinite" />
+                    </circle>
+                    
+                    {/* Gradient Definitions */}
+                    <defs>
+                      <linearGradient id="fire-gradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                        <stop offset="0%" stopColor="#FF6B6B" />
+                        <stop offset="50%" stopColor="#FFA500" />
+                        <stop offset="100%" stopColor="#FFD700" />
+                      </linearGradient>
+                      <linearGradient id="fire-gradient-inner" x1="0%" y1="100%" x2="0%" y2="0%">
+                        <stop offset="0%" stopColor="#FF8C42" />
+                        <stop offset="50%" stopColor="#FFB347" />
+                        <stop offset="100%" stopColor="#FFF4E6" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  
+                  {/* Glow effect */}
+                  <div className="absolute inset-0 blur-xl opacity-50">
+                    <div className="w-32 h-32 mx-auto mt-16 bg-gradient-to-t from-orange-500 to-yellow-400 rounded-full animate-pulse" />
+                  </div>
+                </div>
+                
+                <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 animate-[fadeInUp_1s_ease-out]">
+                  {isEditMode ? 'Welcome Back to Campfire! 🔥' : 'Welcome to Campfire! 🔥'}
+                </h1>
+                
+                <p className="text-xl text-white/80 mb-8 animate-[fadeInUp_1s_ease-out_0.2s] opacity-0" 
+                   style={{animationFillMode: 'forwards'}}>
+                  {isEditMode 
+                    ? "Let's update your profile and keep your team info current"
+                    : "Where teams gather, stories ignite, and connections grow stronger"}
+                </p>
+                
+                <div className="space-y-4 text-white/70 max-w-2xl mx-auto animate-[fadeInUp_1s_ease-out_0.4s] opacity-0"
+                     style={{animationFillMode: 'forwards'}}>
+                  <p className="flex items-center justify-center gap-3">
+                    <span className="text-2xl animate-bounce" style={{animationDelay: '0.5s'}}>✨</span>
+                    <span>In just 2 minutes, we'll help you set up your team's virtual campfire</span>
+                  </p>
+                  <p className="flex items-center justify-center gap-3">
+                    <span className="text-2xl animate-bounce" style={{animationDelay: '0.7s'}}>🎯</span>
+                    <span>Get personalized tools and experiences tailored to your team's needs</span>
+                  </p>
+                  <p className="flex items-center justify-center gap-3">
+                    <span className="text-2xl animate-bounce" style={{animationDelay: '0.9s'}}>🤝</span>
+                    <span>Build deeper connections and unlock your team's full potential</span>
+                  </p>
+                </div>
+                
+                <button
+                  onClick={() => handleNext()}
+                  data-start-button
+                  className="mt-8 px-8 py-4 bg-gradient-to-r from-orange-500 to-pink-600 text-white rounded-xl font-semibold text-lg hover:from-orange-600 hover:to-pink-700 transition-all transform hover:scale-105 animate-[fadeInUp_1s_ease-out_0.6s] opacity-0 shadow-lg"
+                  style={{animationFillMode: 'forwards'}}
+                >
+                  {isEditMode ? 'Update Your Profile 📝' : "Let's Get Started! 🚀"}
+                </button>
+              </div>
+              
+              <style jsx>{`
+                @keyframes flicker {
+                  0%, 100% { transform: scaleY(1) scaleX(1); }
+                  50% { transform: scaleY(1.1) scaleX(0.95); }
+                }
+                @keyframes float {
+                  0%, 100% { transform: translateY(0); }
+                  50% { transform: translateY(-10px); }
+                }
+                @keyframes fadeInUp {
+                  from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                  }
+                  to {
+                    opacity: 1;
+                    transform: translateY(0);
+                  }
+                }
+              `}</style>
+            </div>
+          )
+          
+        case 1:
+          return (
+            <div className="space-y-6">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">What's your name?</h2>
+                <p className="text-white/60 text-sm">Let's start with the basics</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+                <div>
+                  <label className="block text-xs font-medium text-white/70 mb-1">First Name</label>
+                  <input
+                    type="text"
+                    value={data.firstName}
+                    onChange={(e) => setData({...data, firstName: e.target.value})}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        handleNext()
+                      }
+                    }}
+                    className={`w-full px-4 py-2.5 bg-white/10 border ${
+                      errors.firstName ? 'border-red-500' : 'border-white/20'
+                    } rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/15 transition-all`}
+                    placeholder="Jane"
+                    autoFocus
+                  />
+                  {errors.firstName && (
+                    <p className="text-red-400 text-xs mt-1">{errors.firstName}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-white/70 mb-1">Last Name</label>
+                  <input
+                    type="text"
+                    value={data.lastName}
+                    onChange={(e) => setData({...data, lastName: e.target.value})}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        handleNext()
+                      }
+                    }}
+                    className={`w-full px-4 py-2.5 bg-white/10 border ${
+                      errors.lastName ? 'border-red-500' : 'border-white/20'
+                    } rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/15 transition-all`}
+                    placeholder="Doe"
+                  />
+                  {errors.lastName && (
+                    <p className="text-red-400 text-xs mt-1">{errors.lastName}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )
+
+        case 2:
+          return (
+            <div className="space-y-6 w-full">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">What's your role?</h2>
+                <p className="text-white/60 text-sm">Tell us about your title or position</p>
+              </div>
+              <div className="max-w-xl mx-auto">
+                <div className="relative">
+                  <Briefcase className="absolute left-3 top-3 w-5 h-5 text-white/40" />
+                  <input
+                    type="text"
+                    value={data.role}
+                    onChange={(e) => setData({...data, role: e.target.value})}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        handleNext()
+                      }
+                    }}
+                    className={`w-full pl-11 pr-4 py-2.5 bg-white/10 border ${
+                      errors.role ? 'border-red-500' : 'border-white/20'
+                    } rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/15 transition-all`}
+                    placeholder="e.g., Product Manager, Software Engineer"
+                    autoFocus
+                  />
+                </div>
+                {errors.role && (
+                  <p className="text-red-400 text-xs mt-1">{errors.role}</p>
+                )}
+              </div>
+            </div>
+          )
+
+        case 3:
+          return (
+            <div className="space-y-6">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">Which department are you in?</h2>
+                <p className="text-white/60 text-sm">Select your team or add your own</p>
+              </div>
+              <div className="max-w-2xl mx-auto">
+                <div className="grid grid-cols-4 gap-3 mb-3">
+                  {DEPARTMENTS.map((dept) => {
+                    const IconComponent = dept.Icon
+                    return (
+                      <button
+                        key={dept.id}
+                        onClick={() => {
+                          setData({...data, department: dept.label})
+                          setShowCustomDepartment(false)
+                          setCustomDepartment('')
+                          setErrors({}) // Clear any errors when selecting
+                        }}
+                        className={`p-2.5 rounded-lg transition-all hover:scale-105 ${
+                          data.department === dept.label
+                            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
+                            : 'bg-white/10 border border-white/20 text-white/80 hover:border-white/40'
+                        }`}
+                      >
+                        <IconComponent className="w-5 h-5 mx-auto mb-1" />
+                        <div className="text-xs font-medium">{dept.label}</div>
+                      </button>
+                    )
+                  })}
+                  <button
+                    onClick={() => {
+                      setShowCustomDepartment(true)
+                      setData({...data, department: ''})
+                    }}
+                    className={`p-2.5 rounded-lg transition-all hover:scale-105 ${
+                      showCustomDepartment
+                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
+                        : 'bg-white/10 border border-white/20 text-white/80 hover:border-white/40'
+                    }`}
+                  >
+                    <MoreHorizontal className="w-5 h-5 mx-auto mb-1" />
+                    <div className="text-xs font-medium">Other</div>
+                  </button>
+                </div>
+                
+                {showCustomDepartment && (
+                  <input
+                    type="text"
+                    value={customDepartment}
+                    onChange={(e) => setCustomDepartment(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        handleNext()
+                      }
+                    }}
+                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/15 transition-all"
+                    placeholder="Enter your department"
+                    autoFocus
+                  />
+                )}
+                
+                {errors.department && (
+                  <p className="text-red-400 text-xs text-center mt-2">{errors.department}</p>
+                )}
+              </div>
+            </div>
+          )
+
+        case 4:
+          return (
+            <div className="space-y-6">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">How big is your team?</h2>
+                <p className="text-white/60 text-sm">Just the people you work with directly</p>
+              </div>
+              <div className="max-w-xs mx-auto">
+                <input
+                  type="text"
+                  value={data.teamSize}
+                  onChange={(e) => setData({...data, teamSize: e.target.value})}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      handleNext()
+                    }
+                  }}
+                  className={`w-full px-4 py-2.5 bg-white/10 border ${
+                    errors.teamSize ? 'border-red-500' : 'border-white/20'
+                  } rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/15 transition-all text-center text-lg`}
+                  placeholder="e.g., 8"
+                  autoFocus
+                />
+                {errors.teamSize && (
+                  <p className="text-red-400 text-xs text-center mt-1">{errors.teamSize}</p>
+                )}
+              </div>
+            </div>
+          )
+
+        case 5:
+          return (
+            <div className="space-y-6">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">What's your team's mission?</h2>
+                <p className="text-white/60 text-sm">What does {organization?.name || 'the company'} count on your team for?</p>
+              </div>
+              <div className="max-w-2xl mx-auto">
+                <textarea
+                  value={data.teamPurpose}
+                  onChange={(e) => setData({...data, teamPurpose: e.target.value})}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.ctrlKey) {
+                      e.preventDefault()
+                      handleNext()
+                    }
+                  }}
+                  className={`w-full px-4 py-3 bg-white/10 border ${
+                    errors.teamPurpose ? 'border-red-500' : 'border-white/20'
+                  } rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/15 transition-all resize-none`}
+                  placeholder="e.g., We build and maintain the core platform that powers our customer experience... (Ctrl+Enter to continue)"
+                  rows={3}
+                  autoFocus
+                />
+                {errors.teamPurpose && (
+                  <p className="text-red-400 text-xs mt-1">{errors.teamPurpose}</p>
+                )}
+              </div>
+            </div>
+          )
+
+        case 6:
+          return (
+            <div className="space-y-6">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">Pick your team vibe!</h2>
+                <p className="text-white/60 text-sm">Choose an emoji that represents your team's energy</p>
+              </div>
+              <div className="max-w-2xl mx-auto">
+                <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 p-3 bg-white/5 rounded-xl border border-white/10">
+                  {TEAM_EMOJIS.map((emoji, index) => {
+                    // Assign different Noto-style animation types for variety
+                    const animationTypes = ['emoji-hover-bounce', 'emoji-hover-wiggle', 'emoji-hover-heartbeat', 'emoji-hover-jello', 'emoji-hover-tada', 'emoji-hover-float']
+                    const animationType = animationTypes[index % animationTypes.length]
+                    
+                    return (
+                      <button
+                        key={emoji}
+                        onClick={() => selectEmoji(emoji)}
+                        className={`p-2.5 rounded-lg transition-all ${
+                          data.teamEmoji === emoji
+                            ? 'bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg'
+                            : 'hover:bg-white/10'
+                        }`}
+                      >
+                        <span 
+                          className={`text-2xl block emoji-hover ${animationType} ${data.teamEmoji === emoji ? 'emoji-selected' : ''}`}
+                          style={{ fontFamily: 'Noto Color Emoji, sans-serif' }}
+                        >
+                          {emoji}
+                        </span>
+                      </button>
+                    )
+                  })}
+                  <button
+                    onClick={() => setShowEmojiPicker(true)}
+                    className="p-2.5 rounded-lg border-2 border-dashed border-white/30 hover:border-purple-500 hover:bg-white/10 transition-all group"
+                  >
+                    <Plus className="w-6 h-6 text-white/50 group-hover:text-purple-400 mx-auto" />
+                  </button>
+                </div>
+                {errors.teamEmoji && (
+                  <p className="text-red-400 text-xs text-center mt-2">{errors.teamEmoji}</p>
+                )}
+              </div>
+            </div>
+          )
+          
+        case 7: // Mission Interlude
+          return (
+            <div className="w-full max-w-3xl mx-auto">
+              {/* Campfire Heart Illustration */}
+              <div className="relative w-24 h-24 mx-auto mb-8">
+                <svg viewBox="0 0 200 200" className="w-full h-full">
+                  {/* Campfire Heart */}
+                  <g className="animate-pulse">
+                    <path 
+                      d="M100 160 C60 120, 20 90, 60 50 C80 30, 100 50, 100 50 C100 50, 120 30, 140 50 C180 90, 140 120, 100 160"
+                      fill="url(#heart-gradient)"
+                      className="animate-[heartbeat_2s_ease-in-out_infinite]"
+                    />
+                    {/* Inner flame */}
+                    <path 
+                      d="M100 130 Q90 110 95 95 Q98 105 100 95 Q102 105 105 95 Q110 110 100 130" 
+                      fill="url(#flame-gradient)"
+                      className="animate-[flicker_1.5s_ease-in-out_infinite]"
+                    />
+                  </g>
+                  
+                  <defs>
+                    <linearGradient id="heart-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#FF6B6B" />
+                      <stop offset="50%" stopColor="#FF8C42" />
+                      <stop offset="100%" stopColor="#FFA500" />
+                    </linearGradient>
+                    <linearGradient id="flame-gradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                      <stop offset="0%" stopColor="#FFA500" />
+                      <stop offset="100%" stopColor="#FFD700" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div className="absolute inset-0 blur-2xl opacity-40">
+                  <div className="w-20 h-20 mx-auto mt-2 bg-gradient-to-t from-orange-500 to-pink-500 rounded-full" />
+                </div>
+              </div>
+              
+              {/* Content */}
+              <div className="text-center space-y-6">
+                <div>
+                  <h2 className="text-3xl font-bold text-white mb-2">
+                    Our Mission
+                  </h2>
+                  <div className="w-16 h-1 bg-gradient-to-r from-purple-600 to-pink-600 mx-auto rounded-full" />
+                </div>
+                
+                <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 max-w-2xl mx-auto">
+                  <p className="text-lg text-white/90 leading-relaxed">
+                    We're on a mission to help managers lead with confidence by equipping them with the skills, tools, and real-time support they need to navigate challenges, inspire their teams, and drive performance—without burning out or going it alone.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )
+          
+        case 8: // What is Campfire
+          return (
+            <div className="w-full max-w-3xl mx-auto">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-white mb-3">
+                  What Campfire Offers
+                </h2>
+                <p className="text-white/70 text-sm">
+                  Everything your team needs to thrive
+                </p>
+              </div>
+              
+              <div className="space-y-4">
+                {/* Tools Section */}
+                <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
+                      <Wrench className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-semibold">Self-Service Tools</h3>
+                      <p className="text-white/60 text-xs">Interactive coaching experiences</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                      <Target className="w-4 h-4 text-purple-400" />
+                      <span className="text-white/80 text-sm">Purpose Coach</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                      <Heart className="w-4 h-4 text-pink-400" />
+                      <span className="text-white/80 text-sm">Values Explorer</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                      <Zap className="w-4 h-4 text-yellow-400" />
+                      <span className="text-white/80 text-sm">Strengths Finder</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                      <Users className="w-4 h-4 text-blue-400" />
+                      <span className="text-white/80 text-sm">Team Charter</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Campfires Section */}
+                <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                      <Flame className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-semibold">Live Campfires</h3>
+                      <p className="text-white/60 text-xs">Group learning sessions</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                      <MessageCircle className="w-4 h-4 text-green-400" />
+                      <span className="text-white/80 text-sm">1-on-1 Mastery</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                      <Lightbulb className="w-4 h-4 text-yellow-400" />
+                      <span className="text-white/80 text-sm">Leadership 101</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                      <Target className="w-4 h-4 text-red-400" />
+                      <span className="text-white/80 text-sm">Goal Setting</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                      <Users className="w-4 h-4 text-purple-400" />
+                      <span className="text-white/80 text-sm">Team Dynamics</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Resources Section */}
+                <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                      <BookOpen className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-semibold">Resources Library</h3>
+                      <p className="text-white/60 text-xs">Curated learning materials</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                      <Video className="w-4 h-4 text-red-400" />
+                      <span className="text-white/80 text-sm">Video Guides</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                      <FileText className="w-4 h-4 text-blue-400" />
+                      <span className="text-white/80 text-sm">Articles</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                      <BookOpen className="w-4 h-4 text-green-400" />
+                      <span className="text-white/80 text-sm">Case Studies</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg">
+                      <Sparkles className="w-4 h-4 text-purple-400" />
+                      <span className="text-white/80 text-sm">Best Practices</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+
+        default:
+          return null
+      }
+    }
+
+    return (
+      <div className={`w-full transition-all duration-500 ${animating ? 'opacity-0 translate-x-10' : 'opacity-100 translate-x-0'}`}>
+        {questionContent()}
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <div className="mt-6">
+        <div className="w-full max-w-7xl mx-auto px-4">
+          {/* Glass card container - wider and shorter */}
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl overflow-hidden">
+            {/* Progress bar */}
+            <div className="h-1.5 bg-white/5">
+              <div 
+                className="h-full bg-gradient-to-r from-purple-600 to-pink-600 transition-all duration-500"
+                style={{ width: `${(currentQuestion / 8) * 100}%` }}
+              />
+            </div>
+
+            <div className="px-8 py-6 md:px-12 md:py-8">
+              {/* Step indicator - only show after welcome */}
+              {currentQuestion > 0 && renderStepIndicator()}
+
+              {/* Question content - tighter height */}
+              <div className="min-h-[200px] flex items-center justify-center w-full">
+                {renderQuestion()}
+              </div>
+
+              {/* Navigation buttons */}
+              <div className="flex justify-between mt-6">
+                {currentQuestion > 0 ? (
+                  <button
+                    onClick={handleBack}
+                    tabIndex={100}
+                    className="px-5 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 text-sm bg-white/10 text-white hover:bg-white/20"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Back
+                  </button>
+                ) : (
+                  <div />
+                )}
+
+                <div className="text-white/40 text-xs flex items-center">
+                  {currentQuestion === 0 || currentQuestion === 7 || currentQuestion === 8 ? '' : 
+                   `Question ${currentQuestion} of 6`}
+                </div>
+
+                {currentQuestion === 0 ? null : currentQuestion < 8 ? (
+                  <button
+                    onClick={handleNext}
+                    className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium text-sm hover:from-purple-700 hover:to-pink-700 transition-all flex items-center gap-2 group"
+                  >
+                    {currentQuestion === 7 ? 'Complete Profile' : 'Next'}
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleComplete}
+                    className="px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-medium text-sm hover:from-green-700 hover:to-emerald-700 transition-all flex items-center gap-2 group"
+                  >
+                    Explore
+                    <Binoculars className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Tips - smaller */}
+          <div className="mt-4 text-center">
+            <p className="text-white/50 text-xs">
+              💡 Tip: This helps us personalize your experience and recommend the best tools for your team
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Emoji Picker Modal */}
+      {showEmojiPicker && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowEmojiPicker(false)}>
+          <div 
+            className="bg-gray-900 rounded-xl border border-white/20 shadow-2xl max-w-2xl w-full max-h-[70vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4 border-b border-white/10 flex items-center justify-between">
+              <h3 className="text-white font-semibold">Choose an Emoji</h3>
+              <button
+                onClick={() => setShowEmojiPicker(false)}
+                className="text-white/60 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="flex">
+              {/* Categories */}
+              <div className="w-32 border-r border-white/10 p-2">
+                {Object.keys(EMOJI_LIBRARY).map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedEmojiCategory(category)}
+                    className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${
+                      selectedEmojiCategory === category
+                        ? 'bg-purple-600/30 text-purple-300'
+                        : 'text-white/60 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+              
+              {/* Emojis */}
+              <div className="flex-1 p-4 overflow-y-auto max-h-[50vh]">
+                <div className="grid grid-cols-8 gap-2">
+                  {EMOJI_LIBRARY[selectedEmojiCategory as keyof typeof EMOJI_LIBRARY].map((emoji, index) => {
+                    // Mix up Noto-style animation types for variety
+                    const animationTypes = ['emoji-hover-bounce', 'emoji-hover-wiggle', 'emoji-hover-heartbeat', 'emoji-hover-jello', 'emoji-hover-tada', 'emoji-hover-float']
+                    const animationType = animationTypes[index % animationTypes.length]
+                    
+                    return (
+                      <button
+                        key={emoji}
+                        onClick={() => selectEmoji(emoji)}
+                        className="p-2 rounded hover:bg-white/10 transition-all"
+                      >
+                        <span 
+                          className={`text-2xl block emoji-hover ${animationType}`}
+                          style={{ fontFamily: 'Noto Color Emoji, sans-serif' }}
+                        >
+                          {emoji}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }

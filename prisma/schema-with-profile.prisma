@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Company {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  logo        String?
+  clerkOrgId  String?      @unique
+  domains     String[]     @default([])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  campaigns   Campaign[]
+  invitations Invitation[]
+  userProfiles UserProfile[]
+}
+
+model UserProfile {
+  id               String    @id @default(cuid())
+  clerkUserId      String    @unique
+  email            String    @unique
+  firstName        String?
+  lastName         String?
+  role             String?
+  department       String?
+  teamSize         String?
+  teamPurpose      String?
+  teamEmoji        String?
+  companyId        String?
+  onboardingComplete Boolean @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  
+  company          Company?  @relation(fields: [companyId], references: [id])
+  
+  @@index([clerkUserId])
+  @@index([email])
+  @@index([companyId])
+}
+
+model Invitation {
+  id                String              @id @default(cuid())
+  email             String
+  name              String?
+  inviteCode        String              @unique
+  inviteUrl         String
+  status            InvitationStatus    @default(PENDING)
+  personalMessage   String?
+  companyId         String
+  createdAt         DateTime            @default(now())
+  sentAt            DateTime?
+  openedAt          DateTime?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  resentAt          DateTime?
+  currentStage      String?
+  assessmentResults AssessmentResult[]
+  company           Company             @relation(fields: [companyId], references: [id])
+  metadata          InvitationMetadata?
+
+  @@index([email])
+  @@index([companyId])
+  @@index([status])
+}
+
+model InvitationMetadata {
+  id             String     @id @default(cuid())
+  invitationId   String     @unique
+  role           String?
+  department     String?
+  challenges     String[]   @default([])
+  toolsAccessed  String[]   @default([])
+  accountCreated Boolean    @default(false)
+  accountEmail   String?
+  isGenericLink  Boolean    @default(false)
+  invitation     Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+}
+
+model AssessmentResult {
+  id              String     @id @default(cuid())
+  invitationId    String
+  toolId          String
+  toolName        String
+  responses       Json
+  scores          Json?
+  summary         String?
+  insights        Json?
+  recommendations Json?
+  userProfile     Json?
+  completedAt     DateTime   @default(now())
+  shareId         String?    @unique
+  pdfUrl          String?
+  pdfGeneratedAt  DateTime?
+  invitation      Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+  @@index([toolId])
+  @@index([shareId])
+}
+
+model Campaign {
+  id           String         @id @default(cuid())
+  name         String
+  description  String?
+  companyId    String
+  status       CampaignStatus @default(DRAFT)
+  startDate    DateTime?
+  endDate      DateTime?
+  toolId       String?
+  toolName     String?
+  toolPath     String?
+  campaignCode String?        @unique
+  campaignLink String?
+  createdBy    String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  company      Company        @relation(fields: [companyId], references: [id])
+}
+
+enum InvitationStatus {
+  PENDING
+  SENT
+  OPENED
+  STARTED
+  COMPLETED
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+}

@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import prisma from '@/lib/prisma'
 
 export async function POST(req: NextRequest) {
   try {
@@ -118,9 +116,16 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, profile })
   } catch (error) {
-    console.error('Error saving profile:', error)
+    console.error('Error saving profile - Full error:', error)
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack')
+    
+    // Return more detailed error in production for debugging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Failed to save profile' },
+      { 
+        error: 'Failed to save profile',
+        details: process.env.NODE_ENV === 'production' ? errorMessage : undefined
+      },
       { status: 500 }
     )
   }

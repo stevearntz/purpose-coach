@@ -94,11 +94,8 @@ export default function DashboardLayout({
     { 
       id: 'profile', 
       label: 'Profile', 
-      href: '/dashboard/member/start',
-      secondary: [
-        { id: 'onboarding', label: 'Onboarding', href: '/dashboard/member/start/onboarding' },
-        { id: 'myprofile', label: 'My Profile', href: '/dashboard/member/start/profile' }
-      ]
+      href: '/dashboard/member/start/profile',
+      secondary: []
     },
   ]
   
@@ -111,15 +108,19 @@ export default function DashboardLayout({
   
   // Determine active primary tab based on pathname
   const getActivePrimary = () => {
-    // Member paths
-    if (pathname.includes('/dashboard/member/start/dashboard')) {
+    // When showing as member (either actual member or admin in member view)
+    if (showAsMember) {
+      if (pathname.includes('/dashboard/member/start/dashboard')) {
+        return 'dashboard'
+      }
+      if (pathname.includes('/dashboard/member/start/profile')) {
+        return 'profile'
+      }
+      // Default for members
       return 'dashboard'
     }
-    if (pathname.includes('/dashboard/member/start')) {
-      return 'profile'
-    }
     
-    // Admin paths
+    // Admin paths (only when showing as admin)
     if (pathname.includes('/dashboard/start') || pathname.includes('/dashboard/onboarding')) {
       return 'start'
     }
@@ -133,8 +134,8 @@ export default function DashboardLayout({
       return 'recommendations'
     }
     
-    // Default
-    return showAsMember ? 'dashboard' : 'start'
+    // Default for admins
+    return 'start'
   }
   
   const activePrimary = getActivePrimary()
@@ -170,13 +171,13 @@ export default function DashboardLayout({
               <div className="flex items-center gap-4">
                 {/* View Mode Toggle - Only for Admins */}
                 {isAdmin && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-lg border border-white/20">
+                  <div className="flex items-center gap-1 px-2 py-1 bg-white/10 rounded-lg border border-white/20">
                     <button
                       onClick={() => handleViewModeChange('admin')}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium transition-all ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                         viewMode === 'admin'
-                          ? 'bg-white/20 text-white'
-                          : 'text-white/60 hover:text-white/80'
+                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                          : 'text-white/60 hover:text-white/80 hover:bg-white/10'
                       }`}
                     >
                       <Shield className="w-4 h-4" />
@@ -184,10 +185,10 @@ export default function DashboardLayout({
                     </button>
                     <button
                       onClick={() => handleViewModeChange('member')}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium transition-all ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                         viewMode === 'member'
-                          ? 'bg-white/20 text-white'
-                          : 'text-white/60 hover:text-white/80'
+                          ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
+                          : 'text-white/60 hover:text-white/80 hover:bg-white/10'
                       }`}
                     >
                       <Eye className="w-4 h-4" />
@@ -216,7 +217,7 @@ export default function DashboardLayout({
             </div>
 
             {/* Primary Navigation */}
-            <nav className={`flex gap-8 overflow-x-auto pb-3 ${secondaryTabs.length > 0 ? 'border-b border-white/10' : ''}`}>
+            <nav className={`flex gap-8 overflow-x-auto pb-3 ${secondaryTabs.length > 0 && !showAsMember ? 'border-b border-white/10' : ''}`}>
               {primaryTabs.map((tab) => {
                 const isActive = tab.id === activePrimary
                 return (
@@ -238,8 +239,8 @@ export default function DashboardLayout({
               })}
             </nav>
             
-            {/* Secondary Navigation */}
-            {secondaryTabs.length > 0 && (
+            {/* Secondary Navigation - Only show for admin view */}
+            {secondaryTabs.length > 0 && !showAsMember && (
               <nav className="flex gap-6 pt-3">
                 {secondaryTabs.map((tab) => {
                   const isActive = pathname === tab.href

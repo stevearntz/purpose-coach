@@ -1,8 +1,9 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useUser, UserButton, useOrganization, useOrganizationList } from '@clerk/nextjs'
-import { Flame } from 'lucide-react'
+import { Flame, Eye, Shield } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
@@ -26,6 +27,26 @@ export default function DashboardLayout({
   const userRole = membership?.role
   const isAdmin = userRole === 'org:admin'
   const isMember = userRole === 'org:member'
+  
+  // State for view mode (admin users can switch between admin and member view)
+  const [viewMode, setViewMode] = useState<'admin' | 'member'>('admin')
+  
+  // Handle view mode switch with immediate navigation
+  const handleViewModeChange = (newMode: 'admin' | 'member') => {
+    setViewMode(newMode)
+    // Navigate to appropriate default page
+    if (newMode === 'member') {
+      router.push('/dashboard/member/start/dashboard')
+    } else {
+      router.push('/dashboard/start')
+    }
+  }
+  
+  // Determine effective role based on view mode
+  // If admin is viewing in member mode, treat them as a member for navigation
+  const effectiveRole = isAdmin && viewMode === 'member' ? 'member' : userRole
+  const showAsAdmin = effectiveRole === 'org:admin'
+  const showAsMember = effectiveRole === 'org:member'
   
   // Different navigation for admins vs members
   const adminTabs = [
@@ -81,10 +102,10 @@ export default function DashboardLayout({
     },
   ]
   
-  // Select tabs based on user role
+  // Select tabs based on effective role (considering view mode for admins)
   const primaryTabs = !isLoaded 
     ? [] // Show nothing while loading
-    : isMember 
+    : showAsMember 
     ? memberTabs
     : adminTabs
   
@@ -113,7 +134,7 @@ export default function DashboardLayout({
     }
     
     // Default
-    return isMember ? 'dashboard' : 'start'
+    return showAsMember ? 'dashboard' : 'start'
   }
   
   const activePrimary = getActivePrimary()
@@ -147,6 +168,34 @@ export default function DashboardLayout({
               </div>
 
               <div className="flex items-center gap-4">
+                {/* View Mode Toggle - Only for Admins */}
+                {isAdmin && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-lg border border-white/20">
+                    <button
+                      onClick={() => handleViewModeChange('admin')}
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium transition-all ${
+                        viewMode === 'admin'
+                          ? 'bg-white/20 text-white'
+                          : 'text-white/60 hover:text-white/80'
+                      }`}
+                    >
+                      <Shield className="w-4 h-4" />
+                      Admin
+                    </button>
+                    <button
+                      onClick={() => handleViewModeChange('member')}
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium transition-all ${
+                        viewMode === 'member'
+                          ? 'bg-white/20 text-white'
+                          : 'text-white/60 hover:text-white/80'
+                      }`}
+                    >
+                      <Eye className="w-4 h-4" />
+                      Member
+                    </button>
+                  </div>
+                )}
+                
                 {/* User Account Management */}
                 <div className="flex items-center gap-3">
                   <UserButton 

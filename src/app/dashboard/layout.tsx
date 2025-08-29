@@ -94,8 +94,11 @@ export default function DashboardLayout({
     { 
       id: 'profile', 
       label: 'Profile', 
-      href: '/dashboard/member/start/profile',
-      secondary: []
+      href: '/dashboard/member/start',
+      secondary: [
+        { id: 'onboarding', label: 'Onboarding', href: '/dashboard/member/start/onboarding' },
+        { id: 'myprofile', label: 'My Profile', href: '/dashboard/member/start/profile' }
+      ]
     },
   ]
   
@@ -113,7 +116,7 @@ export default function DashboardLayout({
       if (pathname.includes('/dashboard/member/start/dashboard')) {
         return 'dashboard'
       }
-      if (pathname.includes('/dashboard/member/start/profile')) {
+      if (pathname.includes('/dashboard/member/start')) {
         return 'profile'
       }
       // Default for members
@@ -217,7 +220,7 @@ export default function DashboardLayout({
             </div>
 
             {/* Primary Navigation */}
-            <nav className={`flex gap-8 overflow-x-auto pb-3 ${secondaryTabs.length > 0 && !showAsMember ? 'border-b border-white/10' : ''}`}>
+            <nav className={`flex gap-8 overflow-x-auto pb-3 ${secondaryTabs.length > 0 ? 'border-b border-white/10' : ''}`}>
               {primaryTabs.map((tab) => {
                 const isActive = tab.id === activePrimary
                 return (
@@ -239,8 +242,8 @@ export default function DashboardLayout({
               })}
             </nav>
             
-            {/* Secondary Navigation - Only show for admin view */}
-            {secondaryTabs.length > 0 && !showAsMember && (
+            {/* Secondary Navigation */}
+            {secondaryTabs.length > 0 && (
               <nav className="flex gap-6 pt-3">
                 {secondaryTabs.map((tab) => {
                   const isActive = pathname === tab.href

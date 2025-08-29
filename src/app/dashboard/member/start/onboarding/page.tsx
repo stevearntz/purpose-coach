@@ -8,7 +8,6 @@ import {
   ChevronLeft, 
   User, 
   Users, 
-  Binoculars,
   Check,
   Briefcase,
   Plus,
@@ -514,7 +513,7 @@ export default function OnboardingPage() {
       }
       
       // Redirect to profile page regardless of save status
-      router.push('/dashboard/start/profile')
+      router.push('/dashboard/member/start/profile')
     }
   }
 
@@ -1202,7 +1201,7 @@ export default function OnboardingPage() {
                     onClick={handleNext}
                     className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium text-sm hover:from-purple-700 hover:to-pink-700 transition-all flex items-center gap-2 group"
                   >
-                    {currentQuestion === 7 ? 'Complete Profile' : 'Next'}
+                    Next
                     <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </button>
                 ) : (
@@ -1210,8 +1209,8 @@ export default function OnboardingPage() {
                     onClick={handleComplete}
                     className="px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-medium text-sm hover:from-green-700 hover:to-emerald-700 transition-all flex items-center gap-2 group"
                   >
-                    Explore
-                    <Binoculars className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    Complete Profile
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </button>
                 )}
               </div>

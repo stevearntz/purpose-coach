@@ -107,11 +107,53 @@ export async function POST(req: NextRequest) {
 
     // Save to database
     console.log('Saving profile for user:', userId, 'with data:', createData)
-    const profile = await prisma.userProfile.upsert({
-      where: { clerkUserId: userId },
-      update: dbUpdateData,
-      create: createData
+    
+    // First check if a profile exists with this email
+    const existingProfile = await prisma.userProfile.findUnique({
+      where: { email }
     })
+    
+    let profile
+    
+    if (existingProfile) {
+      // If profile exists with this email but different clerkUserId, update it
+      if (existingProfile.clerkUserId !== userId) {
+        console.log('Updating existing profile with different clerkUserId')
+        profile = await prisma.userProfile.update({
+          where: { email },
+          data: {
+            ...dbUpdateData,
+            clerkUserId: userId // Update to current user's ID
+          }
+        })
+      } else {
+        // Same user, just update
+        profile = await prisma.userProfile.update({
+          where: { clerkUserId: userId },
+          data: dbUpdateData
+        })
+      }
+    } else {
+      // No existing profile, create new one
+      // But first check if this clerkUserId already has a profile (with different email)
+      const existingUserProfile = await prisma.userProfile.findUnique({
+        where: { clerkUserId: userId }
+      })
+      
+      if (existingUserProfile) {
+        // User has profile with different email, update it
+        profile = await prisma.userProfile.update({
+          where: { clerkUserId: userId },
+          data: dbUpdateData
+        })
+      } else {
+        // Create new profile
+        profile = await prisma.userProfile.create({
+          data: createData
+        })
+      }
+    }
+    
     console.log('Profile saved successfully:', profile.id)
 
     return NextResponse.json({ success: true, profile })

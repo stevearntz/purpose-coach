@@ -13,8 +13,8 @@ export default function SSOCallbackPage() {
       try {
         await handleRedirectCallback({
           redirectUrl: '/dashboard',
-          fallbackRedirectUrl: '/dashboard',
-          afterSignUpUrl: '/onboarding'
+          signInFallbackRedirectUrl: '/dashboard',
+          signUpFallbackRedirectUrl: '/onboarding'
         })
       } catch (error: any) {
         console.error('SSO callback error:', error)

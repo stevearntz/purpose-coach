@@ -9,7 +9,7 @@ import ShareButton from '@/components/ShareButton'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
 import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
-import ToolNavigation from '@/components/ToolNavigation'
+import ToolNavigationWrapper from '@/components/ToolNavigationWrapper'
 
 interface ReflectionData {
   category: string
@@ -306,7 +306,7 @@ export default function CoachingCardsTool() {
         return (
           <div className="min-h-screen bg-gradient-to-br from-[#D4F564] to-[#87AE05] flex items-center justify-center p-4">
             <div className="w-full max-w-2xl">
-        <ToolNavigation />
+        <ToolNavigationWrapper />
 
               <div className="text-center space-y-8">
                 <div className="inline-flex p-4 sm:p-6 bg-white/20 backdrop-blur-sm rounded-full">

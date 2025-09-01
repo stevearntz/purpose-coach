@@ -137,6 +137,10 @@ export default function DashboardPage() {
                     if (targetUrl) {
                       const params = new URLSearchParams()
                       
+                      // Add context parameters for navigation
+                      params.append('context', 'member-dashboard')
+                      params.append('returnUrl', '/dashboard/member/start/dashboard')
+                      
                       // Add user profile data as query parameters
                       const userEmail = user?.emailAddresses?.[0]?.emailAddress
                       
@@ -153,11 +157,9 @@ export default function DashboardPage() {
                         params.append('teamSize', userProfile.teamSize)
                       }
                       
-                      // Add parameters to URL only if we have some data
-                      if (params.toString()) {
-                        const separator = targetUrl.includes('?') ? '&' : '?'
-                        targetUrl = `${targetUrl}${separator}${params.toString()}`
-                      }
+                      // Add parameters to URL
+                      const separator = targetUrl.includes('?') ? '&' : '?'
+                      targetUrl = `${targetUrl}${separator}${params.toString()}`
                     }
                     
                     // Open in new tab

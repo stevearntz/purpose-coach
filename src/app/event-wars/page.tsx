@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import ViewportContainer from '@/components/ViewportContainer'
 import Footer from '@/components/Footer'
-import ToolNavigation from '@/components/ToolNavigation'
+import ToolNavigationWrapper from '@/components/ToolNavigationWrapper'
 import { ChevronLeft, Upload, Trophy, Users, Zap, Brain, Target } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
@@ -413,7 +413,7 @@ export default function EventWarsPage() {
 
   return (
     <ViewportContainer>
-      <ToolNavigation />
+      <ToolNavigationWrapper />
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}

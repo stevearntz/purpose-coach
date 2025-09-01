@@ -19,7 +19,7 @@ import Link from 'next/link'
 import Footer from '@/components/Footer'
 import ViewportContainer from '@/components/ViewportContainer'
 import ShareButton from '@/components/ShareButton'
-import ToolNavigation from '@/components/ToolNavigation'
+import ToolNavigationWrapper from '@/components/ToolNavigationWrapper'
 import ToolProgressIndicator from '@/components/ToolProgressIndicator'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
@@ -409,7 +409,7 @@ export default function ChangeReflectionPage() {
       case 0:
         return (
           <ViewportContainer className="bg-gradient-to-br from-[#F595B6] to-[#BF4C74] flex flex-col items-center justify-center p-4">
-            <ToolNavigation />
+            <ToolNavigationWrapper />
             
             <div className="w-full max-w-2xl mx-auto text-center text-white">
               <div className="mb-6">

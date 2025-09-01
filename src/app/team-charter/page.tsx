@@ -9,7 +9,7 @@ import { useAnalytics } from '@/hooks/useAnalytics'
 import ShareButton from '@/components/ShareButton'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
 import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
-import ToolNavigation from '@/components/ToolNavigation'
+import ToolNavigationWrapper from '@/components/ToolNavigationWrapper'
 
 interface TeamData {
   teamName: string
@@ -374,7 +374,7 @@ export default function TeamCanvasTool() {
           return (
             <div className="min-h-screen bg-gradient-to-br from-[#FFA851] via-[#FF8FA3] to-[#EB6593] flex items-center justify-center p-4">
               <div className="w-full max-w-2xl">
-        <ToolNavigation />
+        <ToolNavigationWrapper />
 
                 <div className="text-center space-y-8">
                   <button
@@ -431,7 +431,7 @@ export default function TeamCanvasTool() {
         return (
           <div className="min-h-screen bg-gradient-to-br from-[#FFA851] via-[#FF8FA3] to-[#EB6593] flex items-center justify-center p-4">
             <div className="w-full max-w-2xl">
-        <ToolNavigation />
+        <ToolNavigationWrapper />
 
               <div className="text-center space-y-8">
                 <div className="inline-flex p-4 sm:p-6 bg-white/20 backdrop-blur-sm rounded-full">

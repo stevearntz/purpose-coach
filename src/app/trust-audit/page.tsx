@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Footer from '@/components/Footer'
 import ToolLayout from '@/components/ToolLayout'
 import ToolIntroCard from '@/components/ToolIntroCard'
-import ToolNavigation from '@/components/ToolNavigation'
+import ToolNavigationWrapper from '@/components/ToolNavigationWrapper'
 import ToolProgressIndicator from '@/components/ToolProgressIndicator'
 import { toolConfigs, toolStyles } from '@/lib/toolConfigs'
 import { useAnalytics } from '@/hooks/useAnalytics'
@@ -293,7 +293,7 @@ export default function TrustAuditPage() {
   if (showIntro) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#FFA62A] to-[#DB4839] flex flex-col items-center justify-center p-4">
-        <ToolNavigation />
+        <ToolNavigationWrapper />
         
         <div className="text-center text-white mb-12 max-w-3xl">
           <div className="inline-flex p-4 sm:p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
@@ -392,7 +392,7 @@ export default function TrustAuditPage() {
   if (showRelationshipInput) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#FFA62A] via-[#FF7B47] to-[#DB4839] flex flex-col items-center justify-center p-4">
-        <ToolNavigation />
+        <ToolNavigationWrapper />
         
         <div className="max-w-2xl w-full">
           <button

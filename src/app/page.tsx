@@ -46,37 +46,37 @@ interface Course {
 const getToolVisual = (toolId: string): React.ReactElement => {
   const visuals: { [key: string]: React.ReactElement } = {
     't1': ( // Team Charter
-      <img src="/tool-icons/map-icon.png" alt="Team Charter" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/map-icon.png" alt="Team Charter" className="w-full h-full object-contain p-2" />
     ),
     't2': ( // Change Style Profile (primary change tool)
-      <img src="/tool-icons/kite-icon.png" alt="Change Style Profile" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/kite-icon.png" alt="Change Style Profile" className="w-full h-full object-contain p-2" />
     ),
     't2b': ( // Change Readiness Assessment (secondary change tool)
-      <img src="/tool-icons/kite-icon.png" alt="Change Readiness Assessment" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/kite-icon.png" alt="Change Readiness Assessment" className="w-full h-full object-contain p-2" />
     ),
     't3': ( // Trust Audit
-      <img src="/tool-icons/compass-icon.png" alt="Trust Audit" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/compass-icon.png" alt="Trust Audit" className="w-full h-full object-contain p-2" />
     ),
     't4': ( // Coaching Cards
-      <img src="/tool-icons/tools-icon.png" alt="Coaching Cards" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/tools-icon.png" alt="Coaching Cards" className="w-full h-full object-contain p-2" />
     ),
     't5': ( // Decision Making Audit
-      <img src="/tool-icons/submarine-icon.png" alt="Decision Making Audit" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/submarine-icon.png" alt="Decision Making Audit" className="w-full h-full object-contain p-2" />
     ),
     't6': ( // Burnout Assessment
-      <img src="/tool-icons/lantern-icon.png" alt="Burnout Assessment" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/lantern-icon.png" alt="Burnout Assessment" className="w-full h-full object-contain p-2" />
     ),
     't7': ( // User Guide
-      <img src="/tool-icons/hammock-icon.png" alt="User Guide" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/hammock-icon.png" alt="User Guide" className="w-full h-full object-contain p-2" />
     ),
     't8': ( // Expectations Reflection
-      <img src="/tool-icons/plant-icon.png" alt="Expectations Reflection" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/plant-icon.png" alt="Expectations Reflection" className="w-full h-full object-contain p-2" />
     ),
     't9': ( // Drivers Reflection
-      <img src="/tool-icons/moon-icon.png" alt="Drivers Reflection" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/moon-icon.png" alt="Drivers Reflection" className="w-full h-full object-contain p-2" />
     ),
     't2c': ( // Change Reflection
-      <img src="/tool-icons/kite-icon.png" alt="Change Reflection" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/kite-icon.png" alt="Change Reflection" className="w-full h-full object-contain p-2" />
     )
   };
   
@@ -87,31 +87,31 @@ const getChallengeVisual = (challengeId: string): React.ReactElement => {
   const visuals: { [key: string]: React.ReactElement } = {
     // Purpose + Direction (maps to Team Canvas - t1)
     'c1': (
-      <img src="/tool-icons/map-icon.png" alt="Purpose + Direction" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/map-icon.png" alt="Purpose + Direction" className="w-full h-full object-contain p-2" />
     ),
     // Navigating Change (maps to Change Readiness Assessment - t2)
     'c2': (
-      <img src="/tool-icons/kite-icon.png" alt="Navigating Change" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/kite-icon.png" alt="Navigating Change" className="w-full h-full object-contain p-2" />
     ),
     // Trust + Psychological Safety / Feedback + Trust (maps to Team Trust Audit - t3)
     'c3': (
-      <img src="/tool-icons/compass-icon.png" alt="Trust + Psychological Safety" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/compass-icon.png" alt="Trust + Psychological Safety" className="w-full h-full object-contain p-2" />
     ),
     // Empowering Others / Leadership Effectiveness (maps to Coaching Questions Card Deck - t4)
     'c4': (
-      <img src="/tool-icons/tools-icon.png" alt="Empowering Others" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/tools-icon.png" alt="Empowering Others" className="w-full h-full object-contain p-2" />
     ),
     // Effective Decision Making (maps to Decision Filter Framework - t5)
     'c5': (
-      <img src="/tool-icons/submarine-icon.png" alt="Effective Decision Making" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/submarine-icon.png" alt="Effective Decision Making" className="w-full h-full object-contain p-2" />
     ),
     // Well-Being + Resilience / Well-Being (maps to Burnout Assessment - t6)
     'c6': (
-      <img src="/tool-icons/lantern-icon.png" alt="Well-Being + Resilience" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/lantern-icon.png" alt="Well-Being + Resilience" className="w-full h-full object-contain p-2" />
     ),
     // Communication and Collaboration (maps to Working with Me Guide - t7)
     'c7': (
-      <img src="/tool-icons/hammock-icon.png" alt="Communication and Collaboration" className="w-full h-full object-contain p-2" />
+      <OptimizedImage src="/tool-icons/hammock-icon.png" alt="Communication and Collaboration" className="w-full h-full object-contain p-2" />
     ),
     // Role Clarity + Expectations / Clarity + Expectations (maps to Hopes, Fears, Expectations Template - t8)
     'c8': (

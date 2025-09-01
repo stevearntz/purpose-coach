@@ -10,7 +10,7 @@ import ShareButton from '@/components/ShareButton'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
 import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
-import ToolNavigation from '@/components/ToolNavigation'
+import ToolNavigationWrapper from '@/components/ToolNavigationWrapper'
 import ToolProgressIndicator from '@/components/ToolProgressIndicator'
 
 const likertOptions = [
@@ -188,7 +188,7 @@ export default function DecisionMakingAuditPage() {
   if (showIntro) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#6DC7FF] to-[#3C36FF] flex flex-col items-center justify-center p-4">
-        <ToolNavigation />
+        <ToolNavigationWrapper />
         
         <div className="text-center text-white mb-12 max-w-3xl">
           <div className="inline-flex p-4 sm:p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
@@ -281,7 +281,7 @@ export default function DecisionMakingAuditPage() {
   if (showDecisionContext) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#6DC7FF] via-[#5581FF] to-[#3C36FF] flex flex-col items-center justify-center p-4">
-        <ToolNavigation />
+        <ToolNavigationWrapper />
         
         <div className="max-w-2xl w-full">
           <button

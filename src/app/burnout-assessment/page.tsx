@@ -10,7 +10,7 @@ import { useAnalytics } from '@/hooks/useAnalytics'
 import ShareButton from '@/components/ShareButton'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
 import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
-import ToolNavigation from '@/components/ToolNavigation'
+import ToolNavigationWrapper from '@/components/ToolNavigationWrapper'
 import ToolProgressIndicator from '@/components/ToolProgressIndicator'
 
 interface Question {
@@ -337,7 +337,7 @@ export default function BurnoutAssessmentPage() {
   if (showIntro) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#74DEDE] to-[#30B859] flex flex-col items-center justify-center p-4">
-        <ToolNavigation />
+        <ToolNavigationWrapper />
         
         <div className="text-center text-white mb-12 max-w-3xl">
           <div className="inline-flex p-4 sm:p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">
@@ -422,7 +422,7 @@ export default function BurnoutAssessmentPage() {
   if (showNameInput) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#74DEDE] via-[#52C7C7] to-[#30B859] flex flex-col items-center justify-center p-4">
-        <ToolNavigation />
+        <ToolNavigationWrapper />
         
         <div className="max-w-2xl w-full">
           <button

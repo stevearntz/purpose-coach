@@ -14,7 +14,7 @@ import Link from 'next/link'
 import Footer from '@/components/Footer'
 import ViewportContainer from '@/components/ViewportContainer'
 import ShareButton from '@/components/ShareButton'
-import ToolNavigation from '@/components/ToolNavigation'
+import ToolNavigationWrapper from '@/components/ToolNavigationWrapper'
 import ToolProgressIndicator from '@/components/ToolProgressIndicator'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
@@ -443,7 +443,7 @@ export default function TopOfMindPage() {
       case 0:
         return (
           <ViewportContainer className="bg-gradient-to-br from-[#C67AF4] to-[#3E37FF] flex flex-col items-center justify-center p-4">
-            <ToolNavigation />
+            <ToolNavigationWrapper />
             
             <div className="text-center text-white mb-12 max-w-3xl">
               <div className="inline-flex p-4 sm:p-6 bg-white/20 backdrop-blur-sm rounded-full mb-8">

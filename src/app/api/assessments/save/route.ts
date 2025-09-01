@@ -84,20 +84,24 @@ export async function POST(request: NextRequest) {
         data: {
           status: 'COMPLETED',
           completedAt: new Date(),
+          // Update name if provided
+          name: data.responses?.name || data.userProfile?.name || invitation.name
         }
       })
       
-      // Update metadata with tool access
+      // Update metadata with tool access and profile data
       await prisma.invitationMetadata.upsert({
         where: { invitationId: invitation.id },
         create: {
           invitationId: invitation.id,
           toolsAccessed: [data.toolId],
+          department: (data.responses as any)?.department || (data.userProfile as any)?.department || null,
         },
         update: {
           toolsAccessed: {
             push: data.toolId
-          }
+          },
+          department: (data.responses as any)?.department || (data.userProfile as any)?.department || null,
         }
       })
     }

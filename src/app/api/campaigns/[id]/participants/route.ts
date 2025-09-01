@@ -57,6 +57,9 @@ export async function GET(
               in: campaign.participants
             }
           },
+          include: {
+            metadata: true // Include metadata for department/teamSize
+          },
           orderBy: [
             { status: 'desc' }, // COMPLETED first
             { createdAt: 'desc' }
@@ -68,6 +71,9 @@ export async function GET(
             inviteUrl: {
               contains: `campaign=${encodeURIComponent(campaign.name)}`
             }
+          },
+          include: {
+            metadata: true // Include metadata for department/teamSize
           },
           orderBy: [
             { status: 'desc' }, // COMPLETED first
@@ -137,7 +143,7 @@ export async function GET(
           completedAt: invitation?.completedAt?.toISOString() || undefined,
           startedAt: invitation?.startedAt?.toISOString() || undefined,
           sentAt: invitation?.createdAt?.toISOString() || undefined,
-          department: assessmentData?.responses?.department || 'N/A',
+          department: invitation?.metadata?.department || assessmentData?.responses?.department || 'N/A',
           teamSize: assessmentData?.responses?.teamSize || 'N/A',
           // Include any other relevant assessment data
           assessmentData: assessmentData ? {

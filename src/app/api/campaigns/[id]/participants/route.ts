@@ -100,12 +100,19 @@ export async function GET(
           }
         }
         
+        // Generate the individual invite link
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tools.getcampfire.com'
+        const inviteLink = campaign.campaignCode && invitation.inviteCode
+          ? `${baseUrl}/assessment/${campaign.campaignCode}?invite=${invitation.inviteCode}`
+          : invitation.inviteUrl || ''
+        
         return {
           id: invitation.id,
           name: invitation.name || invitation.email.split('@')[0],
           email: invitation.email,
           status: invitation.status,
           inviteCode: invitation.inviteCode,
+          inviteLink: inviteLink,
           completedAt: invitation.completedAt?.toISOString() || undefined,
           startedAt: invitation.startedAt?.toISOString() || undefined,
           sentAt: invitation.createdAt.toISOString(),

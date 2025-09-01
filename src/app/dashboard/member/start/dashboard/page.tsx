@@ -37,6 +37,8 @@ interface AssignedAssessment {
   description: string
   estimatedTime: string
   campaignName: string
+  campaignCode?: string
+  inviteCode?: string
   dueDate?: string
 }
 
@@ -79,6 +81,8 @@ export default function DashboardPage() {
             description: campaign.description || 'Complete this assessment to help us understand your needs',
             estimatedTime: '15 min',
             campaignName: campaign.name,
+            campaignCode: campaign.campaignCode || '',
+            inviteCode: campaign.inviteCode || '',
             dueDate: campaign.endDate
           })) || []
           
@@ -131,11 +135,27 @@ export default function DashboardPage() {
                 <div 
                   key={assessment.id}
                   onClick={() => {
-                    // Build URL with pre-population parameters
-                    let targetUrl = assessment.toolPath || `/tools/${assessment.toolId}`
+                    // Build URL based on whether we have campaign/invite codes
+                    let targetUrl = ''
+                    
+                    if (assessment.campaignCode) {
+                      // Use the campaign assessment URL
+                      targetUrl = `/assessment/${assessment.campaignCode}`
+                      if (assessment.inviteCode) {
+                        targetUrl += `?invite=${assessment.inviteCode}`
+                      }
+                    } else {
+                      // Fallback to direct tool path
+                      targetUrl = assessment.toolPath || `/tools/${assessment.toolId}`
+                    }
                     
                     if (targetUrl) {
                       const params = new URLSearchParams()
+                      
+                      // If we already have invite param, preserve it
+                      if (assessment.inviteCode && assessment.campaignCode) {
+                        params.append('invite', assessment.inviteCode)
+                      }
                       
                       // Add context parameters for navigation
                       params.append('context', 'member-dashboard')

@@ -312,8 +312,12 @@ function PeopleLeaderNeedsContent() {
     }
     
     // Check if profile data has changed and update if needed
-    const context = searchParams.get('context')
-    if (context === 'member-dashboard' && originalProfileData.email) {
+    // Only sync profile if:
+    // 1. User exists in database (has original profile data with email)
+    // 2. Accessing via campaign link (has campaignName) or invite link (has inviteCode)
+    const hasValidAccessPath = campaignName || inviteCode
+    
+    if (originalProfileData.email && hasValidAccessPath) {
       const hasChanges = 
         (originalProfileData.name && originalProfileData.name !== managerData.name) ||
         (originalProfileData.department && originalProfileData.department !== managerData.department) ||

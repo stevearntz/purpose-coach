@@ -40,6 +40,21 @@ export async function GET(request: Request) {
       }
     })
 
+    // Get invite codes for this user
+    const invitations = await prisma.invitation.findMany({
+      where: {
+        email: userEmail,
+        companyId: { in: campaigns.map(c => c.companyId) }
+      },
+      select: {
+        inviteCode: true,
+        companyId: true
+      }
+    })
+    
+    // Create a map of companyId to inviteCode
+    const inviteMap = new Map(invitations.map(inv => [inv.companyId, inv.inviteCode]))
+    
     // Transform campaigns for the dashboard
     const transformedCampaigns = campaigns.map(campaign => ({
       id: campaign.id,
@@ -48,6 +63,8 @@ export async function GET(request: Request) {
       toolId: campaign.toolId || '',
       toolName: campaign.toolName || 'Assessment',
       toolPath: campaign.toolPath || '',
+      campaignCode: campaign.campaignCode || '',
+      inviteCode: inviteMap.get(campaign.companyId) || '',
       startDate: campaign.startDate,
       endDate: campaign.endDate,
       createdAt: campaign.createdAt

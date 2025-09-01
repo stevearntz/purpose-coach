@@ -31,6 +31,7 @@ interface Participant {
   email: string
   status: 'COMPLETED' | 'STARTED' | 'SENT' | 'PENDING'
   inviteCode?: string
+  inviteLink?: string
   completedAt?: string
   startedAt?: string
 }
@@ -45,6 +46,7 @@ export default function CampaignsTab() {
   const [showParticipantsModal, setShowParticipantsModal] = useState(false)
   const [copiedCampaign, setCopiedCampaign] = useState<string | null>(null)
   const [copiedLink, setCopiedLink] = useState<string | null>(null)
+  const [copiedEmails, setCopiedEmails] = useState<{ [key: string]: boolean }>({})
   const [viewMode, setViewMode] = useState<'list' | 'create' | 'email'>('list')
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null)
   const [wizardInitialStep, setWizardInitialStep] = useState(1)
@@ -127,11 +129,19 @@ export default function CampaignsTab() {
     // Will show inline confirmation when implemented
   }
 
-  const copyInviteLink = (inviteCode: string) => {
-    const link = `${window.location.origin}/hr-partnership?code=${inviteCode}`
+  const copyInviteLink = (participant: Participant) => {
+    const link = participant.inviteLink || ''
     navigator.clipboard.writeText(link)
-    setCopiedLink(inviteCode)
+    setCopiedLink(participant.id)
     setTimeout(() => setCopiedLink(null), 2000)
+  }
+  
+  const copyEmail = (email: string) => {
+    navigator.clipboard.writeText(email)
+    setCopiedEmails(prev => ({ ...prev, [email]: true }))
+    setTimeout(() => {
+      setCopiedEmails(prev => ({ ...prev, [email]: false }))
+    }, 2000)
   }
 
   const copyCampaignLink = (campaign: Campaign) => {
@@ -496,48 +506,49 @@ export default function CampaignsTab() {
                   {participants.map((participant) => (
                     <div
                       key={participant.id}
-                      className="bg-white/5 rounded-lg p-4 flex items-center justify-between"
+                      className="bg-white/5 rounded-lg p-4"
                     >
-                      <div className="flex items-center gap-3">
-                        {getParticipantStatusIcon(participant.status)}
-                        <div>
-                          <p className="text-white font-medium">{participant.name}</p>
-                          <p className="text-sm text-white/60">{participant.email}</p>
-                          {participant.completedAt && (
-                            <p className="text-xs text-white/40 mt-1">
-                              Completed {formatDate(participant.completedAt)}
-                            </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          {getParticipantStatusIcon(participant.status)}
+                          <div>
+                            <p className="text-white font-medium">{participant.name}</p>
+                            <button
+                              onClick={() => copyEmail(participant.email)}
+                              className="text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1 group"
+                            >
+                              {participant.email}
+                              {copiedEmails[participant.email] ? (
+                                <CheckCircle className="w-3 h-3 text-green-400 ml-1" />
+                              ) : (
+                                <Copy className="w-3 h-3 opacity-0 group-hover:opacity-100 ml-1" />
+                              )}
+                            </button>
+                            {participant.completedAt && (
+                              <p className="text-xs text-white/40 mt-1">
+                                Completed {formatDate(participant.completedAt)}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs font-medium px-2 py-1 rounded ${getParticipantStatusColor(participant.status)}`}>
+                            {participant.status}
+                          </span>
+                          {participant.inviteLink && (
+                            <button
+                              onClick={() => copyInviteLink(participant)}
+                              className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
+                              title="Copy unique invite link"
+                            >
+                              {copiedLink === participant.id ? (
+                                <CheckCircle className="w-4 h-4 text-green-400" />
+                              ) : (
+                                <Link className="w-4 h-4 text-white/60 group-hover:text-white" />
+                              )}
+                            </button>
                           )}
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {participant.status !== 'COMPLETED' && (
-                          <>
-                            <button
-                              onClick={() => handleRemindParticipant(participant)}
-                              className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
-                              title="Send reminder"
-                            >
-                              <Mail className="w-4 h-4 text-white/60 group-hover:text-white" />
-                            </button>
-                            {participant.inviteCode && (
-                              <button
-                                onClick={() => copyInviteLink(participant.inviteCode!)}
-                                className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
-                                title="Copy invite link"
-                              >
-                                {copiedLink === participant.inviteCode ? (
-                                  <CheckCircle className="w-4 h-4 text-green-400" />
-                                ) : (
-                                  <Copy className="w-4 h-4 text-white/60 group-hover:text-white" />
-                                )}
-                              </button>
-                            )}
-                          </>
-                        )}
-                        <span className={`text-xs font-medium ${getParticipantStatusColor(participant.status)}`}>
-                          {participant.status}
-                        </span>
                       </div>
                     </div>
                   ))}

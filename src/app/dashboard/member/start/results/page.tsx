@@ -174,19 +174,20 @@ export default function MemberResultsPage() {
                 </div>
 
                 {/* Expandable Content */}
-                {isExpanded && (
-                  <div className="border-t border-white/10 bg-white/5">
-                    <div className="p-6 space-y-6">
-                      {/* Debug: Log the data structure */}
-                      {console.log('[Results Debug] Full result object:', result)}
-                      {console.log('[Results Debug] Responses:', result.responses)}
-                      {console.log('[Results Debug] Challenges:', result.responses?.challenges)}
-                      {console.log('[Results Debug] Skills:', result.responses?.skillsToGrow)}
-                      {console.log('[Results Debug] Support:', result.responses?.supportNeeds)}
-                      {console.log('[Results Debug] TeamImpact:', result.responses?.teamImpact)}
-                      {console.log('[Results Debug] Context:', result.responses?.additionalContext)}
-                      
-                      {/* Challenge Areas Section - ALWAYS SHOW */}
+                {isExpanded && (() => {
+                  // Debug: Log the data structure
+                  console.log('[Results Debug] Full result object:', result)
+                  console.log('[Results Debug] Responses:', result.responses)
+                  console.log('[Results Debug] Challenges:', result.responses?.challenges)
+                  console.log('[Results Debug] Skills:', result.responses?.skillsToGrow)
+                  console.log('[Results Debug] Support:', result.responses?.supportNeeds)
+                  console.log('[Results Debug] TeamImpact:', result.responses?.teamImpact)
+                  console.log('[Results Debug] Context:', result.responses?.additionalContext)
+                  
+                  return (
+                    <div className="border-t border-white/10 bg-white/5">
+                      <div className="p-6 space-y-6">
+                        {/* Challenge Areas Section - ALWAYS SHOW */}
                       <div>
                         <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                           <AlertTriangle className="w-5 h-5 text-red-400" />
@@ -333,7 +334,8 @@ export default function MemberResultsPage() {
                       </div>
                     </div>
                   </div>
-                )}
+                  )
+                })()}
               </div>
             )
           })}

@@ -536,7 +536,7 @@ function PeopleLeaderNeedsContent() {
               email: managerData.email,
               name: managerData.name,
               toolId: 'hr-partnership',
-              toolName: 'HR Partnership Assessment',
+              toolName: 'People Leadership Needs Assessment',
               responses: managerData,
               scores: {
                 challengeCount,
@@ -618,7 +618,7 @@ function PeopleLeaderNeedsContent() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
               inviteCode,
-              assessmentType: 'HR Partnership Assessment'
+              assessmentType: 'People Leadership Needs Assessment'
             })
           })
         }
@@ -626,7 +626,7 @@ function PeopleLeaderNeedsContent() {
         console.error('Error saving assessment:', error)
       }
       
-      analytics.trackToolComplete('HR Partnership Assessment', {
+      analytics.trackToolComplete('People Leadership Needs Assessment', {
         completionTime,
         categoriesSelected: managerData.selectedCategories.length,
         hasAIFollowUp: !!managerData.aiFollowUp,
@@ -641,7 +641,7 @@ function PeopleLeaderNeedsContent() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             inviteCode,
-            assessmentType: 'HR Partnership Assessment'
+            assessmentType: 'People Leadership Needs Assessment'
           })
         }).catch(error => {
           console.error('Failed to update invitation status:', error)

@@ -149,7 +149,7 @@ export async function GET(request: NextRequest) {
         return {
           id: campaign.id,
           campaignName: campaign.name,
-          assessmentType: 'HR Partnership Assessment', // Would be dynamic based on campaign
+          assessmentType: 'People Leadership Needs Assessment', // Would be dynamic based on campaign
           startDate: campaign.startDate?.toISOString() || campaign.createdAt.toISOString(),
           endDate: campaign.endDate?.toISOString(),
           totalParticipants,

@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
           id: invitation.id,
           participantName: invitation.name || invitation.email.split('@')[0],
           participantEmail: invitation.email,
-          assessmentType: latestAssessment?.toolName || 'HR Partnership Assessment',
+          assessmentType: latestAssessment?.toolName || 'People Leadership Needs Assessment',
           campaignName,
           completedAt: invitation.completedAt?.toISOString() || null,
           status: invitation.status,

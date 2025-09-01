@@ -189,23 +189,42 @@ export default function MemberResultsPage() {
                             <>
                               {/* Parse the categoryDetails if it exists */}
                               {result.responses?.categoryDetails ? (
-                                Object.entries(result.responses.categoryDetails).map(([category, details]: [string, any]) => (
-                                  <div key={category}>
-                                    <h5 className="text-white/90 font-medium mb-2">{category}</h5>
-                                    <div className="flex flex-wrap gap-2">
-                                      {details.challenges?.map((challenge: string, index: number) => (
-                                        <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
-                                          {challenge}
-                                        </span>
-                                      ))}
+                                // Sort categories in the correct order and format names
+                                (() => {
+                                  const categoryOrder = ['performance', 'leadership', 'compliance']
+                                  const categoryNames: Record<string, string> = {
+                                    'performance': 'Individual Performance',
+                                    'leadership': 'Leadership Skills',
+                                    'compliance': 'Compliance & Risk'
+                                  }
+                                  
+                                  const sortedCategories = Object.entries(result.responses.categoryDetails)
+                                    .sort(([a], [b]) => {
+                                      const aIndex = categoryOrder.indexOf(a.toLowerCase())
+                                      const bIndex = categoryOrder.indexOf(b.toLowerCase())
+                                      return aIndex - bIndex
+                                    })
+                                  
+                                  return sortedCategories.map(([category, details]: [string, any]) => (
+                                    <div key={category}>
+                                      <h5 className="text-white/90 font-medium mb-2">
+                                        {categoryNames[category.toLowerCase()] || category}
+                                      </h5>
+                                      <div className="flex flex-wrap gap-2">
+                                        {details.challenges?.map((challenge: string, index: number) => (
+                                          <span key={index} className="px-3 py-1 bg-red-500/20 text-red-300 rounded-full text-sm">
+                                            {challenge}
+                                          </span>
+                                        ))}
+                                      </div>
                                     </div>
-                                  </div>
-                                ))
+                                  ))
+                                })()
                               ) : result.insights?.mainChallengeAreas ? (
                                 // Fallback to insights.mainChallengeAreas
                                 <div className="flex flex-wrap gap-2">
                                   {result.insights.mainChallengeAreas.map((area: any, index: number) => (
-                                    <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
+                                    <span key={index} className="px-3 py-1 bg-red-500/20 text-red-300 rounded-full text-sm">
                                       {typeof area === 'string' ? area : area.category || JSON.stringify(area)}
                                     </span>
                                   ))}
@@ -228,7 +247,7 @@ export default function MemberResultsPage() {
                           {/* Check both skillGaps and skillsToGrow fields */}
                           {(result.responses?.skillGaps || result.responses?.skillsToGrow || result.insights?.skillGaps) ? (
                             (result.responses?.skillGaps || result.responses?.skillsToGrow || result.insights?.skillGaps || []).map((skill: string, index: number) => (
-                              <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
+                              <span key={index} className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">
                                 {skill}
                               </span>
                             ))
@@ -247,7 +266,7 @@ export default function MemberResultsPage() {
                         <div className="flex flex-wrap gap-2">
                           {result.responses?.supportNeeds ? (
                             result.responses.supportNeeds.map((need: string, index: number) => (
-                              <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
+                              <span key={index} className="px-3 py-1 bg-pink-500/20 text-pink-300 rounded-full text-sm">
                                 {need}
                               </span>
                             ))
@@ -267,7 +286,7 @@ export default function MemberResultsPage() {
                           {/* Check for selectedPriorities or teamImpact */}
                           {(result.responses?.selectedPriorities || result.responses?.teamImpact || result.insights?.priorities) ? (
                             (result.responses?.selectedPriorities || result.responses?.teamImpact || result.insights?.priorities || []).map((area: string, index: number) => (
-                              <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
+                              <span key={index} className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm">
                                 {area}
                               </span>
                             ))

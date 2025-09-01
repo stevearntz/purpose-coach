@@ -88,24 +88,24 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
         });
       }
       
-      // Create campaign (store extra data in description for now)
-      const campaignData = {
-        toolId,
-        toolName,
-        toolPath,
-        campaignCode,
-        campaignLink,
-        message: customMessage
-      };
+      // Extract email addresses from participants for the campaign
+      const participantEmails = participants.map(p => p.email.toLowerCase().trim());
       
+      // Create campaign with participants and tool info
       const campaign = await tx.campaign.create({
         data: {
           name: campaignName,
-          description: JSON.stringify(campaignData), // Store as JSON in description field
+          description: customMessage || `${toolName} assessment campaign`,
           status: 'ACTIVE',
           startDate: new Date(startDate),
           endDate: deadline ? new Date(deadline) : null,
-          companyId: company.id
+          companyId: company.id,
+          toolId: toolId,
+          toolName: toolName,
+          toolPath: toolPath,
+          participants: participantEmails,
+          campaignCode: campaignCode,
+          campaignLink: campaignLink
         }
       });
       

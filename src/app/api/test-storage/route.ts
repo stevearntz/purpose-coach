@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import invitationStorage from '@/lib/invitationStorage';
+import { invitationStorage } from '@/lib/invitationStorage';
 import { nanoid } from 'nanoid';
 
 export async function GET(request: NextRequest) {

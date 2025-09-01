@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import invitationStorage from '@/lib/invitationStorage';
-import companyStorage from '@/lib/companyStorage';
+import { invitationStorage } from '@/lib/invitationStorage';
+import { companyStorage } from '@/lib/companyStorage';
 
 export async function POST(request: NextRequest) {
   try {

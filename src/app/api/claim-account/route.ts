@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import invitationStorage from '@/lib/invitationStorage';
-import companyStorage from '@/lib/companyStorage';
+import { invitationStorage } from '@/lib/invitationStorage';
+import { companyStorage } from '@/lib/companyStorage';
 
 // Simple in-memory user storage (replace with database in production)
 const users = new Map<string, any>();

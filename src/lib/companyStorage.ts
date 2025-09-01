@@ -88,6 +88,33 @@ class CompanyStorage {
     };
   }
 
+  // Alias for backward compatibility
+  async getCompanyById(id: string): Promise<Company | null> {
+    return this.getCompany(id);
+  }
+
+  async getOrCreateCompanyFromEmail(email: string, companyName?: string): Promise<Company> {
+    const domain = email.split('@')[1];
+    
+    // First try to find by domain
+    let company = await this.getCompanyByDomain(domain);
+    if (company) return company;
+    
+    // Create new company
+    const name = companyName || domain.charAt(0).toUpperCase() + domain.slice(1).split('.')[0];
+    return this.createCompany({
+      name,
+      domain
+    });
+  }
+
+  async getUserByEmail(email: string): Promise<any | null> {
+    const user = await prisma.userProfile.findFirst({
+      where: { email: email.toLowerCase() }
+    });
+    return user;
+  }
+
   async updateCompany(id: string, updates: Partial<Company>): Promise<boolean> {
     try {
       const updateData: any = {};

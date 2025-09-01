@@ -67,8 +67,9 @@ class InvitationStorage {
         email: email.toLowerCase(),
         name: name || null,
         inviteCode,
+        inviteUrl,
         status: 'PENDING',
-        companyId: companyRecord?.id || null,
+        companyId: companyRecord?.id || '',
       }
     });
 
@@ -123,6 +124,49 @@ class InvitationStorage {
     if (!dbInvitation) return null;
 
     return this.transformToInvitation(dbInvitation);
+  }
+
+  // Alias for backward compatibility
+  async getInvitationByCode(code: string): Promise<Invitation | null> {
+    return this.getInvitation(code);
+  }
+
+  async saveInvitation(invitation: Invitation): Promise<void> {
+    // Create the invitation with the provided data
+    const inviteCode = invitation.inviteCode || nanoid(10).toUpperCase();
+    const id = invitation.id || nanoid();
+    
+    // Find or create company
+    let companyRecord = null;
+    if (invitation.company || invitation.metadata?.companyId) {
+      if (invitation.metadata?.companyId) {
+        companyRecord = await prisma.company.findUnique({
+          where: { id: invitation.metadata.companyId }
+        });
+      } else if (invitation.company) {
+        companyRecord = await prisma.company.findFirst({
+          where: { name: invitation.company }
+        });
+        if (!companyRecord) {
+          companyRecord = await prisma.company.create({
+            data: { name: invitation.company, domains: [] }
+          });
+        }
+      }
+    }
+    
+    // Create invitation in PostgreSQL
+    await prisma.invitation.create({
+      data: {
+        id,
+        email: invitation.email.toLowerCase(),
+        name: invitation.name || null,
+        inviteCode,
+        inviteUrl: invitation.inviteUrl || `/invite/${inviteCode}`,
+        status: 'PENDING',
+        companyId: companyRecord?.id || '',
+      }
+    });
   }
 
   async updateInvitation(code: string, updates: Partial<Invitation>): Promise<boolean> {

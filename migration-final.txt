@@ -1,0 +1,52 @@
+[dotenv@17.2.0] injecting env (16) from .env.local (tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] })
+=====================================
+REDIS TO POSTGRESQL MIGRATION
+=====================================
+Mode: LIVE
+
+Ensuring database schema is up to date...
+✓ Lead table exists
+
+=====================================
+MIGRATING LEADS
+=====================================
+
+Found 637 lead records
+
+Processing lead: heather-macdonald@pluralsight.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: rodrigo@jetpacks.co
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: scott.henderson@nyulangone.org
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: heather-macdonald@pluralsight.com
+  ✓ Migrated successfully
+Processing lead: carlos@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: camara@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: camara@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com

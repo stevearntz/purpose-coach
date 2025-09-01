@@ -1,0 +1,69 @@
+[dotenv@17.2.0] injecting env (16) from .env.local (tip: ⚙️  write to custom object with { processEnv: myObject })
+=====================================
+REDIS TO POSTGRESQL MIGRATION
+=====================================
+Mode: LIVE
+
+Ensuring database schema is up to date...
+prisma:error 
+Invalid `prisma.$executeRaw()` invocation:
+
+
+Raw query failed. Code: `42P01`. Message: `relation "Lead" does not exist`
+⚠️  Lead table might not exist, but continuing anyway...
+(Production deployment should have created it)
+
+=====================================
+MIGRATING LEADS
+=====================================
+
+Found 637 lead records
+
+Processing lead: heather-macdonald@pluralsight.com
+prisma:error 
+Invalid `prisma.lead.findFirst()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:121:48
+
+  118 
+  119 if (!DRY_RUN) {
+  120   // Check if lead already exists
+→ 121   const existingLead = await prisma.lead.findFirst(
+The table `public.Lead` does not exist in the current database.
+  ✗ Error processing lead:focvlb2Qpj: 
+Invalid `prisma.lead.findFirst()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:121:48
+
+  118 
+  119 if (!DRY_RUN) {
+  120   // Check if lead already exists
+→ 121   const existingLead = await prisma.lead.findFirst(
+The table `public.Lead` does not exist in the current database.
+Processing lead: marinne@getcampfire.com
+prisma:error 
+Invalid `prisma.lead.findFirst()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:121:48
+
+  118 
+  119 if (!DRY_RUN) {
+  120   // Check if lead already exists
+→ 121   const existingLead = await prisma.lead.findFirst(
+The table `public.Lead` does not exist in the current database.
+  ✗ Error processing lead:P61JmaAkOm: 
+Invalid `prisma.lead.findFirst()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:121:48
+
+  118 
+  119 if (!DRY_RUN) {
+  120   // Check if lead already exists
+→ 121   const existingLead = await prisma.lead.findFirst(
+The table `public.Lead` does not exist in the current database.
+Processing lead: rodrigo@jetpacks.co
+prisma:error 
+Invalid `prisma.lead.findFirst()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:121:48
+
+  118 
+  119 if (!DRY_RUN) {
+  120   // Check if lead already exists
+→ 121   const existingLead = await prisma.lead.findFirst(
+The table `public.Lead` does not exist in the current database.

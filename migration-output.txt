@@ -1,0 +1,2651 @@
+[dotenv@17.2.0] injecting env (16) from .env.local (tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`)
+=====================================
+REDIS TO POSTGRESQL MIGRATION
+=====================================
+Mode: LIVE
+
+Ensuring database schema is up to date...
+✓ Lead table exists
+
+=====================================
+MIGRATING LEADS
+=====================================
+
+Found 637 lead records
+
+Processing lead: heather-macdonald@pluralsight.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: rodrigo@jetpacks.co
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: scott.henderson@nyulangone.org
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: heather-macdonald@pluralsight.com
+  → Already exists in PostgreSQL
+Processing lead: carlos@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: camara@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: camara@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: rlgcannon@vital-people.com
+  → Already exists in PostgreSQL
+Processing lead: joshua.swing50@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: mattchandler@stripe.com
+  → Already exists in PostgreSQL
+Processing lead: camara@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: camara@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: camara@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: raquel.b@getjobber.com
+  → Already exists in PostgreSQL
+Processing lead: bhobby@cinemark.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: camara@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: katarina.yaiser@cnhind.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: kristina.callahan@cnh.com
+  → Already exists in PostgreSQL
+Processing lead: heather-macdonald@pluralsight.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve+9@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: heather-macdonald@pluralsight.com
+  → Already exists in PostgreSQL
+Processing lead: mattchandler@stripe.com
+  → Already exists in PostgreSQL
+Processing lead: ella@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: ella@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: joshua.swing50@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: me+john@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: dhivya.april@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: steve.arntz@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: megnrene@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: rodrigo@jetpacks.co
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: colton.mouritsen@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: camara@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: scott.henderson@nyulangone.org
+  → Already exists in PostgreSQL
+Processing lead: quincy.kissack@veolia.com
+  → Already exists in PostgreSQL
+Processing lead: christineumberger@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: mitch@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: me+john@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: mizmayet@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: ella@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: stephanie@becausemarket.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: zarahgulamhusein@yahoo.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: a.forster@gosolo.io
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: ella@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: test@example.com
+  → Already exists in PostgreSQL
+Processing lead: erynnmkerrigan@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: mmayet@wescom.org
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: alex.alchin@cotopaxi.co
+  → Already exists in PostgreSQL
+Processing lead: mitch@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: ella@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: tylerbelnap1@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve.arntz@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: jsheets@thesource-online.com
+  → Already exists in PostgreSQL
+Processing lead: heather-macdonald@pluralsight.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: nikkij@adobe.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: ella@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: mattchandler@stripe.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: spencer.weeks@fastly.com
+  → Already exists in PostgreSQL
+Processing lead: nate.barrett@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve+17@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: jeannenewby@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: frank@company.com
+  → Already exists in PostgreSQL
+Processing lead: kimberlywhitman@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: ellabellz44@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: ellabellz44@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: alex.alchin@cotopaxi.co
+  → Already exists in PostgreSQL
+Processing lead: brackencoons@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve.arntz@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: ashley.logan@nuvei.com
+  → Already exists in PostgreSQL
+Processing lead: kristina.callahan@cnh.com
+  → Already exists in PostgreSQL
+Processing lead: jeannenewby@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: mitch@sepiocap.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: jeffrey.petersen@verizon.com
+  → Already exists in PostgreSQL
+Processing lead: ella@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: aazlogan@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: mitch@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: carrie@quotapath.com
+  → Already exists in PostgreSQL
+Processing lead: nate.barrett@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: ellabellz44@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: skarbakk@adobe.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: marinne@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: camara@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: ella@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: kristina.callahan@cnh.com
+  → Already exists in PostgreSQL
+Processing lead: cra53224@adobe.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve+test@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: heather-macdonald@pluralsight.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: jsheets@thesource-online.com
+  → Already exists in PostgreSQL
+Processing lead: mizmayet@gmail.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: frank@company.com
+  → Already exists in PostgreSQL
+Processing lead: me@stevearntz.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: steve@getcampfire.com
+  → Already exists in PostgreSQL
+Processing lead: a.forster@gosolo.io
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: jim@withiii.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: christineumberger@gmail.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: 1@1.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: lindsey.baker@andersencorp.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: jawalter@adobe.com
+  ✓ Migrated successfully
+Processing lead: katarina.yaiser@cnhind.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: mjking113@gmail.com
+  ✓ Migrated successfully
+Processing lead: steve+test@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: megnrene@gmail.com
+  ✓ Migrated successfully
+Processing lead: aaronpearson7@gmail.com
+  ✓ Migrated successfully
+Processing lead: me+john@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: daytonwright@virtualrain.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: mattchandler@stripe.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: steve+17@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: john@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: mattchandler@stripe.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: carlos@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: jamisonp@adobe.com
+  ✓ Migrated successfully
+Processing lead: susankelley85@gmail.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: vclayton@gmail.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: melissakburnham@gmail.com
+  ✓ Migrated successfully
+Processing lead: mitch@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: tylerbelnap1@gmail.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: colton.mouritsen@gmail.com
+  ✓ Migrated successfully
+Processing lead: ellabellz44@gmail.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: mitch@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: camara@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: camara@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: kelliarroyo@virtualrain.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: bhobby@cinemark.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: ewoodruff@powdr.com
+  ✓ Migrated successfully
+Processing lead: camara@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: julie@jbuild.com
+  ✓ Migrated successfully
+Processing lead: heather-macdonald@pluralsight.com
+  ✓ Migrated successfully
+Processing lead: kristina.callahan@cnh.com
+  ✓ Migrated successfully
+Processing lead: liz.berry@cotopaxi.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: clint@leaderworks.co
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: jawalter@adobe.com
+  ✓ Migrated successfully
+Processing lead: a.forster@gosolo.io
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: ellabellz44@gmail.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: daytonwright@virtualrain.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: rdeyoung@thesource-online.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: bhobby@cinemark.com
+  ✓ Migrated successfully
+Processing lead: j.abram@gosolo.io
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: smittymanjensen@1.com
+  ✓ Migrated successfully
+Processing lead: stephanie@becausemarket.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: rp@emberlinconsulting.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: christineumberger@gmail.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: alex.alchin@cotopaxi.com
+  ✓ Migrated successfully
+Processing lead: apearson@youngliving.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: carmela.marano@dermalogica.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: ellabellz44@gmail.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: bsnyder@virtualrain.com
+  ✓ Migrated successfully
+Processing lead: steve+test@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: raquel.b@getjobber.com
+  ✓ Migrated successfully
+Processing lead: megnrene@gmail.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me+john@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: lrussek@dermalogica.com
+  ✓ Migrated successfully
+Processing lead: kristina.callahan@cnh.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: nate.barrett@gmail.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: jordon@jordontaylor.com
+  ✓ Migrated successfully
+Processing lead: jamieleetaylor20@gmail.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: julie@jbuild.com
+  ✓ Migrated successfully
+Processing lead: ella@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: suzanne.ruger@dermalogica.com
+  ✓ Migrated successfully
+Processing lead: camara@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: camara@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: mkidd@togetherlabs.com
+  ✓ Migrated successfully
+Processing lead: ea.johnson822@gmail.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: wyetht@adobe.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: krisb@adobe.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: jeanettedebek@gmail.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: lauraprah@gmail.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: blivezey@tential.com
+  ✓ Migrated successfully
+Processing lead: christineumberger@gmail.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: mpeterson@thesource-online.com
+  ✓ Migrated successfully
+Processing lead: tmmrenn@gmail.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve+17@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: jamisonp@adobe.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me+john@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: pmccollum@thesource-online.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: apearson@youngliving.com
+  ✓ Migrated successfully
+Processing lead: rouanzion@gmail.com
+  ✓ Migrated successfully
+Processing lead: mitch@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: robyn@therobyncohen.com
+  ✓ Migrated successfully
+Processing lead: rouanzion@gmail.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: a.sheps@gosolo.io
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: hiamandaprice@gmail.com
+  ✓ Migrated successfully
+Processing lead: ella@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: rebekaharntz@gmail.com
+  ✓ Migrated successfully
+Processing lead: pmccollum@thesource-online.com
+  ✓ Migrated successfully
+Processing lead: brett@entrata.com
+  ✓ Migrated successfully
+Processing lead: kwin.goodwin@gabb.com
+  ✓ Migrated successfully
+Processing lead: raquel.b@getjobber.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: ashleyhowe@hey.com
+  ✓ Migrated successfully
+Processing lead: megnrene@gmail.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: mitch@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: carlos@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: frank@company.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: rlostokes19@gmail.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: bhobby@cinemark.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: tmur03@gmail.com
+  ✓ Migrated successfully
+Processing lead: ellabellz44@gmail.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: lisa.parry@k12.sd.us
+  ✓ Migrated successfully
+Processing lead: john@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: clint@leaderworks.co
+  ✓ Migrated successfully
+Processing lead: carlos@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: bhobby@cinemark.com
+  ✓ Migrated successfully
+Processing lead: ella@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: john@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: blivezey@tential.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: troyanderson459@gmail.com
+  ✓ Migrated successfully
+Processing lead: shane.beebe@cnh.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: ewoodruff@powdr.com
+  ✓ Migrated successfully
+Processing lead: rsmurdock@utah.gov
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: ella@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: megnrene@gmail.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: clint@leaderworks.co
+  ✓ Migrated successfully
+Processing lead: mitch@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: krudnik@cricut.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: mike_morrison@me.com
+  ✓ Migrated successfully
+Processing lead: steve+test@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: peyton.madsen@teamseg.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: aalvar.chrp07@gmail.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: sue@boldtrek.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: megnrene@gmail.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: cramera@1stsource.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: mattchandler@stripe.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: ashley.marcinkus@homeserveusa.com
+  ✓ Migrated successfully
+Processing lead: tylerbelnap1@gmail.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me+john@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: kwin.goodwin@gabb.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: c.taylor@gosolo.io
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: elaine.sleeman@dermalogica.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: tchristie@thesource-online.com
+  ✓ Migrated successfully
+Processing lead: a.forster@gosolo.io
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: spencer.weeks@fastly.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: heather-macdonald@pluralsight.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me+john@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: raquel.b@getjobber.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: a.cro@stellarvirtual.org
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: raquel.b@getjobber.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: ashleyhowe@hey.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: katarina.yaiser@cnhind.com
+  ✓ Migrated successfully
+Processing lead: quincy.kissack@veolia.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: samh@adobe.com
+  ✓ Migrated successfully
+Processing lead: rlostokes19@gmail.com
+  ✓ Migrated successfully
+Processing lead: heather-macdonald@pluralsight.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: ellabellz44@gmail.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: brett@entrata.com
+  ✓ Migrated successfully
+Processing lead: carrie@quotapath.com
+  ✓ Migrated successfully
+Processing lead: smittymanjensen@1.com
+  ✓ Migrated successfully
+Processing lead: jamieleetaylor20@gmail.com
+  ✓ Migrated successfully
+Processing lead: mitch@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: joshua.swing50@gmail.com
+  ✓ Migrated successfully
+Processing lead: marinne@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: steve@getcampfire.com
+  ✓ Migrated successfully
+Processing lead: kristina.callahan@cnh.com
+  ✓ Migrated successfully
+Processing lead: me@stevearntz.com
+  ✓ Migrated successfully
+Processing lead: raquel.b@getjobber.com
+  ✓ Migrated successfully
+
+--- Lead Migration Summary ---
+Total: 637
+Migrated: 325
+Skipped: 312
+Errors: 0
+
+=====================================
+MIGRATING HR ASSESSMENTS
+=====================================
+
+Found 37 assessments
+
+
+Processing assessment: steve@getcampfire.com
+  Created company: getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "NUZVLPQM",
+            email: "steve@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-29T23:51:41.477Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:-b3DPlZE_T: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "NUZVLPQM",
+            email: "steve@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-29T23:51:41.477Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: me+john@stevearntz.com
+  Created company: stevearntz.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "U1HBTXQQ",
+            email: "me+john@stevearntz.com",
+            name: "John Arntz",
+            companyId: "cmf1hycy30094dq0hy635c5o7",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-16T06:03:51.027Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:Lnm9OPg94o: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "U1HBTXQQ",
+            email: "me+john@stevearntz.com",
+            name: "John Arntz",
+            companyId: "cmf1hycy30094dq0hy635c5o7",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-16T06:03:51.027Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "H2PDBCJV",
+            email: "steve@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-30T22:18:52.593Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:N6gNJ5bLZi: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "H2PDBCJV",
+            email: "steve@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-30T22:18:52.593Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve.arntz@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "E7L8AP6K",
+            email: "steve.arntz@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-09-01T14:59:18.436Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:t2p1i2og9x: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "E7L8AP6K",
+            email: "steve.arntz@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-09-01T14:59:18.436Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "PDOECYBR",
+            email: "steve@getcampfire.com",
+            name: "STeve",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-28T15:10:33.585Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:qFcTGGQzdt: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "PDOECYBR",
+            email: "steve@getcampfire.com",
+            name: "STeve",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-28T15:10:33.585Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: a.forster@gosolo.io
+  Created company: gosolo.io
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "IGKKBGPA",
+            email: "a.forster@gosolo.io",
+            name: "Aspen",
+            companyId: "cmf1hyf3o009ddq0hnaokzuof",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-30T21:57:19.806Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:owdHkxjCRQ: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "IGKKBGPA",
+            email: "a.forster@gosolo.io",
+            name: "Aspen",
+            companyId: "cmf1hyf3o009ddq0hnaokzuof",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-30T21:57:19.806Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: carlos@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "BAENN77V",
+            email: "carlos@getcampfire.com",
+            name: "Carlos",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-11T16:58:48.514Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:Pvs5F2Mc3T: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "BAENN77V",
+            email: "carlos@getcampfire.com",
+            name: "Carlos",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-11T16:58:48.514Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "N608KI36",
+            email: "steve@getcampfire.com",
+            name: "Aspen Egan",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-07T17:23:27.780Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:VFK1GUPW8p: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "N608KI36",
+            email: "steve@getcampfire.com",
+            name: "Aspen Egan",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-07T17:23:27.780Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: test@example.com
+  Created company: example.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "WYTYIWUR",
+            email: "test@example.com",
+            name: "Test User",
+            companyId: "cmf1hygs4009kdq0hzhagd051",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-12T18:36:11.169Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:vntP2Xs1xn: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "WYTYIWUR",
+            email: "test@example.com",
+            name: "Test User",
+            companyId: "cmf1hygs4009kdq0hzhagd051",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-12T18:36:11.169Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "04X409BQ",
+            email: "steve@getcampfire.com",
+            name: "Steve",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-30T22:37:41.553Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:0xIlzqygOS: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "04X409BQ",
+            email: "steve@getcampfire.com",
+            name: "Steve",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-30T22:37:41.553Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: a.forster@gosolo.io
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "TJ32KKJF",
+            email: "a.forster@gosolo.io",
+            name: "Aspen",
+            companyId: "cmf1hyf3o009ddq0hnaokzuof",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-07T16:02:12.461Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:v5F7T_8Rm8: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "TJ32KKJF",
+            email: "a.forster@gosolo.io",
+            name: "Aspen",
+            companyId: "cmf1hyf3o009ddq0hnaokzuof",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-07T16:02:12.461Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: john@stevearntz.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "0CY7G02R",
+            email: "john@stevearntz.com",
+            name: "John Arntz",
+            companyId: "cmf1hycy30094dq0hy635c5o7",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-18T20:29:18.307Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:4MXl_GD42K: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "0CY7G02R",
+            email: "john@stevearntz.com",
+            name: "John Arntz",
+            companyId: "cmf1hycy30094dq0hy635c5o7",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-18T20:29:18.307Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: john@stevearntz.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "VYICC4SB",
+            email: "john@stevearntz.com",
+            name: "John Arntz",
+            companyId: "cmf1hycy30094dq0hy635c5o7",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-18T14:57:23.514Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:qSyv45M8sM: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "VYICC4SB",
+            email: "john@stevearntz.com",
+            name: "John Arntz",
+            companyId: "cmf1hycy30094dq0hy635c5o7",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-18T14:57:23.514Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "XHIFYM10",
+            email: "steve@getcampfire.com",
+            name: "Steve",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-30T17:07:44.263Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:Hhu8BhL9Xn: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "XHIFYM10",
+            email: "steve@getcampfire.com",
+            name: "Steve",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-30T17:07:44.263Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: john@stevearntz.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "7WW67MBU",
+            email: "john@stevearntz.com",
+            name: "Sterling Snow",
+            companyId: "cmf1hycy30094dq0hy635c5o7",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-19T21:00:50.243Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:dhfBIx2KhM: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "7WW67MBU",
+            email: "john@stevearntz.com",
+            name: "Sterling Snow",
+            companyId: "cmf1hycy30094dq0hy635c5o7",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-19T21:00:50.243Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "VNSRTQ9M",
+            email: "steve@getcampfire.com",
+            name: "Kristina Callahan",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-01T16:55:09.739Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:BIDDxaqFMS: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "VNSRTQ9M",
+            email: "steve@getcampfire.com",
+            name: "Kristina Callahan",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-01T16:55:09.739Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "K5XDB56Z",
+            email: "steve@getcampfire.com",
+            name: "Carrie Carroll",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-06T17:44:32.239Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:HTbq3tRjSt: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "K5XDB56Z",
+            email: "steve@getcampfire.com",
+            name: "Carrie Carroll",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-06T17:44:32.239Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "GDQXUZES",
+            email: "steve@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-08T00:39:42.322Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:DrRq9dOayH: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "GDQXUZES",
+            email: "steve@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-08T00:39:42.322Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve+9@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "NJMQYEST",
+            email: "steve+9@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-27T21:55:28.510Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:Z5y5UJvA2q: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "NJMQYEST",
+            email: "steve+9@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-27T21:55:28.510Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "QY5CHS1H",
+            email: "steve@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-13T15:06:56.013Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:M4mC78BA7F: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "QY5CHS1H",
+            email: "steve@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-13T15:06:56.013Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: me@stevearntz.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "IFS4I6UP",
+            email: "me@stevearntz.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hycy30094dq0hy635c5o7",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-27T02:02:29.135Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:uJVTL1YB_F: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "IFS4I6UP",
+            email: "me@stevearntz.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hycy30094dq0hy635c5o7",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-27T02:02:29.135Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: krudnik@cricut.com
+  Created company: cricut.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "92UR22C3",
+            email: "krudnik@cricut.com",
+            name: "Kristina",
+            companyId: "cmf1hync200abdq0hwmh92750",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-30T01:23:34.193Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:ZaPzcF-ywz: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "92UR22C3",
+            email: "krudnik@cricut.com",
+            name: "Kristina",
+            companyId: "cmf1hync200abdq0hwmh92750",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-30T01:23:34.193Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: me@stevearntz.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "HXH805TO",
+            email: "me@stevearntz.com",
+            name: "Steve ARntz",
+            companyId: "cmf1hycy30094dq0hy635c5o7",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-22T15:55:55.590Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:xtIWxr-Qz1: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "HXH805TO",
+            email: "me@stevearntz.com",
+            name: "Steve ARntz",
+            companyId: "cmf1hycy30094dq0hy635c5o7",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-22T15:55:55.590Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: me@stevearntz.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "L4MQB3TT",
+            email: "me@stevearntz.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hycy30094dq0hy635c5o7",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-30T03:23:33.192Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:OwZZrUPzWe: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "L4MQB3TT",
+            email: "me@stevearntz.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hycy30094dq0hy635c5o7",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-30T03:23:33.192Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "M06M2FFZ",
+            email: "steve@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-11T17:39:09.531Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:hhZBI92-6R: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "M06M2FFZ",
+            email: "steve@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-11T17:39:09.531Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: camara@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "LPU4B0VD",
+            email: "camara@getcampfire.com",
+            name: "Camara",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-11T16:58:31.229Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:4dOIq7_rOu: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "LPU4B0VD",
+            email: "camara@getcampfire.com",
+            name: "Camara",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-11T16:58:31.229Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "8M4DUND4",
+            email: "steve@getcampfire.com",
+            name: "Ella Wright",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-01T17:40:11.392Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:CkO0khyoTS: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "8M4DUND4",
+            email: "steve@getcampfire.com",
+            name: "Ella Wright",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-01T17:40:11.392Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "3MEZK3L4",
+            email: "steve@getcampfire.com",
+            name: "Steve",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-30T22:23:18.101Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:QTH1hv-G8b: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "3MEZK3L4",
+            email: "steve@getcampfire.com",
+            name: "Steve",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-30T22:23:18.101Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "1XQR6J6V",
+            email: "steve@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-29T23:43:38.623Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:6rj5YgI9v_: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "1XQR6J6V",
+            email: "steve@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-29T23:43:38.623Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "0MOCYB0Z",
+            email: "steve@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-12T18:11:11.302Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:ZucbM0Yu15: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "0MOCYB0Z",
+            email: "steve@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-12T18:11:11.302Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: stephanie@becausemarket.com
+  Created company: becausemarket.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "GIBKFXC8",
+            email: "stephanie@becausemarket.com",
+            name: "Stephanie Cleverly",
+            companyId: "cmf1hysa000audq0hab9g5pep",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-05T17:50:23.338Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:FuIjR__-b5: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "GIBKFXC8",
+            email: "stephanie@becausemarket.com",
+            name: "Stephanie Cleverly",
+            companyId: "cmf1hysa000audq0hab9g5pep",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-05T17:50:23.338Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "7OZCUG3F",
+            email: "steve@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-11T15:45:18.376Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:ZpGR9g9yNP: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "7OZCUG3F",
+            email: "steve@getcampfire.com",
+            name: "Steve Arntz",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-11T15:45:18.376Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: test-1756262536663@example.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "OTJIZIRH",
+            email: "test-1756262536663@example.com",
+            name: "Test Manager 20:42:16",
+            companyId: "cmf1hygs4009kdq0hzhagd051",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-27T02:42:17.189Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:E6cPYIPvtP: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "OTJIZIRH",
+            email: "test-1756262536663@example.com",
+            name: "Test Manager 20:42:16",
+            companyId: "cmf1hygs4009kdq0hzhagd051",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-27T02:42:17.189Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "N9SPP5CC",
+            email: "steve@getcampfire.com",
+            name: "Aspen Forster",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-30T19:40:39.051Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:NHJQ6ntSxw: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "N9SPP5CC",
+            email: "steve@getcampfire.com",
+            name: "Aspen Forster",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-07-30T19:40:39.051Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: slacktest@example.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "CY05JI5S",
+            email: "slacktest@example.com",
+            name: "Slack Test",
+            companyId: "cmf1hygs4009kdq0hzhagd051",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-27T02:22:38.937Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:jqMtqtV2Gt: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "CY05JI5S",
+            email: "slacktest@example.com",
+            name: "Slack Test",
+            companyId: "cmf1hygs4009kdq0hzhagd051",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-27T02:22:38.937Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: steve+test@getcampfire.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "XCPQFH7A",
+            email: "steve+test@getcampfire.com",
+            name: "Testing",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-27T02:44:11.894Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:2lY4VUXWyd: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "XCPQFH7A",
+            email: "steve+test@getcampfire.com",
+            name: "Testing",
+            companyId: "cmf1hyc7f0091dq0hdledc6lu",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-27T02:44:11.894Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+Processing assessment: kristina.callahan@cnh.com
+  Created company: cnh.com
+prisma:error 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "BKJCN8TW",
+            email: "kristina.callahan@cnh.com",
+            name: "Test",
+            companyId: "cmf1hyvdy00b7dq0hsw7oasal",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-05T18:54:01.650Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+  ✗ Error processing hr-assessment:IEgQjmatXn: 
+Invalid `prisma.invitation.create()` invocation in
+/Users/stevearntz/Projects/purpose-coach/scripts/migrate-all-redis-data.ts:214:42
+
+  211 if (!invitation && !DRY_RUN) {
+  212   const inviteCode = generateInviteCode()
+  213   
+→ 214   invitation = await prisma.invitation.create({
+          data: {
+            inviteCode: "BKJCN8TW",
+            email: "kristina.callahan@cnh.com",
+            name: "Test",
+            companyId: "cmf1hyvdy00b7dq0hsw7oasal",
+            status: "COMPLETED",
+            completedAt: new Date("2025-08-05T18:54:01.650Z"),
+        +   inviteUrl: String
+          }
+        })
+
+Argument `inviteUrl` is missing.
+
+--- Assessment Migration Summary ---
+Total: 37
+Migrated: 0
+Already migrated: 0
+Already in PostgreSQL: 0
+Errors: 37
+
+=====================================
+MIGRATION COMPLETE
+=====================================
+
+Overall Summary:
+- Leads: 325/637 migrated
+- Assessments: 0/37 migrated
+
+✅ Migration completed successfully!
+
+Next steps:
+1. Verify the migrated data in PostgreSQL
+2. Test the application with PostgreSQL data
+3. Once verified, you can remove Redis dependencies

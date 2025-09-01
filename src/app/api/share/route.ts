@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { nanoid } from 'nanoid';
 import fs from 'fs/promises';
 import path from 'path';
-import Redis from 'ioredis';
 
 // Storage interface
 interface StorageAdapter {
@@ -86,81 +85,8 @@ class LocalFileStorage implements StorageAdapter {
   }
 }
 
-// Redis storage implementation
-class RedisStorage implements StorageAdapter {
-  private redis: Redis | null = null;
-  private connectionError: Error | null = null;
-
-  private async ensureRedis() {
-    // If we had a connection error, don't retry
-    if (this.connectionError) {
-      throw this.connectionError;
-    }
-
-    if (!this.redis && process.env.REDIS_URL) {
-      try {
-        this.redis = new Redis(process.env.REDIS_URL, {
-          // Add connection options for better reliability
-          retryStrategy: (times) => {
-            const delay = Math.min(times * 50, 2000);
-            return delay;
-          },
-          connectTimeout: 10000,
-          maxRetriesPerRequest: 3,
-          enableOfflineQueue: false,
-          lazyConnect: true, // Don't connect until first command
-        });
-
-        // Explicitly connect
-        await this.redis.connect();
-        
-        // Set up error handlers
-        this.redis.on('error', (err) => {
-          console.error('Redis connection error:', err);
-          this.connectionError = err;
-        });
-
-        console.log('Redis connection established');
-      } catch (error) {
-        console.error('Failed to connect to Redis:', error);
-        this.connectionError = error as Error;
-        this.redis = null;
-        throw error;
-      }
-    }
-  }
-
-  async get(key: string): Promise<unknown> {
-    try {
-      await this.ensureRedis();
-      if (!this.redis) return null;
-      
-      const data = await this.redis.get(key);
-      return data ? JSON.parse(data) : null;
-    } catch (error) {
-      console.error('Redis get error:', error);
-      // Don't throw, return null to allow fallback
-      return null;
-    }
-  }
-
-  async set(key: string, value: unknown, options?: { ex?: number }): Promise<void> {
-    try {
-      await this.ensureRedis();
-      if (!this.redis) throw new Error('Redis not available');
-      
-      const stringValue = JSON.stringify(value);
-      if (options?.ex) {
-        await this.redis.setex(key, options.ex, stringValue);
-      } else {
-        await this.redis.set(key, stringValue);
-      }
-    } catch (error) {
-      console.error('Redis set error:', error);
-      throw error;
-    }
-  }
-}
+// Placeholder for future PostgreSQL storage implementation
+// For now, we'll use file storage in development and in-memory in production
 
 // Vercel KV storage implementation
 class VercelKVStorage implements StorageAdapter {
@@ -210,24 +136,18 @@ class VercelKVStorage implements StorageAdapter {
 
 // Get storage adapter based on environment
 function getStorage(): StorageAdapter {
-  const hasRedisUrl = process.env.REDIS_URL;
   const hasKVConfig = process.env.KV_URL && process.env.KV_REST_API_TOKEN;
   const isProduction = process.env.NODE_ENV === 'production';
   
   console.log('Storage config check:', {
-    hasRedisUrl,
     hasKVConfig,
     isProduction,
     KV_URL: !!process.env.KV_URL,
-    KV_REST_API_TOKEN: !!process.env.KV_REST_API_TOKEN,
-    REDIS_URL: !!process.env.REDIS_URL
+    KV_REST_API_TOKEN: !!process.env.KV_REST_API_TOKEN
   });
   
-  // Prioritize Redis if it's available
-  if (hasRedisUrl) {
-    console.log('Using Redis storage');
-    return new RedisStorage();
-  } else if (hasKVConfig) {
+  // Use Vercel KV if available, otherwise use fallback storage
+  if (hasKVConfig) {
     console.log('Using Vercel KV storage');
     return new VercelKVStorage();
   } else if (isProduction) {

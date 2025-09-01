@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import invitationStorage from '@/lib/invitationStorage';
-import companyStorage from '@/lib/companyStorage';
+import { invitationStorage } from '@/lib/invitationStorage';
+import { companyStorage } from '@/lib/companyStorage';
 
 export async function GET(request: NextRequest) {
   try {
@@ -93,14 +93,14 @@ export async function GET(request: NextRequest) {
         redis: redisCompanies
       },
       users: {
-        memory: memoryUsers.map(u => ({
+        memory: memoryUsers.map((u: any) => ({
           email: u.email,
           name: `${u.firstName} ${u.lastName}`,
           company: u.companyId,
           status: u.status,
           role: u.role
         })),
-        redis: redisUsers.map(u => ({
+        redis: redisUsers.map((u: any) => ({
           email: u.email,
           name: `${u.firstName} ${u.lastName}`,
           company: u.companyId,

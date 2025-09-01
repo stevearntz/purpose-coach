@@ -47,19 +47,33 @@ export async function GET(
     }
     
     // Get all invitations for this campaign
-    // We match by campaign name in the URL since that's how they're linked
-    const invitations = await prisma.invitation.findMany({
-      where: {
-        companyId: company.id,
-        inviteUrl: {
-          contains: `campaign=${encodeURIComponent(campaign.name)}`
-        }
-      },
-      orderBy: [
-        { status: 'desc' }, // COMPLETED first
-        { createdAt: 'desc' }
-      ]
-    });
+    // For v3 campaigns with participants array, match by email
+    // For older campaigns, match by campaign name in URL
+    const invitations = campaign.participants && campaign.participants.length > 0
+      ? await prisma.invitation.findMany({
+          where: {
+            companyId: company.id,
+            email: {
+              in: campaign.participants
+            }
+          },
+          orderBy: [
+            { status: 'desc' }, // COMPLETED first
+            { createdAt: 'desc' }
+          ]
+        })
+      : await prisma.invitation.findMany({
+          where: {
+            companyId: company.id,
+            inviteUrl: {
+              contains: `campaign=${encodeURIComponent(campaign.name)}`
+            }
+          },
+          orderBy: [
+            { status: 'desc' }, // COMPLETED first
+            { createdAt: 'desc' }
+          ]
+        });
     
     // Parse metadata from campaign description to get tool info
     let metadata: any = {}
@@ -71,13 +85,20 @@ export async function GET(
       }
     }
     
-    // Get assessment results for completed participants if toolId is available
+    // If campaign has participants array, use that as the source of truth
+    // Otherwise fall back to invitations
+    const participantEmails = campaign.participants && campaign.participants.length > 0
+      ? campaign.participants
+      : invitations.map(inv => inv.email);
+    
+    // Map each participant email to their data
     const participantsWithResults = await Promise.all(
-      invitations.map(async (invitation) => {
+      participantEmails.map(async (email) => {
+        const invitation = invitations.find(inv => inv.email === email);
         let assessmentData: any = null;
         
         // If participant completed the assessment, try to get their results
-        if (invitation.status === 'COMPLETED' && metadata.toolId) {
+        if (invitation && invitation.status === 'COMPLETED' && metadata.toolId) {
           // Try to find assessment result by invitation
           const result = await prisma.assessmentResult.findFirst({
             where: {
@@ -102,20 +123,20 @@ export async function GET(
         
         // Generate the individual invite link
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tools.getcampfire.com'
-        const inviteLink = campaign.campaignCode && invitation.inviteCode
+        const inviteLink = campaign.campaignCode && invitation?.inviteCode
           ? `${baseUrl}/assessment/${campaign.campaignCode}?invite=${invitation.inviteCode}`
-          : invitation.inviteUrl || ''
+          : invitation?.inviteUrl || ''
         
         return {
-          id: invitation.id,
-          name: invitation.name || invitation.email.split('@')[0],
-          email: invitation.email,
-          status: invitation.status,
-          inviteCode: invitation.inviteCode,
+          id: invitation?.id || email,
+          name: invitation?.name || email.split('@')[0],
+          email: email,
+          status: invitation?.status || 'PENDING',
+          inviteCode: invitation?.inviteCode || '',
           inviteLink: inviteLink,
-          completedAt: invitation.completedAt?.toISOString() || undefined,
-          startedAt: invitation.startedAt?.toISOString() || undefined,
-          sentAt: invitation.createdAt.toISOString(),
+          completedAt: invitation?.completedAt?.toISOString() || undefined,
+          startedAt: invitation?.startedAt?.toISOString() || undefined,
+          sentAt: invitation?.createdAt?.toISOString() || undefined,
           department: assessmentData?.responses?.department || 'N/A',
           teamSize: assessmentData?.responses?.teamSize || 'N/A',
           // Include any other relevant assessment data

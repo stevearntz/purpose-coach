@@ -139,11 +139,8 @@ export default function DashboardPage() {
                     let targetUrl = ''
                     
                     if (assessment.campaignCode) {
-                      // Use the campaign assessment URL
-                      targetUrl = `/assessment/${assessment.campaignCode}`
-                      if (assessment.inviteCode) {
-                        targetUrl += `?invite=${assessment.inviteCode}`
-                      }
+                      // Use the campaign assessment URL with proper encoding
+                      targetUrl = `/assessment/${encodeURIComponent(assessment.campaignCode)}`
                     } else {
                       // Fallback to direct tool path
                       targetUrl = assessment.toolPath || `/tools/${assessment.toolId}`
@@ -152,38 +149,48 @@ export default function DashboardPage() {
                     if (targetUrl) {
                       const params = new URLSearchParams()
                       
-                      // If we already have invite param, preserve it
-                      if (assessment.inviteCode && assessment.campaignCode) {
-                        params.append('invite', assessment.inviteCode)
+                      // Add invite code if available
+                      if (assessment.inviteCode) {
+                        params.set('invite', assessment.inviteCode)
                       }
                       
                       // Add context parameters for navigation
-                      params.append('context', 'member-dashboard')
-                      params.append('returnUrl', '/dashboard/member/start/dashboard')
+                      params.set('context', 'member-dashboard')
+                      params.set('returnUrl', '/dashboard/member/start/dashboard')
                       
                       // Add user profile data as query parameters
                       const userEmail = user?.emailAddresses?.[0]?.emailAddress
                       
                       if (user?.firstName || userProfile?.firstName) {
-                        params.append('name', `${user?.firstName || userProfile?.firstName || ''} ${user?.lastName || userProfile?.lastName || ''}`.trim())
+                        const fullName = `${user?.firstName || userProfile?.firstName || ''} ${user?.lastName || userProfile?.lastName || ''}`.trim()
+                        if (fullName) {
+                          params.set('name', fullName)
+                        }
                       }
                       if (userEmail) {
-                        params.append('email', userEmail)
+                        params.set('email', userEmail)
                       }
                       if (userProfile?.department) {
-                        params.append('department', userProfile.department)
+                        params.set('department', userProfile.department)
                       }
                       if (userProfile?.teamSize) {
-                        params.append('teamSize', userProfile.teamSize)
+                        params.set('teamSize', String(userProfile.teamSize))
                       }
                       
-                      // Add parameters to URL
-                      const separator = targetUrl.includes('?') ? '&' : '?'
-                      targetUrl = `${targetUrl}${separator}${params.toString()}`
+                      // Build the complete URL
+                      const fullUrl = `${window.location.origin}${targetUrl}?${params.toString()}`
+                      
+                      // Debug: Log the URL being opened
+                      console.log('[Member Dashboard] Opening assessment URL:', fullUrl)
+                      console.log('[Member Dashboard] Parameters:', Array.from(params.entries()))
+                      
+                      // Open in new tab with full URL
+                      window.open(fullUrl, '_blank')
+                      return
                     }
                     
-                    // Open in new tab
-                    window.open(targetUrl, '_blank')
+                    // Fallback if no URL could be built
+                    console.error('[Member Dashboard] Could not build assessment URL')
                   }}
                   className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/15 transition-all cursor-pointer group"
                 >

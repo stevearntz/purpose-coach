@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { ArrowLeft, ArrowRight, Printer, Share2 } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
 import ViewportContainer from '@/components/ViewportContainer'
@@ -13,6 +14,7 @@ import { useEmailCapture } from '@/hooks/useEmailCapture'
 import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
 import ToolNavigationWrapper from '@/components/ToolNavigationWrapper'
 import ToolProgressIndicator from '@/components/ToolProgressIndicator'
+import { saveAssessmentResult } from '@/lib/assessment-utils'
 
 const likertOptions = [
   { value: 1, label: 'Strongly Disagree' },
@@ -23,9 +25,14 @@ const likertOptions = [
 ]
 
 
-export default function ChangeReadinessPage() {
+function ChangeReadinessContent() {
+  const searchParams = useSearchParams()
   const analytics = useAnalytics()
   const { email, hasStoredEmail, captureEmailForTool } = useEmailCapture()
+  
+  // Read campaign/invite parameters
+  const inviteCode = searchParams.get('invite') || ''
+  const campaignName = searchParams.get('campaign') || ''
   const [showIntro, setShowIntro] = useState(true)
   const [showChangeContext, setShowChangeContext] = useState(false)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -114,7 +121,7 @@ export default function ChangeReadinessPage() {
     return answers.find(a => a.questionId === currentQuestion.id)?.value
   }
   
-  const handleNext = () => {
+  const handleNext = async () => {
     // Mark current question as completed
     setCompletedQuestions(prev => new Set([...prev, currentQuestionIndex]))
     
@@ -131,6 +138,45 @@ export default function ChangeReadinessPage() {
         total_score: scores.total,
         readiness_level: readinessLevel.level
       })
+      
+      // Save assessment results if we have a campaign or invite code
+      if (inviteCode || campaignName) {
+        try {
+          // Get recommendations for each dimension
+          const allRecommendations: string[] = []
+          scores.dimensions.forEach(dim => {
+            const dimRecommendations = getChangeRecommendations(dim.dimension, dim.score)
+            allRecommendations.push(...dimRecommendations)
+          })
+          
+          const assessmentData = {
+            inviteCode,
+            campaignCode: campaignName,
+            toolId: 'change-readiness',
+            toolName: 'Change Readiness Assessment',
+            responses: {
+              answers,
+              changeContext
+            },
+            scores: {
+              total: scores.total,
+              readinessLevel: readinessLevel.level,
+              dimensions: scores.dimensions
+            },
+            completionTime: timeSpent,
+            recommendations: allRecommendations,
+            userProfile: {
+              email: userEmail || ''
+            }
+          }
+          
+          await saveAssessmentResult(assessmentData)
+        } catch (error) {
+          console.error('Failed to save assessment:', error)
+          // Continue to show results even if save fails
+        }
+      }
+      
       setShowResults(true)
     }
   }
@@ -632,4 +678,19 @@ export default function ChangeReadinessPage() {
   
   // Fallback return
   return null
+}
+
+export default function ChangeReadinessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-[#F595B6] to-[#BF4C74] flex items-center justify-center">
+        <div className="text-center text-white">
+          <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p>Loading assessment...</p>
+        </div>
+      </div>
+    }>
+      <ChangeReadinessContent />
+    </Suspense>
+  )
 }

@@ -23,6 +23,48 @@ interface Tool {
 }
 
 const tools: Tool[] = [
+  // Assessments (shown in Assessments tab for campaigns)
+  {
+    id: 'people-leader-needs',
+    path: '/people-leader-needs',
+    title: 'People Leadership Needs Assessment',
+    subtitle: 'Bridge the gap with HR',
+    description: 'Help managers articulate their needs for growth, support, and strategic direction.',
+    gradient: 'from-[#30C7C7] to-[#2A74B9]',
+    icon: <Lightbulb className="w-8 h-8" />,
+    type: 'assessment'
+  },
+  {
+    id: 'burnout-assessment',
+    path: '/burnout-assessment',
+    title: 'Burnout Assessment',
+    subtitle: 'Check your energy levels',
+    description: 'Evaluate your current state and get strategies for maintaining well-being.',
+    gradient: 'from-[#74DEDE] to-[#30B859]',
+    icon: <Heart className="w-8 h-8" />,
+    type: 'assessment'
+  },
+  {
+    id: 'change-readiness',
+    path: '/change-readiness-assessment',
+    title: 'Change Readiness Assessment',
+    subtitle: 'Navigate change confidently',
+    description: 'Assess your readiness for change and identify where you need support.',
+    gradient: 'from-[#F595B6] to-[#BF4C74]',
+    icon: <Target className="w-8 h-8" />,
+    type: 'assessment'
+  },
+  {
+    id: 'change-style',
+    path: '/change-style',
+    title: 'Change Style Profile',
+    subtitle: 'Discover your change persona',
+    description: 'Understand how you naturally respond to change.',
+    gradient: 'from-[#F595B6] to-[#BF4C74]',
+    icon: <Target className="w-8 h-8" />,
+    type: 'assessment'
+  },
+  // Conversation Guides
   {
     id: 'team-charter',
     path: '/team-charter',
@@ -43,16 +85,7 @@ const tools: Tool[] = [
     icon: <ShieldCheck className="w-8 h-8" />,
     type: 'conversation-guide'
   },
-  // {
-  //   id: 'burnout-assessment',
-  //   path: '/burnout-assessment',
-  //   title: 'Burnout Assessment',
-  //   subtitle: 'Check your energy levels',
-  //   description: 'Evaluate your current state and get strategies for maintaining well-being.',
-  //   gradient: 'from-[#74DEDE] to-[#30B859]',
-  //   icon: <Heart className="w-8 h-8" />,
-  //   type: 'assessment'
-  // },
+  // Reflections
   {
     id: 'decision-audit',
     path: '/decision-making-audit',
@@ -63,26 +96,6 @@ const tools: Tool[] = [
     icon: <Brain className="w-8 h-8" />,
     type: 'reflection'
   },
-  // {
-  //   id: 'change-style',
-  //   path: '/change-style',
-  //   title: 'Change Style Profile',
-  //   subtitle: 'Discover your change persona',
-  //   description: 'Understand how you naturally respond to change.',
-  //   gradient: 'from-[#F595B6] to-[#BF4C74]',
-  //   icon: <Target className="w-8 h-8" />,
-  //   type: 'assessment'
-  // },
-  // {
-  //   id: 'change-readiness',
-  //   path: '/change-readiness-assessment',
-  //   title: 'Change Readiness Assessment',
-  //   subtitle: 'Navigate change confidently',
-  //   description: 'Assess your readiness for change and identify where you need support.',
-  //   gradient: 'from-[#F595B6] to-[#BF4C74]',
-  //   icon: <Target className="w-8 h-8" />,
-  //   type: 'assessment'
-  // },
   {
     id: 'user-guide',
     path: '/user-guide',
@@ -142,16 +155,6 @@ const tools: Tool[] = [
     gradient: 'from-[#C67AF4] to-[#3E37FF]',
     icon: <Target className="w-8 h-8" />,
     type: 'reflection'
-  },
-  {
-    id: 'people-leader-needs',
-    path: '/people-leader-needs',
-    title: 'People Leadership Needs Assessment',
-    subtitle: 'Bridge the gap with HR',
-    description: 'Help managers articulate their needs for growth, support, and strategic direction.',
-    gradient: 'from-[#30C7C7] to-[#2A74B9]',
-    icon: <Lightbulb className="w-8 h-8" />,
-    type: 'assessment'
   }
 ]
 

@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { ArrowLeft, ArrowRight, Printer, Heart, Share2 } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
 import ViewportContainer from '@/components/ViewportContainer'
@@ -12,6 +13,7 @@ import { useEmailCapture } from '@/hooks/useEmailCapture'
 import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
 import ToolNavigationWrapper from '@/components/ToolNavigationWrapper'
 import ToolProgressIndicator from '@/components/ToolProgressIndicator'
+import { saveAssessmentResult } from '@/lib/assessment-utils'
 
 interface Question {
   id: string
@@ -91,9 +93,15 @@ const dimensionInfo = {
   }
 }
 
-export default function BurnoutAssessmentPage() {
+function BurnoutAssessmentContent() {
   const analytics = useAnalytics()
   const { email, hasStoredEmail, captureEmailForTool } = useEmailCapture()
+  const searchParams = useSearchParams()
+  
+  // Read campaign/invite parameters
+  const inviteCode = searchParams.get('invite') || ''
+  const campaignName = searchParams.get('campaign') || ''
+  
   const [showIntro, setShowIntro] = useState(true)
   const [showNameInput, setShowNameInput] = useState(false)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -191,7 +199,7 @@ export default function BurnoutAssessmentPage() {
     return answers.find(a => a.questionId === currentQuestion.id)?.value
   }
   
-  const handleNext = () => {
+  const handleNext = async () => {
     // Mark current question as completed
     setCompletedQuestions(prev => new Set([...prev, currentQuestionIndex]))
     
@@ -208,6 +216,40 @@ export default function BurnoutAssessmentPage() {
         risk_level: scores.riskLevel,
         highest_risk: scores.dimensions[0]?.dimension || 'none'
       })
+      
+      // Save assessment results if we have a campaign or invite code
+      if (inviteCode || campaignName) {
+        try {
+          // Get recommendations for the highest risk dimension
+          const highestRiskDimension = scores.dimensions[0]
+          const recommendations = getRecommendations(highestRiskDimension.dimension, highestRiskDimension.score)
+          
+          const assessmentData = {
+            inviteCode,
+            campaignCode: campaignName,
+            toolId: 'burnout-assessment',
+            toolName: 'Burnout Assessment',
+            responses: answers,
+            scores: {
+              total: scores.total,
+              riskLevel: scores.riskLevel,
+              dimensions: scores.dimensions
+            },
+            completionTime: timeSpent,
+            recommendations,
+            userProfile: {
+              name: userName,
+              email: userEmail || ''
+            }
+          }
+          
+          await saveAssessmentResult(assessmentData)
+        } catch (error) {
+          console.error('Failed to save assessment:', error)
+          // Continue to show results even if save fails
+        }
+      }
+      
       setShowResults(true)
     }
   }
@@ -767,6 +809,20 @@ export default function BurnoutAssessmentPage() {
   }
   
   // Fallback return
-  // Fallback return
   return null
+}
+
+export default function BurnoutAssessmentPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-[#74DEDE] to-[#30B859] flex items-center justify-center">
+        <div className="text-center text-white">
+          <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p>Loading assessment...</p>
+        </div>
+      </div>
+    }>
+      <BurnoutAssessmentContent />
+    </Suspense>
+  )
 }

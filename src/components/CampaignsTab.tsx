@@ -44,6 +44,9 @@ export default function CampaignsTab() {
   const [participants, setParticipants] = useState<Participant[]>([])
   const [loadingParticipants, setLoadingParticipants] = useState(false)
   const [showParticipantsModal, setShowParticipantsModal] = useState(false)
+  const [expandedCampaigns, setExpandedCampaigns] = useState<Set<string>>(new Set())
+  const [campaignParticipants, setCampaignParticipants] = useState<{ [key: string]: Participant[] }>({})
+  const [loadingCampaignParticipants, setLoadingCampaignParticipants] = useState<{ [key: string]: boolean }>({})
   const [copiedCampaign, setCopiedCampaign] = useState<string | null>(null)
   const [copiedLink, setCopiedLink] = useState<string | null>(null)
   const [copiedEmails, setCopiedEmails] = useState<{ [key: string]: boolean }>({})
@@ -114,6 +117,46 @@ export default function CampaignsTab() {
     setSelectedCampaign(campaign)
     setShowParticipantsModal(true)
     await loadParticipants(campaign)
+  }
+
+  const toggleCampaignExpansion = async (campaign: Campaign, e?: React.MouseEvent) => {
+    // Prevent event from bubbling if called from a specific element
+    if (e) {
+      e.stopPropagation()
+    }
+    
+    const isExpanded = expandedCampaigns.has(campaign.id)
+    
+    if (isExpanded) {
+      // Collapse
+      setExpandedCampaigns(prev => {
+        const next = new Set(prev)
+        next.delete(campaign.id)
+        return next
+      })
+    } else {
+      // Expand and load participants if not already loaded
+      setExpandedCampaigns(prev => new Set(prev).add(campaign.id))
+      
+      if (!campaignParticipants[campaign.id] && !loadingCampaignParticipants[campaign.id]) {
+        setLoadingCampaignParticipants(prev => ({ ...prev, [campaign.id]: true }))
+        
+        try {
+          const response = await fetch(`/api/campaigns/${campaign.id}/participants`, {
+            credentials: 'include'
+          })
+          if (response.ok) {
+            const data = await response.json()
+            setCampaignParticipants(prev => ({ ...prev, [campaign.id]: data.participants || [] }))
+          }
+        } catch (error) {
+          console.error('Failed to load participants:', error)
+          setCampaignParticipants(prev => ({ ...prev, [campaign.id]: [] }))
+        } finally {
+          setLoadingCampaignParticipants(prev => ({ ...prev, [campaign.id]: false }))
+        }
+      }
+    }
   }
 
   const handleRemindParticipant = async (participant: Participant) => {
@@ -375,11 +418,20 @@ export default function CampaignsTab() {
       ) : (
         /* Campaign List */
         <div className="space-y-4">
-          {campaigns.map((campaign) => (
-            <div
-              key={campaign.id}
-              className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:bg-white/10 transition-colors"
-            >
+          {campaigns.map((campaign) => {
+            const isExpanded = expandedCampaigns.has(campaign.id)
+            const participants = campaignParticipants[campaign.id] || []
+            const isLoading = loadingCampaignParticipants[campaign.id] || false
+            
+            return (
+              <div
+                key={campaign.id}
+                className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 transition-all"
+              >
+              <div 
+                className="p-6 hover:bg-white/10 transition-colors cursor-pointer"
+                onClick={() => toggleCampaignExpansion(campaign)}
+              >
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h3 className="text-lg font-semibold text-white mb-1">
@@ -403,7 +455,10 @@ export default function CampaignsTab() {
                   
                   {/* Email Helper Icon */}
                   <button
-                    onClick={() => handleEmailCampaign(campaign)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleEmailCampaign(campaign)
+                    }}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
                     title="Email helper"
                   >
@@ -412,7 +467,10 @@ export default function CampaignsTab() {
                   
                   {/* Copy Link Icon */}
                   <button
-                    onClick={() => copyCampaignLink(campaign)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      copyCampaignLink(campaign)
+                    }}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
                     title="Copy campaign link"
                   >
@@ -425,7 +483,10 @@ export default function CampaignsTab() {
                   
                   {/* Download CSV Icon */}
                   <button
-                    onClick={() => exportCampaignData(campaign)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      exportCampaignData(campaign)
+                    }}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
                     title="Export participant data"
                   >
@@ -448,13 +509,10 @@ export default function CampaignsTab() {
                 )}
                 
                 {campaign.participantCount !== undefined && (
-                  <button
-                    onClick={() => handleViewParticipants(campaign)}
-                    className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
-                  >
+                  <div className="flex items-center gap-2 text-white/60">
                     <Users className="w-4 h-4" />
                     <span>{campaign.participantCount} participants</span>
-                  </button>
+                  </div>
                 )}
                 
                 {campaign.completionRate !== undefined && (
@@ -464,8 +522,90 @@ export default function CampaignsTab() {
                   </div>
                 )}
               </div>
-            </div>
-          ))}
+              </div>
+              
+              {/* Expandable Participants Section */}
+              {isExpanded && (
+              <div className="border-t border-white/10 px-6 pb-6">
+                <div className="pt-4">
+                  <div className="mb-4">
+                    <h4 className="text-sm font-semibold text-white/80">Participants</h4>
+                  </div>
+                  
+                  {isLoading ? (
+                    <div className="flex items-center justify-center py-6">
+                      <Loader2 className="animate-spin h-6 w-6 text-purple-600 mr-2" />
+                      <span className="text-white/60 text-sm">Loading participants...</span>
+                    </div>
+                  ) : participants.length > 0 ? (
+                    <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
+                      {participants.map((participant) => (
+                        <div
+                          key={participant.id}
+                          className="bg-white/5 rounded-lg px-4 py-3"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              {getParticipantStatusIcon(participant.status)}
+                              <div>
+                                <p className="text-white text-sm font-medium">{participant.name}</p>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    copyEmail(participant.email)
+                                  }}
+                                  className="text-xs text-white/60 hover:text-white transition-colors flex items-center gap-1 group"
+                                >
+                                  {participant.email}
+                                  {copiedEmails[participant.email] ? (
+                                    <CheckCircle className="w-3 h-3 text-green-400 ml-1" />
+                                  ) : (
+                                    <Copy className="w-3 h-3 opacity-0 group-hover:opacity-100 ml-1" />
+                                  )}
+                                </button>
+                                {participant.completedAt && (
+                                  <p className="text-xs text-white/40 mt-1">
+                                    Completed {formatDate(participant.completedAt)}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className={`text-xs font-medium px-2 py-1 rounded ${getParticipantStatusColor(participant.status)}`}>
+                                {participant.status}
+                              </span>
+                              {participant.inviteLink && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    copyInviteLink(participant)
+                                  }}
+                                  className="p-1.5 hover:bg-white/10 rounded-lg transition-colors group"
+                                  title="Copy unique invite link"
+                                >
+                                  {copiedLink === participant.id ? (
+                                    <CheckCircle className="w-3 h-3 text-green-400" />
+                                  ) : (
+                                    <Link className="w-3 h-3 text-white/60 group-hover:text-white" />
+                                  )}
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6">
+                      <p className="text-white/40 text-sm">No participants yet</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+              </div>
+            )
+          })}
         </div>
       )}
 

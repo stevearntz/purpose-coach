@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { ArrowLeft, ArrowRight, Printer, Share2, RefreshCw } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
 import ViewportContainer from '@/components/ViewportContainer'
@@ -11,6 +12,7 @@ import ToolProgressIndicator from '@/components/ToolProgressIndicator'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
 import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
+import { saveAssessmentResult } from '@/lib/assessment-utils'
 
 interface Question {
   id: number
@@ -264,9 +266,14 @@ const personaReadouts: Record<string, PersonaReadout> = {
   }
 }
 
-export default function ChangeStylePage() {
+function ChangeStyleContent() {
+  const searchParams = useSearchParams()
   const analytics = useAnalytics()
   const { email, hasStoredEmail, captureEmailForTool } = useEmailCapture()
+  
+  // Read campaign/invite parameters
+  const inviteCode = searchParams.get('invite') || ''
+  const campaignName = searchParams.get('campaign') || ''
   const [showIntro, setShowIntro] = useState(true)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<Answer[]>([])
@@ -366,7 +373,7 @@ export default function ChangeStylePage() {
     return answer?.value || null
   }
 
-  const calculateResults = () => {
+  const calculateResults = async () => {
     // Calculate scores for each persona
     const personaScores: PersonaScore[] = personas.map(persona => {
       const score = persona.questions.reduce((sum, questionId) => {
@@ -397,6 +404,34 @@ export default function ChangeStylePage() {
       secondary_personas: secondaryPersonas.map(p => p.code),
       completion_time: timeSpent
     })
+    
+    // Save assessment results if we have a campaign or invite code
+    if (inviteCode || campaignName) {
+      try {
+        const assessmentData = {
+          inviteCode,
+          campaignCode: campaignName,
+          toolId: 'change-style',
+          toolName: 'Change Style Profile',
+          responses: answers,
+          scores: {
+            primary: primaryPersona,
+            secondary: secondaryPersonas,
+            all: personaScores
+          },
+          completionTime: timeSpent,
+          recommendations: [], // Change Style doesn't have specific recommendations
+          userProfile: {
+            email: userEmail || ''
+          }
+        }
+        
+        await saveAssessmentResult(assessmentData)
+      } catch (error) {
+        console.error('Failed to save assessment:', error)
+        // Continue to show results even if save fails
+      }
+    }
 
     setShowResults(true)
   }
@@ -974,5 +1009,20 @@ export default function ChangeStylePage() {
         </div>
       </div>
     </ViewportContainer>
+  )
+}
+
+export default function ChangeStylePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-[#F595B6] to-[#BF4C74] flex items-center justify-center">
+        <div className="text-center text-white">
+          <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p>Loading assessment...</p>
+        </div>
+      </div>
+    }>
+      <ChangeStyleContent />
+    </Suspense>
   )
 }

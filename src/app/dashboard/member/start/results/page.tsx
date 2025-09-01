@@ -42,6 +42,8 @@ export default function MemberResultsPage() {
         const response = await fetch(`/api/assessments/results?email=${encodeURIComponent(email)}`)
         if (response.ok) {
           const data = await response.json()
+          console.log('[Member Results] API Response:', data)
+          console.log('[Member Results] First result full data:', data.results?.[0])
           setResults(data.results || [])
         }
       } catch (error) {

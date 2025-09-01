@@ -42,8 +42,6 @@ export default function MemberResultsPage() {
         const response = await fetch(`/api/assessments/results?email=${encodeURIComponent(email)}`)
         if (response.ok) {
           const data = await response.json()
-          console.log('[Member Results] API Response:', data)
-          console.log('[Member Results] First result full data:', data.results?.[0])
           setResults(data.results || [])
         }
       } catch (error) {
@@ -176,17 +174,7 @@ export default function MemberResultsPage() {
                 </div>
 
                 {/* Expandable Content */}
-                {isExpanded && (() => {
-                  // Debug: Log the data structure
-                  console.log('[Results Debug] Full result object:', result)
-                  console.log('[Results Debug] Responses:', result.responses)
-                  console.log('[Results Debug] Challenges:', result.responses?.challenges)
-                  console.log('[Results Debug] Skills:', result.responses?.skillsToGrow)
-                  console.log('[Results Debug] Support:', result.responses?.supportNeeds)
-                  console.log('[Results Debug] TeamImpact:', result.responses?.teamImpact)
-                  console.log('[Results Debug] Context:', result.responses?.additionalContext)
-                  
-                  return (
+                {isExpanded && (
                     <div className="border-t border-white/10 bg-white/5">
                       <div className="p-6 space-y-6">
                         {/* Challenge Areas Section - ALWAYS SHOW */}
@@ -196,64 +184,33 @@ export default function MemberResultsPage() {
                           Challenge Areas
                         </h4>
                         <div className="space-y-4">
-                          {result.responses?.challenges ? (
+                          {/* Check both possible locations for challenge data */}
+                          {(result.responses?.selectedCategories || result.insights?.mainChallengeAreas) ? (
                             <>
-                              {/* Individual Performance subsection */}
-                              {result.responses.challenges.map((category: any) => {
-                              if (category.name === 'Individual Performance') {
-                                return (
-                                  <div key="individual">
-                                    <h5 className="text-white/90 font-medium mb-2">Individual Performance</h5>
+                              {/* Parse the categoryDetails if it exists */}
+                              {result.responses?.categoryDetails ? (
+                                Object.entries(result.responses.categoryDetails).map(([category, details]: [string, any]) => (
+                                  <div key={category}>
+                                    <h5 className="text-white/90 font-medium mb-2">{category}</h5>
                                     <div className="flex flex-wrap gap-2">
-                                      {category.subcategories?.map((sub: string, index: number) => (
+                                      {details.challenges?.map((challenge: string, index: number) => (
                                         <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
-                                          {sub}
+                                          {challenge}
                                         </span>
                                       ))}
                                     </div>
                                   </div>
-                                )
-                              }
-                              return null
-                            })}
-                            
-                            {/* Leadership Skills subsection */}
-                            {result.responses.challenges.map((category: any) => {
-                              if (category.name === 'Leadership Skills') {
-                                return (
-                                  <div key="leadership">
-                                    <h5 className="text-white/90 font-medium mb-2">Leadership Skills</h5>
-                                    <div className="flex flex-wrap gap-2">
-                                      {category.subcategories?.map((sub: string, index: number) => (
-                                        <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
-                                          {sub}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )
-                              }
-                              return null
-                            })}
-                            
-                            {/* Compliance & Risk subsection */}
-                            {result.responses.challenges.map((category: any) => {
-                              if (category.name === 'Compliance & Risk') {
-                                return (
-                                  <div key="compliance">
-                                    <h5 className="text-white/90 font-medium mb-2">Compliance & Risk</h5>
-                                    <div className="flex flex-wrap gap-2">
-                                      {category.subcategories?.map((sub: string, index: number) => (
-                                        <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
-                                          {sub}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )
-                              }
-                              return null
-                            })}
+                                ))
+                              ) : result.insights?.mainChallengeAreas ? (
+                                // Fallback to insights.mainChallengeAreas
+                                <div className="flex flex-wrap gap-2">
+                                  {result.insights.mainChallengeAreas.map((area: any, index: number) => (
+                                    <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
+                                      {typeof area === 'string' ? area : area.category || JSON.stringify(area)}
+                                    </span>
+                                  ))}
+                                </div>
+                              ) : null}
                             </>
                           ) : (
                             <p className="text-white/50 text-sm">No challenge data available</p>
@@ -268,8 +225,9 @@ export default function MemberResultsPage() {
                           Skills to Develop
                         </h4>
                         <div className="flex flex-wrap gap-2">
-                          {result.responses?.skillsToGrow ? (
-                            result.responses.skillsToGrow.map((skill: string, index: number) => (
+                          {/* Check both skillGaps and skillsToGrow fields */}
+                          {(result.responses?.skillGaps || result.responses?.skillsToGrow || result.insights?.skillGaps) ? (
+                            (result.responses?.skillGaps || result.responses?.skillsToGrow || result.insights?.skillGaps || []).map((skill: string, index: number) => (
                               <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
                                 {skill}
                               </span>
@@ -306,8 +264,9 @@ export default function MemberResultsPage() {
                           Focus Areas
                         </h4>
                         <div className="flex flex-wrap gap-2">
-                          {result.responses?.teamImpact ? (
-                            result.responses.teamImpact.map((area: string, index: number) => (
+                          {/* Check for selectedPriorities or teamImpact */}
+                          {(result.responses?.selectedPriorities || result.responses?.teamImpact || result.insights?.priorities) ? (
+                            (result.responses?.selectedPriorities || result.responses?.teamImpact || result.insights?.priorities || []).map((area: string, index: number) => (
                               <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
                                 {area}
                               </span>
@@ -325,9 +284,10 @@ export default function MemberResultsPage() {
                           Additional Insights
                         </h4>
                         <div className="bg-white/10 rounded-lg p-4">
-                          {result.responses?.additionalContext ? (
+                          {/* Check for additionalInsights or additionalContext */}
+                          {(result.responses?.additionalInsights || result.responses?.additionalContext) ? (
                             <p className="text-white/80 leading-relaxed italic">
-                              "{result.responses.additionalContext}"
+                              "{result.responses?.additionalInsights || result.responses?.additionalContext}"
                             </p>
                           ) : (
                             <p className="text-white/50 text-sm">No additional insights available</p>
@@ -336,8 +296,7 @@ export default function MemberResultsPage() {
                       </div>
                     </div>
                   </div>
-                  )
-                })()}
+                )}
               </div>
             )
           })}

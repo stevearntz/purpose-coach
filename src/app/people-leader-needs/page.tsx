@@ -178,8 +178,32 @@ function PeopleLeaderNeedsContent() {
   const [showSuggestion, setShowSuggestion] = useState(false)
   const [customInputs, setCustomInputs] = useState<{ [key: string]: string }>({})
 
-  // Fetch invitation data if invite code is present
+  // Fetch invitation data if invite code is present OR pre-populate from URL params
   useEffect(() => {
+    // First, check URL parameters for pre-population
+    const urlName = searchParams.get('name')
+    const urlEmail = searchParams.get('email')
+    const urlDepartment = searchParams.get('department')
+    const urlTeamSize = searchParams.get('teamSize')
+    
+    // Pre-populate from URL params if available
+    if (urlName || urlEmail || urlDepartment || urlTeamSize) {
+      setManagerData(prev => ({
+        ...prev,
+        name: urlName || prev.name,
+        email: urlEmail || prev.email,
+        department: urlDepartment || prev.department,
+        teamSize: urlTeamSize || prev.teamSize
+      }))
+      
+      // If email is provided, validate it
+      if (urlEmail) {
+        const validation = validateEmail(urlEmail)
+        setEmailValidation(validation)
+      }
+    }
+    
+    // Then, if there's an invite code, fetch invitation data (which can override URL params)
     if (inviteCode) {
       fetch(`/api/invitations/${inviteCode}`)
         .then(res => res.json())
@@ -187,15 +211,15 @@ function PeopleLeaderNeedsContent() {
           if (data.name || data.email) {
             setManagerData(prev => ({
               ...prev,
-              name: data.name || '',
-              email: data.email || '',
-              department: data.department || ''
+              name: data.name || prev.name,
+              email: data.email || prev.email,
+              department: data.department || prev.department
             }))
           }
         })
         .catch(err => console.error('Failed to load invitation data:', err))
     }
-  }, [inviteCode])
+  }, [inviteCode, searchParams])
 
   // Calculate dynamic stages based on selected categories
   const getDynamicStages = () => {

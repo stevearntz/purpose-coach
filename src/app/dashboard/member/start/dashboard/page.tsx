@@ -46,15 +46,23 @@ export default function DashboardPage() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('week')
   const [assignedAssessments, setAssignedAssessments] = useState<AssignedAssessment[]>([])
   const [loading, setLoading] = useState(true)
+  const [userProfile, setUserProfile] = useState<any>(null)
 
   useEffect(() => {
-    // Fetch assigned assessments from campaigns
-    const fetchAssignedAssessments = async () => {
+    // Fetch user profile and assigned assessments
+    const fetchData = async () => {
       try {
         const email = user?.emailAddresses?.[0]?.emailAddress
         if (!email) {
           setLoading(false)
           return
+        }
+
+        // Fetch user profile
+        const profileResponse = await fetch('/api/user/profile')
+        if (profileResponse.ok) {
+          const profileData = await profileResponse.json()
+          setUserProfile(profileData.profile)
         }
 
         // Fetch active campaigns assigned to this user
@@ -77,13 +85,13 @@ export default function DashboardPage() {
           setAssignedAssessments(assessments)
         }
       } catch (error) {
-        console.error('Error fetching assigned assessments:', error)
+        console.error('Error fetching data:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchAssignedAssessments()
+    fetchData()
   }, [user])
 
   return (
@@ -123,13 +131,37 @@ export default function DashboardPage() {
                 <div 
                   key={assessment.id}
                   onClick={() => {
-                    // Navigate to the tool path
-                    if (assessment.toolPath) {
-                      router.push(assessment.toolPath)
-                    } else if (assessment.toolId) {
-                      // Fallback to tool ID
-                      router.push(`/tools/${assessment.toolId}`)
+                    // Build URL with pre-population parameters
+                    let targetUrl = assessment.toolPath || `/tools/${assessment.toolId}`
+                    
+                    if (targetUrl) {
+                      const params = new URLSearchParams()
+                      
+                      // Add user profile data as query parameters
+                      const userEmail = user?.emailAddresses?.[0]?.emailAddress
+                      
+                      if (user?.firstName || userProfile?.firstName) {
+                        params.append('name', `${user?.firstName || userProfile?.firstName || ''} ${user?.lastName || userProfile?.lastName || ''}`.trim())
+                      }
+                      if (userEmail) {
+                        params.append('email', userEmail)
+                      }
+                      if (userProfile?.department) {
+                        params.append('department', userProfile.department)
+                      }
+                      if (userProfile?.teamSize) {
+                        params.append('teamSize', userProfile.teamSize)
+                      }
+                      
+                      // Add parameters to URL only if we have some data
+                      if (params.toString()) {
+                        const separator = targetUrl.includes('?') ? '&' : '?'
+                        targetUrl = `${targetUrl}${separator}${params.toString()}`
+                      }
                     }
+                    
+                    // Open in new tab
+                    window.open(targetUrl, '_blank')
                   }}
                   className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/15 transition-all cursor-pointer group"
                 >

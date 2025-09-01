@@ -138,3 +138,20 @@ enum CampaignStatus {
   PAUSED
   COMPLETED
 }
+
+model Lead {
+  id        String   @id @default(cuid())
+  email     String
+  name      String?
+  source    String   // 'tool', 'personal-development-plan', etc.
+  toolName  String?
+  toolId    String?
+  metadata  Json?    // Flexible storage for tool-specific data
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([email])
+  @@index([source])
+  @@index([toolId])
+  @@index([createdAt])
+}

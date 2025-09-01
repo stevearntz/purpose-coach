@@ -178,7 +178,7 @@ export default function MemberResultsPage() {
                   <div className="border-t border-white/10 bg-white/5">
                     <div className="p-6 space-y-6">
                       {/* Challenge Areas Section */}
-                      {result.responses?.challenges && Array.isArray(result.responses.challenges) && result.responses.challenges.length > 0 && (
+                      {result.responses?.challenges && (
                         <div>
                           <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5 text-red-400" />
@@ -186,16 +186,13 @@ export default function MemberResultsPage() {
                           </h4>
                           <div className="space-y-4">
                             {/* Individual Performance subsection */}
-                            {(() => {
-                              const individualPerf = result.responses.challenges.find((c: any) => 
-                                c.name === 'Individual Performance' || c === 'Individual Performance'
-                              )
-                              if (individualPerf && individualPerf.subcategories) {
+                            {result.responses.challenges.map((category: any) => {
+                              if (category.name === 'Individual Performance') {
                                 return (
-                                  <div>
+                                  <div key="individual">
                                     <h5 className="text-white/90 font-medium mb-2">Individual Performance</h5>
                                     <div className="flex flex-wrap gap-2">
-                                      {individualPerf.subcategories.map((sub: string, index: number) => (
+                                      {category.subcategories?.map((sub: string, index: number) => (
                                         <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
                                           {sub}
                                         </span>
@@ -205,19 +202,16 @@ export default function MemberResultsPage() {
                                 )
                               }
                               return null
-                            })()}
+                            })}
                             
                             {/* Leadership Skills subsection */}
-                            {(() => {
-                              const leadership = result.responses.challenges.find((c: any) => 
-                                c.name === 'Leadership Skills' || c === 'Leadership Skills'
-                              )
-                              if (leadership && leadership.subcategories) {
+                            {result.responses.challenges.map((category: any) => {
+                              if (category.name === 'Leadership Skills') {
                                 return (
-                                  <div>
+                                  <div key="leadership">
                                     <h5 className="text-white/90 font-medium mb-2">Leadership Skills</h5>
                                     <div className="flex flex-wrap gap-2">
-                                      {leadership.subcategories.map((sub: string, index: number) => (
+                                      {category.subcategories?.map((sub: string, index: number) => (
                                         <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
                                           {sub}
                                         </span>
@@ -227,19 +221,16 @@ export default function MemberResultsPage() {
                                 )
                               }
                               return null
-                            })()}
+                            })}
                             
                             {/* Compliance & Risk subsection */}
-                            {(() => {
-                              const compliance = result.responses.challenges.find((c: any) => 
-                                c.name === 'Compliance & Risk' || c === 'Compliance & Risk'
-                              )
-                              if (compliance && compliance.subcategories) {
+                            {result.responses.challenges.map((category: any) => {
+                              if (category.name === 'Compliance & Risk') {
                                 return (
-                                  <div>
+                                  <div key="compliance">
                                     <h5 className="text-white/90 font-medium mb-2">Compliance & Risk</h5>
                                     <div className="flex flex-wrap gap-2">
-                                      {compliance.subcategories.map((sub: string, index: number) => (
+                                      {category.subcategories?.map((sub: string, index: number) => (
                                         <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
                                           {sub}
                                         </span>
@@ -249,13 +240,13 @@ export default function MemberResultsPage() {
                                 )
                               }
                               return null
-                            })()}
+                            })}
                           </div>
                         </div>
                       )}
 
                       {/* Skills to Develop Section */}
-                      {result.responses?.skillsToGrow && Array.isArray(result.responses.skillsToGrow) && result.responses.skillsToGrow.length > 0 && (
+                      {result.responses?.skillsToGrow && (
                         <div>
                           <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                             <Sparkles className="w-5 h-5 text-purple-400" />
@@ -272,7 +263,7 @@ export default function MemberResultsPage() {
                       )}
 
                       {/* Support Needs Section */}
-                      {result.responses?.supportNeeds && Array.isArray(result.responses.supportNeeds) && result.responses.supportNeeds.length > 0 && (
+                      {result.responses?.supportNeeds && (
                         <div>
                           <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                             <HeartHandshake className="w-5 h-5 text-pink-400" />
@@ -289,7 +280,7 @@ export default function MemberResultsPage() {
                       )}
 
                       {/* Focus Areas Section */}
-                      {result.responses?.teamImpact && Array.isArray(result.responses.teamImpact) && result.responses.teamImpact.length > 0 && (
+                      {result.responses?.teamImpact && (
                         <div>
                           <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                             <Flag className="w-5 h-5 text-blue-400" />

@@ -291,7 +291,7 @@ function PeopleLeaderNeedsContent() {
     const validation = validateEmail(managerData.email)
     setEmailValidation(validation)
     
-    if (!validation.isValid || !managerData.name || !managerData.department) {
+    if (!validation.isValid || !managerData.name || !managerData.department || !managerData.teamSize) {
       setShowSuggestion(!!validation.suggestion)
       return
     }
@@ -776,19 +776,27 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                 className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               
-              <select
+              <input
+                type="number"
+                placeholder="Team size (e.g., 12)"
                 value={managerData.teamSize}
-                onChange={(e) => setManagerData(prev => ({ ...prev, teamSize: e.target.value }))}
-                className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none"
-                style={{ WebkitAppearance: 'none' }}
-              >
-                <option value="" className="text-gray-900">Select team size</option>
-                <option value="1-5" className="text-gray-900">1-5 people</option>
-                <option value="6-10" className="text-gray-900">6-10 people</option>
-                <option value="11-20" className="text-gray-900">11-20 people</option>
-                <option value="21-50" className="text-gray-900">21-50 people</option>
-                <option value="50+" className="text-gray-900">50+ people</option>
-              </select>
+                onChange={(e) => {
+                  const value = e.target.value
+                  // Allow empty string or positive numbers only
+                  if (value === '' || (parseInt(value) > 0 && !value.includes('.'))) {
+                    setManagerData(prev => ({ ...prev, teamSize: value }))
+                  }
+                }}
+                onKeyDown={(e) => {
+                  // Prevent decimal point, negative sign, 'e' (scientific notation)
+                  if (e.key === '.' || e.key === '-' || e.key === 'e' || e.key === 'E') {
+                    e.preventDefault()
+                  }
+                }}
+                min="1"
+                step="1"
+                className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
               
               <button
                 onClick={handleStartAssessment}

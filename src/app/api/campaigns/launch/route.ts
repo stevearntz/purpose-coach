@@ -42,7 +42,10 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    // Create the campaign record
+    // Extract email addresses from participants
+    const participantEmails = participants.map((p: any) => p.email.toLowerCase().trim());
+    
+    // Create the campaign record with participants and tool info
     const campaign = await prisma.campaign.create({
       data: {
         name: campaignName,
@@ -50,7 +53,11 @@ export async function POST(request: NextRequest) {
         companyId: company.id,
         status: 'ACTIVE',
         startDate: startDate ? new Date(startDate) : new Date(),
-        endDate: deadline ? new Date(deadline) : null
+        endDate: deadline ? new Date(deadline) : null,
+        toolId: toolId || null,
+        toolName: toolName || null,
+        toolPath: toolPath || null,
+        participants: participantEmails
       }
     });
     

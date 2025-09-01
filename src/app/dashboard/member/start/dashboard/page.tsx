@@ -33,11 +33,11 @@ interface AssignedAssessment {
   id: string
   toolName: string
   toolId: string
+  toolPath: string
   description: string
   estimatedTime: string
   campaignName: string
   dueDate?: string
-  inviteUrl?: string
 }
 
 export default function DashboardPage() {
@@ -67,11 +67,11 @@ export default function DashboardPage() {
             id: campaign.id,
             toolName: campaign.toolName || 'Assessment',
             toolId: campaign.toolId || '',
+            toolPath: campaign.toolPath || '',
             description: campaign.description || 'Complete this assessment to help us understand your needs',
             estimatedTime: '15 min',
             campaignName: campaign.name,
-            dueDate: campaign.endDate,
-            inviteUrl: campaign.inviteUrl
+            dueDate: campaign.endDate
           })) || []
           
           setAssignedAssessments(assessments)
@@ -123,16 +123,9 @@ export default function DashboardPage() {
                 <div 
                   key={assessment.id}
                   onClick={() => {
-                    // If there's an invite URL, use that (it includes campaign parameters)
-                    if (assessment.inviteUrl) {
-                      // Extract the path from the full URL
-                      try {
-                        const url = new URL(assessment.inviteUrl)
-                        router.push(url.pathname + url.search)
-                      } catch {
-                        // If URL parsing fails, try as relative path
-                        router.push(assessment.inviteUrl)
-                      }
+                    // Navigate to the tool path
+                    if (assessment.toolPath) {
+                      router.push(assessment.toolPath)
                     } else if (assessment.toolId) {
                       // Fallback to tool ID
                       router.push(`/tools/${assessment.toolId}`)

@@ -10,84 +10,52 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Email parameter is required' }, { status: 400 })
     }
 
-    // Find all invitations for this email that have active campaigns
     const now = new Date()
+    const userEmail = email.toLowerCase()
     
-    // First find invitations for this email
-    const invitations = await prisma.invitation.findMany({
+    // Find all campaigns where this user is a participant
+    const campaigns = await prisma.campaign.findMany({
       where: {
-        email: email.toLowerCase(),
-        status: 'SENT' // Only show sent invitations (not completed ones)
-      },
-      include: {
-        company: {
-          include: {
-            campaigns: {
-              where: {
-                status: 'ACTIVE',
-                OR: [
-                  // Campaign has no start date or has started
-                  { startDate: null },
-                  { startDate: { lte: now } }
-                ],
-                AND: [
-                  // Campaign has no end date or hasn't ended
-                  {
-                    OR: [
-                      { endDate: null },
-                      { endDate: { gte: now } }
-                    ]
-                  }
-                ]
-              }
-            }
+        participants: {
+          has: userEmail
+        },
+        status: 'ACTIVE',
+        OR: [
+          // Campaign has no start date or has started
+          { startDate: null },
+          { startDate: { lte: now } }
+        ],
+        AND: [
+          // Campaign has no end date or hasn't ended
+          {
+            OR: [
+              { endDate: null },
+              { endDate: { gte: now } }
+            ]
           }
-        }
+        ]
+      },
+      orderBy: {
+        createdAt: 'desc'
       }
     })
 
-    // Extract unique campaigns from invitations
-    const campaignsMap = new Map()
-    
-    for (const invitation of invitations) {
-      if (!invitation.company) continue
-      
-      for (const campaign of invitation.company.campaigns) {
-        // Parse campaign metadata from description if it's JSON
-        let metadata: any = {}
-        if (campaign.description) {
-          try {
-            metadata = JSON.parse(campaign.description)
-          } catch {
-            // If not JSON, keep description as is
-            metadata = { message: campaign.description }
-          }
-        }
-        
-        // Check if this invitation is for this campaign (by matching campaign name in URL)
-        const isForThisCampaign = invitation.inviteUrl?.includes(`campaign=${encodeURIComponent(campaign.name)}`)
-        
-        if (isForThisCampaign && !campaignsMap.has(campaign.id)) {
-          campaignsMap.set(campaign.id, {
-            id: campaign.id,
-            name: campaign.name,
-            description: metadata.message || metadata.customMessage || campaign.description || '',
-            toolId: campaign.toolId || metadata.toolId || '',
-            toolName: campaign.toolName || metadata.toolName || 'Assessment',
-            startDate: campaign.startDate,
-            endDate: campaign.endDate,
-            createdAt: campaign.createdAt,
-            inviteUrl: invitation.inviteUrl
-          })
-        }
-      }
-    }
-
-    const campaigns = Array.from(campaignsMap.values())
+    // Transform campaigns for the dashboard
+    const transformedCampaigns = campaigns.map(campaign => ({
+      id: campaign.id,
+      name: campaign.name,
+      description: campaign.description || 'Complete this assessment to help us understand your needs',
+      toolId: campaign.toolId || '',
+      toolName: campaign.toolName || 'Assessment',
+      toolPath: campaign.toolPath || '',
+      startDate: campaign.startDate,
+      endDate: campaign.endDate,
+      createdAt: campaign.createdAt
+    }))
 
     return NextResponse.json({ 
-      campaigns,
-      count: campaigns.length 
+      campaigns: transformedCampaigns,
+      count: transformedCampaigns.length 
     })
   } catch (error) {
     console.error('Error fetching assigned campaigns:', error)

@@ -115,6 +115,7 @@ model Campaign {
   toolId       String?
   toolName     String?
   toolPath     String?
+  participants String[]       @default([])
   campaignCode String?        @unique
   campaignLink String?
   createdBy    String?

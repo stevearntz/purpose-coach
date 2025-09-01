@@ -207,14 +207,14 @@ export default function MemberResultsPage() {
                                     {key.replace(/([A-Z])/g, ' $1').trim()}
                                   </p>
                                   <span className="text-white text-lg font-bold">
-                                    {typeof value === 'number' ? Math.round(value) : value}
+                                    {typeof value === 'number' ? Math.round(value) : String(value)}
                                   </span>
                                 </div>
                                 {typeof value === 'number' && (
                                   <div className="w-full bg-white/20 rounded-full h-2">
                                     <div 
                                       className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all"
-                                      style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
+                                      style={{ width: `${Math.min(100, Math.max(0, value as number))}%` }}
                                     ></div>
                                   </div>
                                 )}

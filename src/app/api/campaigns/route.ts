@@ -107,7 +107,8 @@ export async function GET(request: NextRequest) {
           }
         });
         
-        const totalParticipants = invitations.length;
+        // Use participants array if available (v3 campaigns), otherwise count invitations
+        const totalParticipants = campaign.participants?.length || invitations.length;
         const completedCount = invitations.filter(inv => inv.status === 'COMPLETED').length;
         const completionRate = totalParticipants > 0 
           ? Math.round((completedCount / totalParticipants) * 100)

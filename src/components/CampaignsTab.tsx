@@ -448,10 +448,13 @@ export default function CampaignsTab() {
                 )}
                 
                 {campaign.participantCount !== undefined && (
-                  <div className="flex items-center gap-2 text-white/60">
+                  <button
+                    onClick={() => handleViewParticipants(campaign)}
+                    className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
+                  >
                     <Users className="w-4 h-4" />
                     <span>{campaign.participantCount} participants</span>
-                  </div>
+                  </button>
                 )}
                 
                 {campaign.completionRate !== undefined && (

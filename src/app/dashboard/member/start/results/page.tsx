@@ -39,7 +39,8 @@ export default function MemberResultsPage() {
           return
         }
 
-        const response = await fetch(`/api/assessments/results?email=${encodeURIComponent(email)}`)
+        // Use the new unified API
+        const response = await fetch(`/api/assessments/unified?email=${encodeURIComponent(email)}`)
         if (response.ok) {
           const data = await response.json()
           setResults(data.results || [])
@@ -184,53 +185,20 @@ export default function MemberResultsPage() {
                           Challenge Areas
                         </h4>
                         <div className="space-y-4">
-                          {/* Check both possible locations for challenge data */}
-                          {(result.responses?.selectedCategories || result.insights?.mainChallengeAreas) ? (
-                            <>
-                              {/* Parse the categoryDetails if it exists */}
-                              {result.responses?.categoryDetails ? (
-                                // Sort categories in the correct order and format names
-                                (() => {
-                                  const categoryOrder = ['performance', 'leadership', 'compliance']
-                                  const categoryNames: Record<string, string> = {
-                                    'performance': 'Individual Performance',
-                                    'leadership': 'Leadership Skills',
-                                    'compliance': 'Compliance & Risk'
-                                  }
-                                  
-                                  const sortedCategories = Object.entries(result.responses.categoryDetails)
-                                    .sort(([a], [b]) => {
-                                      const aIndex = categoryOrder.indexOf(a.toLowerCase())
-                                      const bIndex = categoryOrder.indexOf(b.toLowerCase())
-                                      return aIndex - bIndex
-                                    })
-                                  
-                                  return sortedCategories.map(([category, details]: [string, any]) => (
-                                    <div key={category}>
-                                      <h5 className="text-white/90 font-medium mb-2">
-                                        {categoryNames[category.toLowerCase()] || category}
-                                      </h5>
-                                      <div className="flex flex-wrap gap-2">
-                                        {details.challenges?.map((challenge: string, index: number) => (
-                                          <span key={index} className="px-3 py-1 bg-red-500/20 text-red-300 rounded-full text-sm">
-                                            {challenge}
-                                          </span>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  ))
-                                })()
-                              ) : result.insights?.mainChallengeAreas ? (
-                                // Fallback to insights.mainChallengeAreas
+                          {/* Now the data is always in the correct format from unified API */}
+                          {result.responses?.challenges && result.responses.challenges.length > 0 ? (
+                            result.responses.challenges.map((challenge: any) => (
+                              <div key={challenge.name}>
+                                <h5 className="text-white/90 font-medium mb-2">{challenge.name}</h5>
                                 <div className="flex flex-wrap gap-2">
-                                  {result.insights.mainChallengeAreas.map((area: any, index: number) => (
+                                  {challenge.subcategories?.map((sub: string, index: number) => (
                                     <span key={index} className="px-3 py-1 bg-red-500/20 text-red-300 rounded-full text-sm">
-                                      {typeof area === 'string' ? area : area.category || JSON.stringify(area)}
+                                      {sub}
                                     </span>
                                   ))}
                                 </div>
-                              ) : null}
-                            </>
+                              </div>
+                            ))
                           ) : (
                             <p className="text-white/50 text-sm">No challenge data available</p>
                           )}
@@ -244,9 +212,9 @@ export default function MemberResultsPage() {
                           Skills to Develop
                         </h4>
                         <div className="flex flex-wrap gap-2">
-                          {/* Check both skillGaps and skillsToGrow fields */}
-                          {(result.responses?.skillGaps || result.responses?.skillsToGrow || result.insights?.skillGaps) ? (
-                            (result.responses?.skillGaps || result.responses?.skillsToGrow || result.insights?.skillGaps || []).map((skill: string, index: number) => (
+                          {/* Unified API always uses skillsToGrow */}
+                          {result.responses?.skillsToGrow && result.responses.skillsToGrow.length > 0 ? (
+                            result.responses.skillsToGrow.map((skill: string, index: number) => (
                               <span key={index} className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">
                                 {skill}
                               </span>
@@ -283,9 +251,9 @@ export default function MemberResultsPage() {
                           Focus Areas
                         </h4>
                         <div className="flex flex-wrap gap-2">
-                          {/* Check for selectedPriorities or teamImpact */}
-                          {(result.responses?.selectedPriorities || result.responses?.teamImpact || result.insights?.priorities) ? (
-                            (result.responses?.selectedPriorities || result.responses?.teamImpact || result.insights?.priorities || []).map((area: string, index: number) => (
+                          {/* Unified API always uses teamImpact */}
+                          {result.responses?.teamImpact && result.responses.teamImpact.length > 0 ? (
+                            result.responses.teamImpact.map((area: string, index: number) => (
                               <span key={index} className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm">
                                 {area}
                               </span>
@@ -303,10 +271,10 @@ export default function MemberResultsPage() {
                           Additional Insights
                         </h4>
                         <div className="bg-white/10 rounded-lg p-4">
-                          {/* Check for additionalInsights or additionalContext */}
-                          {(result.responses?.additionalInsights || result.responses?.additionalContext) ? (
+                          {/* Unified API always uses additionalContext */}
+                          {result.responses?.additionalContext ? (
                             <p className="text-white/80 leading-relaxed italic">
-                              "{result.responses?.additionalInsights || result.responses?.additionalContext}"
+                              "{result.responses.additionalContext}"
                             </p>
                           ) : (
                             <p className="text-white/50 text-sm">No additional insights available</p>

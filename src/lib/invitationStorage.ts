@@ -1,7 +1,8 @@
-import Redis from 'ioredis';
+import prisma from '@/lib/prisma';
 import { nanoid } from 'nanoid';
 
-// Define the Invitation type
+// PostgreSQL version of invitationStorage using Prisma
+
 export interface Invitation {
   id: string;
   email: string;
@@ -31,313 +32,222 @@ export interface Invitation {
 }
 
 class InvitationStorage {
-  private redis: Redis | null = null;
-  private memoryStore: Map<string, Invitation> = new Map();
-  private useMemoryFallback = false;
-
   constructor() {
-    this.initializeRedis();
+    console.log('Invitation storage: Using PostgreSQL');
   }
 
-  private async initializeRedis() {
-    console.log('Initializing invitation storage...');
-    console.log('Redis URL exists:', !!process.env.REDIS_URL);
+  async createInvitation(email: string, name?: string, company?: string): Promise<Invitation> {
+    const inviteCode = nanoid(10).toUpperCase();
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tools.getcampfire.com';
+    const inviteUrl = `${baseUrl}/start?invite=${inviteCode}`;
     
-    if (process.env.REDIS_URL) {
-      try {
-        this.redis = new Redis(process.env.REDIS_URL, {
-          retryStrategy: (times) => {
-            const delay = Math.min(times * 50, 2000);
-            console.log(`Redis retry attempt ${times}, delay: ${delay}ms`);
-            return delay;
-          },
-          connectTimeout: 10000,
-          maxRetriesPerRequest: 3,
-          enableOfflineQueue: false,
-          lazyConnect: true,
-        });
+    const id = nanoid();
 
-        await this.redis.connect();
-        console.log('Invitation storage: Redis connection established successfully');
-
-        this.redis.on('error', (err) => {
-          console.error('Invitation storage: Redis error:', err);
-          this.useMemoryFallback = true;
+    // Find or create company
+    let companyRecord = null;
+    if (company) {
+      companyRecord = await prisma.company.findFirst({
+        where: { name: company }
+      });
+      
+      if (!companyRecord) {
+        companyRecord = await prisma.company.create({
+          data: {
+            name: company,
+            domains: [email.split('@')[1]]
+          }
         });
-        
-        this.redis.on('connect', () => {
-          console.log('Invitation storage: Redis connected');
-          this.useMemoryFallback = false;
-        });
-        
-        this.redis.on('ready', () => {
-          console.log('Invitation storage: Redis ready');
-        });
-      } catch (error) {
-        console.error('Invitation storage: Failed to connect to Redis:', error);
-        this.useMemoryFallback = true;
       }
-    } else {
-      console.log('Invitation storage: Redis URL not found, using memory storage');
-      this.useMemoryFallback = true;
     }
-  }
 
-  // Save invitation
-  async saveInvitation(invitation: Invitation): Promise<void> {
-    const key = `invitation:${invitation.inviteCode}`;
-    const indexKey = `invitation:id:${invitation.id}`;
-    
-    console.log('Saving invitation:', {
-      code: invitation.inviteCode,
-      email: invitation.email,
-      company: invitation.company,
-      useMemoryFallback: this.useMemoryFallback,
-      redisAvailable: !!this.redis
+    // Create invitation in PostgreSQL
+    const dbInvitation = await prisma.invitation.create({
+      data: {
+        id,
+        email: email.toLowerCase(),
+        name: name || null,
+        inviteCode,
+        status: 'PENDING',
+        companyId: companyRecord?.id || null,
+      }
     });
-    
-    if (this.redis && !this.useMemoryFallback) {
-      try {
-        // Store by invite code (primary lookup)
-        await this.redis.setex(
-          key,
-          60 * 60 * 24 * 90, // 90 days expiry
-          JSON.stringify(invitation)
-        );
-        console.log('Saved to Redis with key:', key);
-        
-        // Also store by ID for admin lookup
-        await this.redis.setex(
-          indexKey,
-          60 * 60 * 24 * 90,
-          invitation.inviteCode
-        );
-        
-        // Add to list of all invitations
-        await this.redis.zadd(
-          'invitations:all',
-          Date.now(),
-          invitation.inviteCode
-        );
-      } catch (error) {
-        console.error('Failed to save invitation to Redis:', error);
-        console.log('Falling back to memory store');
-        this.useMemoryFallback = true;
-        this.memoryStore.set(invitation.inviteCode, invitation);
-        console.log('Saved to memory store after Redis failure');
-      }
-    } else {
-      console.log('Saving to memory store with code:', invitation.inviteCode);
-      this.memoryStore.set(invitation.inviteCode, invitation);
-      console.log('Memory store now has keys:', Array.from(this.memoryStore.keys()));
-    }
-  }
 
-  // Get invitation by code
-  async getInvitationByCode(inviteCode: string): Promise<Invitation | null> {
-    const key = `invitation:${inviteCode}`;
-    console.log('Getting invitation by code:', inviteCode);
-    console.log('Storage state:', {
-      redisAvailable: !!this.redis,
-      useMemoryFallback: this.useMemoryFallback,
-      memoryStoreSize: this.memoryStore.size,
-      memoryStoreKeys: Array.from(this.memoryStore.keys())
+    // Also create metadata if needed
+    await prisma.invitationMetadata.create({
+      data: {
+        invitationId: id,
+        toolsAccessed: []
+      }
     });
-    
-    // Always check memory store first (in case we saved there during Redis failure)
-    const memData = this.memoryStore.get(inviteCode);
-    if (memData) {
-      console.log('Found invitation in memory store');
-      return memData;
-    }
-    
-    // Then try Redis if available
-    if (this.redis && !this.useMemoryFallback) {
-      try {
-        console.log('Fetching from Redis with key:', key);
-        const data = await this.redis.get(key);
-        if (data) {
-          console.log('Found invitation in Redis');
-          const invitation = JSON.parse(data);
-          // Cache in memory for faster access
-          this.memoryStore.set(inviteCode, invitation);
-          return invitation;
-        }
-        console.log('Not found in Redis');
-      } catch (error) {
-        console.error('Failed to get invitation from Redis:', error);
-        this.useMemoryFallback = true;
+
+    const invitation: Invitation = {
+      id,
+      email: email.toLowerCase(),
+      name,
+      company,
+      inviteCode,
+      inviteUrl,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      metadata: {
+        companyId: companyRecord?.id
       }
-    }
-    
-    console.log('Invitation not found in any storage');
-    return null;
+    };
+
+    return invitation;
   }
 
-  // Get invitation by ID
+  async getInvitation(code: string): Promise<Invitation | null> {
+    const dbInvitation = await prisma.invitation.findFirst({
+      where: { inviteCode: code },
+      include: {
+        company: true,
+        metadata: true
+      }
+    });
+
+    if (!dbInvitation) return null;
+
+    return this.transformToInvitation(dbInvitation);
+  }
+
   async getInvitationById(id: string): Promise<Invitation | null> {
-    const indexKey = `invitation:id:${id}`;
-    
-    if (this.redis && !this.useMemoryFallback) {
-      try {
-        const inviteCode = await this.redis.get(indexKey);
-        if (!inviteCode) return null;
-        return this.getInvitationByCode(inviteCode);
-      } catch (error) {
-        console.error('Failed to get invitation by ID from Redis:', error);
-        // Fallback to searching memory store
-        for (const invitation of this.memoryStore.values()) {
-          if (invitation.id === id) return invitation;
-        }
-        return null;
+    const dbInvitation = await prisma.invitation.findUnique({
+      where: { id },
+      include: {
+        company: true,
+        metadata: true
       }
-    } else {
-      // Search memory store
-      for (const invitation of this.memoryStore.values()) {
-        if (invitation.id === id) return invitation;
-      }
-      return null;
-    }
+    });
+
+    if (!dbInvitation) return null;
+
+    return this.transformToInvitation(dbInvitation);
   }
 
-  // Get all invitations
-  async getAllInvitations(): Promise<Invitation[]> {
-    if (this.redis && !this.useMemoryFallback) {
-      try {
-        // Get all invitation codes from sorted set (ordered by creation time)
-        const codes = await this.redis.zrevrange('invitations:all', 0, -1);
-        
-        if (codes.length === 0) return [];
-        
-        // Get all invitations
-        const pipeline = this.redis.pipeline();
-        codes.forEach(code => {
-          pipeline.get(`invitation:${code}`);
+  async updateInvitation(code: string, updates: Partial<Invitation>): Promise<boolean> {
+    try {
+      const statusMap: Record<string, string> = {
+        'pending': 'PENDING',
+        'sent': 'SENT',
+        'opened': 'OPENED',
+        'started': 'STARTED',
+        'completed': 'COMPLETED'
+      };
+
+      const updateData: any = {};
+      
+      if (updates.status) {
+        updateData.status = statusMap[updates.status];
+      }
+      if (updates.name) {
+        updateData.name = updates.name;
+      }
+      if (updates.sentAt) {
+        updateData.sentAt = new Date(updates.sentAt);
+      }
+      if (updates.openedAt) {
+        updateData.openedAt = new Date(updates.openedAt);
+      }
+      if (updates.startedAt) {
+        updateData.startedAt = new Date(updates.startedAt);
+      }
+      if (updates.completedAt) {
+        updateData.completedAt = new Date(updates.completedAt);
+      }
+
+      const invitation = await prisma.invitation.findFirst({
+        where: { inviteCode: code }
+      });
+
+      if (!invitation) return false;
+
+      await prisma.invitation.update({
+        where: { id: invitation.id },
+        data: updateData
+      });
+
+      // Update metadata if provided
+      if (updates.metadata) {
+        await prisma.invitationMetadata.upsert({
+          where: { invitationId: invitation.id },
+          create: {
+            invitationId: invitation.id,
+            role: updates.metadata.role || null,
+            toolsAccessed: updates.metadata.toolsAccessed || [],
+            department: null
+          },
+          update: {
+            role: updates.metadata.role || undefined,
+            toolsAccessed: updates.metadata.toolsAccessed || undefined
+          }
         });
-        
-        const results = await pipeline.exec();
-        const invitations: Invitation[] = [];
-        
-        if (results) {
-          results.forEach(([err, data]) => {
-            if (!err && data) {
-              try {
-                invitations.push(JSON.parse(data as string));
-              } catch (e) {
-                console.error('Failed to parse invitation:', e);
-              }
-            }
-          });
-        }
-        
-        return invitations;
-      } catch (error) {
-        console.error('Failed to get all invitations from Redis:', error);
-        return Array.from(this.memoryStore.values());
       }
-    } else {
-      return Array.from(this.memoryStore.values());
+
+      return true;
+    } catch (error) {
+      console.error('Failed to update invitation:', error);
+      return false;
     }
   }
 
-  // Update invitation
-  async updateInvitation(inviteCode: string, updates: Partial<Invitation>): Promise<Invitation | null> {
-    const existing = await this.getInvitationByCode(inviteCode);
-    if (!existing) return null;
-    
-    const updated = { ...existing, ...updates };
-    await this.saveInvitation(updated);
-    return updated;
+  async getInvitationsByEmail(email: string): Promise<Invitation[]> {
+    const invitations = await prisma.invitation.findMany({
+      where: { email: email.toLowerCase() },
+      include: {
+        company: true,
+        metadata: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return invitations.map(inv => this.transformToInvitation(inv));
   }
 
-  // Track invitation event
-  async trackInvitationEvent(
-    inviteCode: string,
-    event: 'opened' | 'started' | 'progress' | 'tool_accessed' | 'completed',
-    metadata?: any
-  ): Promise<void> {
-    const invitation = await this.getInvitationByCode(inviteCode);
-    if (!invitation) return;
+  async getAllInvitations(): Promise<Invitation[]> {
+    const invitations = await prisma.invitation.findMany({
+      include: {
+        company: true,
+        metadata: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
 
-    const timestamp = new Date().toISOString();
-    
-    switch (event) {
-      case 'opened':
-        if (!invitation.openedAt) {
-          invitation.openedAt = timestamp;
-          invitation.status = 'opened';
-        }
-        break;
-        
-      case 'started':
-        invitation.startedAt = timestamp;
-        invitation.status = 'started';
-        invitation.currentStage = 'Role Selection';
-        break;
-        
-      case 'progress':
-        invitation.currentStage = metadata?.stage || invitation.currentStage;
-        if (metadata?.role) {
-          invitation.metadata = invitation.metadata || {};
-          invitation.metadata.role = metadata.role;
-        }
-        if (metadata?.challenges) {
-          invitation.metadata = invitation.metadata || {};
-          invitation.metadata.challenges = metadata.challenges;
-        }
-        break;
-        
-      case 'tool_accessed':
-        invitation.metadata = invitation.metadata || {};
-        invitation.metadata.toolsAccessed = invitation.metadata.toolsAccessed || [];
-        if (metadata?.tool && !invitation.metadata.toolsAccessed.includes(metadata.tool)) {
-          invitation.metadata.toolsAccessed.push(metadata.tool);
-        }
-        break;
-        
-      case 'completed':
-        invitation.completedAt = timestamp;
-        invitation.status = 'completed';
-        invitation.currentStage = 'Completed';
-        break;
-    }
-    
-    await this.saveInvitation(invitation);
+    return invitations.map(inv => this.transformToInvitation(inv));
   }
 
-  // Clean up expired invitations (optional maintenance task)
-  async cleanupExpired(): Promise<number> {
-    if (!this.redis || this.useMemoryFallback) {
-      // For memory store, remove invitations older than 90 days
-      const cutoff = Date.now() - (90 * 24 * 60 * 60 * 1000);
-      let removed = 0;
-      
-      for (const [code, invitation] of this.memoryStore.entries()) {
-        const createdAt = new Date(invitation.createdAt).getTime();
-        if (createdAt < cutoff) {
-          this.memoryStore.delete(code);
-          removed++;
-        }
-      }
-      
-      return removed;
-    }
+  private transformToInvitation(dbInvitation: any): Invitation {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tools.getcampfire.com';
+    const inviteUrl = `${baseUrl}/start?invite=${dbInvitation.inviteCode}`;
     
-    // For Redis, expired keys are automatically removed by TTL
-    return 0;
+    const statusMap: Record<string, Invitation['status']> = {
+      'PENDING': 'pending',
+      'SENT': 'sent',
+      'OPENED': 'opened',
+      'STARTED': 'started',
+      'COMPLETED': 'completed'
+    };
+
+    return {
+      id: dbInvitation.id,
+      email: dbInvitation.email,
+      name: dbInvitation.name || undefined,
+      company: dbInvitation.company?.name || undefined,
+      inviteCode: dbInvitation.inviteCode,
+      inviteUrl,
+      status: statusMap[dbInvitation.status] || 'pending',
+      createdAt: dbInvitation.createdAt.toISOString(),
+      sentAt: dbInvitation.sentAt?.toISOString(),
+      openedAt: dbInvitation.openedAt?.toISOString(),
+      startedAt: dbInvitation.startedAt?.toISOString(),
+      completedAt: dbInvitation.completedAt?.toISOString(),
+      metadata: dbInvitation.metadata ? {
+        role: dbInvitation.metadata.role || undefined,
+        toolsAccessed: dbInvitation.metadata.toolsAccessed || [],
+        companyId: dbInvitation.companyId || undefined
+      } : undefined
+    };
   }
 }
 
-// Create singleton instance
-let invitationStorage: InvitationStorage;
-
-// Use a getter to ensure single instance
-function getInvitationStorage(): InvitationStorage {
-  if (!invitationStorage) {
-    console.log('Creating new InvitationStorage instance');
-    invitationStorage = new InvitationStorage();
-  }
-  return invitationStorage;
-}
-
-export default getInvitationStorage();
+export const invitationStorage = new InvitationStorage();

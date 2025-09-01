@@ -1,10 +1,12 @@
-import Redis from 'ioredis';
+import prisma from '@/lib/prisma';
 import { nanoid } from 'nanoid';
+
+// PostgreSQL version of companyStorage using Prisma
 
 export interface Company {
   id: string;
   name: string;
-  domain: string; // e.g., "getcampfire.com"
+  domain: string;
   logo?: string;
   createdAt: string;
   settings?: {
@@ -28,220 +30,208 @@ export interface CompanyUser {
 }
 
 class CompanyStorage {
-  private redis: Redis | null = null;
-  private memoryStore = {
-    companies: new Map<string, Company>(),
-    users: new Map<string, CompanyUser>(),
-    domainToCompany: new Map<string, string>(), // domain -> companyId
-  };
-  private useMemoryFallback = false;
-
   constructor() {
-    this.initializeRedis();
-  }
-
-  private async initializeRedis() {
-    if (process.env.REDIS_URL) {
-      try {
-        this.redis = new Redis(process.env.REDIS_URL, {
-          retryStrategy: (times) => {
-            const delay = Math.min(times * 50, 2000);
-            return delay;
-          },
-          connectTimeout: 10000,
-          maxRetriesPerRequest: 3,
-          enableOfflineQueue: false,
-          lazyConnect: true,
-        });
-
-        await this.redis.connect();
-        console.log('Company storage: Redis connection established');
-
-        this.redis.on('error', (err) => {
-          console.error('Company storage: Redis error:', err);
-          this.useMemoryFallback = true;
-        });
-      } catch (error) {
-        console.error('Company storage: Failed to connect to Redis:', error);
-        this.useMemoryFallback = true;
-      }
-    } else {
-      console.log('Company storage: Using memory storage');
-      this.useMemoryFallback = true;
-    }
+    console.log('Company storage: Using PostgreSQL');
   }
 
   // Company methods
   async createCompany(data: Omit<Company, 'id' | 'createdAt'>): Promise<Company> {
-    const company: Company = {
-      ...data,
-      id: nanoid(),
-      createdAt: new Date().toISOString(),
-    };
-
-    if (this.redis && !this.useMemoryFallback) {
-      try {
-        await this.redis.setex(
-          `company:${company.id}`,
-          60 * 60 * 24 * 365, // 1 year
-          JSON.stringify(company)
-        );
-        await this.redis.set(`domain:${company.domain}`, company.id);
-      } catch (error) {
-        console.error('Failed to save company to Redis:', error);
-        this.memoryStore.companies.set(company.id, company);
-        this.memoryStore.domainToCompany.set(company.domain, company.id);
+    const company = await prisma.company.create({
+      data: {
+        name: data.name,
+        domains: [data.domain],
+        logo: data.logo || null
       }
-    } else {
-      this.memoryStore.companies.set(company.id, company);
-      this.memoryStore.domainToCompany.set(company.domain, company.id);
-    }
+    });
 
-    return company;
+    return {
+      id: company.id,
+      name: company.name,
+      domain: data.domain,
+      logo: company.logo || undefined,
+      createdAt: company.createdAt.toISOString(),
+      settings: data.settings
+    };
+  }
+
+  async getCompany(id: string): Promise<Company | null> {
+    const company = await prisma.company.findUnique({
+      where: { id }
+    });
+
+    if (!company) return null;
+
+    return {
+      id: company.id,
+      name: company.name,
+      domain: company.domains[0] || '',
+      logo: company.logo || undefined,
+      createdAt: company.createdAt.toISOString()
+    };
   }
 
   async getCompanyByDomain(domain: string): Promise<Company | null> {
-    if (this.redis && !this.useMemoryFallback) {
-      try {
-        const companyId = await this.redis.get(`domain:${domain}`);
-        if (!companyId) return null;
-        
-        const data = await this.redis.get(`company:${companyId}`);
-        return data ? JSON.parse(data) : null;
-      } catch (error) {
-        console.error('Failed to get company from Redis:', error);
-        const companyId = this.memoryStore.domainToCompany.get(domain);
-        return companyId ? this.memoryStore.companies.get(companyId) || null : null;
+    const company = await prisma.company.findFirst({
+      where: {
+        domains: { has: domain }
       }
-    } else {
-      const companyId = this.memoryStore.domainToCompany.get(domain);
-      return companyId ? this.memoryStore.companies.get(companyId) || null : null;
-    }
+    });
+
+    if (!company) return null;
+
+    return {
+      id: company.id,
+      name: company.name,
+      domain,
+      logo: company.logo || undefined,
+      createdAt: company.createdAt.toISOString()
+    };
   }
 
-  async getCompanyById(id: string): Promise<Company | null> {
-    if (this.redis && !this.useMemoryFallback) {
-      try {
-        const data = await this.redis.get(`company:${id}`);
-        return data ? JSON.parse(data) : null;
-      } catch (error) {
-        console.error('Failed to get company from Redis:', error);
-        return this.memoryStore.companies.get(id) || null;
+  async updateCompany(id: string, updates: Partial<Company>): Promise<boolean> {
+    try {
+      const updateData: any = {};
+      
+      if (updates.name) updateData.name = updates.name;
+      if (updates.logo) updateData.logo = updates.logo;
+      if (updates.domain) {
+        const company = await prisma.company.findUnique({ where: { id } });
+        if (company) {
+          const domains = new Set(company.domains);
+          domains.add(updates.domain);
+          updateData.domains = Array.from(domains);
+        }
       }
-    } else {
-      return this.memoryStore.companies.get(id) || null;
+
+      await prisma.company.update({
+        where: { id },
+        data: updateData
+      });
+
+      return true;
+    } catch {
+      return false;
     }
   }
 
   // User methods
   async createUser(data: Omit<CompanyUser, 'id' | 'createdAt'>): Promise<CompanyUser> {
-    const user: CompanyUser = {
-      ...data,
-      id: nanoid(),
-      createdAt: new Date().toISOString(),
+    // Create or update UserProfile
+    const userProfile = await prisma.userProfile.upsert({
+      where: { email: data.email },
+      create: {
+        clerkUserId: nanoid(), // Temporary ID if no Clerk ID
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        companyId: data.companyId,
+        role: data.role === 'manager' ? 'Manager' : 
+              data.role === 'admin' ? 'Executive' : 'Individual Contributor'
+      },
+      update: {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        companyId: data.companyId,
+        role: data.role === 'manager' ? 'Manager' : 
+              data.role === 'admin' ? 'Executive' : 'Individual Contributor'
+      }
+    });
+
+    return {
+      id: userProfile.id,
+      email: userProfile.email,
+      firstName: userProfile.firstName || '',
+      lastName: userProfile.lastName || '',
+      companyId: userProfile.companyId || data.companyId,
+      role: data.role,
+      status: data.status,
+      createdAt: userProfile.createdAt.toISOString(),
+      invitedAt: data.invitedAt,
+      lastSignIn: data.lastSignIn,
+      toolsAccessed: data.toolsAccessed
     };
-
-    if (this.redis && !this.useMemoryFallback) {
-      try {
-        await this.redis.setex(
-          `user:${user.email}`,
-          60 * 60 * 24 * 365, // 1 year
-          JSON.stringify(user)
-        );
-        
-        // Add to company's user list
-        await this.redis.zadd(
-          `company:${user.companyId}:users`,
-          Date.now(),
-          user.email
-        );
-      } catch (error) {
-        console.error('Failed to save user to Redis:', error);
-        this.memoryStore.users.set(user.email, user);
-      }
-    } else {
-      this.memoryStore.users.set(user.email, user);
-    }
-
-    return user;
   }
 
-  async getUserByEmail(email: string): Promise<CompanyUser | null> {
-    if (this.redis && !this.useMemoryFallback) {
-      try {
-        const data = await this.redis.get(`user:${email}`);
-        return data ? JSON.parse(data) : null;
-      } catch (error) {
-        console.error('Failed to get user from Redis:', error);
-        return this.memoryStore.users.get(email) || null;
-      }
-    } else {
-      return this.memoryStore.users.get(email) || null;
-    }
+  async getUser(email: string): Promise<CompanyUser | null> {
+    const userProfile = await prisma.userProfile.findUnique({
+      where: { email }
+    });
+
+    if (!userProfile || !userProfile.companyId) return null;
+
+    return {
+      id: userProfile.id,
+      email: userProfile.email,
+      firstName: userProfile.firstName || '',
+      lastName: userProfile.lastName || '',
+      companyId: userProfile.companyId,
+      role: 'member', // Default role
+      status: 'active',
+      createdAt: userProfile.createdAt.toISOString()
+    };
   }
 
-  async getCompanyUsers(companyId: string): Promise<CompanyUser[]> {
-    if (this.redis && !this.useMemoryFallback) {
-      try {
-        const emails = await this.redis.zrevrange(`company:${companyId}:users`, 0, -1);
-        const users: CompanyUser[] = [];
-        
-        for (const email of emails) {
-          const userData = await this.redis.get(`user:${email}`);
-          if (userData) {
-            users.push(JSON.parse(userData));
-          }
-        }
-        
-        return users;
-      } catch (error) {
-        console.error('Failed to get company users from Redis:', error);
-        return Array.from(this.memoryStore.users.values()).filter(u => u.companyId === companyId);
-      }
-    } else {
-      return Array.from(this.memoryStore.users.values()).filter(u => u.companyId === companyId);
-    }
+  async getUsersByCompany(companyId: string): Promise<CompanyUser[]> {
+    const users = await prisma.userProfile.findMany({
+      where: { companyId }
+    });
+
+    return users.map(user => ({
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      companyId: user.companyId || companyId,
+      role: 'member' as const,
+      status: 'active' as const,
+      createdAt: user.createdAt.toISOString()
+    }));
   }
 
-  async updateUser(email: string, updates: Partial<CompanyUser>): Promise<CompanyUser | null> {
-    const existing = await this.getUserByEmail(email);
-    if (!existing) return null;
-    
-    const updated = { ...existing, ...updates };
-    
-    if (this.redis && !this.useMemoryFallback) {
-      try {
-        await this.redis.setex(
-          `user:${email}`,
-          60 * 60 * 24 * 365,
-          JSON.stringify(updated)
-        );
-      } catch (error) {
-        console.error('Failed to update user in Redis:', error);
-        this.memoryStore.users.set(email, updated);
+  async updateUser(email: string, updates: Partial<CompanyUser>): Promise<boolean> {
+    try {
+      const updateData: any = {};
+      
+      if (updates.firstName) updateData.firstName = updates.firstName;
+      if (updates.lastName) updateData.lastName = updates.lastName;
+      if (updates.companyId) updateData.companyId = updates.companyId;
+      if (updates.role) {
+        updateData.role = updates.role === 'manager' ? 'Manager' : 
+                         updates.role === 'admin' ? 'Executive' : 'Individual Contributor';
       }
-    } else {
-      this.memoryStore.users.set(email, updated);
-    }
-    
-    return updated;
-  }
 
-  // Helper to get or create company from email domain
-  async getOrCreateCompanyFromEmail(email: string, companyName?: string): Promise<Company> {
-    const domain = email.split('@')[1];
-    
-    let company = await this.getCompanyByDomain(domain);
-    if (!company) {
-      company = await this.createCompany({
-        name: companyName || domain.split('.')[0].charAt(0).toUpperCase() + domain.split('.')[0].slice(1),
-        domain,
+      await prisma.userProfile.update({
+        where: { email },
+        data: updateData
       });
+
+      return true;
+    } catch {
+      return false;
     }
-    
-    return company;
+  }
+
+  async addUserToCompany(email: string, companyId: string, role: CompanyUser['role'] = 'member'): Promise<boolean> {
+    try {
+      await prisma.userProfile.upsert({
+        where: { email },
+        create: {
+          clerkUserId: nanoid(),
+          email,
+          companyId,
+          role: role === 'manager' ? 'Manager' : 
+                role === 'admin' ? 'Executive' : 'Individual Contributor'
+        },
+        update: {
+          companyId
+        }
+      });
+
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
 
-const companyStorage = new CompanyStorage();
-export default companyStorage;
+export const companyStorage = new CompanyStorage();

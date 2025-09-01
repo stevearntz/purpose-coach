@@ -81,15 +81,40 @@ export default function ResultsTab() {
   const loadIndividualResults = async () => {
     setLoading(true)
     try {
-      // Use authenticated endpoint ONLY
-      const response = await fetch('/api/results/individuals', {
-        credentials: 'include' // Include auth cookies
+      // Get company ID from organization
+      const orgResponse = await fetch('/api/user/company')
+      if (!orgResponse.ok) {
+        console.error('Failed to fetch company info')
+        setLoading(false)
+        return
+      }
+      const { company } = await orgResponse.json()
+      
+      // Use unified API with company ID
+      const response = await fetch(`/api/assessments/unified?companyId=${company.id}`, {
+        credentials: 'include'
       })
       if (response.ok) {
         const data = await response.json()
-        // Note: IndividualResultsViewEnhanced component handles deduplication on the client side
-        // It filters to show only the most recent submission per user/campaign/assessment
-        setIndividualResults(data.results || [])
+        // Transform unified results to match expected format for IndividualResultsViewEnhanced
+        const transformedResults = data.results?.map((result: any) => ({
+          id: result.id,
+          participantName: result.user.name,
+          participantEmail: result.user.email,
+          assessmentType: result.toolName,
+          campaignName: null, // Will be populated from campaigns
+          completedAt: result.completedAt,
+          status: 'COMPLETED',
+          inviteCode: result.invitationId,
+          department: result.user.department,
+          teamSize: result.user.teamSize,
+          hasResults: true,
+          assessmentId: result.id,
+          // Include the full result for detail view
+          fullResult: result
+        })) || []
+        
+        setIndividualResults(transformedResults)
       } else if (response.status === 401) {
         console.error('Authentication required - user must be logged in')
         setIndividualResults([])
@@ -136,63 +161,44 @@ export default function ResultsTab() {
   const loadAggregatedData = async (campaignId: string) => {
     setLoadingAggregatedData(prev => new Set(prev).add(campaignId))
     try {
-      // Fetch actual aggregated data from the API
-      const response = await fetch(`/api/results/campaigns/v2?campaignId=${campaignId}&includeDetails=true`)
+      // Use the unified API with aggregated view
+      const response = await fetch(`/api/assessments/unified?campaignId=${campaignId}&view=aggregated`)
       const data = await response.json()
       
-      if (data.success && data.results && data.results.length > 0) {
-        const campaignResult = data.results[0]
-        
-        // Transform the API response to match our expected format
-        if (campaignResult.aggregatedData) {
-          const aggregated: any = {
-            challengeAreas: {},
-            skills: {},
-            supportNeeds: {},
-            focusAreas: {}
-          }
-          
-          // Process challenges by category
-          if (campaignResult.aggregatedData.topChallenges) {
-            const categorizedChallenges: Record<string, any> = {}
-            
-            campaignResult.aggregatedData.topChallenges.forEach((item: any) => {
-              const [category, challenge] = item.challenge.split(': ')
-              if (!categorizedChallenges[category]) {
-                categorizedChallenges[category] = {
-                  category,
-                  challenges: {}
-                }
-              }
-              categorizedChallenges[category].challenges[challenge] = item.count
-            })
-            
-            aggregated.challengeAreas = categorizedChallenges
-          }
-          
-          // Process skills
-          if (campaignResult.aggregatedData.topSkillGaps) {
-            campaignResult.aggregatedData.topSkillGaps.forEach((item: any) => {
-              aggregated.skills[item.skill] = item.count
-            })
-          }
-          
-          // Process support needs
-          if (campaignResult.aggregatedData.topSupportNeeds) {
-            campaignResult.aggregatedData.topSupportNeeds.forEach((item: any) => {
-              aggregated.supportNeeds[item.need] = item.count
-            })
-          }
-          
-          // Process focus areas
-          if (campaignResult.aggregatedData.topPriorities) {
-            campaignResult.aggregatedData.topPriorities.forEach((item: any) => {
-              aggregated.focusAreas[item.priority] = item.count
-            })
-          }
-          
-          setAggregatedData(prev => ({ ...prev, [campaignId]: aggregated }))
+      if (data.success && data.data) {
+        const aggregated: any = {
+          challengeAreas: {},
+          skills: {},
+          supportNeeds: {},
+          focusAreas: {}
         }
+        
+        // Process challenges by category from unified API
+        if (data.data.byCategory) {
+          Object.entries(data.data.byCategory).forEach(([category, categoryData]: [string, any]) => {
+            aggregated.challengeAreas[category] = {
+              category,
+              challenges: categoryData.challenges || {}
+            }
+          })
+        }
+        
+        // Process skills from unified API
+        if (data.data.skills) {
+          aggregated.skills = data.data.skills
+        }
+        
+        // Process support needs from unified API
+        if (data.data.supportNeeds) {
+          aggregated.supportNeeds = data.data.supportNeeds
+        }
+        
+        // Process focus areas from unified API
+        if (data.data.focusAreas) {
+          aggregated.focusAreas = data.data.focusAreas
+        }
+        
+        setAggregatedData(prev => ({ ...prev, [campaignId]: aggregated }))
       }
     } catch (error) {
       console.error('Failed to load aggregated data:', error)

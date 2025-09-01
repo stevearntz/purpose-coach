@@ -177,6 +177,14 @@ function PeopleLeaderNeedsContent() {
   const [emailValidation, setEmailValidation] = useState<EmailValidationResult>({ isValid: true })
   const [showSuggestion, setShowSuggestion] = useState(false)
   const [customInputs, setCustomInputs] = useState<{ [key: string]: string }>({})
+  
+  // Track original values to detect changes
+  const [originalProfileData, setOriginalProfileData] = useState<{
+    name?: string
+    email?: string
+    department?: string
+    teamSize?: string
+  }>({})
 
   // Fetch invitation data if invite code is present OR pre-populate from URL params
   useEffect(() => {
@@ -188,13 +196,20 @@ function PeopleLeaderNeedsContent() {
     
     // Pre-populate from URL params if available
     if (urlName || urlEmail || urlDepartment || urlTeamSize) {
+      const profileData = {
+        name: urlName || '',
+        email: urlEmail || '',
+        department: urlDepartment || '',
+        teamSize: urlTeamSize || ''
+      }
+      
       setManagerData(prev => ({
         ...prev,
-        name: urlName || prev.name,
-        email: urlEmail || prev.email,
-        department: urlDepartment || prev.department,
-        teamSize: urlTeamSize || prev.teamSize
+        ...profileData
       }))
+      
+      // Store original values to track changes
+      setOriginalProfileData(profileData)
       
       // If email is provided, validate it
       if (urlEmail) {
@@ -294,6 +309,43 @@ function PeopleLeaderNeedsContent() {
     if (!validation.isValid || !managerData.name || !managerData.department || !managerData.teamSize) {
       setShowSuggestion(!!validation.suggestion)
       return
+    }
+    
+    // Check if profile data has changed and update if needed
+    const context = searchParams.get('context')
+    if (context === 'member-dashboard' && originalProfileData.email) {
+      const hasChanges = 
+        (originalProfileData.name && originalProfileData.name !== managerData.name) ||
+        (originalProfileData.department && originalProfileData.department !== managerData.department) ||
+        (originalProfileData.teamSize && originalProfileData.teamSize !== managerData.teamSize)
+      
+      if (hasChanges) {
+        try {
+          // Parse name into first and last
+          const nameParts = managerData.name.trim().split(' ')
+          const firstName = nameParts[0] || ''
+          const lastName = nameParts.slice(1).join(' ') || ''
+          
+          // Update profile with changed fields
+          const response = await fetch('/api/user/profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              firstName,
+              lastName,
+              department: managerData.department,
+              teamSize: managerData.teamSize
+            })
+          })
+          
+          if (response.ok) {
+            console.log('Profile updated successfully')
+          }
+        } catch (error) {
+          console.error('Failed to update profile:', error)
+          // Continue anyway - don't block the assessment
+        }
+      }
     }
     
     if (managerData.email) {

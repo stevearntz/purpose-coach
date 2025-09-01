@@ -1,7 +1,7 @@
 'use client'
 
 import { useUser } from '@clerk/nextjs'
-import { BarChart3, FileText, Calendar, TrendingUp, Clock, ChevronDown, ChevronUp, Brain, Target, Users, Award, Download, ExternalLink } from 'lucide-react'
+import { BarChart3, FileText, Calendar, TrendingUp, Clock, ChevronDown, ChevronUp, Brain, Target, Users, Award, Download, ExternalLink, AlertTriangle, Sparkles, HeartHandshake, Flag, Lightbulb } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 interface AssessmentResult {
@@ -180,13 +180,15 @@ export default function MemberResultsPage() {
                       {/* Summary Section */}
                       {result.summary && (
                         <div>
-                          <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                             <BarChart3 className="w-5 h-5 text-purple-400" />
                             Summary
                           </h4>
                           <div className="bg-white/10 rounded-lg p-4">
                             <p className="text-white/80 leading-relaxed">
-                              {typeof result.summary === 'string' ? result.summary : JSON.stringify(result.summary)}
+                              {typeof result.summary === 'string' ? result.summary : 
+                                (result.summary?.content || 
+                                 `Manager assessment completed with ${result.responses?.challenges?.length || 0} challenges identified across ${result.scores?.categoryCount || 3} categories`)}
                             </p>
                           </div>
                         </div>
@@ -195,26 +197,26 @@ export default function MemberResultsPage() {
                       {/* Scores Section */}
                       {result.scores && Object.keys(result.scores).length > 0 && (
                         <div>
-                          <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                             <TrendingUp className="w-5 h-5 text-green-400" />
                             Scores
                           </h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="grid grid-cols-2 gap-4">
                             {Object.entries(result.scores).map(([key, value]) => (
                               <div key={key} className="bg-white/10 rounded-lg p-4">
-                                <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center justify-between">
                                   <p className="text-white/80 font-medium capitalize">
-                                    {key.replace(/([A-Z])/g, ' $1').trim()}
+                                    {key.replace(/([A-Z])/g, ' $1').trim().replace('Count', ' Count')}
                                   </p>
-                                  <span className="text-white text-lg font-bold">
-                                    {typeof value === 'number' ? Math.round(value) : String(value)}
+                                  <span className="text-2xl font-bold text-white">
+                                    {typeof value === 'number' ? value : String(value)}
                                   </span>
                                 </div>
                                 {typeof value === 'number' && (
-                                  <div className="w-full bg-white/20 rounded-full h-2">
+                                  <div className="mt-2 w-full bg-white/20 rounded-full h-2">
                                     <div 
                                       className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all"
-                                      style={{ width: `${Math.min(100, Math.max(0, value as number))}%` }}
+                                      style={{ width: `${Math.min(100, Math.max(0, (value / 10) * 100))}%` }}
                                     ></div>
                                   </div>
                                 )}
@@ -224,21 +226,107 @@ export default function MemberResultsPage() {
                         </div>
                       )}
 
-                      {/* Insights Section */}
-                      {result.insights && Array.isArray(result.insights) && result.insights.length > 0 && (
+                      {/* Challenge Areas Section */}
+                      {result.responses?.challenges && Array.isArray(result.responses.challenges) && result.responses.challenges.length > 0 && (
                         <div>
-                          <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                            <Brain className="w-5 h-5 text-blue-400" />
-                            Key Insights
+                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <AlertTriangle className="w-5 h-5 text-red-400" />
+                            Challenge Areas
                           </h4>
                           <div className="space-y-3">
-                            {result.insights.map((insight: any, index: number) => (
-                              <div key={index} className="bg-white/10 rounded-lg p-4">
-                                <p className="text-white/80 leading-relaxed">
-                                  {typeof insight === 'string' ? insight : insight.content || JSON.stringify(insight)}
-                                </p>
-                              </div>
+                            {result.responses.challenges.map((category: any, index: number) => {
+                              // Handle both object format (with name/subcategories) and string format
+                              if (typeof category === 'object' && category.name) {
+                                return (
+                                  <div key={index}>
+                                    <h5 className="text-white font-medium mb-2">{category.name}</h5>
+                                    {category.subcategories && (
+                                      <div className="flex flex-wrap gap-2">
+                                        {category.subcategories.map((sub: string, subIndex: number) => (
+                                          <span key={subIndex} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
+                                            {sub}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                )
+                              }
+                              // If it's just a string or doesn't have the expected structure
+                              return (
+                                <div key={index} className="flex flex-wrap gap-2">
+                                  <span className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
+                                    {typeof category === 'string' ? category : JSON.stringify(category)}
+                                  </span>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Skills to Develop Section */}
+                      {result.responses?.skillsToGrow && Array.isArray(result.responses.skillsToGrow) && result.responses.skillsToGrow.length > 0 && (
+                        <div>
+                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <Sparkles className="w-5 h-5 text-purple-400" />
+                            Skills to Develop
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {result.responses.skillsToGrow.map((skill: string, index: number) => (
+                              <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
+                                {skill}
+                              </span>
                             ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Support Needs Section */}
+                      {result.responses?.supportNeeds && Array.isArray(result.responses.supportNeeds) && result.responses.supportNeeds.length > 0 && (
+                        <div>
+                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <HeartHandshake className="w-5 h-5 text-pink-400" />
+                            Support Needs
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {result.responses.supportNeeds.map((need: string, index: number) => (
+                              <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
+                                {need}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Focus Areas Section */}
+                      {result.responses?.teamImpact && Array.isArray(result.responses.teamImpact) && result.responses.teamImpact.length > 0 && (
+                        <div>
+                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <Flag className="w-5 h-5 text-blue-400" />
+                            Focus Areas
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {result.responses.teamImpact.map((area: string, index: number) => (
+                              <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
+                                {area}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Additional Insights Section */}
+                      {result.responses?.additionalContext && (
+                        <div>
+                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <Lightbulb className="w-5 h-5 text-yellow-400" />
+                            Additional Insights
+                          </h4>
+                          <div className="bg-white/10 rounded-lg p-4">
+                            <p className="text-white/80 leading-relaxed italic">
+                              "{result.responses.additionalContext}"
+                            </p>
                           </div>
                         </div>
                       )}
@@ -246,7 +334,7 @@ export default function MemberResultsPage() {
                       {/* Recommendations Section */}
                       {result.recommendations && Array.isArray(result.recommendations) && result.recommendations.length > 0 && (
                         <div>
-                          <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                             <Target className="w-5 h-5 text-orange-400" />
                             Recommendations
                           </h4>
@@ -261,20 +349,6 @@ export default function MemberResultsPage() {
                           </div>
                         </div>
                       )}
-
-                      {/* Share Button */}
-                      <div className="flex justify-end pt-4 border-t border-white/10">
-                        <button
-                          onClick={() => {
-                            const shareUrl = `${window.location.origin}/${result.toolId}/share/${result.shareId}`
-                            window.open(shareUrl, '_blank')
-                          }}
-                          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                          View Full Report
-                        </button>
-                      </div>
                     </div>
                   </div>
                 )}

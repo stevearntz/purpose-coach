@@ -92,12 +92,6 @@ export default function DashboardLayout({
       secondary: []
     },
     { 
-      id: 'results', 
-      label: 'Results', 
-      href: '/dashboard/member/start/results',
-      secondary: []
-    },
-    { 
       id: 'profile', 
       label: 'Profile', 
       href: '/dashboard/member/start',
@@ -105,6 +99,12 @@ export default function DashboardLayout({
         { id: 'onboarding', label: 'Onboarding', href: '/dashboard/member/start/onboarding' },
         { id: 'myprofile', label: 'My Profile', href: '/dashboard/member/start/profile' }
       ]
+    },
+    { 
+      id: 'results', 
+      label: 'Results', 
+      href: '/dashboard/member/start/results',
+      secondary: []
     },
   ]
   
@@ -121,6 +121,9 @@ export default function DashboardLayout({
     if (showAsMember) {
       if (pathname.includes('/dashboard/member/start/dashboard')) {
         return 'dashboard'
+      }
+      if (pathname.includes('/dashboard/member/start/results')) {
+        return 'results'
       }
       if (pathname.includes('/dashboard/member/start')) {
         return 'profile'

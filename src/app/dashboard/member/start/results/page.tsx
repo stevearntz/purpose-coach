@@ -177,16 +177,26 @@ export default function MemberResultsPage() {
                 {isExpanded && (
                   <div className="border-t border-white/10 bg-white/5">
                     <div className="p-6 space-y-6">
-                      {/* Challenge Areas Section */}
-                      {result.responses?.challenges && (
-                        <div>
-                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <AlertTriangle className="w-5 h-5 text-red-400" />
-                            Challenge Areas
-                          </h4>
-                          <div className="space-y-4">
-                            {/* Individual Performance subsection */}
-                            {result.responses.challenges.map((category: any) => {
+                      {/* Debug: Log the data structure */}
+                      {console.log('[Results Debug] Full result object:', result)}
+                      {console.log('[Results Debug] Responses:', result.responses)}
+                      {console.log('[Results Debug] Challenges:', result.responses?.challenges)}
+                      {console.log('[Results Debug] Skills:', result.responses?.skillsToGrow)}
+                      {console.log('[Results Debug] Support:', result.responses?.supportNeeds)}
+                      {console.log('[Results Debug] TeamImpact:', result.responses?.teamImpact)}
+                      {console.log('[Results Debug] Context:', result.responses?.additionalContext)}
+                      
+                      {/* Challenge Areas Section - ALWAYS SHOW */}
+                      <div>
+                        <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                          <AlertTriangle className="w-5 h-5 text-red-400" />
+                          Challenge Areas
+                        </h4>
+                        <div className="space-y-4">
+                          {result.responses?.challenges ? (
+                            <>
+                              {/* Individual Performance subsection */}
+                              {result.responses.challenges.map((category: any) => {
                               if (category.name === 'Individual Performance') {
                                 return (
                                   <div key="individual">
@@ -241,75 +251,86 @@ export default function MemberResultsPage() {
                               }
                               return null
                             })}
-                          </div>
+                            </>
+                          ) : (
+                            <p className="text-white/50 text-sm">No challenge data available</p>
+                          )}
                         </div>
-                      )}
+                      </div>
 
-                      {/* Skills to Develop Section */}
-                      {result.responses?.skillsToGrow && (
-                        <div>
-                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <Sparkles className="w-5 h-5 text-purple-400" />
-                            Skills to Develop
-                          </h4>
-                          <div className="flex flex-wrap gap-2">
-                            {result.responses.skillsToGrow.map((skill: string, index: number) => (
+                      {/* Skills to Develop Section - ALWAYS SHOW */}
+                      <div>
+                        <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                          <Sparkles className="w-5 h-5 text-purple-400" />
+                          Skills to Develop
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {result.responses?.skillsToGrow ? (
+                            result.responses.skillsToGrow.map((skill: string, index: number) => (
                               <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
                                 {skill}
                               </span>
-                            ))}
-                          </div>
+                            ))
+                          ) : (
+                            <p className="text-white/50 text-sm">No skills data available</p>
+                          )}
                         </div>
-                      )}
+                      </div>
 
-                      {/* Support Needs Section */}
-                      {result.responses?.supportNeeds && (
-                        <div>
-                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <HeartHandshake className="w-5 h-5 text-pink-400" />
-                            Support Needs
-                          </h4>
-                          <div className="flex flex-wrap gap-2">
-                            {result.responses.supportNeeds.map((need: string, index: number) => (
+                      {/* Support Needs Section - ALWAYS SHOW */}
+                      <div>
+                        <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                          <HeartHandshake className="w-5 h-5 text-pink-400" />
+                          Support Needs
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {result.responses?.supportNeeds ? (
+                            result.responses.supportNeeds.map((need: string, index: number) => (
                               <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
                                 {need}
                               </span>
-                            ))}
-                          </div>
+                            ))
+                          ) : (
+                            <p className="text-white/50 text-sm">No support needs data available</p>
+                          )}
                         </div>
-                      )}
+                      </div>
 
-                      {/* Focus Areas Section */}
-                      {result.responses?.teamImpact && (
-                        <div>
-                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <Flag className="w-5 h-5 text-blue-400" />
-                            Focus Areas
-                          </h4>
-                          <div className="flex flex-wrap gap-2">
-                            {result.responses.teamImpact.map((area: string, index: number) => (
+                      {/* Focus Areas Section - ALWAYS SHOW */}
+                      <div>
+                        <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                          <Flag className="w-5 h-5 text-blue-400" />
+                          Focus Areas
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {result.responses?.teamImpact ? (
+                            result.responses.teamImpact.map((area: string, index: number) => (
                               <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
                                 {area}
                               </span>
-                            ))}
-                          </div>
+                            ))
+                          ) : (
+                            <p className="text-white/50 text-sm">No focus areas data available</p>
+                          )}
                         </div>
-                      )}
+                      </div>
 
-                      {/* Additional Insights Section */}
-                      {result.responses?.additionalContext && (
-                        <div>
-                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <Lightbulb className="w-5 h-5 text-yellow-400" />
-                            Additional Insights
-                          </h4>
-                          <div className="bg-white/10 rounded-lg p-4">
+                      {/* Additional Insights Section - ALWAYS SHOW */}
+                      <div>
+                        <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                          <Lightbulb className="w-5 h-5 text-yellow-400" />
+                          Additional Insights
+                        </h4>
+                        <div className="bg-white/10 rounded-lg p-4">
+                          {result.responses?.additionalContext ? (
                             <p className="text-white/80 leading-relaxed italic">
                               "{result.responses.additionalContext}"
                             </p>
-                          </div>
+                          ) : (
+                            <p className="text-white/50 text-sm">No additional insights available</p>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </div>
                   </div>
                 )}

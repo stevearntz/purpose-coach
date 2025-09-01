@@ -276,9 +276,9 @@ export default function CampaignsTab() {
     
     // Parse campaign metadata if in email mode
     let toolData = {
-      toolId: 'hr-partnership',
-      toolTitle: 'HR Partnership',
-      toolPath: '/hr-partnership',
+      toolId: 'people-leader-needs',
+      toolTitle: 'People Leadership Needs Assessment',
+      toolPath: '/people-leader-needs',
       toolGradient: 'from-purple-600 to-purple-700'
     }
     

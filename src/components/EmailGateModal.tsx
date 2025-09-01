@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { X, Mail, CheckCircle, AlertCircle } from 'lucide-react'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { validateEmail, validateEmailRealtime, EmailValidationResult } from '@/utils/emailValidation'
+import OptimizedImage from './OptimizedImage'
 
 interface EmailGateModalProps {
   isOpen: boolean
@@ -83,7 +84,7 @@ export default function EmailGateModal({ isOpen, onClose, onSubmit, onSkip }: Em
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative animate-fade-in">
           {/* Success illustration */}
           <div className="flex justify-center mb-4 sm:mb-6">
-            <img 
+            <OptimizedImage 
               src="/smore.png" 
               alt="S'more" 
               className="w-16 h-16 sm:w-20 sm:h-20 object-contain"

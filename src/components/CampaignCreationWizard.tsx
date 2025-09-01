@@ -733,7 +733,7 @@ ${user?.firstName || 'Your Name'}`)
           type="text"
           value={campaignData.campaignName}
           onChange={(e) => setCampaignData(prev => ({ ...prev, campaignName: e.target.value }))}
-          placeholder="e.g., Q3 2024 HR Partnership Assessment"
+          placeholder="e.g., Q1 2025 Leadership Needs Assessment"
           className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/40"
         />
       </div>

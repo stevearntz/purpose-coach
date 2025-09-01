@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import OptimizedImage from './OptimizedImage';
 
 export default function Footer() {
   return (
@@ -15,7 +16,7 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="inline-block mb-4"
             >
-              <img 
+              <OptimizedImage 
                 src="/campfire-logo-new.png"
                 alt="Campfire Logo"
                 className="h-10"

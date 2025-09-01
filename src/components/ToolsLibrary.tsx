@@ -144,9 +144,9 @@ const tools: Tool[] = [
     type: 'reflection'
   },
   {
-    id: 'hr-partnership',
-    path: '/hr-partnership',
-    title: 'HR Partnership Assessment',
+    id: 'people-leader-needs',
+    path: '/people-leader-needs',
+    title: 'People Leadership Needs Assessment',
     subtitle: 'Bridge the gap with HR',
     description: 'Help managers articulate their needs for growth, support, and strategic direction.',
     gradient: 'from-[#30C7C7] to-[#2A74B9]',

@@ -8,6 +8,7 @@ import { challengeCourseMappings } from '@/app/lib/courseMappings';
 import { courseDetailsFromCSV } from '@/app/lib/courseDetailsFromCSV';
 import { getCoursePreviewUrl } from '@/app/lib/coursePreviewUrls';
 import { courseImageMapping } from '@/app/lib/courseImages';
+import OptimizedImage from '@/components/OptimizedImage';
 import Footer from '@/components/Footer';
 import Modal from '@/components/Modal';
 import NavigationHeader from '@/components/NavigationHeader';

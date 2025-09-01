@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>The page you were looking for doesn't exist (404)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spartan:wght@400;800&display=swap" rel="stylesheet">
+  <style>
+    body, html {
+      background-color: #06021B;
+      padding: 0;
+      margin:  0;
+      font-size:  17px;
+      font-family:"Spartan", "Avenir",arial, sans-serif;
+    
+    }
+  
+  .rails-default-error-page div.dialog {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 600px;
+    height: 100vh;
+    margin: 0 auto 0 150px;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+  }
+
+  .rails-default-error-page h1 {
+    color: #9D88ED;
+    font-size: 56px;
+    line-height: 1.125;
+    font-weight: 800;
+    margin: 24px 0 0;
+    letter-spacing: -1px;
+  }
+
+  .rails-default-error-page div.dialog > p {
+    font-size:  21px;
+    color:  #E8E2F9;
+    line-height: 1.375;
+    letter-spacing: -.5px;
+  }
+
+  lottie-player {
+    z-index:  0;
+    position: absolute;
+    display:  block;
+    height:  100vh;
+    top:  0;
+    right:  0;
+    left: 15%;
+  }
+
+  lottie-player:before {
+    content:  "";
+    position: absolute;
+    width:  40%;
+    height:  100%;
+    background:  linear-gradient(to left, transparent, #06021B);
+    left:  0;
+    top:  0;
+    z-index:  1;
+  }
+
+  lottie-player:after {
+    content:  "";
+    position: absolute;
+    width:  40%;
+    height:  100%;
+    background:  linear-gradient(to right, transparent, #06021B);
+    right:  0;
+    top:  0;
+    z-index:  1;
+  }
+
+  lottie-player #animation-container.main {
+    margin-left:  300px;
+  }
+
+  a.button {
+    padding:  20px 30px;
+    border-radius: 5px;
+    border: 2px solid #9D88ED;
+    color:#9D88ED;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 2px;
+    font-size: 15px;
+  }
+
+  @media screen and (max-width:  950px){
+    lottie-player {
+      display: none;
+    }
+  }
+
+  @media screen and (max-width:  800px){
+    .rails-default-error-page h1 {
+      font-size: 32px;
+    }
+    .rails-default-error-page div.dialog {
+      width:  90%;
+      margin: 0 auto;
+    }
+    .rails-default-error-page div.dialog > p {
+      font-size:  17px;
+    }
+
+    a.button {
+      padding:  15px 15px;
+      letter-spacing: 2px;
+      font-size: 14px;
+    }
+  }
+  </style>
+
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+</head>
+
+<body class="rails-default-error-page">
+  <div class="container">
+  <!-- This file lives in public/404.html -->
+  <div class="dialog">
+    <img src="/campfire_logo_white.svg" width="175">
+    <h1>Sorry, that page went missing</h1>
+    <p>We’re all about connecting people, but didn’t connect this time. Don’t worry, you didn't do anything wrong.</p>
+    <p>
+    <a class="button purple" href="/">Back to Home</a>
+    </p>
+  </div>
+  </div>
+<lottie-player src="/json/33183-ufo-camping-scene.json" background="transparent"  speed="1" loop autoplay></lottie-player>
+</body>
+</html>

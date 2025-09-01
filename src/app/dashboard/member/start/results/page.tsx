@@ -177,55 +177,6 @@ export default function MemberResultsPage() {
                 {isExpanded && (
                   <div className="border-t border-white/10 bg-white/5">
                     <div className="p-6 space-y-6">
-                      {/* Summary Section */}
-                      {result.summary && (
-                        <div>
-                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <BarChart3 className="w-5 h-5 text-purple-400" />
-                            Summary
-                          </h4>
-                          <div className="bg-white/10 rounded-lg p-4">
-                            <p className="text-white/80 leading-relaxed">
-                              {typeof result.summary === 'string' ? result.summary : 
-                                (result.summary?.content || 
-                                 `Manager assessment completed with ${result.responses?.challenges?.length || 0} challenges identified across ${result.scores?.categoryCount || 3} categories`)}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Scores Section */}
-                      {result.scores && Object.keys(result.scores).length > 0 && (
-                        <div>
-                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <TrendingUp className="w-5 h-5 text-green-400" />
-                            Scores
-                          </h4>
-                          <div className="grid grid-cols-2 gap-4">
-                            {Object.entries(result.scores).map(([key, value]) => (
-                              <div key={key} className="bg-white/10 rounded-lg p-4">
-                                <div className="flex items-center justify-between">
-                                  <p className="text-white/80 font-medium capitalize">
-                                    {key.replace(/([A-Z])/g, ' $1').trim().replace('Count', ' Count')}
-                                  </p>
-                                  <span className="text-2xl font-bold text-white">
-                                    {typeof value === 'number' ? value : String(value)}
-                                  </span>
-                                </div>
-                                {typeof value === 'number' && (
-                                  <div className="mt-2 w-full bg-white/20 rounded-full h-2">
-                                    <div 
-                                      className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all"
-                                      style={{ width: `${Math.min(100, Math.max(0, (value / 10) * 100))}%` }}
-                                    ></div>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
                       {/* Challenge Areas Section */}
                       {result.responses?.challenges && Array.isArray(result.responses.challenges) && result.responses.challenges.length > 0 && (
                         <div>
@@ -233,34 +184,72 @@ export default function MemberResultsPage() {
                             <AlertTriangle className="w-5 h-5 text-red-400" />
                             Challenge Areas
                           </h4>
-                          <div className="space-y-3">
-                            {result.responses.challenges.map((category: any, index: number) => {
-                              // Handle both object format (with name/subcategories) and string format
-                              if (typeof category === 'object' && category.name) {
+                          <div className="space-y-4">
+                            {/* Individual Performance subsection */}
+                            {(() => {
+                              const individualPerf = result.responses.challenges.find((c: any) => 
+                                c.name === 'Individual Performance' || c === 'Individual Performance'
+                              )
+                              if (individualPerf && individualPerf.subcategories) {
                                 return (
-                                  <div key={index}>
-                                    <h5 className="text-white font-medium mb-2">{category.name}</h5>
-                                    {category.subcategories && (
-                                      <div className="flex flex-wrap gap-2">
-                                        {category.subcategories.map((sub: string, subIndex: number) => (
-                                          <span key={subIndex} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
-                                            {sub}
-                                          </span>
-                                        ))}
-                                      </div>
-                                    )}
+                                  <div>
+                                    <h5 className="text-white/90 font-medium mb-2">Individual Performance</h5>
+                                    <div className="flex flex-wrap gap-2">
+                                      {individualPerf.subcategories.map((sub: string, index: number) => (
+                                        <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
+                                          {sub}
+                                        </span>
+                                      ))}
+                                    </div>
                                   </div>
                                 )
                               }
-                              // If it's just a string or doesn't have the expected structure
-                              return (
-                                <div key={index} className="flex flex-wrap gap-2">
-                                  <span className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
-                                    {typeof category === 'string' ? category : JSON.stringify(category)}
-                                  </span>
-                                </div>
+                              return null
+                            })()}
+                            
+                            {/* Leadership Skills subsection */}
+                            {(() => {
+                              const leadership = result.responses.challenges.find((c: any) => 
+                                c.name === 'Leadership Skills' || c === 'Leadership Skills'
                               )
-                            })}
+                              if (leadership && leadership.subcategories) {
+                                return (
+                                  <div>
+                                    <h5 className="text-white/90 font-medium mb-2">Leadership Skills</h5>
+                                    <div className="flex flex-wrap gap-2">
+                                      {leadership.subcategories.map((sub: string, index: number) => (
+                                        <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
+                                          {sub}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )
+                              }
+                              return null
+                            })()}
+                            
+                            {/* Compliance & Risk subsection */}
+                            {(() => {
+                              const compliance = result.responses.challenges.find((c: any) => 
+                                c.name === 'Compliance & Risk' || c === 'Compliance & Risk'
+                              )
+                              if (compliance && compliance.subcategories) {
+                                return (
+                                  <div>
+                                    <h5 className="text-white/90 font-medium mb-2">Compliance & Risk</h5>
+                                    <div className="flex flex-wrap gap-2">
+                                      {compliance.subcategories.map((sub: string, index: number) => (
+                                        <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm">
+                                          {sub}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )
+                              }
+                              return null
+                            })()}
                           </div>
                         </div>
                       )}
@@ -327,25 +316,6 @@ export default function MemberResultsPage() {
                             <p className="text-white/80 leading-relaxed italic">
                               "{result.responses.additionalContext}"
                             </p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Recommendations Section */}
-                      {result.recommendations && Array.isArray(result.recommendations) && result.recommendations.length > 0 && (
-                        <div>
-                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <Target className="w-5 h-5 text-orange-400" />
-                            Recommendations
-                          </h4>
-                          <div className="space-y-3">
-                            {result.recommendations.map((rec: any, index: number) => (
-                              <div key={index} className="bg-white/10 rounded-lg p-4">
-                                <p className="text-white/80 leading-relaxed">
-                                  {typeof rec === 'string' ? rec : rec.content || JSON.stringify(rec)}
-                                </p>
-                              </div>
-                            ))}
                           </div>
                         </div>
                       )}

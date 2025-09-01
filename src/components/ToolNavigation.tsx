@@ -23,12 +23,12 @@ export default function ToolNavigation({
     : 'text-gray-600 hover:text-gray-900'
 
   // Determine navigation based on context
-  let leftNav = {
-    href: toolNavigation.backToPlan.href,
+  let leftNav: { href: string; label: string } = {
+    href: toolNavigation.backToPlan.href as string,
     label: toolNavigation.backToPlan.label
   }
-  let rightNav = {
-    href: toolNavigation.allTools.href, 
+  let rightNav: { href: string; label: string } | null = {
+    href: toolNavigation.allTools.href as string, 
     label: toolNavigation.allTools.label
   }
 
@@ -39,7 +39,7 @@ export default function ToolNavigation({
       label: 'Back to Dashboard'
     }
     // Hide right navigation for member dashboard context
-    rightNav = null as any
+    rightNav = null
   } else if (context === 'admin-dashboard' && returnUrl) {
     leftNav = {
       href: returnUrl,

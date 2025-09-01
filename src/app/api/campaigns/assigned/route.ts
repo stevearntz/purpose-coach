@@ -40,7 +40,7 @@ export async function GET(request: Request) {
       }
     })
 
-    // Get invite codes for this user
+    // Get invite codes and status for this user
     const invitations = await prisma.invitation.findMany({
       where: {
         email: userEmail,
@@ -48,27 +48,43 @@ export async function GET(request: Request) {
       },
       select: {
         inviteCode: true,
-        companyId: true
+        companyId: true,
+        status: true,
+        completedAt: true
       }
     })
     
-    // Create a map of companyId to inviteCode
-    const inviteMap = new Map(invitations.map(inv => [inv.companyId, inv.inviteCode]))
+    // Create a map of companyId to invitation data
+    const inviteMap = new Map(invitations.map(inv => [inv.companyId, {
+      inviteCode: inv.inviteCode,
+      status: inv.status,
+      completedAt: inv.completedAt
+    }]))
     
     // Transform campaigns for the dashboard
-    const transformedCampaigns = campaigns.map(campaign => ({
-      id: campaign.id,
-      name: campaign.name,
-      description: campaign.description || 'Complete this assessment to help us understand your needs',
-      toolId: campaign.toolId || '',
-      toolName: campaign.toolName || 'Assessment',
-      toolPath: campaign.toolPath || '',
-      campaignCode: campaign.campaignCode || '',
-      inviteCode: inviteMap.get(campaign.companyId) || '',
-      startDate: campaign.startDate,
-      endDate: campaign.endDate,
-      createdAt: campaign.createdAt
-    }))
+    const transformedCampaigns = campaigns.map(campaign => {
+      const invitationData = inviteMap.get(campaign.companyId) || {
+        inviteCode: '',
+        status: 'PENDING',
+        completedAt: null
+      }
+      
+      return {
+        id: campaign.id,
+        name: campaign.name,
+        description: campaign.description || 'Complete this assessment to help us understand your needs',
+        toolId: campaign.toolId || '',
+        toolName: campaign.toolName || 'Assessment',
+        toolPath: campaign.toolPath || '',
+        campaignCode: campaign.campaignCode || '',
+        inviteCode: invitationData.inviteCode || '',
+        status: invitationData.status || 'PENDING',
+        completedAt: invitationData.completedAt,
+        startDate: campaign.startDate,
+        endDate: campaign.endDate,
+        createdAt: campaign.createdAt
+      }
+    })
 
     return NextResponse.json({ 
       campaigns: transformedCampaigns,

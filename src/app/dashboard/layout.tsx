@@ -92,6 +92,12 @@ export default function DashboardLayout({
       secondary: []
     },
     { 
+      id: 'results', 
+      label: 'Results', 
+      href: '/dashboard/member/start/results',
+      secondary: []
+    },
+    { 
       id: 'profile', 
       label: 'Profile', 
       href: '/dashboard/member/start',

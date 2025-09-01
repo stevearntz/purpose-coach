@@ -40,6 +40,8 @@ interface AssignedAssessment {
   campaignCode?: string
   inviteCode?: string
   dueDate?: string
+  status?: string
+  completedAt?: string
 }
 
 export default function DashboardPage() {
@@ -47,6 +49,7 @@ export default function DashboardPage() {
   const { user } = useUser()
   const [selectedTimeframe, setSelectedTimeframe] = useState('week')
   const [assignedAssessments, setAssignedAssessments] = useState<AssignedAssessment[]>([])
+  const [completedAssessments, setCompletedAssessments] = useState<AssignedAssessment[]>([])
   const [loading, setLoading] = useState(true)
   const [userProfile, setUserProfile] = useState<any>(null)
 
@@ -72,8 +75,8 @@ export default function DashboardPage() {
         if (response.ok) {
           const data = await response.json()
           
-          // Transform campaign data into assessment format
-          const assessments = data.campaigns?.map((campaign: any) => ({
+          // Transform and separate campaign data
+          const allAssessments = data.campaigns?.map((campaign: any) => ({
             id: campaign.id,
             toolName: campaign.toolName || 'Assessment',
             toolId: campaign.toolId || '',
@@ -83,10 +86,22 @@ export default function DashboardPage() {
             campaignName: campaign.name,
             campaignCode: campaign.campaignCode || '',
             inviteCode: campaign.inviteCode || '',
-            dueDate: campaign.endDate
+            dueDate: campaign.endDate,
+            status: campaign.status,
+            completedAt: campaign.completedAt
           })) || []
           
-          setAssignedAssessments(assessments)
+          // Separate pending and completed assessments
+          const pending = allAssessments.filter((assessment: any) => 
+            assessment.status !== 'COMPLETED'
+          )
+          
+          const completed = allAssessments.filter((assessment: any) => 
+            assessment.status === 'COMPLETED'
+          )
+          
+          setAssignedAssessments(pending)
+          setCompletedAssessments(completed)
         }
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -273,16 +288,46 @@ export default function DashboardPage() {
               </select>
             </div>
             
-            {/* Empty state for recent activity */}
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-4">
-                <Clock className="w-6 h-6 text-white/30" />
+            {completedAssessments.length > 0 ? (
+              <div className="space-y-3">
+                {completedAssessments.map((assessment) => (
+                  <div key={assessment.id} className="flex items-center gap-4 p-4 bg-white/5 rounded-lg border border-white/10">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center flex-shrink-0">
+                      <CheckCircle className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-white font-medium truncate">
+                          {assessment.toolName}
+                        </h3>
+                        <span className="text-xs text-green-400 bg-green-400/20 px-2 py-1 rounded-full flex-shrink-0">
+                          Completed
+                        </span>
+                      </div>
+                      <p className="text-white/60 text-sm">
+                        {assessment.campaignName}
+                      </p>
+                      {assessment.completedAt && (
+                        <p className="text-white/40 text-xs">
+                          Completed {new Date(assessment.completedAt).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
-              <h3 className="text-white/70 font-medium mb-2">No activity yet</h3>
-              <p className="text-white/50 text-sm text-center max-w-xs">
-                Your completed assessments, attended sessions, and achievements will show up here
-              </p>
-            </div>
+            ) : (
+              /* Empty state for recent activity */
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-4">
+                  <Clock className="w-6 h-6 text-white/30" />
+                </div>
+                <h3 className="text-white/70 font-medium mb-2">No activity yet</h3>
+                <p className="text-white/50 text-sm text-center max-w-xs">
+                  Your completed assessments, attended sessions, and achievements will show up here
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Insights & Recommendations */}

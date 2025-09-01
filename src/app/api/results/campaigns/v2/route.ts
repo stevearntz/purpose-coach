@@ -94,35 +94,60 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
             }
           }
           
-          // Get invitations for this campaign (by campaign code in URL)
-          const invitations = await tx.invitation.findMany({
-            where: {
-              companyId: companyId,
-              OR: [
-                // Match by campaign code in URL
-                campaignCode ? {
-                  inviteUrl: {
-                    contains: `/assessment/${campaignCode}`
-                  }
-                } : {},
-                // Fallback to old format
-                {
-                  inviteUrl: {
-                    contains: `campaign=${encodeURIComponent(campaign.name)}`
-                  }
-                }
-              ]
-            },
-            include: {
-              assessmentResults: {
-                orderBy: { completedAt: 'desc' },
-                take: 1 // Get most recent assessment
-              },
-              metadata: includeDetails ? true : undefined
-            }
-          });
+          // Get invitations for this campaign
+          // For v3 campaigns with participants array, match by email
+          // For older campaigns, match by URL pattern
+          let invitations;
           
-          const totalParticipants = invitations.length;
+          if (campaign.participants && campaign.participants.length > 0) {
+            // V3 campaign - match by participant emails
+            invitations = await tx.invitation.findMany({
+              where: {
+                companyId: companyId,
+                email: {
+                  in: campaign.participants
+                }
+              },
+              include: {
+                assessmentResults: {
+                  orderBy: { completedAt: 'desc' },
+                  take: 1 // Get most recent assessment
+                },
+                metadata: includeDetails ? true : undefined
+              }
+            });
+          } else {
+            // Older campaigns - match by URL pattern
+            invitations = await tx.invitation.findMany({
+              where: {
+                companyId: companyId,
+                OR: [
+                  // Match by campaign code in URL
+                  campaignCode ? {
+                    inviteUrl: {
+                      contains: `/assessment/${campaignCode}`
+                    }
+                  } : {},
+                  // Fallback to old format
+                  {
+                    inviteUrl: {
+                      contains: `campaign=${encodeURIComponent(campaign.name)}`
+                    }
+                  }
+                ]
+              },
+              include: {
+                assessmentResults: {
+                  orderBy: { completedAt: 'desc' },
+                  take: 1 // Get most recent assessment
+                },
+                metadata: includeDetails ? true : undefined
+              }
+            });
+          }
+          
+          // Use campaign participants count if available, otherwise invitation count
+          const totalParticipants = campaign.participants?.length || invitations.length;
           const completedInvitations = invitations.filter(inv => inv.status === 'COMPLETED');
           const completedCount = completedInvitations.length;
           const startedCount = invitations.filter(inv => 

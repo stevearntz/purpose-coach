@@ -472,7 +472,7 @@ export default function OnboardingPage() {
   }, [currentQuestion])
 
   const validateQuestion = (question: number): boolean => {
-    const newErrors: Partial<OnboardingData> = {}
+    const newErrors: Partial<OnboardingData & { teamMembers?: string }> = {}
     
     switch(question) {
       case 1:

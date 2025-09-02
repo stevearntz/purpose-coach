@@ -8,7 +8,7 @@ import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware';
 import { CreateCampaignSchema, validateRequestBody } from '@/lib/api-validation';
 import { sendInvitationEmailBatch } from '@/lib/email-batch';
 import { isEmailServiceConfigured } from '@/lib/email';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma-with-retry';
 import { nanoid } from 'nanoid';
 import { z } from 'zod';
 import pino from 'pino';
@@ -17,11 +17,6 @@ import pino from 'pino';
 const logger = pino({
   level: process.env.LOG_LEVEL || 'info',
   redact: ['password', 'email', 'inviteCode'] // Redact sensitive data
-});
-
-// Prisma client with connection pooling
-const prisma = new PrismaClient({
-  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
 });
 
 /**

@@ -122,6 +122,12 @@ export default function DashboardLayout({
       href: '/dashboard/member/recommendations',
       secondary: []
     },
+    { 
+      id: 'feed', 
+      label: 'Feed', 
+      href: '/dashboard/member/start/feed',
+      secondary: []
+    },
   ]
   
   // Select tabs based on effective role (considering view mode for admins)
@@ -137,6 +143,9 @@ export default function DashboardLayout({
     if (showAsMember) {
       if (pathname.includes('/dashboard/member/start/dashboard')) {
         return 'dashboard'
+      }
+      if (pathname.includes('/dashboard/member/start/feed')) {
+        return 'feed'
       }
       if (pathname.includes('/dashboard/member/start/results')) {
         return 'results'

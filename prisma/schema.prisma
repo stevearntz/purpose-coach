@@ -5,7 +5,7 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  // directUrl = env("DIRECT_URL") // Commented out to avoid connection issues
+  // directUrl = env("DIRECT_URL") // Temporarily disabled - direct connection not working
 }
 
 model Company {

@@ -4,29 +4,13 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import {
-  CheckCircle,
-  Clock,
-  TrendingUp,
-  Award,
   Target,
-  Users,
-  Calendar,
   ChevronRight,
   BookOpen,
-  MessageCircle,
-  Flame,
-  Star,
-  Activity,
   BarChart3,
   Brain,
-  Heart,
-  Zap,
-  AlertCircle,
-  ArrowUp,
-  ArrowDown,
   Inbox,
-  TrendingUp as TrendIcon,
-  Info
+  TrendingUp as TrendIcon
 } from 'lucide-react'
 
 interface AssignedAssessment {
@@ -47,9 +31,7 @@ interface AssignedAssessment {
 export default function DashboardPage() {
   const router = useRouter()
   const { user } = useUser()
-  const [selectedTimeframe, setSelectedTimeframe] = useState('week')
   const [assignedAssessments, setAssignedAssessments] = useState<AssignedAssessment[]>([])
-  const [completedAssessments, setCompletedAssessments] = useState<AssignedAssessment[]>([])
   const [loading, setLoading] = useState(true)
   const [userProfile, setUserProfile] = useState<any>(null)
 
@@ -91,17 +73,12 @@ export default function DashboardPage() {
             completedAt: campaign.completedAt
           })) || []
           
-          // Separate pending and completed assessments
+          // Get only pending assessments
           const pending = allAssessments.filter((assessment: any) => 
             assessment.status !== 'COMPLETED'
           )
           
-          const completed = allAssessments.filter((assessment: any) => 
-            assessment.status === 'COMPLETED'
-          )
-          
           setAssignedAssessments(pending)
-          setCompletedAssessments(completed)
         }
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -268,105 +245,21 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent Activity */}
-          <div className="lg:col-span-2 bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                <Activity className="w-5 h-5 text-purple-400" />
-                Recent Activity
-              </h2>
-              <select 
-                value={selectedTimeframe}
-                onChange={(e) => setSelectedTimeframe(e.target.value)}
-                className="bg-white/10 border border-white/20 rounded-lg px-3 py-1 text-sm text-white focus:outline-none focus:border-purple-400"
-              >
-                <option value="day">Today</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
-              </select>
+        {/* Your Learning Path */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+          <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
+            <BookOpen className="w-5 h-5 text-blue-400" />
+            Your Learning Path
+          </h2>
+          
+          {/* Empty state for learning path */}
+          <div className="flex flex-col items-center justify-center py-8">
+            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-3">
+              <BookOpen className="w-5 h-5 text-white/30" />
             </div>
-            
-            {completedAssessments.length > 0 ? (
-              <div className="space-y-3">
-                {completedAssessments.map((assessment) => (
-                  <div key={assessment.id} className="flex items-center gap-4 p-4 bg-white/5 rounded-lg border border-white/10">
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-white font-medium truncate">
-                          {assessment.toolName}
-                        </h3>
-                        <span className="text-xs text-green-400 bg-green-400/20 px-2 py-1 rounded-full flex-shrink-0">
-                          Completed
-                        </span>
-                      </div>
-                      <p className="text-white/60 text-sm">
-                        {assessment.campaignName}
-                      </p>
-                      {assessment.completedAt && (
-                        <p className="text-white/40 text-xs">
-                          Completed {new Date(assessment.completedAt).toLocaleDateString()}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              /* Empty state for recent activity */
-              <div className="flex flex-col items-center justify-center py-12">
-                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-4">
-                  <Clock className="w-6 h-6 text-white/30" />
-                </div>
-                <h3 className="text-white/70 font-medium mb-2">No activity yet</h3>
-                <p className="text-white/50 text-sm text-center max-w-xs">
-                  Your completed assessments, attended sessions, and achievements will show up here
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Insights & Recommendations */}
-          <div className="space-y-4">
-            {/* Quick Insights */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-              <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
-                <Zap className="w-5 h-5 text-yellow-400" />
-                Quick Insights
-              </h2>
-              
-              {/* Empty state for insights */}
-              <div className="flex flex-col items-center justify-center py-8">
-                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-3">
-                  <Info className="w-5 h-5 text-white/30" />
-                </div>
-                <p className="text-white/50 text-sm text-center">
-                  Insights about your progress and team dynamics will appear here as you engage with the platform
-                </p>
-              </div>
-            </div>
-
-            {/* Learning Path */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-              <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
-                <BookOpen className="w-5 h-5 text-blue-400" />
-                Your Learning Path
-              </h2>
-              
-              {/* Empty state for learning path */}
-              <div className="flex flex-col items-center justify-center py-8">
-                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-3">
-                  <BookOpen className="w-5 h-5 text-white/30" />
-                </div>
-                <p className="text-white/50 text-sm text-center">
-                  Your personalized learning journey will be created based on your assessment results
-                </p>
-              </div>
-            </div>
+            <p className="text-white/50 text-sm text-center">
+              Your personalized learning journey will be created based on your assessment results
+            </p>
           </div>
         </div>
       </div>

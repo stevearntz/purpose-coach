@@ -84,18 +84,15 @@ export const { GET, POST, DELETE } = createApiHandlers({
   DELETE: handleDelete
 })
 
-// Also export a non-authenticated version for testing
-export const OPTIONS = createApiHandlers(
-  { 
-    OPTIONS: async () => successResponse({ 
-      message: 'This endpoint works without authentication',
-      endpoints: {
-        'GET /api/test-new-pattern': 'Get test data (requires auth)',
-        'POST /api/test-new-pattern': 'Create test item (requires auth)',
-        'DELETE /api/test-new-pattern?id=xxx': 'Delete test item (requires auth)',
-        'OPTIONS /api/test-new-pattern': 'This help message (no auth)'
-      }
-    })
-  },
-  { requireAuth: false }
-).OPTIONS
+// Export a non-authenticated OPTIONS handler directly
+export async function OPTIONS() {
+  return successResponse({ 
+    message: 'This endpoint works without authentication',
+    endpoints: {
+      'GET /api/test-new-pattern': 'Get test data (requires auth)',
+      'POST /api/test-new-pattern': 'Create test item (requires auth)',
+      'DELETE /api/test-new-pattern?id=xxx': 'Delete test item (requires auth)',
+      'OPTIONS /api/test-new-pattern': 'This help message (no auth)'
+    }
+  })
+}

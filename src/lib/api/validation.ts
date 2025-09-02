@@ -5,7 +5,8 @@
 
 import { z } from 'zod'
 import { NextRequest } from 'next/server'
-import { ApiError, ErrorCodes } from './errors'
+import { ApiError } from './errors'
+import { ErrorCodes } from './types'
 
 /**
  * Validate request body against a Zod schema

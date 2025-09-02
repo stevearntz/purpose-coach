@@ -71,7 +71,11 @@ export async function POST(request: NextRequest) {
       
       // Look for existing company with this domain
       let company = await prisma.company.findFirst({
-        where: { domain }
+        where: { 
+          domains: {
+            has: domain
+          }
+        }
       })
       
       if (!company) {
@@ -79,8 +83,7 @@ export async function POST(request: NextRequest) {
         company = await prisma.company.create({
           data: {
             name: domain,
-            domain: domain,
-            status: 'ACTIVE'
+            domains: [domain]
           }
         })
       }
@@ -174,14 +177,17 @@ export async function PUT(request: NextRequest) {
             const email = userProfile.email
             const domain = email.split('@')[1]
             let company = await prisma.company.findFirst({
-              where: { domain }
+              where: { 
+                domains: {
+                  has: domain
+                }
+              }
             })
             if (!company) {
               company = await prisma.company.create({
                 data: {
                   name: domain,
-                  domain: domain,
-                  status: 'ACTIVE'
+                  domains: [domain]
                 }
               })
             }

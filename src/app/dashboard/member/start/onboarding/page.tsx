@@ -56,6 +56,33 @@ interface OnboardingData {
   teamEmoji: string
 }
 
+interface OnboardingErrors {
+  firstName?: string
+  lastName?: string
+  role?: string
+  department?: string
+  teamMembers?: string
+  teamName?: string
+  teamPurpose?: string
+  teamEmoji?: string
+}
+
+interface ProfileUpdateData {
+  firstName?: string
+  lastName?: string
+  role?: string
+  department?: string
+  teamName?: string
+  teamSize?: string
+  teamPurpose?: string
+  teamEmoji?: string
+}
+
+interface ProfileUpdatePayload extends ProfileUpdateData {
+  partialUpdate: boolean
+  companyId?: string
+}
+
 const DEPARTMENTS = [
   { id: 'engineering', label: 'Engineering', Icon: Code },
   { id: 'sales', label: 'Sales', Icon: TrendingUp },
@@ -115,7 +142,7 @@ export default function OnboardingPage() {
     teamEmoji: ''
   })
 
-  const [errors, setErrors] = useState<any>({})
+  const [errors, setErrors] = useState<OnboardingErrors>({})
   const memberInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({})
   const nameInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({})
 
@@ -472,7 +499,7 @@ export default function OnboardingPage() {
   }, [currentQuestion])
 
   const validateQuestion = (question: number): boolean => {
-    const newErrors: any = {}
+    const newErrors: OnboardingErrors = {}
     
     switch(question) {
       case 1:
@@ -507,9 +534,9 @@ export default function OnboardingPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const saveProfileData = async (fields: any) => {
+  const saveProfileData = async (fields: ProfileUpdateData) => {
     try {
-      const payload: any = {
+      const payload: ProfileUpdatePayload = {
         ...fields,
         partialUpdate: true, // Flag for partial update
       }
@@ -709,7 +736,7 @@ export default function OnboardingPage() {
   const selectEmoji = (emoji: string) => {
     // Update data and clear any errors for teamEmoji
     setData(prev => ({...prev, teamEmoji: emoji}))
-    setErrors((prev: any) => ({...prev, teamEmoji: undefined}))
+    setErrors(prev => ({...prev, teamEmoji: undefined}))
     setShowEmojiPicker(false)
   }
 

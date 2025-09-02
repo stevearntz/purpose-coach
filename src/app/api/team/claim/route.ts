@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma-with-retry'
+import { prisma } from '@/lib/prisma'
 
 // POST /api/team/claim - Claim a team member account
 export async function POST(request: NextRequest) {

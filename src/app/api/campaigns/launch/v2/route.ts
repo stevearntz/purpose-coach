@@ -8,7 +8,7 @@ import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware';
 import { CreateCampaignSchema, validateRequestBody } from '@/lib/api-validation';
 import { sendInvitationEmailBatch } from '@/lib/email-batch';
 import { isEmailServiceConfigured } from '@/lib/email';
-import { prisma } from '@/lib/prisma-with-retry';
+import { prisma } from '@/lib/prisma';
 import { nanoid } from 'nanoid';
 import { z } from 'zod';
 import pino from 'pino';

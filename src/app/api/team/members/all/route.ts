@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma-with-retry'
+import { prisma } from '@/lib/prisma'
 
 // DELETE /api/team/members/all - Delete all team members for a manager
 export async function DELETE(request: NextRequest) {

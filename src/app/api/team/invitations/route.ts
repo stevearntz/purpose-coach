@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma-with-retry'
+import { prisma } from '@/lib/prisma'
 
 // GET /api/team/invitations - Get invitations for a team member or manager
 export async function GET(request: NextRequest) {

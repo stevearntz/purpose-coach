@@ -7,7 +7,7 @@
 
 import { z } from 'zod'
 import { auth } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma-with-retry'
+import { prisma } from '@/lib/prisma'
 import { createApiHandlers, ApiContext } from '@/lib/api/handler'
 import { successResponse } from '@/lib/api/responses'
 

@@ -6,7 +6,7 @@
  */
 
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma-with-retry'
+import { prisma } from '@/lib/prisma'
 import { createApiHandlers, ApiContext } from '@/lib/api/handler'
 import { successResponse, SuccessResponses } from '@/lib/api/responses'
 import { validateBody, validateQuery } from '@/lib/api/validation'

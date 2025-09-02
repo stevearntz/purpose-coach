@@ -1,67 +1,92 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client'
 
 declare global {
   // Allow global `var` declarations
   // eslint-disable-next-line no-var
-  var prisma: PrismaClient | undefined;
+  var prisma: PrismaClient | undefined
 }
 
-const prismaClientSingleton = () => {
+// Create a Prisma client with connection retry logic
+function createPrismaClient() {
   const client = new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+    log: process.env.NODE_ENV === 'development' 
+      ? ['error', 'warn'] 
+      : ['error'],
     datasources: {
       db: {
         url: process.env.DATABASE_URL,
       },
     },
-  });
-  
-  // Add middleware for automatic retry on connection errors
+  })
+
+  // Add middleware for retry logic
   client.$use(async (params, next) => {
-    const maxRetries = 3;
-    const retryDelay = 1000; // Start with 1 second
+    const maxRetries = 3
+    const retryDelay = 1000 // Start with 1 second delay
     
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
+    for (let i = 0; i < maxRetries; i++) {
       try {
-        return await next(params);
+        return await next(params)
       } catch (error: any) {
-        // Connection error codes that should trigger retry
-        const retryableCodes = ['P1001', 'P1002', 'P1008', 'P1017'];
-        const isRetryable = retryableCodes.includes(error.code);
-        
-        if (isRetryable && attempt < maxRetries - 1) {
-          const delay = retryDelay * Math.pow(2, attempt); // Exponential backoff
-          console.warn(`[Prisma] Connection error (attempt ${attempt + 1}/${maxRetries}). Retrying in ${delay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
-          continue;
+        // Check if it's a connection error
+        if (
+          error.code === 'P1001' || // Can't reach database server
+          error.code === 'P1002' || // Database server timeout
+          error.code === 'P1008' || // Operations timed out
+          error.code === 'P1017'    // Server has closed the connection
+        ) {
+          console.warn(`Database connection error (attempt ${i + 1}/${maxRetries}):`, error.message)
+          
+          if (i < maxRetries - 1) {
+            // Exponential backoff
+            const delay = retryDelay * Math.pow(2, i)
+            console.log(`Retrying in ${delay}ms...`)
+            await new Promise(resolve => setTimeout(resolve, delay))
+            continue
+          }
         }
         
-        // If not retryable or max attempts reached
-        console.error('[Prisma Error]', error);
-        throw error;
+        // If not a connection error or max retries reached, throw the error
+        throw error
       }
     }
-  });
-  
-  return client;
-};
+  })
 
-const prisma = globalThis.prisma ?? prismaClientSingleton();
-
-if (process.env.NODE_ENV !== 'production') {
-  globalThis.prisma = prisma;
+  return client
 }
 
-// Export both the client and a health check function
-export const checkDatabaseConnection = async (): Promise<boolean> => {
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    return true;
-  } catch (error) {
-    console.error('[Prisma] Database connection check failed:', error);
-    return false;
-  }
-};
+// Create singleton instance
+const prisma = globalThis.prisma ?? createPrismaClient()
 
-export default prisma;
-export { prisma };
+if (process.env.NODE_ENV !== 'production') {
+  globalThis.prisma = prisma
+}
+
+// Export as default for compatibility with existing imports
+export default prisma
+
+// Also export as named export for new code
+export { prisma }
+
+// Connection health check utility
+export async function checkDatabaseConnection(): Promise<boolean> {
+  try {
+    await prisma.$queryRaw`SELECT 1`
+    return true
+  } catch (error) {
+    console.error('Database connection check failed:', error)
+    return false
+  }
+}
+
+// Graceful shutdown
+export async function disconnectPrisma() {
+  await prisma.$disconnect()
+}
+
+// Handle process termination
+if (typeof process !== 'undefined') {
+  process.on('beforeExit', async () => {
+    await disconnectPrisma()
+  })
+}

@@ -44,7 +44,8 @@ export async function POST(request: NextRequest) {
     if (!userProfile) {
       // Get user info from Clerk
       const { clerkClient } = await import('@clerk/nextjs/server')
-      const user = await clerkClient.users.getUser(userId)
+      const client = await clerkClient()
+      const user = await client.users.getUser(userId)
       
       // Create user profile
       userProfile = await prisma.userProfile.create({

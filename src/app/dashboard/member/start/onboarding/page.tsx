@@ -115,7 +115,7 @@ export default function OnboardingPage() {
     teamEmoji: ''
   })
 
-  const [errors, setErrors] = useState<Partial<OnboardingData & { teamMembers?: string }>>({})
+  const [errors, setErrors] = useState<any>({})
   const memberInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({})
   const nameInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({})
 
@@ -472,7 +472,7 @@ export default function OnboardingPage() {
   }, [currentQuestion])
 
   const validateQuestion = (question: number): boolean => {
-    const newErrors: Partial<OnboardingData & { teamMembers?: string }> = {}
+    const newErrors: any = {}
     
     switch(question) {
       case 1:

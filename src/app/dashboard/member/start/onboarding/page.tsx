@@ -507,7 +507,7 @@ export default function OnboardingPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const saveProfileData = async (fields: Partial<OnboardingData>) => {
+  const saveProfileData = async (fields: any) => {
     try {
       const payload: any = {
         ...fields,

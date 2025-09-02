@@ -5,7 +5,7 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  // directUrl = env("DIRECT_URL") // Commented out to avoid connection issues
 }
 
 model Company {
@@ -19,6 +19,7 @@ model Company {
   campaigns   Campaign[]
   invitations Invitation[]
   userProfiles UserProfile[]
+  teamMembers TeamMember[]
 }
 
 model UserProfile {
@@ -30,14 +31,20 @@ model UserProfile {
   role             String?
   department       String?
   teamSize         String?
+  teamName         String?
   teamPurpose      String?
   teamEmoji        String?
   companyId        String?
   onboardingComplete Boolean @default(false)
+  clerkRole        String?   // 'admin', 'manager', 'member', 'team_member'
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   
   company          Company?  @relation(fields: [companyId], references: [id])
+  
+  // Team relationships
+  managedTeamMembers TeamMember[] @relation("ManagerToTeamMembers")
+  teamMemberships    TeamMembership[] @relation("TeamMemberProfile")
   
   @@index([clerkUserId])
   @@index([email])
@@ -97,11 +104,21 @@ model AssessmentResult {
   shareId         String?    @unique
   pdfUrl          String?
   pdfGeneratedAt  DateTime?
+  
+  // Team sharing fields
+  teamLinkOwner   String?    // Email of the person who shared this assessment
+  userEmail       String?    // Email of the person who completed the assessment
+  userName        String?    // Name of the person who completed the assessment
+  company         String?    // Company name
+  createdAt       DateTime   @default(now())
+  
   invitation      Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
 
   @@index([invitationId])
   @@index([toolId])
   @@index([shareId])
+  @@index([teamLinkOwner])
+  @@index([userEmail])
 }
 
 model Campaign {
@@ -122,6 +139,7 @@ model Campaign {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   company      Company        @relation(fields: [companyId], references: [id])
+  teamInvitations TeamInvitation[]
 }
 
 enum InvitationStatus {
@@ -154,4 +172,80 @@ model Lead {
   @@index([source])
   @@index([toolId])
   @@index([createdAt])
+}
+
+// Team member that doesn't have an account yet
+model TeamMember {
+  id          String   @id @default(cuid())
+  managerId   String   // UserProfile who added them
+  name        String
+  email       String?
+  role        String?  // Job role/title
+  status      TeamMemberStatus @default(PENDING)
+  inviteCode  String?  @unique
+  clerkUserId String?  // Set when they claim their account
+  claimedAt   DateTime?
+  companyId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  manager     UserProfile @relation("ManagerToTeamMembers", fields: [managerId], references: [id])
+  company     Company @relation(fields: [companyId], references: [id])
+  teamMemberships TeamMembership[]
+  teamInvitations TeamInvitation[]
+  
+  @@index([managerId])
+  @@index([email])
+  @@index([clerkUserId])
+  @@index([companyId])
+  @@index([status])
+}
+
+// Many-to-many: A team member can be on multiple teams
+model TeamMembership {
+  id           String   @id @default(cuid())
+  teamMemberId String
+  teamOwnerId  String   // The manager/UserProfile who owns this team
+  addedAt      DateTime @default(now())
+  
+  teamMember   TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+  teamOwner    UserProfile @relation("TeamMemberProfile", fields: [teamOwnerId], references: [id])
+  
+  @@unique([teamMemberId, teamOwnerId])
+  @@index([teamOwnerId])
+}
+
+// Invitation for a team member to take an assessment
+model TeamInvitation {
+  id           String   @id @default(cuid())
+  teamMemberId String
+  campaignId   String
+  inviteCode   String   @unique
+  inviteUrl    String
+  status       TeamInvitationStatus @default(PENDING)
+  sentAt       DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime @default(now())
+  
+  teamMember   TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+  campaign     Campaign @relation(fields: [campaignId], references: [id])
+  
+  @@index([teamMemberId])
+  @@index([campaignId])
+  @@index([status])
+}
+
+enum TeamMemberStatus {
+  PENDING   // Added but no account
+  INVITED   // Invitation sent
+  ACTIVE    // Has claimed account
+  INACTIVE  // Deactivated
+}
+
+enum TeamInvitationStatus {
+  PENDING
+  SENT
+  OPENED
+  COMPLETED
+  EXPIRED
 }

@@ -1,14 +1,16 @@
 'use client'
 
 import { useUser } from '@clerk/nextjs'
-import { User, Briefcase, Users, Building2, Target, Sparkles, Edit2, X } from 'lucide-react'
+import { User, Briefcase, Building2, Target, Sparkles, Edit2, X, Users } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 interface UserProfileData {
   firstName: string | null
   lastName: string | null
   role: string | null
   department: string | null
+  teamName: string | null
   teamSize: string | null
   teamPurpose: string | null
   teamEmoji: string | null
@@ -16,6 +18,7 @@ interface UserProfileData {
     name: string
   } | null
 }
+
 
 export default function ProfilePage() {
   const { user } = useUser()
@@ -26,21 +29,24 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('/api/user/profile')
-        if (response.ok) {
-          const data = await response.json()
+        // Fetch user profile
+        const profileResponse = await fetch('/api/user/profile', {
+          credentials: 'include'
+        })
+        if (profileResponse.ok) {
+          const data = await profileResponse.json()
           setProfile(data.profile)
         }
       } catch (error) {
-        console.error('Error fetching profile:', error)
+        console.error('Error fetching data:', error)
       } finally {
         setLoading(false)
       }
     }
     
-    fetchProfile()
+    fetchData()
   }, [])
   
   return (
@@ -94,10 +100,10 @@ export default function ProfilePage() {
         
       </div>
       
-      {/* Profile Information Cards */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Profile Information Card */}
+      <div className="mt-8">
         {/* Professional Info */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 max-w-2xl">
           <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
             <Briefcase className="w-5 h-5" />
             Professional Info
@@ -125,49 +131,22 @@ export default function ProfilePage() {
                     <p className="text-white text-lg">{profile.company.name}</p>
                   </div>
                 )}
-                {!profile?.role && !profile?.department && !profile?.company && (
+                {profile?.teamName && (
+                  <div>
+                    <p className="text-white/60 text-sm mb-1">My Team</p>
+                    <Link 
+                      href="/dashboard/member/start/team"
+                      className="text-white text-lg hover:text-purple-400 transition-colors inline-flex items-center gap-2"
+                    >
+                      {profile.teamEmoji && <span>{profile.teamEmoji}</span>}
+                      {profile.teamName}
+                      <Users className="w-4 h-4" />
+                    </Link>
+                  </div>
+                )}
+                {!profile?.role && !profile?.department && !profile?.company && !profile?.teamName && (
                   <div className="h-24 flex items-center justify-center">
                     <p className="text-white/40 text-sm">No professional info added yet</p>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-        
-        {/* Team Info */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 relative">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              Your Team
-            </h2>
-            {profile?.teamEmoji && (
-              <div className="text-3xl animate-bounce" style={{ animationDuration: '2s' }}>
-                {profile.teamEmoji}
-              </div>
-            )}
-          </div>
-          <div className="space-y-4">
-            {loading ? (
-              <div className="h-32 bg-white/5 rounded-lg border border-white/10 animate-pulse" />
-            ) : (
-              <>
-                {profile?.teamSize && (
-                  <div>
-                    <p className="text-white/60 text-sm mb-1">Team Size</p>
-                    <p className="text-white text-lg">{profile.teamSize} people</p>
-                  </div>
-                )}
-                {profile?.teamPurpose && (
-                  <div>
-                    <p className="text-white/60 text-sm mb-1">Team Purpose</p>
-                    <p className="text-white text-sm leading-relaxed">{profile.teamPurpose}</p>
-                  </div>
-                )}
-                {!profile?.teamSize && !profile?.teamPurpose && (
-                  <div className="h-24 flex items-center justify-center">
-                    <p className="text-white/40 text-sm">No team info added yet</p>
                   </div>
                 )}
               </>
@@ -262,6 +241,16 @@ export default function ProfilePage() {
                     Team Information
                   </h3>
                   <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-white/70 mb-1">Team Name</label>
+                      <input
+                        type="text"
+                        value={editData.teamName || ''}
+                        onChange={(e) => setEditData({...editData, teamName: e.target.value})}
+                        className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/15 transition-all"
+                        placeholder="e.g., Product Development Team"
+                      />
+                    </div>
                     <div>
                       <label className="block text-sm font-medium text-white/70 mb-1">Team Size</label>
                       <input

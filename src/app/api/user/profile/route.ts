@@ -4,21 +4,25 @@ import prisma from '@/lib/prisma'
 
 export async function POST(req: NextRequest) {
   try {
-    const authResult = await auth()
-    const userId = authResult?.userId
+    console.log('[Profile API] Starting POST request')
+    const { userId } = await auth()
     
     if (!userId) {
-      console.error('No userId found in auth:', authResult)
+      console.error('[Profile API] No userId found in auth')
       return NextResponse.json({ error: 'Unauthorized - no user ID' }, { status: 401 })
     }
+    
+    console.log('[Profile API] User authenticated:', userId)
 
     const body = await req.json()
+    console.log('[Profile API] Request body:', JSON.stringify(body))
     const { 
       firstName, 
       lastName, 
       role, 
       department, 
-      teamSize, 
+      teamSize,
+      teamName, 
       teamPurpose, 
       teamEmoji,
       companyId,
@@ -26,9 +30,26 @@ export async function POST(req: NextRequest) {
     } = body
 
     // Get user from Clerk first
-    const client = await clerkClient()
-    const user = await client.users.getUser(userId)
+    console.log('[Profile API] Getting Clerk client...')
+    let client
+    try {
+      client = await clerkClient()
+    } catch (error) {
+      console.error('[Profile API] Failed to get Clerk client:', error)
+      throw error
+    }
+    
+    console.log('[Profile API] Getting user from Clerk...')
+    let user
+    try {
+      user = await client.users.getUser(userId)
+    } catch (error) {
+      console.error('[Profile API] Failed to get user from Clerk:', error)
+      throw error
+    }
+    
     const email = user.emailAddresses[0]?.emailAddress
+    console.log('[Profile API] User email:', email)
 
     if (!email) {
       return NextResponse.json({ error: 'No email found' }, { status: 400 })
@@ -60,6 +81,9 @@ export async function POST(req: NextRequest) {
       publicMetadata.teamSize = teamSize
       dbUpdateData.teamSize = teamSize
     }
+    if (teamName !== undefined) {
+      dbUpdateData.teamName = teamName
+    }
     if (teamPurpose !== undefined) {
       dbUpdateData.teamPurpose = teamPurpose
     }
@@ -83,7 +107,14 @@ export async function POST(req: NextRequest) {
       if (Object.keys(publicMetadata).length > 0) {
         updatePayload.publicMetadata = publicMetadata
       }
-      await client.users.updateUser(userId, updatePayload)
+      console.log('[Profile API] Updating Clerk user with:', JSON.stringify(updatePayload))
+      try {
+        await client.users.updateUser(userId, updatePayload)
+        console.log('[Profile API] Clerk user updated successfully')
+      } catch (error) {
+        console.error('[Profile API] Failed to update Clerk user:', error)
+        throw error
+      }
     }
 
     // Build create data without companyId if it's null/undefined
@@ -95,6 +126,7 @@ export async function POST(req: NextRequest) {
       role: dbUpdateData.role || null,
       department: dbUpdateData.department || null,
       teamSize: dbUpdateData.teamSize || null,
+      teamName: dbUpdateData.teamName || null,
       teamPurpose: dbUpdateData.teamPurpose || null,
       teamEmoji: dbUpdateData.teamEmoji || null,
       onboardingComplete: dbUpdateData.onboardingComplete || false
@@ -105,14 +137,34 @@ export async function POST(req: NextRequest) {
       createData.companyId = dbUpdateData.companyId
     }
 
-    // Save to database - simple upsert now that we've cleaned the data
+    // Save to database - handle potential email conflicts
     console.log('Saving profile for user:', userId, 'with data:', createData)
     
-    const profile = await prisma.userProfile.upsert({
-      where: { clerkUserId: userId },
-      update: dbUpdateData,
-      create: createData
+    // First, check if a profile exists with this email but different clerkUserId
+    const existingProfile = await prisma.userProfile.findUnique({
+      where: { email }
     })
+    
+    let profile
+    
+    if (existingProfile && existingProfile.clerkUserId !== userId) {
+      // Update the existing profile to use the new clerkUserId
+      console.log('[Profile API] Updating existing profile with new clerkUserId')
+      profile = await prisma.userProfile.update({
+        where: { email },
+        data: {
+          ...dbUpdateData,
+          clerkUserId: userId // Update to new Clerk user ID
+        }
+      })
+    } else {
+      // Normal upsert
+      profile = await prisma.userProfile.upsert({
+        where: { clerkUserId: userId },
+        update: dbUpdateData,
+        create: createData
+      })
+    }
     
     console.log('Profile saved successfully:', profile.id)
 
@@ -135,11 +187,10 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const authResult = await auth()
-    const userId = authResult?.userId
+    const { userId } = await auth()
     
     if (!userId) {
-      console.error('GET profile - No userId found in auth:', authResult)
+      console.error('GET profile - No userId found in auth')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     

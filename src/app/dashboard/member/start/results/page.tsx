@@ -24,7 +24,7 @@ interface AssessmentResult {
   pdfUrl?: string
 }
 
-export default function MemberResultsPage() {
+export default function PersonalResultsPage() {
   const { user } = useUser()
   const [loading, setLoading] = useState(true)
   const [results, setResults] = useState<AssessmentResult[]>([])
@@ -39,7 +39,7 @@ export default function MemberResultsPage() {
           return
         }
 
-        // Use the new unified API
+        // Fetch personal results using unified API
         const response = await fetch(`/api/assessments/unified?email=${encodeURIComponent(email)}`)
         if (response.ok) {
           const data = await response.json()
@@ -111,7 +111,7 @@ export default function MemberResultsPage() {
         </p>
       </div>
 
-      {/* Results Content */}
+      {/* Personal Results */}
       {results.length > 0 ? (
         <div className="space-y-4">
           {results.map((result) => {
@@ -176,16 +176,15 @@ export default function MemberResultsPage() {
 
                 {/* Expandable Content */}
                 {isExpanded && (
-                    <div className="border-t border-white/10 bg-white/5">
-                      <div className="p-6 space-y-6">
-                        {/* Challenge Areas Section - ALWAYS SHOW */}
+                  <div className="border-t border-white/10 bg-white/5">
+                    <div className="p-6 space-y-6">
+                      {/* Challenge Areas Section */}
                       <div>
                         <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                           <AlertTriangle className="w-5 h-5 text-red-400" />
                           Challenge Areas
                         </h4>
                         <div className="space-y-4">
-                          {/* Now the data is always in the correct format from unified API */}
                           {result.responses?.challenges && result.responses.challenges.length > 0 ? (
                             result.responses.challenges.map((challenge: any) => (
                               <div key={challenge.name}>
@@ -205,14 +204,13 @@ export default function MemberResultsPage() {
                         </div>
                       </div>
 
-                      {/* Skills to Develop Section - ALWAYS SHOW */}
+                      {/* Skills to Develop Section */}
                       <div>
                         <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                           <Sparkles className="w-5 h-5 text-purple-400" />
                           Skills to Develop
                         </h4>
                         <div className="flex flex-wrap gap-2">
-                          {/* Unified API always uses skillsToGrow */}
                           {result.responses?.skillsToGrow && result.responses.skillsToGrow.length > 0 ? (
                             result.responses.skillsToGrow.map((skill: string, index: number) => (
                               <span key={index} className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">
@@ -225,7 +223,7 @@ export default function MemberResultsPage() {
                         </div>
                       </div>
 
-                      {/* Support Needs Section - ALWAYS SHOW */}
+                      {/* Support Needs Section */}
                       <div>
                         <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                           <HeartHandshake className="w-5 h-5 text-pink-400" />
@@ -244,14 +242,13 @@ export default function MemberResultsPage() {
                         </div>
                       </div>
 
-                      {/* Focus Areas Section - ALWAYS SHOW */}
+                      {/* Focus Areas Section */}
                       <div>
                         <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                           <Flag className="w-5 h-5 text-blue-400" />
                           Focus Areas
                         </h4>
                         <div className="flex flex-wrap gap-2">
-                          {/* Unified API always uses teamImpact */}
                           {result.responses?.teamImpact && result.responses.teamImpact.length > 0 ? (
                             result.responses.teamImpact.map((area: string, index: number) => (
                               <span key={index} className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm">
@@ -264,14 +261,13 @@ export default function MemberResultsPage() {
                         </div>
                       </div>
 
-                      {/* Additional Insights Section - ALWAYS SHOW */}
+                      {/* Additional Insights Section */}
                       <div>
                         <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                           <Lightbulb className="w-5 h-5 text-yellow-400" />
                           Additional Insights
                         </h4>
                         <div className="bg-white/10 rounded-lg p-4">
-                          {/* Unified API always uses additionalContext */}
                           {result.responses?.additionalContext ? (
                             <p className="text-white/80 leading-relaxed italic">
                               "{result.responses.additionalContext}"
@@ -289,17 +285,17 @@ export default function MemberResultsPage() {
           })}
         </div>
       ) : (
-        /* Empty State */
+        /* Personal Empty State */
         <div className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10 text-center">
           <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4">
             <BarChart3 className="w-8 h-8 text-white/30" />
           </div>
-          <h3 className="text-white/70 font-medium mb-2 text-lg">No results yet</h3>
+          <h3 className="text-white/70 font-medium mb-2 text-lg">No personal results yet</h3>
           <p className="text-white/50 max-w-md mx-auto mb-6">
             Once you complete assessments, your results and insights will appear here. 
             You can track your progress and view detailed reports.
           </p>
-          
+        
           {/* Features Preview */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 max-w-2xl mx-auto">
             <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">

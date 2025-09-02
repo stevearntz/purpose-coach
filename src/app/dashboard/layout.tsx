@@ -97,13 +97,29 @@ export default function DashboardLayout({
       href: '/dashboard/member/start',
       secondary: [
         { id: 'onboarding', label: 'Onboarding', href: '/dashboard/member/start/onboarding' },
-        { id: 'myprofile', label: 'My Profile', href: '/dashboard/member/start/profile' }
+        { id: 'myprofile', label: 'My Profile', href: '/dashboard/member/start/profile' },
+        { id: 'myteam', label: 'My Team', href: '/dashboard/member/start/team' }
       ]
     },
     { 
       id: 'results', 
       label: 'Results', 
       href: '/dashboard/member/start/results',
+      secondary: [
+        { id: 'personal', label: 'Personal', href: '/dashboard/member/start/results' },
+        { id: 'team', label: 'Team', href: '/dashboard/member/start/results/team' }
+      ]
+    },
+    { 
+      id: 'tools', 
+      label: 'Tools', 
+      href: '/dashboard/member/start/tools',
+      secondary: []
+    },
+    { 
+      id: 'recommendations', 
+      label: 'Recommendations', 
+      href: '/dashboard/member/recommendations',
       secondary: []
     },
   ]
@@ -124,6 +140,12 @@ export default function DashboardLayout({
       }
       if (pathname.includes('/dashboard/member/start/results')) {
         return 'results'
+      }
+      if (pathname.includes('/dashboard/member/start/tools')) {
+        return 'tools'
+      }
+      if (pathname.includes('/dashboard/member/recommendations')) {
+        return 'recommendations'
       }
       if (pathname.includes('/dashboard/member/start')) {
         return 'profile'

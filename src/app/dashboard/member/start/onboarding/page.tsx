@@ -36,12 +36,22 @@ import {
   Sparkles
 } from 'lucide-react'
 
+interface TeamMember {
+  id: string
+  name: string
+  email?: string
+  role?: string
+  nameError?: boolean
+  emailError?: boolean
+}
+
 interface OnboardingData {
   firstName: string
   lastName: string
   role: string
   department: string
-  teamSize: string
+  teamMembers: TeamMember[]
+  teamName: string
   teamPurpose: string
   teamEmoji: string
 }
@@ -99,19 +109,99 @@ export default function OnboardingPage() {
     lastName: user?.lastName || '',
     role: '',
     department: '',
-    teamSize: '',
+    teamMembers: [{ id: Date.now().toString(), name: '', email: '', role: '', nameError: false, emailError: false }],
+    teamName: '',
     teamPurpose: '',
     teamEmoji: ''
   })
 
-  const [errors, setErrors] = useState<Partial<OnboardingData>>({})
+  const [errors, setErrors] = useState<Partial<OnboardingData & { teamMembers?: string }>>({})
+  const memberInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({})
+  const nameInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({})
+
+  // Team member management functions
+  const addTeamMember = () => {
+    const newMember: TeamMember = {
+      id: Date.now().toString(),
+      name: '',
+      email: '',
+      role: '',
+      nameError: false,
+      emailError: false
+    }
+    setData(prev => ({
+      ...prev,
+      teamMembers: [...prev.teamMembers, newMember]
+    }))
+    
+    // Focus the new row's name input after a brief delay
+    setTimeout(() => {
+      nameInputRefs.current[`${newMember.id}-name`]?.focus()
+    }, 100)
+  }
+
+  const removeTeamMember = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      teamMembers: prev.teamMembers.filter(m => m.id !== id)
+    }))
+  }
+
+  const updateTeamMember = (id: string, field: keyof TeamMember, value: string) => {
+    setData(prev => ({
+      ...prev,
+      teamMembers: prev.teamMembers.map(member => {
+        if (member.id === id) {
+          const updated = { ...member, [field]: value }
+          if (field === 'name' && value) updated.nameError = false
+          return updated
+        }
+        return member
+      })
+    }))
+  }
+
+  const handleMemberKeyDown = (e: React.KeyboardEvent, memberId: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      const currentMember = data.teamMembers.find(m => m.id === memberId)
+      
+      if (!currentMember) return
+      
+      if (currentMember.name) {
+        // Check if this is the last member, if so add a new row
+        const lastMember = data.teamMembers[data.teamMembers.length - 1]
+        if (lastMember.id === memberId) {
+          addTeamMember()
+        } else {
+          // Otherwise, continue to the next step
+          handleNext()
+        }
+      } else {
+        // Show error if name is empty
+        setData(prev => ({
+          ...prev,
+          teamMembers: prev.teamMembers.map(m => {
+            if (m.id === memberId) {
+              return { ...m, nameError: true }
+            }
+            return m
+          })
+        }))
+      }
+    }
+  }
 
   // Fetch existing profile data and company ID
   useEffect(() => {
     const fetchData = async () => {
       // Fetch existing profile
       try {
-        const profileResponse = await fetch('/api/user/profile')
+        console.log('[Onboarding] Fetching existing profile...')
+        const profileResponse = await fetch('/api/user/profile', {
+          credentials: 'include' // Include auth cookies
+        })
+        console.log('[Onboarding] Profile fetch response:', profileResponse.status)
         if (profileResponse.ok) {
           const profileData = await profileResponse.json()
           if (profileData.profile) {
@@ -124,13 +214,14 @@ export default function OnboardingPage() {
               setCustomDepartment(dept)
             }
             
-            // Pre-populate form with existing data
+            // Pre-populate form with existing data (without team members - they'll be fetched separately)
             setData(prev => ({
               firstName: profileData.profile.firstName || prev.firstName || '',
               lastName: profileData.profile.lastName || prev.lastName || '',
               role: profileData.profile.role || '',
               department: isCustomDept ? '' : (profileData.profile.department || ''),
-              teamSize: profileData.profile.teamSize || '',
+              teamMembers: prev.teamMembers, // Keep default for now, will be updated below
+              teamName: profileData.profile.teamName || '',
               teamPurpose: profileData.profile.teamPurpose || '',
               teamEmoji: profileData.profile.teamEmoji || ''
             }))
@@ -141,15 +232,45 @@ export default function OnboardingPage() {
             }
             
             // Mark as edit mode if any data exists
-            if (profileData.profile.role || profileData.profile.department || profileData.profile.teamSize) {
+            if (profileData.profile.role || profileData.profile.department) {
               setIsEditMode(true)
             }
             
             console.log('Loaded existing profile data:', profileData.profile)
           }
         }
+        
+        // Fetch team members separately
+        const teamResponse = await fetch('/api/team/members', {
+          credentials: 'include'
+        })
+        console.log('[Onboarding] Team members fetch response:', teamResponse.status)
+        if (teamResponse.ok) {
+          const teamData = await teamResponse.json()
+          if (teamData.teamMembers && teamData.teamMembers.length > 0) {
+            // Convert team members to the format used in the form
+            const formattedMembers = teamData.teamMembers.map((member: any) => ({
+              id: member.id,
+              name: member.name || '',
+              email: member.email || '',
+              role: member.role || '',
+              nameError: false,
+              emailError: false
+            }))
+            
+            setData(prev => ({
+              ...prev,
+              teamMembers: formattedMembers
+            }))
+            
+            // Mark as edit mode since we have team members
+            setIsEditMode(true)
+            
+            console.log('Loaded existing team members:', formattedMembers)
+          }
+        }
       } catch (error) {
-        console.error('Error fetching profile:', error)
+        console.error('Error fetching profile and team members:', error)
       }
       
       // Also fetch company if user is in an organization
@@ -365,16 +486,19 @@ export default function OnboardingPage() {
         if (!data.department && !customDepartment) newErrors.department = 'Department is required'
         break
       case 4:
-        if (!data.teamSize) {
-          newErrors.teamSize = 'Team size is required'
-        } else if (isNaN(Number(data.teamSize)) || Number(data.teamSize) < 0) {
-          newErrors.teamSize = 'Please enter a valid number'
-        }
+        if (!data.teamName) newErrors.teamName = 'Team name is required'
         break
       case 5:
-        if (!data.teamPurpose) newErrors.teamPurpose = 'Team purpose is required'
+        // Validate at least one team member has a name
+        const validMembers = data.teamMembers.filter(m => m.name.trim())
+        if (validMembers.length === 0) {
+          newErrors.teamMembers = 'Add at least one team member'
+        }
         break
       case 6:
+        if (!data.teamPurpose) newErrors.teamPurpose = 'Team purpose is required'
+        break
+      case 7:
         if (!data.teamEmoji) newErrors.teamEmoji = 'Please select a team emoji'
         break
     }
@@ -400,12 +524,22 @@ export default function OnboardingPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Include auth cookies
         body: JSON.stringify(payload),
       })
       
+      console.log('Profile API response status:', response.status)
+      
       if (!response.ok) {
-        const errorData = await response.json()
+        let errorData = {}
+        try {
+          errorData = await response.json()
+        } catch (e) {
+          console.error('Failed to parse error response:', e)
+        }
         console.error('Failed to save profile data:', response.status, errorData)
+        // Re-throw to see if there's an outer catch transforming the error
+        throw new Error(`Profile save failed with status ${response.status}`)
       } else {
         console.log('Profile data saved successfully:', fields)
       }
@@ -441,17 +575,62 @@ export default function OnboardingPage() {
             department: deptToSave
           })
         }
-      } else if (currentQuestion === 4 && data.teamSize) {
-        // Save team size
+      } else if (currentQuestion === 4 && data.teamName) {
+        // Save team name
         await saveProfileData({
-          teamSize: data.teamSize
+          teamName: data.teamName
         })
-      } else if (currentQuestion === 5 && data.teamPurpose) {
+      } else if (currentQuestion === 5) {
+        // Save team members to database
+        const validMembers = data.teamMembers.filter(m => m.name.trim())
+        if (validMembers.length > 0) {
+          // Save team size to user profile
+          await saveProfileData({
+            teamSize: validMembers.length.toString()
+          })
+          
+          // Determine if we should update existing or create new team members
+          // Check if we have existing members (loaded from database)
+          const hasExistingMembers = isEditMode && data.teamMembers.some(m => 
+            m.id && !m.id.startsWith('new-') && m.id.length > 10
+          )
+          
+          // Save team members to database via the team API
+          try {
+            if (hasExistingMembers) {
+              // First, delete all existing team members for this manager
+              const deleteResponse = await fetch('/api/team/members/all', {
+                method: 'DELETE',
+                credentials: 'include'
+              })
+              
+              if (!deleteResponse.ok) {
+                console.error('Failed to delete existing team members')
+              }
+            }
+            
+            // Now create the new set of team members
+            const response = await fetch('/api/team/members', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ members: validMembers })
+            })
+            
+            if (!response.ok) {
+              const errorText = await response.text()
+              console.error('Failed to save team members:', response.status, errorText)
+            }
+          } catch (error) {
+            console.error('Error saving team members:', error)
+          }
+        }
+      } else if (currentQuestion === 6 && data.teamPurpose) {
         // Save team purpose
         await saveProfileData({
           teamPurpose: data.teamPurpose
         })
-      } else if (currentQuestion === 6 && data.teamEmoji) {
+      } else if (currentQuestion === 7 && data.teamEmoji) {
         // Save team emoji
         await saveProfileData({
           teamEmoji: data.teamEmoji
@@ -460,7 +639,7 @@ export default function OnboardingPage() {
       
       setAnimating(true)
       setTimeout(() => {
-        if (currentQuestion < 8) {
+        if (currentQuestion < 9) {
           setCurrentQuestion(currentQuestion + 1)
         }
         setAnimating(false)
@@ -472,9 +651,9 @@ export default function OnboardingPage() {
     setAnimating(true)
     setTimeout(() => {
       if (currentQuestion > 0) {
-        // Skip the mission interlude (7) when going back from offerings (8)
-        if (currentQuestion === 8) {
-          setCurrentQuestion(6) // Go back to team emoji selection
+        // Skip the mission interlude (8) when going back from offerings (9)
+        if (currentQuestion === 9) {
+          setCurrentQuestion(7) // Go back to team emoji selection
         } else {
           setCurrentQuestion(currentQuestion - 1)
         }
@@ -502,6 +681,7 @@ export default function OnboardingPage() {
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include', // Include auth cookies
           body: JSON.stringify(finalData),
         })
         
@@ -880,34 +1060,178 @@ export default function OnboardingPage() {
           return (
             <div className="space-y-6">
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-white mb-2">How big is your team?</h2>
-                <p className="text-white/60 text-sm">Just the people you work with directly</p>
+                <h2 className="text-2xl font-bold text-white mb-2">What's your team called?</h2>
+                <p className="text-white/60 text-sm">Give your team a name that captures its identity</p>
               </div>
-              <div className="max-w-xs mx-auto">
+              <div className="max-w-2xl mx-auto">
                 <input
                   type="text"
-                  value={data.teamSize}
-                  onChange={(e) => setData({...data, teamSize: e.target.value})}
+                  value={data.teamName}
+                  onChange={(e) => setData({...data, teamName: e.target.value})}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault()
                       handleNext()
                     }
                   }}
-                  className={`w-full px-4 py-2.5 bg-white/10 border ${
-                    errors.teamSize ? 'border-red-500' : 'border-white/20'
-                  } rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/15 transition-all text-center text-lg`}
-                  placeholder="e.g., 8"
+                  className={`w-full px-4 py-3 bg-white/10 border ${
+                    errors.teamName ? 'border-red-500' : 'border-white/20'
+                  } rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/15 transition-all`}
+                  placeholder="e.g., Product Team, Engineering Squad, Customer Success Heroes"
                   autoFocus
                 />
-                {errors.teamSize && (
-                  <p className="text-red-400 text-xs text-center mt-1">{errors.teamSize}</p>
+                {errors.teamName && (
+                  <p className="text-red-400 text-xs mt-1">{errors.teamName}</p>
                 )}
               </div>
             </div>
           )
 
         case 5:
+          return (
+            <div className="space-y-6">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">Who's on your team?</h2>
+                <p className="text-white/60 text-sm">Add the people you work with directly</p>
+              </div>
+              <div className="max-w-4xl mx-auto">
+                {/* Header row */}
+                <div className="grid grid-cols-10 gap-4 mb-3 px-1">
+                  <div className="col-span-3 text-xs font-medium text-white/60">Name *</div>
+                  <div className="col-span-3 text-xs font-medium text-white/60">Email (optional)</div>
+                  <div className="col-span-3 text-xs font-medium text-white/60">Role (optional)</div>
+                  <div className="col-span-1"></div>
+                </div>
+
+                {/* Team member rows */}
+                <div className="space-y-2">
+                  {data.teamMembers.map((member, index) => (
+                    <div key={member.id} className="grid grid-cols-10 gap-4 items-center">
+                      <div className="col-span-3">
+                        <input
+                          ref={(el) => { nameInputRefs.current[`${member.id}-name`] = el }}
+                          type="text"
+                          value={member.name}
+                          onChange={(e) => updateTeamMember(member.id, 'name', e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault()
+                              if (member.name.trim()) {
+                                // If this is the last row, add a new one
+                                if (index === data.teamMembers.length - 1) {
+                                  addTeamMember()
+                                } else {
+                                  // Focus next row's name input
+                                  const nextMember = data.teamMembers[index + 1]
+                                  nameInputRefs.current[`${nextMember.id}-name`]?.focus()
+                                }
+                              } else {
+                                updateTeamMember(member.id, 'nameError', true)
+                              }
+                            }
+                          }}
+                          placeholder="Jane Smith"
+                          className={`w-full px-4 py-2 bg-white/10 border ${
+                            member.nameError ? 'border-red-500' : 'border-white/20'
+                          } rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all`}
+                          autoFocus={index === 0}
+                        />
+                      </div>
+                      <div className="col-span-3">
+                        <input
+                          ref={(el) => { nameInputRefs.current[`${member.id}-email`] = el }}
+                          type="email"
+                          value={member.email || ''}
+                          onChange={(e) => updateTeamMember(member.id, 'email', e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault()
+                              if (member.name.trim()) {
+                                // If this is the last row, add a new one
+                                if (index === data.teamMembers.length - 1) {
+                                  addTeamMember()
+                                } else {
+                                  // Focus next row's name input
+                                  const nextMember = data.teamMembers[index + 1]
+                                  nameInputRefs.current[`${nextMember.id}-name`]?.focus()
+                                }
+                              } else {
+                                updateTeamMember(member.id, 'nameError', true)
+                              }
+                            }
+                          }}
+                          placeholder="jane@company.com"
+                          className={`w-full px-4 py-2 bg-white/10 border ${
+                            member.emailError ? 'border-red-500' : 'border-white/20'
+                          } rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all`}
+                        />
+                      </div>
+                      <div className="col-span-3">
+                        <input
+                          ref={(el) => { nameInputRefs.current[`${member.id}-role`] = el }}
+                          type="text"
+                          value={member.role || ''}
+                          onChange={(e) => updateTeamMember(member.id, 'role', e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault()
+                              if (member.name.trim()) {
+                                // If this is the last row, add a new one
+                                if (index === data.teamMembers.length - 1) {
+                                  addTeamMember()
+                                } else {
+                                  // Focus next row's name input
+                                  const nextMember = data.teamMembers[index + 1]
+                                  nameInputRefs.current[`${nextMember.id}-name`]?.focus()
+                                }
+                              } else {
+                                updateTeamMember(member.id, 'nameError', true)
+                              }
+                            }
+                          }}
+                          placeholder="Designer"
+                          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all"
+                        />
+                      </div>
+                      <div className="col-span-1 flex items-center justify-center gap-2">
+                        {index === data.teamMembers.length - 1 ? (
+                          <button
+                            onClick={addTeamMember}
+                            className="w-10 h-10 flex items-center justify-center bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
+                            title="Add team member"
+                          >
+                            <Plus className="w-5 h-5 text-white" />
+                          </button>
+                        ) : (
+                          data.teamMembers.length > 1 && (
+                            <button
+                              onClick={() => removeTeamMember(member.id)}
+                              className="w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors"
+                              title="Remove team member"
+                            >
+                              <X className="w-5 h-5 text-white/60 hover:text-white" />
+                            </button>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Error message */}
+                {errors.teamMembers && (
+                  <p className="text-red-400 text-xs text-center mt-4">{errors.teamMembers}</p>
+                )}
+
+                {/* Hint */}
+                <p className="text-white/40 text-xs text-center mt-6">
+                  Press Enter in any field to quickly add more team members
+                </p>
+              </div>
+            </div>
+          )
+
+        case 6:
           return (
             <div className="space-y-6">
               <div className="text-center mb-6">
@@ -938,7 +1262,7 @@ export default function OnboardingPage() {
             </div>
           )
 
-        case 6:
+        case 7:
           return (
             <div className="space-y-6">
               <div className="text-center mb-6">
@@ -985,7 +1309,7 @@ export default function OnboardingPage() {
             </div>
           )
           
-        case 7: // Mission Interlude
+        case 8: // Mission Interlude
           return (
             <div className="w-full max-w-3xl mx-auto">
               {/* Campfire Heart Illustration */}
@@ -1041,7 +1365,7 @@ export default function OnboardingPage() {
             </div>
           )
           
-        case 8: // What is Campfire
+        case 9: // What is Campfire
           return (
             <div className="w-full max-w-3xl mx-auto">
               <div className="text-center mb-8">
@@ -1201,11 +1525,11 @@ export default function OnboardingPage() {
                 )}
 
                 <div className="text-white/40 text-xs flex items-center">
-                  {currentQuestion === 0 || currentQuestion === 7 || currentQuestion === 8 ? '' : 
-                   `Question ${currentQuestion} of 6`}
+                  {currentQuestion === 0 || currentQuestion === 8 || currentQuestion === 9 ? '' : 
+                   `Question ${currentQuestion} of 7`}
                 </div>
 
-                {currentQuestion === 0 ? null : currentQuestion < 8 ? (
+                {currentQuestion === 0 ? null : currentQuestion < 9 ? (
                   <button
                     onClick={handleNext}
                     className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium text-sm hover:from-purple-700 hover:to-pink-700 transition-all flex items-center gap-2 group"

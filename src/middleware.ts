@@ -18,8 +18,11 @@ const isDashboardRoute = createRouteMatcher([
 export default clerkMiddleware(async (auth, req) => {
   const { userId, orgId, sessionClaims } = await auth()
   
-  // Skip middleware for API routes - they handle auth themselves
-  if (isApiRoute(req)) return
+  // For API routes, just establish the auth context and continue
+  // The API routes will handle their own authorization checks
+  if (isApiRoute(req)) {
+    return NextResponse.next()
+  }
   
   // Only check authentication for protected routes
   if (isProtectedRoute(req)) {

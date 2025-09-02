@@ -42,6 +42,20 @@
   --font-sans: var(--font-league-spartan);
 }
 
+/* Bouncing animation for team emoji */
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2s ease-in-out infinite;
+}
+
 /* Register custom color utilities */
 @layer utilities {
   .text-iris { color: var(--iris); }

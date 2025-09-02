@@ -709,7 +709,7 @@ export default function OnboardingPage() {
   const selectEmoji = (emoji: string) => {
     // Update data and clear any errors for teamEmoji
     setData(prev => ({...prev, teamEmoji: emoji}))
-    setErrors(prev => ({...prev, teamEmoji: undefined}))
+    setErrors((prev: any) => ({...prev, teamEmoji: undefined}))
     setShowEmojiPicker(false)
   }
 
@@ -1126,7 +1126,7 @@ export default function OnboardingPage() {
                                   nameInputRefs.current[`${nextMember.id}-name`]?.focus()
                                 }
                               } else {
-                                updateTeamMember(member.id, 'nameError', true)
+                                updateTeamMember(member.id, 'nameError', 'true')
                               }
                             }
                           }}
@@ -1156,7 +1156,7 @@ export default function OnboardingPage() {
                                   nameInputRefs.current[`${nextMember.id}-name`]?.focus()
                                 }
                               } else {
-                                updateTeamMember(member.id, 'nameError', true)
+                                updateTeamMember(member.id, 'nameError', 'true')
                               }
                             }
                           }}
@@ -1185,7 +1185,7 @@ export default function OnboardingPage() {
                                   nameInputRefs.current[`${nextMember.id}-name`]?.focus()
                                 }
                               } else {
-                                updateTeamMember(member.id, 'nameError', true)
+                                updateTeamMember(member.id, 'nameError', 'true')
                               }
                             }
                           }}

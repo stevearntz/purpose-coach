@@ -1,6 +1,39 @@
-import { NextRequest, NextResponse } from 'next/server'
-import prisma from '@/lib/prisma'
+/**
+ * Assessment Save API - Migrated to New Standardized Pattern
+ * 
+ * This replaces route.ts with proper validation, error handling, and response format
+ * Following the new API utilities pattern from /lib/api/
+ */
+
 import { z } from 'zod'
+import { NextRequest } from 'next/server'
+import prisma from '@/lib/prisma'
+import { createApiHandlers, ApiContext } from '@/lib/api/handler'
+import { SuccessResponses } from '@/lib/api/responses'
+import { CommonErrors, ApiError } from '@/lib/api/errors'
+import { ErrorCodes } from '@/lib/api/types'
+import { nanoid } from 'nanoid'
+
+// Simple validation function to avoid import issues
+async function validateBody<T extends z.ZodType>(
+  request: NextRequest,
+  schema: T
+): Promise<z.infer<T>> {
+  try {
+    const body = await request.json()
+    return schema.parse(body)
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      throw new ApiError(
+        ErrorCodes.INVALID_INPUT,
+        'Invalid JSON in request body',
+        400
+      )
+    }
+    // Let Zod errors bubble up to be handled by errorResponse
+    throw error
+  }
+}
 
 // Validation schema for saving assessment results
 const SaveAssessmentSchema = z.object({
@@ -24,92 +57,85 @@ const SaveAssessmentSchema = z.object({
   message: 'Either inviteCode or invitationId must be provided'
 })
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
-    
-    // Validate input
-    const validationResult = SaveAssessmentSchema.safeParse(body)
-    if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'Invalid input', details: validationResult.error.flatten() },
-        { status: 400 }
-      )
-    }
-    
-    const data = validationResult.data
-    
-    // Find the invitation
-    let invitation
-    if (data.inviteCode) {
-      invitation = await prisma.invitation.findFirst({
-        where: { inviteCode: data.inviteCode }
-      })
-    } else if (data.invitationId) {
-      invitation = await prisma.invitation.findUnique({
-        where: { id: data.invitationId }
-      })
-    }
-    
-    if (!invitation) {
-      return NextResponse.json(
-        { error: 'Invitation not found' },
-        { status: 404 }
-      )
-    }
-    
-    // Generate a unique share ID
-    const shareId = generateShareId()
-    
-    // Save the assessment result
-    const assessmentResult = await prisma.assessmentResult.create({
-      data: {
-        invitationId: invitation.id,
-        toolId: data.toolId,
-        toolName: data.toolName,
-        responses: data.responses as any,
-        scores: data.scores ? (data.scores as any) : undefined,
-        summary: data.summary || null,
-        insights: data.insights ? (data.insights as any) : undefined,
-        recommendations: data.recommendations ? (data.recommendations as any) : undefined,
-        userProfile: data.userProfile ? (data.userProfile as any) : undefined,
-        shareId,
-      }
+async function handleSaveAssessment({ request }: ApiContext) {
+  // Note: This endpoint doesn't require authentication by design
+  // It's used by anonymous users completing assessments
+  
+  const data = await validateBody(request, SaveAssessmentSchema)
+  
+  // Find the invitation
+  let invitation
+  if (data.inviteCode) {
+    invitation = await prisma.invitation.findFirst({
+      where: { inviteCode: data.inviteCode }
     })
-    
-    // Update invitation status if not already completed
-    if (invitation.status !== 'COMPLETED') {
-      await prisma.invitation.update({
-        where: { id: invitation.id },
-        data: {
-          status: 'COMPLETED',
-          completedAt: new Date(),
-          // Update name if provided
-          name: data.responses?.name || data.userProfile?.name || invitation.name
-        }
-      })
-      
-      // Update metadata with tool access and profile data
-      await prisma.invitationMetadata.upsert({
-        where: { invitationId: invitation.id },
-        create: {
-          invitationId: invitation.id,
-          toolsAccessed: [data.toolId],
-          department: (data.responses as any)?.department || (data.userProfile as any)?.department || null,
-        },
-        update: {
-          toolsAccessed: {
-            push: data.toolId
-          },
-          department: (data.responses as any)?.department || (data.userProfile as any)?.department || null,
-        }
-      })
+  } else if (data.invitationId) {
+    invitation = await prisma.invitation.findUnique({
+      where: { id: data.invitationId }
+    })
+  }
+  
+  if (!invitation) {
+    throw CommonErrors.notFound('Invitation')
+  }
+  
+  // Check if already completed
+  const existingResult = await prisma.assessmentResult.findFirst({
+    where: {
+      invitationId: invitation.id,
+      toolId: data.toolId
     }
-    
-    // Assessment result saved
-    
-    return NextResponse.json({
-      success: true,
+  })
+  
+  if (existingResult) {
+    throw new ApiError(
+      ErrorCodes.ALREADY_EXISTS,
+      'Assessment already completed for this invitation',
+      409
+    )
+  }
+  
+  // Generate a unique share ID
+  const shareId = nanoid(10)
+  
+  // Extract team sharing info if present
+  const url = request.url
+  const teamLinkOwner = new URL(url).searchParams.get('owner') || null
+  
+  // Create the assessment result
+  const assessmentResult = await prisma.assessmentResult.create({
+    data: {
+      invitationId: invitation.id,
+      toolId: data.toolId,
+      toolName: data.toolName,
+      responses: data.responses || {},
+      scores: data.scores || {},
+      summary: data.summary || '',
+      insights: data.insights || {},
+      recommendations: data.recommendations || {},
+      userProfile: data.userProfile || {},
+      shareId,
+      teamLinkOwner,
+      userEmail: data.userProfile?.email || invitation.email,
+      userName: data.userProfile?.name || null,
+      company: data.userProfile?.company || null,
+    }
+  })
+  
+  // Update invitation status to COMPLETED
+  await prisma.invitation.update({
+    where: { id: invitation.id },
+    data: { 
+      status: 'COMPLETED',
+      completedAt: new Date()
+    }
+  })
+  
+  // Note: User profile updates would happen separately if needed
+  // The invitation model doesn't have clerkUserId in this schema
+  
+  return SuccessResponses.created(
+    {
       assessmentResult: {
         id: assessmentResult.id,
         shareId: assessmentResult.shareId,
@@ -120,23 +146,16 @@ export async function POST(request: NextRequest) {
         email: invitation.email,
         status: 'COMPLETED'
       }
-    })
-    
-  } catch (error) {
-    console.error('[assessment-save] Error saving assessment:', error)
-    return NextResponse.json(
-      { error: 'Failed to save assessment result' },
-      { status: 500 }
-    )
-  }
+    },
+    'Assessment saved successfully'
+  )
 }
 
-// Helper function to generate a unique share ID
-function generateShareId(): string {
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-  let result = ''
-  for (let i = 0; i < 12; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return result
-}
+// Export without authentication requirement
+// This endpoint is designed to be used by anonymous users
+export const { POST } = createApiHandlers(
+  {
+    POST: handleSaveAssessment
+  },
+  { requireAuth: false }
+)

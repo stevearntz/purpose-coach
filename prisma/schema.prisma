@@ -140,6 +140,10 @@ model Campaign {
   updatedAt    DateTime       @updatedAt
   company      Company        @relation(fields: [companyId], references: [id])
   teamInvitations TeamInvitation[]
+  
+  @@index([companyId])
+  @@index([createdBy])
+  @@index([status])
 }
 
 enum InvitationStatus {
@@ -199,6 +203,7 @@ model TeamMember {
   @@index([clerkUserId])
   @@index([companyId])
   @@index([status])
+  @@index([inviteCode])
 }
 
 // Many-to-many: A team member can be on multiple teams
@@ -213,6 +218,7 @@ model TeamMembership {
   
   @@unique([teamMemberId, teamOwnerId])
   @@index([teamOwnerId])
+  @@index([teamMemberId])
 }
 
 // Invitation for a team member to take an assessment
@@ -233,6 +239,7 @@ model TeamInvitation {
   @@index([teamMemberId])
   @@index([campaignId])
   @@index([status])
+  @@index([inviteCode])
 }
 
 enum TeamMemberStatus {

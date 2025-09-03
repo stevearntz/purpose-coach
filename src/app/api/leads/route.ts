@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
 import { nanoid } from 'nanoid';
+import { z } from 'zod';
+
+// Validation schemas
+const CreateLeadSchema = z.object({
+  email: z.string().email().max(255),
+  name: z.string().max(255).optional(),
+  source: z.string().max(100).optional(),
+  metadata: z.record(z.any()).optional()
+});
 
 // Types
 interface Lead {
@@ -16,15 +26,44 @@ interface Lead {
 }
 
 // POST - Create new lead
+// NOTE: This endpoint allows unauthenticated access for lead capture forms
+// BUT includes rate limiting and validation for security
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { email, name, source, metadata } = body;
+    // Get client IP for rate limiting
+    const forwarded = request.headers.get('x-forwarded-for');
+    const ip = forwarded ? forwarded.split(',')[0] : 'unknown';
     
-    if (!email) {
+    // Basic rate limiting check (should use Redis in production)
+    // For now, we'll just validate heavily
+    
+    const body = await request.json();
+    
+    // Validate input
+    const validation = CreateLeadSchema.safeParse(body);
+    if (!validation.success) {
       return NextResponse.json(
-        { error: 'Email is required' },
+        { error: 'Invalid input', details: validation.error.flatten() },
         { status: 400 }
+      );
+    }
+    
+    const { email, name, source, metadata } = validation.data;
+    
+    // Check for duplicate lead in last 5 minutes (prevent spam)
+    const recentLead = await prisma.lead.findFirst({
+      where: {
+        email: email.toLowerCase(),
+        createdAt: {
+          gte: new Date(Date.now() - 5 * 60 * 1000) // 5 minutes ago
+        }
+      }
+    });
+    
+    if (recentLead) {
+      return NextResponse.json(
+        { error: 'Please wait before submitting again' },
+        { status: 429 }
       );
     }
     
@@ -38,10 +77,14 @@ export async function POST(request: NextRequest) {
         toolId: metadata?.toolId || null,
         metadata: {
           ...metadata,
-          selectedChallenges: metadata?.selectedChallenges,
-          recommendedTools: metadata?.recommendedTools,
-          userRole: metadata?.userRole
+          ip: ip, // Store IP for abuse tracking
+          timestamp: new Date().toISOString()
         }
+      },
+      select: {
+        id: true,
+        email: true,
+        createdAt: true
       }
     });
     
@@ -49,16 +92,11 @@ export async function POST(request: NextRequest) {
       success: true,
       lead: {
         id: lead.id,
-        email: lead.email,
-        name: lead.name,
-        source: lead.source,
-        createdAt: lead.createdAt.toISOString(),
-        metadata: lead.metadata
+        email: lead.email
       }
     });
-    
   } catch (error) {
-    console.error('Failed to create lead:', error);
+    console.error('Error creating lead:', error);
     return NextResponse.json(
       { error: 'Failed to create lead' },
       { status: 500 }
@@ -66,41 +104,64 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET - Retrieve leads
+// GET - Fetch leads (MUST be authenticated)
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const email = searchParams.get('email');
-    const source = searchParams.get('source');
-    const limit = parseInt(searchParams.get('limit') || '100');
+    // SECURITY: Require authentication
+    const { userId } = await auth();
     
-    const where: any = {};
-    if (email) where.email = email.toLowerCase();
-    if (source) where.source = source;
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    // Check if user is admin
+    const userProfile = await prisma.userProfile.findUnique({
+      where: { clerkUserId: userId }
+    });
+    
+    if (!userProfile || userProfile.clerkRole !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+    }
+    
+    const searchParams = request.nextUrl.searchParams;
+    const limit = parseInt(searchParams.get('limit') || '100');
+    const offset = parseInt(searchParams.get('offset') || '0');
+    
+    // Validate pagination params
+    if (limit > 1000 || limit < 1) {
+      return NextResponse.json({ error: 'Invalid limit parameter' }, { status: 400 });
+    }
     
     const leads = await prisma.lead.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      take: limit
+      take: Math.min(limit, 1000),
+      skip: offset,
+      orderBy: {
+        createdAt: 'desc'
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        source: true,
+        toolName: true,
+        toolId: true,
+        metadata: true,
+        createdAt: true
+      }
     });
+    
+    const totalCount = await prisma.lead.count();
     
     return NextResponse.json({
-      success: true,
-      leads: leads.map(lead => ({
-        id: lead.id,
-        email: lead.email,
-        name: lead.name,
-        source: lead.source,
-        createdAt: lead.createdAt.toISOString(),
-        metadata: lead.metadata
-      })),
-      count: leads.length
+      leads,
+      totalCount,
+      limit,
+      offset
     });
-    
   } catch (error) {
-    console.error('Failed to retrieve leads:', error);
+    console.error('Error fetching leads:', error);
     return NextResponse.json(
-      { error: 'Failed to retrieve leads' },
+      { error: 'Failed to fetch leads' },
       { status: 500 }
     );
   }

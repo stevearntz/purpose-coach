@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
+import { z } from 'zod';
 
 interface CompanyResult {
   id: string;
@@ -7,53 +9,83 @@ interface CompanyResult {
   logo: string | null;
 }
 
+// Validation schema
+const SearchSchema = z.object({
+  q: z.string().min(1).max(100)
+});
+
 export async function GET(request: NextRequest) {
   try {
+    // SECURITY: Require authentication
+    const { userId } = await auth();
+    
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Validate input
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get('q');
-    
-    console.log('Company search query:', query);
     
     if (!query || query.length < 1) {
       return NextResponse.json({ companies: [] });
     }
+
+    // Validate query parameter
+    const validation = SearchSchema.safeParse({ q: query });
+    if (!validation.success) {
+      return NextResponse.json({ error: 'Invalid search query' }, { status: 400 });
+    }
     
-    // Ensure connection
-    await prisma.$connect();
+    // Get user's profile to check permissions
+    const userProfile = await prisma.userProfile.findUnique({
+      where: { clerkUserId: userId }
+    });
+
+    if (!userProfile) {
+      return NextResponse.json({ error: 'User profile not found' }, { status: 404 });
+    }
+
+    // Build where clause based on user permissions
+    const whereClause: any = {
+      name: {
+        contains: query,
+        mode: 'insensitive'
+      }
+    };
+
+    // Non-admin users can only search within their own company
+    if (userProfile.clerkRole !== 'admin' && userProfile.companyId) {
+      whereClause.id = userProfile.companyId;
+    } else if (userProfile.clerkRole !== 'admin') {
+      // No company and not admin = no results
+      return NextResponse.json({ companies: [] });
+    }
     
-    // Search for companies - case-insensitive search
-    // Using mode: 'insensitive' for case-insensitive search
+    // Search for companies
     const companies = await prisma.company.findMany({
-      where: {
-        name: {
-          contains: query,
-          mode: 'insensitive'
-        }
-      },
+      where: whereClause,
       select: {
         id: true,
         name: true,
         logo: true
       },
-      take: 10,
+      take: 10, // Limit results for performance
       orderBy: {
         name: 'asc'
       }
     });
     
-    console.log('Found companies:', companies);
+    // Format response
+    const results: CompanyResult[] = companies.map(company => ({
+      id: company.id,
+      name: company.name,
+      logo: company.logo
+    }));
     
-    return NextResponse.json({ companies });
-  } catch (error: any) {
-    console.error('Failed to search companies:', error);
-    console.error('Error details:', {
-      message: error?.message,
-      code: error?.code,
-      meta: error?.meta
-    });
-    return NextResponse.json({ 
-      error: 'Failed to search companies',
-      details: error?.message || 'Unknown error'
-    }, { status: 500 });
+    return NextResponse.json({ companies: results });
+  } catch (error) {
+    console.error('Company search error:', error);
+    return NextResponse.json({ error: 'Failed to search companies' }, { status: 500 });
   }
 }

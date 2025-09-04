@@ -37,8 +37,10 @@ export default function ProfilePage() {
         })
         if (profileResponse.ok) {
           const data = await profileResponse.json()
+          console.log('[Profile Page] API Response:', data)
           // Handle both old and new API response formats
           const profileData = data.data?.profile || data.profile
+          console.log('[Profile Page] Profile Data:', profileData)
           setProfile(profileData)
         }
       } catch (error) {

@@ -30,21 +30,28 @@ export default function ProfilePage() {
   
   useEffect(() => {
     const fetchData = async () => {
+      console.log('[Profile Page] Starting data fetch...')
       try {
         // Fetch user profile
         const profileResponse = await fetch('/api/user/profile', {
           credentials: 'include'
         })
+        console.log('[Profile Page] Response status:', profileResponse.status)
+        
         if (profileResponse.ok) {
           const data = await profileResponse.json()
           console.log('[Profile Page] API Response:', data)
           // Handle both old and new API response formats
-          const profileData = data.data?.profile || data.profile
+          const profileData = data.data?.profile || data.profile || null
           console.log('[Profile Page] Profile Data:', profileData)
           setProfile(profileData)
+        } else {
+          console.error('[Profile Page] Failed to fetch, status:', profileResponse.status)
+          const errorText = await profileResponse.text()
+          console.error('[Profile Page] Error response:', errorText)
         }
       } catch (error) {
-        console.error('Error fetching data:', error)
+        console.error('[Profile Page] Error fetching data:', error)
       } finally {
         setLoading(false)
       }

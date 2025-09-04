@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
       }
     });
     
-    const result = {
+    const result: any = {
       userId,
       email,
       emailDomain,
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
     
     // Check current organization memberships
     const memberships = await client.users.getOrganizationMembershipList({ userId });
-    result['currentOrganizations'] = memberships.data.map((m: any) => ({
+    result.currentOrganizations = memberships.data.map((m: any) => ({
       id: m.organization.id,
       name: m.organization.name,
       role: m.role

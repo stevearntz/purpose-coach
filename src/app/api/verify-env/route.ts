@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     
-    const checks = {
+    const checks: any = {
       environment: process.env.NODE_ENV,
       timestamp: new Date().toISOString(),
       checks: {

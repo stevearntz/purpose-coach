@@ -28,6 +28,12 @@ export default function ProfilePage() {
   const [editData, setEditData] = useState<UserProfileData | null>(null)
   const [saving, setSaving] = useState(false)
   
+  // Debug: Check if component is mounting
+  useEffect(() => {
+    console.log('[Profile Page] Component mounted!');
+    console.log('[Profile Page] User from Clerk:', user);
+  }, []);
+  
   useEffect(() => {
     const fetchData = async () => {
       console.log('[Profile Page] Starting data fetch...')

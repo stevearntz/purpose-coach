@@ -158,9 +158,11 @@ async function handleUpdateProfile({ userId, request }: ApiContext) {
     dbUpdateData.teamSize = teamSize
   }
   if (teamName !== undefined) {
+    console.log('[Profile API] Setting teamName:', teamName)
     dbUpdateData.teamName = teamName
   }
   if (teamPurpose !== undefined) {
+    console.log('[Profile API] Setting teamPurpose:', teamPurpose)
     dbUpdateData.teamPurpose = teamPurpose
   }
   if (teamEmoji !== undefined) {
@@ -233,6 +235,8 @@ async function handleUpdateProfile({ userId, request }: ApiContext) {
     })
   } else {
     // Normal upsert
+    console.log('[Profile API] Upserting with dbUpdateData:', dbUpdateData)
+    console.log('[Profile API] Upserting with createData:', createData)
     profile = await prisma.userProfile.upsert({
       where: { clerkUserId: userId },
       update: dbUpdateData,
@@ -241,6 +245,7 @@ async function handleUpdateProfile({ userId, request }: ApiContext) {
         company: true
       }
     })
+    console.log('[Profile API] Profile after upsert - teamName:', profile.teamName, 'teamPurpose:', profile.teamPurpose)
   }
 
   return SuccessResponses.updated(

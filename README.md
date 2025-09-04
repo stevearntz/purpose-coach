@@ -49,8 +49,8 @@ Purpose Coach is a comprehensive platform offering evidence-based tools to help 
 - **Framework**: Next.js 15.3.4 with App Router
 - **Language**: TypeScript with strict mode
 - **Styling**: Tailwind CSS v4 with PostCSS
-- **Authentication**: NextAuth.js with JWT strategy
-- **Database**: PostgreSQL (Supabase) with Prisma ORM
+- **Authentication**: Clerk for organization management
+- **Database**: PostgreSQL (Neon) with Prisma ORM
 - **AI Integration**: OpenAI API (GPT-4)
 - **Email Service**: SendGrid (optional)
 - **Storage**: Redis with memory fallback
@@ -211,6 +211,36 @@ Structured guides for team conversations:
 
 ## Development Guide
 
+### Database & Branch Setup
+
+#### Working with Branches
+
+This project uses a dual-branch strategy for safe development:
+
+**Git Branches:**
+- `main` - Production code (protected)
+- `development` - Active development branch (default)
+
+**Database Branches (Neon):**
+- `main` - Production database (used in Vercel)
+- `dev` - Development database (used locally)
+
+#### Development Workflow
+
+1. **Always work on the `development` branch:**
+   ```bash
+   git checkout development
+   git pull origin development
+   ```
+
+2. **Your local environment automatically uses the dev database**
+   - Connection configured in `.env.local`
+   - No manual switching needed
+
+3. **Deploy to production:**
+   - Create PR from `development` → `main`
+   - Vercel automatically uses production database
+
 ### Environment Setup
 
 1. Clone the repository
@@ -219,17 +249,20 @@ Structured guides for team conversations:
    
    **.env.local** (sensitive keys):
    ```bash
+   # Database (Neon) - Development Branch
+   DATABASE_URL="postgresql://[user]:[pass]@[endpoint]-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
+   DIRECT_URL="postgresql://[user]:[pass]@[endpoint].us-east-1.aws.neon.tech/neondb?sslmode=require"
+   
    # Required
    OPENAI_API_KEY=your_openai_api_key
-   DATABASE_URL=postgresql://...  # Supabase pooled connection
-   DIRECT_URL=postgresql://...    # Supabase direct connection
-   NEXTAUTH_SECRET=your_secret_key  # Generate with: openssl rand -base64 32
-   JWT_SECRET=your_jwt_secret      # Fallback for NextAuth
+   
+   # Clerk Authentication
+   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+   CLERK_SECRET_KEY=sk_test_...
    
    # Optional
    REDIS_URL=redis_connection_url  # Falls back to memory
-   SENDGRID_API_KEY=your_sendgrid_key  # For email invitations
-   NEXT_PUBLIC_GOOGLE_CLIENT_ID=oauth_client_id
+   RESEND_API_KEY=your_resend_key  # For email invitations
    ```
    
    **.env** (non-sensitive):
@@ -238,13 +271,48 @@ Structured guides for team conversations:
    NEXT_PUBLIC_AMPLITUDE_API_KEY=amplitude_key
    ```
 
-4. Set up database:
+4. Copy `.env.local` to `.env` (Prisma reads from `.env`):
+   ```bash
+   cp .env.local .env
+   ```
+
+5. Set up database:
    ```bash
    npx prisma generate  # Generate Prisma client
    npx prisma db push   # Sync schema with database
+   npx tsx scripts/seed-neon.ts  # Seed initial data
    ```
 
 5. Run development server: `npm run dev`
+
+### Quick Start for New Developers
+
+```bash
+# 1. Clone and setup
+git clone <repo-url>
+cd purpose-coach
+git checkout development  # Always work on development branch
+npm install
+
+# 2. Get Neon database credentials
+# - Go to https://neon.tech and create account
+# - Create project "Campfire Tools"
+# - Copy the 'dev' branch connection string
+
+# 3. Configure environment
+cp .env.neon.template .env.local  # Use template
+# Edit .env.local with your Neon connection strings
+cp .env.local .env  # Prisma needs .env
+
+# 4. Setup database
+npx prisma generate     # Generate client
+npx prisma db push      # Create tables
+npx tsx scripts/seed-neon.ts  # Add initial data
+
+# 5. Start developing!
+npm run dev
+# Open http://localhost:3000
+```
 
 ### Development Commands
 
@@ -630,6 +698,116 @@ npx prisma generate   # Update TypeScript types
    - Test reminder functionality
    - Verify completion rates calculate correctly
 
+## 🚨 CRITICAL: Database Environment Separation
+
+### Database Provider: Neon
+
+We use **Neon** for PostgreSQL hosting with automatic dev/prod separation:
+
+#### Neon Database Branches
+- **`main` branch** → Production database (used in Vercel)
+- **`dev` branch** → Development database (used locally)
+
+#### Why Neon?
+1. **Automatic branching** - Dev and prod databases are automatically separated
+2. **Instant provisioning** - Create new branches in seconds
+3. **Built-in connection pooling** - No separate pooler configuration needed
+4. **Git-like workflow** - Branch databases like you branch code
+
+### Proper Environment Setup
+
+#### Development Setup
+1. **Use Neon's `dev` branch** connection string in `.env.local`
+2. **Keep development Clerk keys** (`pk_test_...`, `sk_test_...`)
+3. **Never commit** `.env.local` or `.env` files
+
+#### Production Setup
+1. **Use Neon's `main` branch** in Vercel environment variables
+2. **Production Clerk keys** (`pk_live_...`, `sk_live_...`) in Vercel only
+3. **Never put production credentials** in local files
+
+### Database Management Commands
+
+```bash
+# Push schema changes to database
+npx prisma db push
+
+# Generate Prisma client after schema changes
+npx prisma generate
+
+# View database in Prisma Studio
+npx prisma studio
+
+# Seed initial data
+npx tsx scripts/seed-neon.ts
+```
+
+### ID Pattern Understanding
+
+**Critical distinction between Clerk IDs and Database IDs:**
+- **Clerk IDs**: `org_31KdjD9RIauvRC0OQ29HiOiXQPC` (prefixed)
+- **Database IDs**: `cmeuy0pu70005dq7pdfendzug` (cuid format)
+
+**Never use Clerk IDs as database foreign keys!** Always translate:
+```typescript
+// ❌ WRONG - Causes foreign key errors
+const profile = { companyId: organization.id }  // Clerk ID
+
+// ✅ CORRECT - Look up database ID first
+const company = await prisma.company.findUnique({ 
+  where: { clerkOrgId: organization.id } 
+})
+const profile = { companyId: company.id }  // Database ID
+```
+
+## Database Management Best Practices
+
+### Supabase Branching
+1. **Main branch** = Production
+2. **Development branch** = Local development
+3. **Feature branches** = Optional for testing
+
+### Environment File Management
+```bash
+.env.local          # Local development (gitignored)
+.env.production     # Production placeholders (committed)
+.env                # Prisma reads this (copy from .env.local)
+```
+
+**Note**: Prisma reads `.env` while Next.js reads `.env.local`. Keep them in sync!
+
+### Common Database Errors & Solutions
+
+#### "Prepared statement 's5' does not exist"
+**Cause**: Connection pooling issues  
+**Fix**: Restart dev server to clear connection pool
+
+#### "Foreign key constraint violation"
+**Cause**: Using Clerk ID instead of database ID  
+**Fix**: Always translate Clerk IDs to database IDs
+
+#### "Can't reach database server"
+**Cause**: Wrong connection string or paused database  
+**Fix**: Verify connection string and check if database branch is active
+
+#### Slow database queries (1000ms+)
+**Cause**: Using production database for development  
+**Fix**: Use separate development database with local connection
+
+### Security Issues
+
+#### SQL Injection via search_path
+**Issue**: Functions without fixed `search_path` are vulnerable  
+**Fix**: Add `SET search_path = public` to all functions:
+```sql
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public  -- Critical security fix
+AS $$...$$;
+```
+
 ## Deployment Notes
 
 ### Vercel Deployment
@@ -648,6 +826,204 @@ npx prisma generate   # Update TypeScript types
 - [ ] Test authentication flow
 - [ ] Verify v2 API endpoints work
 - [ ] Check campaign creation and tracking
+- [ ] **CRITICAL: Verify production uses different database than development**
+- [ ] **CRITICAL: Ensure Clerk org IDs match database records**
+- [ ] **CRITICAL: Fix any SQL functions missing `search_path`**
+
+## Security Improvements & API Standardization (Latest Session)
+
+### Critical Security Fixes Applied
+
+#### 1. **API Authentication & Authorization**
+All API routes now properly secured with Clerk authentication:
+
+- **Companies API** (`/api/companies`): Admin-only access with role checking
+- **Leads API** (`/api/leads`): Rate limiting and duplicate prevention
+- **Recommendations APIs**: Authentication required, returns empty data for unauthenticated users
+- **Removed** unprotected OpenAI chat endpoint (`/api/chat`)
+
+#### 2. **Rate Limiting System**
+Created comprehensive rate limiting (`/src/lib/rate-limit.ts`):
+```typescript
+// General API rate limiting: 30 requests/minute
+checkAPIRateLimit(identifier)
+
+// OpenAI API protection: 5 requests/5 minutes  
+checkOpenAIRateLimit(userId)
+```
+
+Features:
+- In-memory store with automatic cleanup
+- Configurable windows and limits
+- Returns retry-after headers when limited
+- Applied to all OpenAI-using endpoints
+
+#### 3. **Standardized API Pattern**
+Created reusable API utilities for consistency:
+
+**Core Files:**
+- `/src/lib/api/types.ts` - Standardized response types
+- `/src/lib/api/errors.ts` - Error handling utilities
+- `/src/lib/api/responses.ts` - Success response helpers
+- `/src/lib/api/validation.ts` - Zod validation utilities
+- `/src/lib/api/handler.ts` - API wrapper with auth
+
+**Example Usage:**
+```typescript
+import { withAuth } from '@/lib/api/handler';
+import { CreateLeadSchema } from '@/lib/api/validation';
+
+export const POST = withAuth(async (req, user) => {
+  const body = await req.json();
+  const validation = CreateLeadSchema.safeParse(body);
+  
+  if (!validation.success) {
+    return errorResponse(validation.error);
+  }
+  
+  // Process with validated data
+  return successResponse({ id: result.id });
+});
+```
+
+#### 4. **Authentication Helpers**
+Consolidated auth utilities (`/src/lib/auth-helpers.ts`):
+- `getCurrentAuthUser()` - Get authenticated user with org context
+- `withAuthentication()` - Middleware wrapper for protected routes
+- `getUserCompany()` - Map Clerk org to database company
+- Automatic company creation for new organizations
+
+#### 5. **Database Optimizations**
+
+**Consolidated Prisma Client** (`/src/lib/prisma.ts`):
+- Single instance with proper connection pooling
+- Retry logic with exponential backoff
+- Connection limit management
+- Replaced 51 duplicate instances
+
+**Added Database Indexes:**
+```sql
+-- Performance indexes added
+CREATE INDEX idx_userprofile_clerk ON "UserProfile"("clerkUserId");
+CREATE INDEX idx_userprofile_email ON "UserProfile"("email");
+CREATE INDEX idx_company_domains ON "Company" USING gin("domains");
+CREATE INDEX idx_invitation_email ON "Invitation"("email");
+CREATE INDEX idx_invitation_campaign ON "Invitation"("campaignId");
+CREATE INDEX idx_assessment_invitation ON "AssessmentResult"("invitationId");
+CREATE INDEX idx_lead_email ON "Lead"("email");
+CREATE INDEX idx_lead_created ON "Lead"("createdAt");
+```
+
+### API Migration Completed
+
+**Migrated to New Pattern:**
+- ✅ `/api/assessments/save` - Full Zod validation
+- ✅ `/api/campaigns/[id]` - Proper error handling
+- ✅ `/api/companies` - Admin role checking
+- ✅ `/api/leads` - Rate limiting and validation
+
+**Protected Endpoints:**
+- All recommendation endpoints require authentication
+- Company management requires admin role
+- Campaign APIs require organization membership
+- Lead capture includes spam prevention
+
+### Security Best Practices Applied
+
+1. **Input Validation**: All API inputs validated with Zod schemas
+2. **Rate Limiting**: Prevents API abuse and protects paid services
+3. **Role-Based Access**: Admin-only routes properly secured
+4. **Error Handling**: Consistent error responses without leaking internals
+5. **Audit Logging**: Important actions logged with user context
+6. **Connection Pooling**: Prevents database connection exhaustion
+7. **Duplicate Prevention**: 5-minute window for lead submissions
+
+### Monitoring & Debugging
+
+**Health Check Endpoint** (`/api/health`):
+```json
+{
+  "status": "healthy",
+  "checks": {
+    "database": "connected",
+    "openai": "configured",
+    "memory": { "heapUsed": "45 MB" }
+  }
+}
+```
+
+**Security Headers** (`/src/middleware/security.ts`):
+- HSTS for HTTPS enforcement
+- CSP for XSS protection
+- X-Frame-Options for clickjacking prevention
+- Proper CORS configuration
+
+### Common Security Patterns
+
+#### Protected API Route
+```typescript
+import { withAuth } from '@/lib/api/handler';
+
+export const GET = withAuth(async (req, user) => {
+  // user is guaranteed to be authenticated
+  // user.orgId available for multi-tenancy
+  return successResponse(data);
+});
+```
+
+#### Admin-Only Route
+```typescript
+export const POST = withAuth(async (req, user) => {
+  const userProfile = await getUserProfile(user.id);
+  
+  if (userProfile.clerkRole !== 'admin') {
+    return errorResponse('Admin access required', 403);
+  }
+  
+  // Admin-only logic here
+});
+```
+
+#### Rate-Limited Route
+```typescript
+export async function POST(req: NextRequest) {
+  const user = await getCurrentAuthUser();
+  
+  const rateLimitCheck = checkOpenAIRateLimit(user.id);
+  if (!rateLimitCheck.allowed) {
+    return NextResponse.json(
+      { error: 'Too many requests' },
+      { 
+        status: 429,
+        headers: {
+          'Retry-After': rateLimitCheck.retryAfter.toString()
+        }
+      }
+    );
+  }
+  
+  // Process request
+}
+```
+
+### Technical Debt Addressed
+
+1. **Removed 43 duplicate Prisma instances** - Single consolidated client
+2. **Fixed connection pool exhaustion** - Proper pool configuration
+3. **Eliminated unprotected endpoints** - All routes now secured
+4. **Standardized error handling** - Consistent API responses
+5. **Added missing indexes** - Database performance improved
+6. **Consolidated share pages** - Single ToolSharePage component
+7. **Fixed TypeScript strict errors** - Proper type safety throughout
+
+### Migration Notes
+
+When updating existing code:
+1. Replace direct Prisma imports with `import prisma from '@/lib/prisma'`
+2. Use `withAuth` wrapper for new protected routes
+3. Apply rate limiting to any OpenAI-using endpoints
+4. Use standardized error/success responses
+5. Validate all inputs with Zod schemas
 
 ## Need Help?
 
@@ -655,5 +1031,6 @@ npx prisma generate   # Update TypeScript types
 - Review ToolsLibrary for tool type examples
 - CampaignsTab shows campaign card patterns
 - The CLAUDE.md file contains additional context
+- Security patterns in `/src/lib/api/` directory
 
 Remember: The system is designed for enterprise scale. Always consider how features will work with 250+ users and multiple concurrent campaigns.

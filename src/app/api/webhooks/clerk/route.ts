@@ -6,6 +6,8 @@ import { clerkClient } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
+  console.log('[Webhook] Received webhook request');
+  
   // Get the headers
   const headerPayload = await headers();
   const svix_id = headerPayload.get("svix-id");
@@ -39,6 +41,7 @@ export async function POST(req: NextRequest) {
 
   // Handle the webhook
   const eventType = evt.type;
+  console.log('[Webhook] Event type:', eventType);
   
   // Handle organization events to keep database in sync
   if (eventType === 'organization.created') {

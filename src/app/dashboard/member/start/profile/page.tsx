@@ -37,7 +37,9 @@ export default function ProfilePage() {
         })
         if (profileResponse.ok) {
           const data = await profileResponse.json()
-          setProfile(data.profile)
+          // Handle both old and new API response formats
+          const profileData = data.data?.profile || data.profile
+          setProfile(profileData)
         }
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -319,7 +321,10 @@ export default function ProfilePage() {
                     })
                     
                     if (response.ok) {
-                      setProfile(editData)
+                      const data = await response.json()
+                      // Handle new API response format
+                      const updatedProfile = data.data?.profile || data.profile || editData
+                      setProfile(updatedProfile)
                       setShowEditModal(false)
                       setEditData(null)
                     }

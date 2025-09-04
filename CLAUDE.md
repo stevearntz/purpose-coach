@@ -297,3 +297,161 @@ await saveProfile({ companyId: company.id }) // NOT organization.id!
 
 ### The Golden Rule
 **Never pass Clerk IDs directly to database foreign key fields. Always translate them first.**
+
+## 📊 New API Pattern (December 2024)
+
+### Standardized API Utilities
+The project now uses a new standardized API pattern with utilities in `/src/lib/api/`:
+
+- **handler.ts** - Creates API route handlers with authentication
+- **responses.ts** - Standardized success/error responses
+- **errors.ts** - Common error types and error handling
+- **validation.ts** - Request validation utilities
+- **types.ts** - Shared TypeScript types and error codes
+
+### API Route Structure
+```typescript
+// Example: /api/user/profile/route.ts
+import { createApiHandlers } from '@/lib/api/handler'
+import { successResponse, SuccessResponses } from '@/lib/api/responses'
+import { CommonErrors } from '@/lib/api/errors'
+
+async function handleGetProfile({ userId }: ApiContext) {
+  // Your logic here
+  return successResponse({ data })
+}
+
+export const { GET, POST } = createApiHandlers({
+  GET: handleGetProfile,
+  POST: handleUpdateProfile
+})
+```
+
+### Key API Routes
+
+#### Member Dashboard APIs
+- **`/api/member/recommendations`** - Get tool recommendations based on user activity
+- **`/api/team/members`** - Manage team members (GET/POST/DELETE)
+- **`/api/user/profile`** - User profile management with team info
+- **`/api/user/company`** - Get company data from Clerk org
+
+### Team Management Features
+
+#### Team Page (`/dashboard/member/start/team`)
+- Displays team name, purpose, and emoji avatar
+- Shows team leader with special badge
+- Lists all team members with roles
+- Edit modal for updating team info and members
+- Automatic sorting of members alphabetically
+
+#### Profile Data Structure
+The UserProfile now includes:
+- `teamName` - The name of the user's team
+- `teamPurpose` - The team's mission/purpose statement  
+- `teamEmoji` - An emoji to represent the team
+- `teamSize` - Number of team members
+- `companyId` - Foreign key to Company (database ID, not Clerk ID!)
+
+### Member Dashboard Feed System
+
+#### Feed Page (`/dashboard/member/start/feed`)
+The new feed page shows:
+- Team updates and activity
+- Completed assessments
+- Team insights
+- Personalized recommendations
+
+#### Feed Components
+- Activity cards with timestamps
+- Assessment result summaries
+- Team member progress indicators
+- Interactive recommendation cards
+
+### Debugging Team Name Issues
+
+If team name is not saving:
+1. **Check Console Logs** - Added detailed logging shows:
+   - What's being sent from frontend
+   - What API receives
+   - What's saved to database
+   - What's returned to frontend
+
+2. **Common Issues**:
+   - Partial update flag not set
+   - Missing await on save function
+   - Stale profile data in state
+
+3. **Debugging Pattern**:
+```typescript
+// Frontend logs
+console.log('[Team Page] Saving team info:', { teamName, teamPurpose })
+console.log('[Team Page] Save response status:', response.status)
+console.log('[Team Page] Profile after save:', data.profile)
+
+// Backend logs  
+console.log('[Profile API] Setting teamName:', teamName)
+console.log('[Profile API] Upserting with dbUpdateData:', dbUpdateData)
+console.log('[Profile API] Profile after upsert - teamName:', profile.teamName)
+```
+
+### Port Management
+When ports are in use:
+```bash
+# Check active ports
+lsof -i -P -n | grep LISTEN
+
+# Kill specific port
+lsof -i :3000 -t | xargs kill
+
+# Kill multiple ports at once
+kill $(lsof -i :3000,:3001,:3002 -t)
+```
+
+### Database Sync Issues
+If schema changes aren't reflecting:
+```bash
+# Generate Prisma client
+npx prisma generate
+
+# Push schema to database (development only)
+npx prisma db push
+
+# For production, use migrations
+npx prisma migrate dev
+```
+
+## Recent Session Discoveries (December 2024)
+
+### API Response Format
+All API routes now return standardized responses:
+```typescript
+// Success
+{ success: true, data: {...}, message?: "..." }
+
+// Error
+{ success: false, error: { code: "...", message: "..." } }
+```
+
+### Partial Updates Pattern
+When updating only specific fields:
+```typescript
+// Include partialUpdate flag
+body: JSON.stringify({
+  teamName: "New Name",
+  partialUpdate: true  // Prevents onboardingComplete from being set
+})
+```
+
+### Team Members Management
+- Members stored separately from UserProfile
+- Linked by leader's Clerk user ID
+- Supports bulk operations (add/delete all)
+- Email field is optional for members
+
+### Frontend State Management
+- Profile data cached in component state
+- Refresh pattern after saves:
+  1. Save to API
+  2. Fetch fresh data
+  3. Update local state
+  4. Close modals/reset forms

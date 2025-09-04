@@ -76,6 +76,7 @@ export default function TeamPage() {
   
   const handleSaveTeamInfo = async () => {
     try {
+      console.log('[Team Page] Saving team info:', { teamName, teamPurpose })
       const response = await fetch('/api/user/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -87,10 +88,15 @@ export default function TeamPage() {
         })
       })
       
+      console.log('[Team Page] Save response status:', response.status)
       if (response.ok) {
         const data = await response.json()
+        console.log('[Team Page] Profile after save:', data.profile)
         setProfile(data.profile)
         return true
+      } else {
+        const errorData = await response.text()
+        console.error('[Team Page] Save failed:', errorData)
       }
       return false
     } catch (error) {

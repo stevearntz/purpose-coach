@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentAuthUser, getUserCompany } from '@/lib/auth-helpers';
+import { checkOpenAIRateLimit } from '@/lib/rate-limit';
 import prisma from '@/lib/prisma';
 import OpenAI from 'openai';
 
@@ -796,28 +797,37 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => b.relevanceScore - a.relevanceScore)
       .slice(0, 3);
     
-    // Generate AI insights using OpenAI
+    // Generate AI insights using OpenAI (with rate limiting)
     let aiInsights = null;
-    if (topChallenges.length > 0) {
-      try {
-        const prompt = `Based on this team's assessment data:
-        Top Challenges: ${topChallenges.join(', ')}
-        Skills Gaps: ${topSkills.join(', ')}
-        Support Needs: ${topNeeds.join(', ')}
-        Focus Areas: ${topFocusAreas.join(', ')}
-        
-        Provide a brief (2-3 sentences) strategic recommendation for leadership development priorities.`;
-        
-        const completion = await openai.chat.completions.create({
-          messages: [{ role: 'user', content: prompt }],
-          model: 'gpt-4-0125-preview',
-          max_tokens: 150,
-          temperature: 0.7
-        });
-        
-        aiInsights = completion.choices[0]?.message?.content;
-      } catch (error) {
-        console.error('Failed to generate AI insights:', error);
+    if (topChallenges.length > 0 && user) {
+      // Check rate limit for OpenAI calls
+      const rateLimitCheck = checkOpenAIRateLimit(user.id);
+      
+      if (!rateLimitCheck.allowed) {
+        console.log(`[recommendations] Rate limit exceeded for user ${user.id}, retry after ${rateLimitCheck.retryAfter}s`);
+        // Don't fail the whole request, just skip AI insights
+        aiInsights = null;
+      } else {
+        try {
+          const prompt = `Based on this team's assessment data:
+          Top Challenges: ${topChallenges.join(', ')}
+          Skills Gaps: ${topSkills.join(', ')}
+          Support Needs: ${topNeeds.join(', ')}
+          Focus Areas: ${topFocusAreas.join(', ')}
+          
+          Provide a brief (2-3 sentences) strategic recommendation for leadership development priorities.`;
+          
+          const completion = await openai.chat.completions.create({
+            messages: [{ role: 'user', content: prompt }],
+            model: 'gpt-4-0125-preview',
+            max_tokens: 150,
+            temperature: 0.7
+          });
+          
+          aiInsights = completion.choices[0]?.message?.content;
+        } catch (error) {
+          console.error('Failed to generate AI insights:', error);
+        }
       }
     }
     

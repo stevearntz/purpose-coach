@@ -85,10 +85,19 @@ export default function ResultsTab() {
       const orgResponse = await fetch('/api/user/company')
       if (!orgResponse.ok) {
         console.error('Failed to fetch company info')
+        setIndividualResults([])
         setLoading(false)
         return
       }
       const { company } = await orgResponse.json()
+      
+      // Check if company exists
+      if (!company || !company.id) {
+        console.error('No company found for user')
+        setIndividualResults([])
+        setLoading(false)
+        return
+      }
       
       // Use unified API with company ID
       const response = await fetch(`/api/assessments/unified?companyId=${company.id}`, {

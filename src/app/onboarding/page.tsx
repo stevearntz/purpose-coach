@@ -16,10 +16,10 @@ export default function OnboardingPage() {
     },
   })
   
-  // Check if this is a domain user (skip in development to avoid issues)
+  // Check if this is a domain user who might be auto-assigned via webhook
   const email = user?.emailAddresses?.[0]?.emailAddress
-  const isDevelopment = typeof window !== 'undefined' && window.location.hostname === 'localhost'
-  const isDomainUser = !isDevelopment && email?.includes('@getcampfire.com')
+  // Always wait for webhook to potentially assign organization
+  const shouldWaitForWebhook = true // Webhook will handle domain matching
   
   useEffect(() => {
     // Once everything is loaded, check if user has an org
@@ -33,39 +33,46 @@ export default function OnboardingPage() {
   }, [userLoaded, membershipsLoaded, userMemberships, setActive, router])
   
   useEffect(() => {
-    // If user is loaded and has no memberships, decide when to show org creation
+    // If user is loaded and has no memberships, try manual assignment
     if (userLoaded && membershipsLoaded && (!userMemberships?.data || userMemberships.data.length === 0)) {
-      if (isDomainUser) {
-        // For domain users, wait before showing org creation
+      // Try manual organization assignment (works locally when webhooks aren't configured)
+      const tryManualAssignment = async () => {
         setWaitingForWebhook(true)
         
-        // Check if we've already tried reloading (to prevent infinite loop)
-        const hasReloaded = sessionStorage.getItem('onboarding-reloaded')
-        
-        if (!hasReloaded) {
-          // Wait 4 seconds then reload once to check if webhook has processed
-          const timer = setTimeout(() => {
-            sessionStorage.setItem('onboarding-reloaded', 'true')
-            window.location.reload()
-          }, 4000)
+        try {
+          const response = await fetch('/api/manual-org-assign')
+          const data = await response.json()
           
-          return () => clearTimeout(timer)
-        } else {
-          // We've already reloaded once, show org creation after a short delay
-          const timer = setTimeout(() => {
-            sessionStorage.removeItem('onboarding-reloaded') // Clean up for next time
+          if (data.success && data.organizationId) {
+            console.log('[Onboarding] Manual assignment successful:', data.message)
+            // Reload to pick up the new organization membership
+            window.location.reload()
+          } else {
+            console.log('[Onboarding] No org to assign:', data.message)
+            // No matching org, show creation form
             setWaitingForWebhook(false)
             setShowOrgCreation(true)
-          }, 2000)
-          
-          return () => clearTimeout(timer)
+          }
+        } catch (error) {
+          console.error('[Onboarding] Manual assignment failed:', error)
+          // On error, show org creation
+          setWaitingForWebhook(false)
+          setShowOrgCreation(true)
         }
+      }
+      
+      // Only try once to avoid loops
+      const hasTried = sessionStorage.getItem('onboarding-manual-tried')
+      if (!hasTried) {
+        sessionStorage.setItem('onboarding-manual-tried', 'true')
+        tryManualAssignment()
       } else {
-        // For non-domain users, show org creation immediately
+        // Already tried, clean up and show org creation
+        sessionStorage.removeItem('onboarding-manual-tried')
         setShowOrgCreation(true)
       }
     }
-  }, [userLoaded, membershipsLoaded, userMemberships, isDomainUser])
+  }, [userLoaded, membershipsLoaded, userMemberships])
   
   // Show loading while Clerk loads
   if (!userLoaded || !membershipsLoaded) {
@@ -81,8 +88,8 @@ export default function OnboardingPage() {
     )
   }
   
-  // For domain users waiting for webhook
-  if (waitingForWebhook || (isDomainUser && !showOrgCreation && (!userMemberships?.data || userMemberships.data.length === 0))) {
+  // For users waiting for webhook
+  if (waitingForWebhook || (shouldWaitForWebhook && !showOrgCreation && (!userMemberships?.data || userMemberships.data.length === 0))) {
     return (
       <ViewportContainer className="bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900">
         <div className="relative z-10 min-h-screen flex items-center justify-center px-4">

@@ -31,21 +31,37 @@ async function handleGetCompany({ userId }: ApiContext) {
   // Get organization ID from Clerk auth (need to call auth again to get orgId)
   const { orgId } = await auth()
   
-  // If no orgId, user is not part of an organization
-  if (!orgId) {
-    return successResponse({ company: null })
+  // Try to find company by Clerk org ID first
+  if (orgId) {
+    const company = await prisma.company.findUnique({
+      where: { clerkOrgId: orgId }
+    })
+    
+    if (company) {
+      return successResponse({ company })
+    }
   }
-
-  // Look up the company by its Clerk organization ID
-  const company = await prisma.company.findUnique({
-    where: { clerkOrgId: orgId }
+  
+  // Fallback: Look up the user's profile to get their companyId
+  const userProfile = await prisma.userProfile.findUnique({
+    where: { clerkUserId: userId }
   })
-
-  if (!company) {
-    console.log(`No company found for Clerk org ID: ${orgId}`)
+  
+  if (!userProfile || !userProfile.companyId) {
+    console.log(`No company found for user: ${userId}`)
     return successResponse({ company: null })
   }
-
+  
+  // Get the company by ID
+  const company = await prisma.company.findUnique({
+    where: { id: userProfile.companyId }
+  })
+  
+  if (!company) {
+    console.log(`Company not found with ID: ${userProfile.companyId}`)
+    return successResponse({ company: null })
+  }
+  
   return successResponse({ company })
 }
 

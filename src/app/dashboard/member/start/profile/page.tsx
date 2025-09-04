@@ -32,9 +32,15 @@ export default function ProfilePage() {
   useEffect(() => {
     console.log('[Profile Page] Component mounted!');
     console.log('[Profile Page] User from Clerk:', user);
+    if (typeof window !== 'undefined') {
+      window.profilePageMounted = true;
+    }
   }, []);
   
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
     const fetchData = async () => {
       console.log('[Profile Page] Starting data fetch...')
       try {
@@ -51,14 +57,16 @@ export default function ProfilePage() {
           const profileData = data.data?.profile || data.profile || null
           console.log('[Profile Page] Profile Data:', profileData)
           setProfile(profileData)
+          // Force a re-render
+          setLoading(false)
         } else {
           console.error('[Profile Page] Failed to fetch, status:', profileResponse.status)
           const errorText = await profileResponse.text()
           console.error('[Profile Page] Error response:', errorText)
+          setLoading(false)
         }
       } catch (error) {
         console.error('[Profile Page] Error fetching data:', error)
-      } finally {
         setLoading(false)
       }
     }

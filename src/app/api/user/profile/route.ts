@@ -79,12 +79,46 @@ const UserProfileResponseSchema = z.object({
 
 // Handler implementations
 async function handleGetProfile({ userId }: ApiContext) {
-  const profile = await prisma.userProfile.findUnique({
+  // First try to get by Clerk user ID
+  let profile = await prisma.userProfile.findUnique({
     where: { clerkUserId: userId },
     include: {
       company: true
     }
   })
+
+  // If not found, get user's email from Clerk and try that
+  if (!profile) {
+    let client
+    try {
+      client = await clerkClient()
+      const user = await client.users.getUser(userId)
+      const email = user.emailAddresses[0]?.emailAddress
+      
+      if (email) {
+        profile = await prisma.userProfile.findUnique({
+          where: { email },
+          include: {
+            company: true
+          }
+        })
+        
+        // If found by email but with different Clerk ID, update it
+        if (profile && profile.clerkUserId !== userId) {
+          console.log(`[Profile API] Fixing Clerk ID mismatch for ${email}: ${profile.clerkUserId} -> ${userId}`)
+          profile = await prisma.userProfile.update({
+            where: { email },
+            data: { clerkUserId: userId },
+            include: {
+              company: true
+            }
+          })
+        }
+      }
+    } catch (error) {
+      console.error('[Profile API] Error fetching user from Clerk:', error)
+    }
+  }
 
   if (!profile) {
     return successResponse({ profile: null })

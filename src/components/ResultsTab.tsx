@@ -84,27 +84,34 @@ export default function ResultsTab() {
       // Get company ID from organization
       const orgResponse = await fetch('/api/user/company')
       if (!orgResponse.ok) {
-        console.error('Failed to fetch company info')
+        console.error('[ResultsTab] Failed to fetch company info:', orgResponse.status)
         setIndividualResults([])
         setLoading(false)
         return
       }
-      const { company } = await orgResponse.json()
+      const orgData = await orgResponse.json()
+      console.log('[ResultsTab] Company data:', orgData)
+      const { company } = orgData
       
       // Check if company exists
       if (!company || !company.id) {
-        console.error('No company found for user')
+        console.error('[ResultsTab] No company found for user')
         setIndividualResults([])
         setLoading(false)
         return
       }
+      
+      console.log('[ResultsTab] Fetching assessments for company:', company.id)
       
       // Use unified API with company ID
       const response = await fetch(`/api/assessments/unified?companyId=${company.id}`, {
         credentials: 'include'
       })
+      console.log('[ResultsTab] Unified API response status:', response.status)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('[ResultsTab] Unified API data:', data)
         // Transform unified results to match expected format for IndividualResultsViewEnhanced
         const transformedResults = data.results?.map((result: any) => ({
           id: result.id,

@@ -51,9 +51,11 @@ export default function TeamPage() {
         })
         if (profileResponse.ok) {
           const data = await profileResponse.json()
-          setProfile(data.profile)
-          setTeamName(data.profile?.teamName || '')
-          setTeamPurpose(data.profile?.teamPurpose || '')
+          // Handle both old and new API response formats
+          const profileData = data.data?.profile || data.profile
+          setProfile(profileData)
+          setTeamName(profileData?.teamName || '')
+          setTeamPurpose(profileData?.teamPurpose || '')
         }
         
         // Fetch team members

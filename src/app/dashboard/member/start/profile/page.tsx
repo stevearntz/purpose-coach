@@ -33,7 +33,7 @@ export default function ProfilePage() {
     console.log('[Profile Page] Component mounted!');
     console.log('[Profile Page] User from Clerk:', user);
     if (typeof window !== 'undefined') {
-      window.profilePageMounted = true;
+      (window as any).profilePageMounted = true;
     }
   }, []);
   

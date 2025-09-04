@@ -30,17 +30,34 @@ export default function ProfileClient() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log('[ProfileClient] Starting profile fetch...')
         const profileResponse = await fetch('/api/user/profile', {
           credentials: 'include'
         })
         
+        console.log('[ProfileClient] Response status:', profileResponse.status)
+        
         if (profileResponse.ok) {
           const data = await profileResponse.json()
-          const profileData = data.data?.profile || data.profile || null
+          console.log('[ProfileClient] Raw API response:', data)
+          
+          // Handle different response structures
+          let profileData = null
+          if (data.success && data.data) {
+            profileData = data.data.profile || data.data
+          } else if (data.profile) {
+            profileData = data.profile
+          } else if (data.data?.profile) {
+            profileData = data.data.profile
+          }
+          
+          console.log('[ProfileClient] Extracted profile data:', profileData)
           setProfile(profileData)
+        } else {
+          console.error('[ProfileClient] Non-OK response:', profileResponse.status)
         }
       } catch (error) {
-        console.error('Error fetching data:', error)
+        console.error('[ProfileClient] Error fetching data:', error)
       } finally {
         setLoading(false)
       }
@@ -315,6 +332,7 @@ export default function ProfileClient() {
                 onClick={async () => {
                   setSaving(true)
                   try {
+                    console.log('[ProfileClient] Saving profile data:', editData)
                     const response = await fetch('/api/user/profile', {
                       method: 'POST',
                       headers: {
@@ -323,15 +341,31 @@ export default function ProfileClient() {
                       body: JSON.stringify(editData),
                     })
                     
+                    console.log('[ProfileClient] Save response status:', response.status)
+                    
                     if (response.ok) {
                       const data = await response.json()
-                      const updatedProfile = data.data?.profile || data.profile || editData
+                      console.log('[ProfileClient] Save response data:', data)
+                      
+                      // Handle different response structures
+                      let updatedProfile = editData
+                      if (data.success && data.data) {
+                        updatedProfile = data.data.profile || data.data
+                      } else if (data.profile) {
+                        updatedProfile = data.profile
+                      } else if (data.data?.profile) {
+                        updatedProfile = data.data.profile
+                      }
+                      
+                      console.log('[ProfileClient] Updated profile:', updatedProfile)
                       setProfile(updatedProfile)
                       setShowEditModal(false)
                       setEditData(null)
+                    } else {
+                      console.error('[ProfileClient] Save failed with status:', response.status)
                     }
                   } catch (error) {
-                    console.error('Error saving profile:', error)
+                    console.error('[ProfileClient] Error saving profile:', error)
                   } finally {
                     setSaving(false)
                   }

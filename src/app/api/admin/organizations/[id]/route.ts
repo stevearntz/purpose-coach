@@ -37,9 +37,7 @@ export async function DELETE(
     // Delete from Clerk first if it has Clerk integration
     if (organization.clerkOrgId) {
       try {
-        await client.organizations.deleteOrganization({ 
-          organizationId: organization.clerkOrgId 
-        });
+        await client.organizations.deleteOrganization(organization.clerkOrgId);
         console.log(`Deleted Clerk organization: ${organization.clerkOrgId}`);
       } catch (error: any) {
         // If Clerk deletion fails with not found, continue anyway

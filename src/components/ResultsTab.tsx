@@ -91,11 +91,18 @@ export default function ResultsTab() {
       }
       const orgData = await orgResponse.json()
       console.log('[ResultsTab] Company data:', orgData)
-      const { company } = orgData
+      
+      // Extract company from standardized API response
+      let company = null
+      if (orgData.success && orgData.data) {
+        company = orgData.data.company || orgData.data
+      } else if (orgData.company) {
+        company = orgData.company
+      }
       
       // Check if company exists
       if (!company || !company.id) {
-        console.error('[ResultsTab] No company found for user')
+        console.error('[ResultsTab] No company found for user - extracted company:', company)
         setIndividualResults([])
         setLoading(false)
         return

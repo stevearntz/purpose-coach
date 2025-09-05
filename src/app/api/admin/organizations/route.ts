@@ -167,6 +167,11 @@ export async function POST(request: NextRequest) {
     }
     
     // Create organization in Clerk
+    console.log('🟡 [ADMIN API] Creating organization in Clerk:', {
+      name,
+      createdBy: userId,
+      timestamp: new Date().toISOString()
+    });
     const clerkOrg = await client.organizations.createOrganization({
       name,
       createdBy: userId!,
@@ -175,6 +180,7 @@ export async function POST(request: NextRequest) {
         domains: domains || []
       }
     });
+    console.log('🟡 [ADMIN API] Organization created in Clerk:', clerkOrg.id);
     
     // Create company in database with Clerk org ID and domains
     const company = await prisma.company.create({

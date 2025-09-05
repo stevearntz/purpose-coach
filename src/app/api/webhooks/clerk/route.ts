@@ -46,6 +46,12 @@ export async function POST(req: NextRequest) {
   // Handle organization events to keep database in sync
   if (eventType === 'organization.created') {
     const orgData = evt.data;
+    console.log('🔴 [WEBHOOK] Organization created event received:', {
+      name: orgData.name,
+      id: orgData.id,
+      slug: orgData.slug,
+      createdAt: new Date().toISOString()
+    });
     
     // Create or update the company in our database
     await prisma.company.upsert({
@@ -61,9 +67,10 @@ export async function POST(req: NextRequest) {
       }
     });
     
-    console.log('Organization created in database:', {
+    console.log('🔴 [WEBHOOK] Organization saved to database:', {
       name: orgData.name,
-      clerkOrgId: orgData.id
+      clerkOrgId: orgData.id,
+      timestamp: new Date().toISOString()
     });
   }
   

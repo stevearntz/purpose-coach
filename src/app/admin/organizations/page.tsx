@@ -30,6 +30,7 @@ interface Admin {
   email: string;
   name: string;
   status: 'active' | 'invited' | 'pending';
+  inviteStatus?: 'pending' | 'accepted';  // Added for compatibility with API response
   invitedAt?: Date;
   joinedAt?: Date;
 }

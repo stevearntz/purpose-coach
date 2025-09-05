@@ -91,18 +91,30 @@ export default function ResultsTab() {
       }
       const orgData = await orgResponse.json()
       console.log('[ResultsTab] Company data:', orgData)
+      console.log('[ResultsTab] orgData.data:', orgData.data)
+      console.log('[ResultsTab] orgData.data?.company:', orgData.data?.company)
       
       // Extract company from standardized API response
       let company = null
       if (orgData.success && orgData.data) {
-        company = orgData.data.company || orgData.data
+        // Check if data contains company directly or nested
+        if (orgData.data.company) {
+          company = orgData.data.company
+          console.log('[ResultsTab] Found company in data.company:', company)
+        } else if (orgData.data.id && orgData.data.name) {
+          // data itself might be the company
+          company = orgData.data
+          console.log('[ResultsTab] Data is the company:', company)
+        }
       } else if (orgData.company) {
         company = orgData.company
+        console.log('[ResultsTab] Found company directly:', company)
       }
       
       // Check if company exists
       if (!company || !company.id) {
         console.error('[ResultsTab] No company found for user - extracted company:', company)
+        console.error('[ResultsTab] Full orgData structure:', JSON.stringify(orgData, null, 2))
         setIndividualResults([])
         setLoading(false)
         return

@@ -6,6 +6,40 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Purpose Coach (branded as "Chat by the Fire") is a Next.js 15 application focused on AI-powered personal development and coaching. The project uses TypeScript, Tailwind CSS v4, and integrates with OpenAI's API to provide conversational coaching tools.
 
+## 🚨 CRITICAL DATABASE CONFIGURATION (December 2024)
+
+**WE HAVE TWO SEPARATE NEON DATABASES - THIS IS THE #1 SOURCE OF CONFUSION**
+
+### Production Database (Neon - ep-dawn-river)
+- **Connection String**: `postgresql://neondb_owner:npg_UuDl9B4rOgLN@ep-dawn-river-adge7l6h-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require`
+- **Identifier**: `ep-dawn-river-adge7l6h`
+- **Used by**: Production environment on Vercel
+- **Clerk Org ID**: `org_31KdjD9RIauvRC0OQ29HiOiXQPC`
+- **Clerk User ID (Steve)**: `user_31KdiOPzKz43HxDkuBx7brxvQUk`
+
+### Development Database (Neon - ep-flat-butterfly)  
+- **Connection String**: `postgresql://neondb_owner:npg_UuDl9B4rOgLN@ep-flat-butterfly-adx1ubzt-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require`
+- **Identifier**: `ep-flat-butterfly-adx1ubzt`
+- **Used by**: Local development
+- **Clerk Org ID**: `org_31IuAOPrNHNfhSHyWeUFjIccpeK`
+- **Clerk User ID (Steve)**: `user_31I4733XAJ8QAWh5cw2OASaP6qt`
+
+### Why This Matters
+- **Different Clerk environments**: Development and Production use DIFFERENT Clerk instances with different IDs
+- **Data isolation**: Changes to local database DO NOT affect production and vice versa
+- **Common mistake**: Running database scripts against the wrong environment
+
+### How to Run Scripts Against Production
+```bash
+# ALWAYS specify the production DATABASE_URL explicitly
+DATABASE_URL="postgresql://neondb_owner:npg_UuDl9B4rOgLN@ep-dawn-river-adge7l6h-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require" npx tsx scripts/your-script.ts
+```
+
+### Vercel Environment Variables
+- `DATABASE_URL` - Points to production Neon database
+- `DATABASE_URL_UNPOOLED` - Direct connection (not pooled) - rarely needed
+- `DIRECT_URL` - Legacy, might still be configured
+
 ## 🚨 CRITICAL: ID Pattern - Clerk vs Database IDs
 
 **THIS IS THE #1 SOURCE OF FOREIGN KEY ERRORS IN THIS PROJECT**
@@ -253,9 +287,24 @@ When building ANY new tool:
 - All Tools: `/toolkit`
 - These are centralized in `/src/lib/navigationConfig.ts`
 
-## 🔥 Troubleshooting Guide
+## 🔥 Database Troubleshooting Guide
 
-### Foreign Key Constraint Errors
+### Problem: "No company found" or "No individual results" in Production
+
+**FIRST CHECK: Which database is production using?**
+1. Visit https://tools.getcampfire.com/api/debug-auth
+2. Look at `debug.databaseInfo.urlStart` - is it `ep-dawn-river` or `ep-flat-butterfly`?
+3. Check `debug.companiesInDb` and `debug.profilesInDb` - do the Clerk IDs match production?
+
+**Common Cause**: Production and development use DIFFERENT databases and DIFFERENT Clerk environments
+
+**Solution**:
+```bash
+# Run the setup script against PRODUCTION database
+DATABASE_URL="postgresql://neondb_owner:npg_UuDl9B4rOgLN@ep-dawn-river-adge7l6h-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require" npx tsx scripts/setup-production-company.ts
+```
+
+### Problem: Foreign Key Constraint Errors
 
 **Error:** `insert or update on table "UserProfile" violates foreign key constraint`
 
@@ -393,6 +442,44 @@ console.log('[Profile API] Setting teamName:', teamName)
 console.log('[Profile API] Upserting with dbUpdateData:', dbUpdateData)
 console.log('[Profile API] Profile after upsert - teamName:', profile.teamName)
 ```
+
+## 📚 Useful Database Scripts
+
+### Debug Scripts (Already Created)
+```bash
+# Check what's in your LOCAL database
+npx tsx scripts/debug-company.ts
+
+# Check what's in PRODUCTION database
+DATABASE_URL="postgresql://neondb_owner:npg_UuDl9B4rOgLN@ep-dawn-river-adge7l6h-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require" npx tsx scripts/verify-production-data.ts
+
+# Fix production user/company linkage
+DATABASE_URL="postgresql://neondb_owner:npg_UuDl9B4rOgLN@ep-dawn-river-adge7l6h-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require" npx tsx scripts/setup-production-company.ts
+```
+
+### Quick Database Check Endpoint
+Visit in browser while logged in:
+- **Local**: http://localhost:3000/api/debug-auth
+- **Production**: https://tools.getcampfire.com/api/debug-auth
+
+This shows:
+- Current Clerk user/org IDs
+- Which database is being used
+- All companies and profiles in that database
+
+## Clerk Environment Mappings
+
+### Development Environment (Local)
+- **Clerk Dashboard**: Different project/instance than production
+- **Organization ID**: `org_31IuAOPrNHNfhSHyWeUFjIccpeK`
+- **User IDs**: Different for each user (e.g., `user_31I4733XAJ8QAWh5cw2OASaP6qt`)
+
+### Production Environment (Vercel)
+- **Clerk Dashboard**: Different project/instance than development
+- **Organization ID**: `org_31KdjD9RIauvRC0OQ29HiOiXQPC`
+- **User IDs**: Different for each user (e.g., `user_31KdiOPzKz43HxDkuBx7brxvQUk`)
+
+**IMPORTANT**: Clerk IDs are DIFFERENT between environments. A user in development has a different Clerk ID than the same user in production!
 
 ### Port Management
 When ports are in use:

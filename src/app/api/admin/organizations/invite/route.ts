@@ -18,9 +18,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
     
-    const { email, name, organizationId, clerkOrgId } = await request.json();
+    const { email, name, organizationId, clerkOrgId, resend } = await request.json();
     
     if (!email || !organizationId || !clerkOrgId) {
+      console.error('Missing required fields:', { email, organizationId, clerkOrgId });
       return NextResponse.json({ 
         error: 'Email, organization ID, and Clerk org ID are required' 
       }, { status: 400 });
@@ -37,34 +38,96 @@ export async function POST(request: NextRequest) {
       console.log('User not found in Clerk, will be created on first sign-in');
     }
     
-    // Create an invitation in Clerk organization
-    const invitation = await client.invitations.createInvitation({
-      emailAddress: email,
-      redirectUrl: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/dashboard`,
-      publicMetadata: {
-        organizationId: clerkOrgId,
-        role: 'admin',
-        invitedBy: userEmail
+    // If this is a resend and the user already exists, just send the email
+    if (resend && clerkUser) {
+      // Check if they're already in the organization
+      try {
+        const memberships = await client.users.getOrganizationMembershipList({ 
+          userId: clerkUser.id 
+        });
+        const isMember = memberships.data.some(m => m.organization.id === clerkOrgId);
+        
+        if (isMember) {
+          return NextResponse.json({ 
+            success: true,
+            message: 'User is already a member of this organization',
+            alreadyMember: true
+          });
+        }
+      } catch (error) {
+        console.log('Could not check membership:', error);
       }
-    });
+    }
     
-    // Store invitation in database for tracking
-    const dbInvitation = await prisma.invitation.create({
-      data: {
-        email,
-        name: name || null,
-        inviteCode: invitation.id,
-        inviteUrl: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/sign-up?invitation=${invitation.id}`,
-        companyId: organizationId,
-        status: 'PENDING',
-        sentAt: new Date(),
-        metadata: {
-          create: {
-            role: 'admin'
+    // Create an invitation in Clerk organization (skip if resending for existing user)
+    let invitation;
+    if (!resend || !clerkUser) {
+      invitation = await client.invitations.createInvitation({
+        emailAddress: email,
+        redirectUrl: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/dashboard`,
+        publicMetadata: {
+          organizationId: clerkOrgId,
+          role: 'admin',
+          invitedBy: userEmail
+        }
+      });
+    }
+    
+    // Store invitation in database for tracking (or update if resending)
+    let dbInvitation;
+    if (resend) {
+      // Try to find existing invitation
+      const existingInvite = await prisma.invitation.findFirst({
+        where: {
+          email,
+          companyId: organizationId,
+          status: 'PENDING'
+        }
+      });
+      
+      if (existingInvite) {
+        // Update the sent date
+        dbInvitation = await prisma.invitation.update({
+          where: { id: existingInvite.id },
+          data: { sentAt: new Date() }
+        });
+      } else {
+        // Create new invitation record
+        dbInvitation = await prisma.invitation.create({
+          data: {
+            email,
+            name: name || null,
+            inviteCode: invitation?.id || 'resend',
+            inviteUrl: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/sign-up${invitation ? `?invitation=${invitation.id}` : ''}`,
+            companyId: organizationId,
+            status: 'PENDING',
+            sentAt: new Date(),
+            metadata: {
+              create: {
+                role: 'admin'
+              }
+            }
+          }
+        });
+      }
+    } else {
+      dbInvitation = await prisma.invitation.create({
+        data: {
+          email,
+          name: name || null,
+          inviteCode: invitation.id,
+          inviteUrl: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/sign-up?invitation=${invitation.id}`,
+          companyId: organizationId,
+          status: 'PENDING',
+          sentAt: new Date(),
+          metadata: {
+            create: {
+              role: 'admin'
+            }
           }
         }
-      }
-    });
+      });
+    }
     
     // Get the organization name for the email
     const organization = await prisma.company.findUnique({
@@ -138,11 +201,15 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Send invitation email for new user
+    // Send invitation email (for new user or resend)
     try {
+      const emailSubject = resend 
+        ? `Reminder: You're invited to join ${organization?.name || 'an organization'} on Campfire as an admin`
+        : `You're invited to join ${organization?.name || 'an organization'} on Campfire as an admin`;
+        
       await sendEmail({
         to: email,
-        subject: `You're invited to join ${organization?.name || 'an organization'} on Campfire as an admin`,
+        subject: emailSubject,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2>You're Invited to ${organization?.name || 'Campfire'}!</h2>

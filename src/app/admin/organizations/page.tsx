@@ -215,6 +215,11 @@ export default function AdminOrganizationsPage() {
   const handleResendInvite = async (adminEmail: string) => {
     if (!selectedOrg) return;
     
+    if (!selectedOrg.clerkOrgId) {
+      showError('This organization is not yet synced with Clerk. Cannot resend invites.');
+      return;
+    }
+    
     setResendingInvite(adminEmail);
     try {
       const response = await fetch('/api/admin/organizations/invite', {
@@ -233,9 +238,11 @@ export default function AdminOrganizationsPage() {
       if (response.ok) {
         showSuccess(`Invitation resent to ${adminEmail}`);
       } else {
+        console.error('Resend invite error:', data);
         showError(data.error || 'Failed to resend invitation');
       }
     } catch (error) {
+      console.error('Failed to resend invitation:', error);
       showError('Failed to resend invitation');
     } finally {
       setResendingInvite(null);

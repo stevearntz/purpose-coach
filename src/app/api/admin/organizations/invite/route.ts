@@ -96,10 +96,13 @@ export async function POST(request: NextRequest) {
       });
       
       if (existingInvite) {
-        // Update the sent date
+        // Update the sent date AND regenerate the URL with the correct domain
         dbInvitation = await prisma.invitation.update({
           where: { id: existingInvite.id },
-          data: { sentAt: new Date() }
+          data: { 
+            sentAt: new Date(),
+            inviteUrl: `${baseUrl}/sign-up${invitation ? `?invitation=${invitation.id}` : ''}`
+          }
         });
       } else {
         // Create new invitation record

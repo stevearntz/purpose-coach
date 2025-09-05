@@ -43,7 +43,11 @@ export async function GET(
         for (const membership of memberships.data) {
           // Check if user has admin role
           if (membership.role === 'org:admin' || membership.role === 'admin') {
-            const memberUser = await client.users.getUser(membership.userId);
+            // Get the user ID from the membership
+            const userId = (membership as any).userId || (membership.publicUserData as any)?.userId;
+            if (!userId) continue;
+            
+            const memberUser = await client.users.getUser(userId);
             const email = memberUser.emailAddresses.find(
               e => e.id === memberUser.primaryEmailAddressId
             )?.emailAddress;

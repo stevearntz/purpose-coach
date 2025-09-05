@@ -5,23 +5,39 @@ import prisma from '@/lib/prisma'
 export async function GET() {
   const { userId, orgId } = await auth()
   
+  // Log the database URL (masked for security)
+  const dbUrl = process.env.DATABASE_URL || 'not set'
+  const dbInfo = {
+    isNeon: dbUrl.includes('neon.tech'),
+    isSupabase: dbUrl.includes('supabase.co'),
+    urlStart: dbUrl.substring(0, 50) + '...'
+  }
+  
   // Get user profile
   let userProfile = null
   let company = null
   
   if (userId) {
+    console.log('[Debug Auth] Looking for user profile with clerkUserId:', userId)
     userProfile = await prisma.userProfile.findUnique({
       where: { clerkUserId: userId },
       include: { company: true }
     })
+    console.log('[Debug Auth] Found profile?', !!userProfile)
   }
   
   // Try to find company by orgId
   if (orgId) {
+    console.log('[Debug Auth] Looking for company with clerkOrgId:', orgId)
     company = await prisma.company.findUnique({
       where: { clerkOrgId: orgId }
     })
+    console.log('[Debug Auth] Found company?', !!company)
   }
+  
+  // Also get ALL companies to see what's in the DB
+  const allCompanies = await prisma.company.findMany()
+  const allProfiles = await prisma.userProfile.findMany()
   
   return NextResponse.json({
     auth: {
@@ -51,7 +67,18 @@ export async function GET() {
     debug: {
       orgIdMatches: orgId === userProfile?.company?.clerkOrgId,
       expectedOrgId: userProfile?.company?.clerkOrgId,
-      actualOrgId: orgId
+      actualOrgId: orgId,
+      databaseInfo: dbInfo,
+      totalCompanies: allCompanies.length,
+      totalProfiles: allProfiles.length,
+      companiesInDb: allCompanies.map(c => ({
+        name: c.name,
+        clerkOrgId: c.clerkOrgId
+      })),
+      profilesInDb: allProfiles.map(p => ({
+        email: p.email,
+        clerkUserId: p.clerkUserId
+      }))
     }
   })
 }

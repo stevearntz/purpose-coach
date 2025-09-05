@@ -8,6 +8,11 @@ export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
     
+    // Get the base URL from the request headers (works in both local and production)
+    const host = request.headers.get('host');
+    const protocol = request.headers.get('x-forwarded-proto') || 'http';
+    const baseUrl = `${protocol}://${host}`;
+    
     // Check if user is system admin
     const adminEmails = ['steve@getcampfire.com'];
     const client = await clerkClient();
@@ -65,7 +70,7 @@ export async function POST(request: NextRequest) {
       try {
         invitation = await client.invitations.createInvitation({
           emailAddress: email,
-          redirectUrl: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/dashboard`,
+          redirectUrl: `${baseUrl}/dashboard`,
           publicMetadata: {
             organizationId: clerkOrgId,
             role: 'admin',
@@ -103,7 +108,7 @@ export async function POST(request: NextRequest) {
             email,
             name: name || null,
             inviteCode: invitation?.id || 'resend',
-            inviteUrl: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/sign-up${invitation ? `?invitation=${invitation.id}` : ''}`,
+            inviteUrl: `${baseUrl}/sign-up${invitation ? `?invitation=${invitation.id}` : ''}`,
             companyId: organizationId,
             status: 'PENDING',
             sentAt: new Date(),
@@ -121,7 +126,7 @@ export async function POST(request: NextRequest) {
           email,
           name: name || null,
           inviteCode: invitation?.id || 'pending',
-          inviteUrl: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/sign-up${invitation ? `?invitation=${invitation.id}` : ''}`,
+          inviteUrl: `${baseUrl}/sign-up${invitation ? `?invitation=${invitation.id}` : ''}`,
           companyId: organizationId,
           status: 'PENDING',
           sentAt: new Date(),
@@ -168,7 +173,7 @@ export async function POST(request: NextRequest) {
                 <p>Hi ${name || 'there'},</p>
                 <p>You've been added as an administrator to ${organization?.name || 'an organization'} on Campfire.</p>
                 <p>You can access your dashboard here:</p>
-                <a href="${process.env.NEXT_PUBLIC_URL || 'https://tools.getcampfire.com'}/dashboard" 
+                <a href="${baseUrl}/dashboard" 
                    style="display: inline-block; background-color: #9333ea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 16px 0;">
                   Go to Dashboard
                 </a>
@@ -183,7 +188,7 @@ export async function POST(request: NextRequest) {
                 <p>Best regards,<br>The Campfire Team</p>
               </div>
             `,
-            text: `Welcome to ${organization?.name || 'Campfire'}! You've been added as an administrator. Access your dashboard at ${process.env.NEXT_PUBLIC_URL || 'https://tools.getcampfire.com'}/dashboard`
+            text: `Welcome to ${organization?.name || 'Campfire'}! You've been added as an administrator. Access your dashboard at ${baseUrl}/dashboard`
           });
           console.log(`Sent admin notification email to ${email}`);
         } catch (emailError) {

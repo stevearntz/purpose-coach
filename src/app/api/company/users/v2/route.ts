@@ -50,19 +50,45 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
     
     const { limit, offset, status, search } = validation.data;
     
-    // Get user's company - check both admin table and session
-    let companyId = req.user.companyId;
-    let companyName = req.user.companyName;
+    // Get user's company from their Clerk organization
+    const { orgId } = req.user;
+    let companyId: string | undefined;
+    let companyName: string | undefined;
     
-    // Admin model removed - can't lookup by admin table
+    // First, try to find company by Clerk org ID (most reliable)
+    if (orgId) {
+      const company = await prisma.company.findUnique({
+        where: { clerkOrgId: orgId }
+      });
+      
+      if (company) {
+        companyId = company.id;
+        companyName = company.name;
+        logger.info({ requestId, companyName, companyId }, 'Found company by Clerk org ID');
+      }
+    }
     
-    // If still no company, try to find by email domain
+    // Fallback: try to find by user profile
+    if (!companyId) {
+      const userProfile = await prisma.userProfile.findUnique({
+        where: { clerkUserId: req.user.id },
+        include: { company: true }
+      });
+      
+      if (userProfile?.company) {
+        companyId = userProfile.company.id;
+        companyName = userProfile.company.name;
+        logger.info({ requestId, companyName, companyId }, 'Found company by user profile');
+      }
+    }
+    
+    // Last resort: try to find by email domain (less reliable)
     if (!companyId) {
       const emailDomain = req.user.email.split('@')[1];
       const company = await prisma.company.findFirst({
         where: {
           OR: [
-            { name: { contains: emailDomain } },
+            { domains: { has: `@${emailDomain}` } },
             { invitations: { some: { email: req.user.email } } }
           ]
         }
@@ -71,6 +97,7 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
       if (company) {
         companyId = company.id;
         companyName = company.name;
+        logger.warn({ requestId, companyName, companyId }, 'Found company by email domain fallback');
       }
     }
     

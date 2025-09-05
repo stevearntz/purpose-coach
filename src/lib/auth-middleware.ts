@@ -9,6 +9,7 @@ export interface AuthenticatedRequest extends NextRequest {
     name?: string;
     companyId?: string;
     companyName?: string;
+    orgId?: string;
   };
 }
 
@@ -17,7 +18,7 @@ export function withAuth(
 ): (req: NextRequest) => Promise<NextResponse> {
   return async (req: NextRequest): Promise<NextResponse> => {
     try {
-      const { userId } = await auth();
+      const { userId, orgId } = await auth();
       
       if (!userId) {
         return NextResponse.json(
@@ -86,7 +87,8 @@ export function withAuth(
         email: user.primaryEmailAddress?.emailAddress || '',
         name: user.fullName || user.firstName || '',
         companyId,
-        companyName
+        companyName,
+        orgId
       };
       
       return handler(authenticatedReq);

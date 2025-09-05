@@ -62,15 +62,20 @@ export async function POST(request: NextRequest) {
     // Create an invitation in Clerk organization (skip if resending for existing user)
     let invitation;
     if (!resend || !clerkUser) {
-      invitation = await client.invitations.createInvitation({
-        emailAddress: email,
-        redirectUrl: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/dashboard`,
-        publicMetadata: {
-          organizationId: clerkOrgId,
-          role: 'admin',
-          invitedBy: userEmail
-        }
-      });
+      try {
+        invitation = await client.invitations.createInvitation({
+          emailAddress: email,
+          redirectUrl: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/dashboard`,
+          publicMetadata: {
+            organizationId: clerkOrgId,
+            role: 'admin',
+            invitedBy: userEmail
+          }
+        });
+      } catch (error) {
+        console.error('Failed to create Clerk invitation:', error);
+        // Continue without Clerk invitation - we can still track in our database
+      }
     }
     
     // Store invitation in database for tracking (or update if resending)
@@ -144,11 +149,13 @@ export async function POST(request: NextRequest) {
           role: 'org:admin'
         });
         
-        // Update invitation status
-        await prisma.invitation.update({
-          where: { id: dbInvitation.id },
-          data: { status: 'COMPLETED' }
-        });
+        // Update invitation status if we have a db record
+        if (dbInvitation) {
+          await prisma.invitation.update({
+            where: { id: dbInvitation.id },
+            data: { status: 'COMPLETED' }
+          });
+        }
         
         // Send notification email that they've been added
         try {
@@ -201,53 +208,57 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Send invitation email (for new user or resend)
-    try {
-      const emailSubject = resend 
-        ? `Reminder: You're invited to join ${organization?.name || 'an organization'} on Campfire as an admin`
-        : `You're invited to join ${organization?.name || 'an organization'} on Campfire as an admin`;
-        
-      await sendEmail({
-        to: email,
-        subject: emailSubject,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2>You're Invited to ${organization?.name || 'Campfire'}!</h2>
-            <p>Hi ${name || 'there'},</p>
-            <p>${userEmail} has invited you to join ${organization?.name || 'an organization'} as an administrator on Campfire.</p>
-            <p>Campfire is a platform for team assessments and insights that help organizations build better cultures and improve performance.</p>
-            <a href="${dbInvitation.inviteUrl}" 
-               style="display: inline-block; background-color: #9333ea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 16px 0;">
-              Accept Invitation
-            </a>
-            <p>As an admin, you'll be able to:</p>
-            <ul>
-              <li>Invite and manage team members</li>
-              <li>Launch assessment campaigns</li>
-              <li>View comprehensive team insights</li>
-              <li>Access all Campfire tools and features</li>
-            </ul>
-            <p>This invitation link is unique to you. Please don't share it with others.</p>
-            <p>If you have any questions, feel free to reach out.</p>
-            <p>Best regards,<br>The Campfire Team</p>
-          </div>
-        `,
-        text: `You're invited to join ${organization?.name || 'an organization'} on Campfire as an admin. Accept your invitation here: ${dbInvitation.inviteUrl}`
-      });
-      console.log(`Sent invitation email to ${email}`);
-    } catch (emailError) {
-      console.error('Failed to send invitation email:', emailError);
-      // Don't fail the whole operation if email fails, but log it
+    // Send invitation email (for new user or resend) - only if we have an invitation URL
+    if (dbInvitation?.inviteUrl) {
+      try {
+        const emailSubject = resend 
+          ? `Reminder: You're invited to join ${organization?.name || 'an organization'} on Campfire as an admin`
+          : `You're invited to join ${organization?.name || 'an organization'} on Campfire as an admin`;
+          
+        await sendEmail({
+          to: email,
+          subject: emailSubject,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2>You're Invited to ${organization?.name || 'Campfire'}!</h2>
+              <p>Hi ${name || 'there'},</p>
+              <p>${userEmail} has invited you to join ${organization?.name || 'an organization'} as an administrator on Campfire.</p>
+              <p>Campfire is a platform for team assessments and insights that help organizations build better cultures and improve performance.</p>
+              <a href="${dbInvitation.inviteUrl}" 
+                 style="display: inline-block; background-color: #9333ea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 16px 0;">
+                Accept Invitation
+              </a>
+              <p>As an admin, you'll be able to:</p>
+              <ul>
+                <li>Invite and manage team members</li>
+                <li>Launch assessment campaigns</li>
+                <li>View comprehensive team insights</li>
+                <li>Access all Campfire tools and features</li>
+              </ul>
+              <p>This invitation link is unique to you. Please don't share it with others.</p>
+              <p>If you have any questions, feel free to reach out.</p>
+              <p>Best regards,<br>The Campfire Team</p>
+            </div>
+          `,
+          text: `You're invited to join ${organization?.name || 'an organization'} on Campfire as an admin. Accept your invitation here: ${dbInvitation.inviteUrl}`
+        });
+        console.log(`Sent invitation email to ${email}`);
+      } catch (emailError) {
+        console.error('Failed to send invitation email:', emailError);
+        // Don't fail the whole operation if email fails, but log it
+      }
+    } else {
+      console.log('No invitation URL available, skipping email');
     }
     
     // Return invitation details for new user
     return NextResponse.json({ 
       success: true,
-      message: 'Invitation created and email sent. User will be added as admin when they sign up.',
-      invitation: dbInvitation,
-      inviteUrl: dbInvitation.inviteUrl,
+      message: dbInvitation ? 'Invitation created and email sent. User will be added as admin when they sign up.' : 'Invitation processed but email could not be sent.',
+      invitation: dbInvitation || null,
+      inviteUrl: dbInvitation?.inviteUrl || null,
       userAdded: false,
-      emailSent: true
+      emailSent: !!dbInvitation?.inviteUrl
     });
     
   } catch (error: any) {

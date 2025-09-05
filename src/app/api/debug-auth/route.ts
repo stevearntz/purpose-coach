@@ -7,10 +7,14 @@ export async function GET() {
   
   // Log the database URL (masked for security)
   const dbUrl = process.env.DATABASE_URL || 'not set'
+  const dbUrlUnpooled = process.env.DATABASE_URL_UNPOOLED || 'not set'
   const dbInfo = {
     isNeon: dbUrl.includes('neon.tech'),
     isSupabase: dbUrl.includes('supabase.co'),
-    urlStart: dbUrl.substring(0, 50) + '...'
+    urlStart: dbUrl.substring(0, 50) + '...',
+    hasUnpooled: dbUrlUnpooled !== 'not set',
+    unpooledIsNeon: dbUrlUnpooled.includes('neon.tech'),
+    unpooledIsSupabase: dbUrlUnpooled.includes('supabase.co')
   }
   
   // Get user profile

@@ -71,11 +71,6 @@ export async function DELETE(
           });
         }
         
-        // Delete all assessment campaigns
-        await tx.assessmentCampaign.deleteMany({
-          where: { companyId: organizationId }
-        });
-        
         // Delete the company itself
         await tx.company.delete({
           where: { id: organizationId }

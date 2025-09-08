@@ -39,8 +39,8 @@ interface CompletedAssessment {
   summary: string | null
   shareId: string | null
   pdfUrl: string | null
-  campaignName: string
-  campaignCode: string
+  inviteCode: string
+  userEmail: string
 }
 
 export default function DashboardPage() {

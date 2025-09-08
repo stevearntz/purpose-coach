@@ -51,8 +51,8 @@ async function handleGetAssessments(context: ApiContext) {
         summary: result.summary,
         shareId: result.shareId,
         pdfUrl: result.pdfUrl,
-        campaignName: invitation.campaignName,
-        campaignCode: invitation.campaignCode
+        inviteCode: invitation.inviteCode,
+        userEmail: result.userEmail || invitation.email
       }))
     )
 

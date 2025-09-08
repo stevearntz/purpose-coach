@@ -300,7 +300,7 @@ function PeopleLeaderNeedsContent() {
   useEffect(() => {
     analytics.trackToolStart('People Leadership Needs Assessment', {
       inviteCode,
-      campaignName
+      campaignCode
     })
   }, [])
 
@@ -340,8 +340,8 @@ function PeopleLeaderNeedsContent() {
     // Check if profile data has changed and update if needed
     // Only sync profile if:
     // 1. User exists in database (has original profile data with email)
-    // 2. Accessing via campaign link (has campaignName) or invite link (has inviteCode)
-    const hasValidAccessPath = campaignName || inviteCode
+    // 2. Accessing via campaign link (has campaignCode) or invite link (has inviteCode)
+    const hasValidAccessPath = campaignCode || inviteCode
     
     if (originalProfileData.email && hasValidAccessPath) {
       const hasChanges = 
@@ -551,14 +551,14 @@ function PeopleLeaderNeedsContent() {
         let saveResult;
         
         // If we have a campaign but no invite code, use campaign-based saving
-        if (campaignName && !inviteCode && managerData.email) {
+        if (campaignCode && !inviteCode && managerData.email) {
           // Saving with campaign code
           
           const response = await fetch('/api/assessments/save-campaign', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              campaignCode: campaignName,
+              campaignCode: campaignCode,
               email: managerData.email,
               name: managerData.name,
               toolId: 'hr-partnership',
@@ -629,7 +629,7 @@ function PeopleLeaderNeedsContent() {
           body: JSON.stringify({ 
             managerData,
             inviteCode,
-            campaignName
+            campaignCode
           })
         })
         
@@ -663,7 +663,7 @@ function PeopleLeaderNeedsContent() {
         completionTime,
         categoriesSelected: managerData.selectedCategories.length,
         hasAIFollowUp: !!managerData.aiFollowUp,
-        campaignName: campaignName || 'direct',
+        campaignName: campaignCode || 'direct',
         hasInviteCode: !!inviteCode
       })
 

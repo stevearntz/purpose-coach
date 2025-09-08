@@ -126,9 +126,42 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
-          ) : assignedAssessments.length > 0 ? (
-            // Show assigned assessments
+          ) : (userProfile && userProfile.onboardingComplete === false) || assignedAssessments.length > 0 ? (
+            // Show onboarding card and/or assigned assessments
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Onboarding Card - Shows first if not completed */}
+              {userProfile && userProfile.onboardingComplete === false && (
+                <div 
+                  onClick={() => router.push('/dashboard/member/start/onboarding')}
+                  className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-sm rounded-xl p-4 border-2 border-purple-400/30 hover:border-purple-400/50 transition-all cursor-pointer group relative overflow-hidden"
+                >
+                  {/* Shimmer effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                  
+                  <div className="relative">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-400 to-pink-600 flex items-center justify-center">
+                        <Users className="w-5 h-5 text-white" />
+                      </div>
+                      <span className="text-xs text-purple-300 bg-purple-400/20 px-2 py-1 rounded-full font-semibold">
+                        Setup Required
+                      </span>
+                    </div>
+                    <h3 className="text-white font-semibold mb-1">
+                      Complete Your Profile
+                    </h3>
+                    <p className="text-white/70 text-sm mb-3">
+                      Set up your team and profile to unlock personalized insights and recommendations
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-purple-300 font-medium">2 minutes</span>
+                      <ChevronRight className="w-4 h-4 text-purple-300 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Assigned Assessments */}
               {assignedAssessments.map((assessment) => (
                 <div 
                   key={assessment.id}

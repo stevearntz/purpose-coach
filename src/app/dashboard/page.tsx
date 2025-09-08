@@ -43,7 +43,19 @@ export default function DashboardPage() {
                 setProfileData(data.profile)
                 setProfileStatus('ready')
                 
-                // Now redirect based on onboarding status
+                // Check if user is trying to access an assessment (has redirect_url)
+                const urlParams = new URLSearchParams(window.location.search)
+                const redirectUrl = urlParams.get('redirect_url')
+                
+                // If coming from an assessment, let them continue there
+                if (redirectUrl && redirectUrl.includes('/people-leader-needs')) {
+                  console.log('[Dashboard] User came from assessment, not redirecting')
+                  // Don't redirect, let the original flow continue
+                  window.location.href = redirectUrl
+                  return
+                }
+                
+                // Otherwise redirect based on onboarding status
                 if (data.profile.onboardingComplete === false) {
                   console.log('[Dashboard] Redirecting to onboarding...')
                   router.replace('/dashboard/member/start/onboarding')

@@ -16,6 +16,7 @@ function VerifyContent() {
   
   const email = searchParams.get('email') || ''
   const userExists = searchParams.get('exists') === 'true'
+  const redirectUrl = searchParams.get('redirect_url')
   const isLoaded = signInLoaded && signUpLoaded
 
   // Verify magic link code
@@ -36,7 +37,13 @@ function VerifyContent() {
 
         if (result.status === 'complete') {
           await setActive({ session: result.createdSessionId })
-          router.push('/dashboard')
+          // Redirect to the original URL if provided, otherwise dashboard
+          if (redirectUrl) {
+            console.log('[Auth] Sign-in complete, redirecting to:', redirectUrl)
+            window.location.href = redirectUrl
+          } else {
+            router.push('/dashboard')
+          }
         }
       } else {
         // New user - verify sign-up
@@ -46,7 +53,13 @@ function VerifyContent() {
 
         if (result.status === 'complete') {
           await setActive({ session: result.createdSessionId })
-          router.push('/onboarding')
+          // For new users (participants), redirect to the assessment if that's where they came from
+          if (redirectUrl) {
+            console.log('[Auth] Sign-up complete, redirecting to:', redirectUrl)
+            window.location.href = redirectUrl
+          } else {
+            router.push('/dashboard')
+          }
         } else {
           // Sign-up not complete - log what's missing
           console.error('Sign-up incomplete:', result)
@@ -60,10 +73,10 @@ function VerifyContent() {
       if (err.errors?.[0]?.code === 'verification_already_verified' || 
           err.errors?.[0]?.message?.includes('already been verified')) {
         // The verification was already completed, try to redirect
-        if (userExists) {
-          router.push('/dashboard')
+        if (redirectUrl) {
+          window.location.href = redirectUrl
         } else {
-          router.push('/onboarding')
+          router.push('/dashboard')
         }
       } else if (err.errors?.[0]?.code === 'form_code_incorrect') {
         setError('Invalid verification code. Please check and try again.')

@@ -17,6 +17,7 @@ function MagicLinkContent() {
   
   const email = searchParams.get('email') || ''
   const userExists = searchParams.get('exists') === 'true'
+  const redirectUrl = searchParams.get('redirect_url')
   const isLoaded = signInLoaded && signUpLoaded
   
   // We're using verification codes for better conversion rates
@@ -46,7 +47,8 @@ function MagicLinkContent() {
             strategy: 'email_code',
             emailAddressId: emailCodeFactor.emailAddressId,
           })
-          router.push(`/auth/verify?email=${encodeURIComponent(email)}&exists=${userExists}`)
+          const redirectParam = redirectUrl ? `&redirect_url=${encodeURIComponent(redirectUrl)}` : ''
+          router.push(`/auth/verify?email=${encodeURIComponent(email)}&exists=${userExists}${redirectParam}`)
         } else {
           console.error('[Auth] Email code factor not found. Available factors:', signIn.supportedFirstFactors)
           // Try password-based sign-in if email code isn't available
@@ -77,13 +79,15 @@ function MagicLinkContent() {
           
           // Then immediately prepare email verification
           await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
-          router.push(`/auth/verify?email=${encodeURIComponent(email)}&exists=${userExists}`)
+          const redirectParam = redirectUrl ? `&redirect_url=${encodeURIComponent(redirectUrl)}` : ''
+          router.push(`/auth/verify?email=${encodeURIComponent(email)}&exists=${userExists}${redirectParam}`)
         } catch (signUpErr: any) {
           console.error('[Auth] Sign-up error:', signUpErr)
           if (signUpErr.errors?.[0]?.code === 'form_identifier_exists') {
             // User actually exists, redirect to sign-in flow
             console.log('[Auth] User already exists, redirecting to sign-in')
-            router.push(`/auth/magic-link?email=${encodeURIComponent(email)}&exists=true`)
+            const redirectParam = redirectUrl ? `&redirect_url=${encodeURIComponent(redirectUrl)}` : ''
+            router.push(`/auth/magic-link?email=${encodeURIComponent(email)}&exists=true${redirectParam}`)
           } else {
             throw signUpErr
           }
@@ -175,7 +179,7 @@ function MagicLinkContent() {
               <p className="text-center text-gray-600 text-sm">
                 Or you can{' '}
                 <Link
-                  href={`/auth/manual?email=${encodeURIComponent(email)}`}
+                  href={`/auth/manual?email=${encodeURIComponent(email)}${redirectUrl ? `&redirect_url=${encodeURIComponent(redirectUrl)}` : ''}`}
                   className="text-purple-600 hover:text-purple-700 font-medium underline"
                 >
                   sign in manually instead.

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSignIn, useSignUp, useUser } from '@clerk/nextjs'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import AuthLeftPanel from '@/components/AuthLeftPanel'
 
 export default function AuthEmailPage() {
@@ -13,6 +13,8 @@ export default function AuthEmailPage() {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectUrl = searchParams.get('redirect_url')
 
   const isLoaded = signInLoaded && signUpLoaded && userLoaded
 
@@ -28,9 +30,15 @@ export default function AuthEmailPage() {
   // Redirect if already signed in
   useEffect(() => {
     if (isSignedIn && userLoaded) {
-      router.push('/dashboard')
+      // If we have a redirect URL (e.g., from assessment), go there
+      if (redirectUrl) {
+        console.log('[Auth] User signed in, redirecting to:', redirectUrl)
+        window.location.href = redirectUrl
+      } else {
+        router.push('/dashboard')
+      }
     }
-  }, [isSignedIn, userLoaded, router])
+  }, [isSignedIn, userLoaded, router, redirectUrl])
   
   // Show loading state while checking auth status
   if (!userLoaded) {
@@ -65,12 +73,14 @@ export default function AuthEmailPage() {
           identifier: email,
         })
         // If we get here, user exists
-        router.push(`/auth/magic-link?email=${encodeURIComponent(email)}&exists=true`)
+        const redirectParam = redirectUrl ? `&redirect_url=${encodeURIComponent(redirectUrl)}` : ''
+        router.push(`/auth/magic-link?email=${encodeURIComponent(email)}&exists=true${redirectParam}`)
       } catch (err: any) {
         // Check if error is because user doesn't exist
         if (err.errors?.[0]?.code === 'form_identifier_not_found') {
           // User doesn't exist - they need to sign up
-          router.push(`/auth/magic-link?email=${encodeURIComponent(email)}&exists=false`)
+          const redirectParam = redirectUrl ? `&redirect_url=${encodeURIComponent(redirectUrl)}` : ''
+          router.push(`/auth/magic-link?email=${encodeURIComponent(email)}&exists=false${redirectParam}`)
         } else {
           // Some other error
           throw err

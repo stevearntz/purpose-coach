@@ -728,8 +728,8 @@ export default function OnboardingPage() {
         console.error('Error saving profile:', error)
       }
       
-      // Redirect to profile page regardless of save status
-      router.push('/dashboard/member/start/profile')
+      // Redirect to dashboard after completing onboarding
+      router.push('/dashboard/member/start/dashboard')
     }
   }
 

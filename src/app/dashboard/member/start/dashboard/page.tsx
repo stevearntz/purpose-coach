@@ -50,6 +50,12 @@ export default function DashboardPage() {
         if (profileResponse.ok) {
           const profileData = await profileResponse.json()
           setUserProfile(profileData.profile)
+          
+          // Check if onboarding is complete, redirect if not
+          if (profileData.profile && profileData.profile.onboardingComplete === false) {
+            router.push('/dashboard/member/start/onboarding')
+            return
+          }
         }
 
         // Fetch active campaigns assigned to this user

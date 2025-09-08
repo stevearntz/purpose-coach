@@ -115,8 +115,8 @@ export async function POST(request: NextRequest) {
         data: {
           email,
           name: name || null,
-          inviteCode: invitation.id,
-          inviteUrl: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/sign-up?invitation=${invitation.id}`,
+          inviteCode: invitation?.id || 'pending',
+          inviteUrl: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/sign-up${invitation ? `?invitation=${invitation.id}` : ''}`,
           companyId: organizationId,
           status: 'PENDING',
           sentAt: new Date(),

@@ -79,6 +79,8 @@ const UserProfileResponseSchema = z.object({
 
 // Handler implementations
 async function handleGetProfile({ userId }: ApiContext) {
+  console.log(`[Profile API] GET profile for userId: ${userId}`)
+  
   // First try to get by Clerk user ID
   let profile = await prisma.userProfile.findUnique({
     where: { clerkUserId: userId },
@@ -86,6 +88,10 @@ async function handleGetProfile({ userId }: ApiContext) {
       company: true
     }
   })
+  
+  if (profile) {
+    console.log(`[Profile API] Found existing profile by clerkUserId for ${profile.email}`)
+  }
 
   // If not found, get user's email from Clerk and try that
   if (!profile) {
@@ -124,11 +130,16 @@ async function handleGetProfile({ userId }: ApiContext) {
   if (!profile) {
     try {
       const client = await clerkClient()
+      
+      // Small delay to ensure Clerk data is fully propagated
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
       const user = await client.users.getUser(userId)
       const email = user.emailAddresses[0]?.emailAddress
       
       if (email) {
-        console.log(`[Profile API] Creating initial profile for ${email}`)
+        console.log(`[Profile API] No profile found. Creating initial profile for ${email}`)
+        console.log(`[Profile API] Clerk user data: firstName=${user.firstName}, lastName=${user.lastName}`)
         
         // Get the user's organization/company if they have one
         let companyId: string | undefined
@@ -136,13 +147,21 @@ async function handleGetProfile({ userId }: ApiContext) {
           userId 
         })
         
+        console.log(`[Profile API] User has ${orgMemberships.data.length} organization memberships`)
+        
         if (orgMemberships.data.length > 0) {
           const clerkOrgId = orgMemberships.data[0].organization.id
+          console.log(`[Profile API] Looking for company with clerkOrgId: ${clerkOrgId}`)
+          
           const company = await prisma.company.findUnique({
             where: { clerkOrgId }
           })
+          
           if (company) {
             companyId = company.id
+            console.log(`[Profile API] Found company: ${company.name} (${company.id})`)
+          } else {
+            console.log(`[Profile API] No company found for clerkOrgId: ${clerkOrgId}`)
           }
         }
         

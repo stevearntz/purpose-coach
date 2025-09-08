@@ -6,54 +6,103 @@ import { useEffect, useState } from 'react'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { membership, isLoaded } = useOrganization()
-  const { user } = useUser()
-  const [checkingProfile, setCheckingProfile] = useState(false)
+  const { membership, isLoaded: orgLoaded } = useOrganization()
+  const { user, isLoaded: userLoaded } = useUser()
+  const [profileStatus, setProfileStatus] = useState<'checking' | 'ready' | 'error'>('checking')
+  const [profileData, setProfileData] = useState<any>(null)
   
   useEffect(() => {
-    if (isLoaded && user) {
-      const isMember = membership?.role === 'org:member'
-      
-      if (isMember) {
-        // Check if member has completed onboarding
-        const checkOnboarding = async () => {
-          if (checkingProfile) return
-          setCheckingProfile(true)
-          
+    // Wait for both Clerk org and user to be fully loaded
+    if (!orgLoaded || !userLoaded) {
+      return
+    }
+    
+    if (!user) {
+      return
+    }
+    
+    const isMember = membership?.role === 'org:member'
+    
+    if (isMember) {
+      // Check and potentially create profile with retry logic
+      const ensureProfileExists = async () => {
+        let retries = 0
+        const maxRetries = 3
+        const retryDelay = 1000 // 1 second
+        
+        while (retries < maxRetries) {
           try {
+            console.log(`[Dashboard] Checking profile (attempt ${retries + 1})...`)
             const response = await fetch('/api/user/profile')
+            
             if (response.ok) {
               const data = await response.json()
               
-              // If onboarding is not complete, redirect to onboarding
-              if (data.profile && data.profile.onboardingComplete === false) {
-                router.replace('/dashboard/member/start/onboarding')
+              if (data.profile) {
+                console.log('[Dashboard] Profile found:', data.profile)
+                setProfileData(data.profile)
+                setProfileStatus('ready')
+                
+                // Now redirect based on onboarding status
+                if (data.profile.onboardingComplete === false) {
+                  console.log('[Dashboard] Redirecting to onboarding...')
+                  router.replace('/dashboard/member/start/onboarding')
+                } else {
+                  console.log('[Dashboard] Redirecting to dashboard...')
+                  router.replace('/dashboard/member/start/dashboard')
+                }
+                return
               } else {
-                router.replace('/dashboard/member/start/dashboard')
+                console.log('[Dashboard] Profile is null, retrying...')
+                // Profile might still be creating, wait and retry
+                if (retries < maxRetries - 1) {
+                  await new Promise(resolve => setTimeout(resolve, retryDelay))
+                  retries++
+                  continue
+                }
               }
-            } else {
-              // If profile doesn't exist, redirect to onboarding
-              router.replace('/dashboard/member/start/onboarding')
             }
+            
+            // If we get here after all retries, profile still doesn't exist
+            // This shouldn't happen with our new auto-create logic, but just in case
+            console.log('[Dashboard] Profile not found after retries, redirecting to onboarding')
+            router.replace('/dashboard/member/start/onboarding')
+            return
+            
           } catch (error) {
-            console.error('Error checking profile:', error)
-            // Default to dashboard on error
-            router.replace('/dashboard/member/start/dashboard')
+            console.error(`[Dashboard] Error checking profile (attempt ${retries + 1}):`, error)
+            retries++
+            
+            if (retries < maxRetries) {
+              await new Promise(resolve => setTimeout(resolve, retryDelay))
+            } else {
+              // After all retries failed, default to onboarding
+              console.error('[Dashboard] Failed to check profile after all retries')
+              setProfileStatus('error')
+              router.replace('/dashboard/member/start/onboarding')
+              return
+            }
           }
         }
-        
-        checkOnboarding()
-      } else {
-        router.replace('/dashboard/start')
       }
+      
+      ensureProfileExists()
+    } else if (orgLoaded) {
+      // Admin or no membership
+      router.replace('/dashboard/start')
     }
-  }, [isLoaded, membership, user, router, checkingProfile])
+  }, [orgLoaded, userLoaded, membership, user, router])
   
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
       <div className="text-center">
         <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-white/60">Loading...</p>
+        <p className="text-white/60 mb-2">Setting up your workspace...</p>
+        <p className="text-white/40 text-sm">
+          {!orgLoaded && 'Loading organization...'}
+          {!userLoaded && 'Loading user data...'}
+          {orgLoaded && userLoaded && profileStatus === 'checking' && 'Creating your profile...'}
+        </p>
       </div>
     </div>
   )

@@ -120,8 +120,60 @@ async function handleGetProfile({ userId }: ApiContext) {
     }
   }
 
+  // If still no profile, create one with Clerk data
   if (!profile) {
-    return successResponse({ profile: null })
+    try {
+      const client = await clerkClient()
+      const user = await client.users.getUser(userId)
+      const email = user.emailAddresses[0]?.emailAddress
+      
+      if (email) {
+        console.log(`[Profile API] Creating initial profile for ${email}`)
+        
+        // Get the user's organization/company if they have one
+        let companyId: string | undefined
+        const orgMemberships = await client.users.getOrganizationMembershipList({ 
+          userId 
+        })
+        
+        if (orgMemberships.data.length > 0) {
+          const clerkOrgId = orgMemberships.data[0].organization.id
+          const company = await prisma.company.findUnique({
+            where: { clerkOrgId }
+          })
+          if (company) {
+            companyId = company.id
+          }
+        }
+        
+        // Create the profile with initial data from Clerk
+        profile = await prisma.userProfile.create({
+          data: {
+            clerkUserId: userId,
+            email,
+            firstName: user.firstName || '',
+            lastName: user.lastName || '',
+            role: '',
+            department: '',
+            teamSize: '',
+            teamName: '',
+            teamPurpose: '',
+            teamEmoji: '',
+            onboardingComplete: false,
+            clerkRole: orgMemberships.data[0]?.role || null,
+            ...(companyId ? { companyId } : {})
+          },
+          include: {
+            company: true
+          }
+        })
+        
+        console.log(`[Profile API] Created initial profile for ${email} with onboardingComplete: false`)
+      }
+    } catch (error) {
+      console.error('[Profile API] Error creating initial profile:', error)
+      return successResponse({ profile: null })
+    }
   }
 
   return successResponse({ profile })

@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { useUser } from '@clerk/nextjs'
 import { ArrowLeft, ArrowRight, Users, Target, Heart, Brain, Lightbulb, MessageSquare, CheckCircle, X, Plus, AlertCircle, Shield, UserCheck, UsersIcon, MessagesSquare, Laptop, Briefcase, GitBranch, Settings, Handshake, ShieldCheck, DollarSign, Package, Link, Cog, Calendar, RefreshCw, Clock, ShieldAlert, Printer } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
 import ToolNavigationWrapper from '@/components/ToolNavigationWrapper'
@@ -144,20 +145,45 @@ const categoryOptions: { [key: string]: string[] } = {
 }
 
 function PeopleLeaderNeedsContent() {
+  const router = useRouter()
+  const { user, isLoaded, isSignedIn } = useUser()
   const searchParams = useSearchParams()
   const analytics = useAnalytics()
   const { email, hasStoredEmail, captureEmailForTool } = useEmailCapture()
   const config = toolConfigs.peopleLeaderNeeds
   const inviteCode = searchParams.get('invite') || ''
-  const campaignName = searchParams.get('campaign') || ''
+  const campaignCode = searchParams.get('campaign') || ''
+  
+  // Authentication check
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      // Store the current URL to redirect back after sign-in
+      const returnUrl = window.location.pathname + window.location.search
+      const signInUrl = `/sign-in?redirect_url=${encodeURIComponent(returnUrl)}`
+      console.log('[PeopleLeaderNeeds] User not authenticated, redirecting to sign-in')
+      router.push(signInUrl)
+    }
+  }, [isLoaded, isSignedIn, router])
+  
+  // Update manager data when user loads
+  useEffect(() => {
+    if (user && isSignedIn) {
+      setManagerData(prev => ({
+        ...prev,
+        name: prev.name || `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+        email: prev.email || user.emailAddresses?.[0]?.emailAddress || ''
+      }))
+    }
+  }, [user, isSignedIn])
+  
   const [currentStage, setCurrentStage] = useState('intro')
   const [categoryIndex, setCategoryIndex] = useState(0)
   const [isGeneratingFollowUp, setIsGeneratingFollowUp] = useState(false)
   const [startTime] = useState(Date.now())
   
   const [managerData, setManagerData] = useState<ManagerData>({
-    name: '',
-    email: '',
+    name: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : '',
+    email: user?.emailAddresses?.[0]?.emailAddress || '',
     department: '',
     teamSize: '',
     selectedCategories: [],
@@ -606,6 +632,13 @@ function PeopleLeaderNeedsContent() {
             campaignName
           })
         })
+        
+        // After assessment is complete, redirect to dashboard
+        // We'll check onboarding status there and show appropriate cards
+        setTimeout(() => {
+          console.log('[PeopleLeaderNeeds] Assessment completed, redirecting to dashboard')
+          router.push('/dashboard/member/start/dashboard')
+        }, 2000) // Small delay to show results briefly
         
         if (!response.ok) {
           console.error('Failed to save assessment to legacy endpoint')
@@ -1443,6 +1476,25 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
     }
   }
 
+  // Show loading state while checking authentication
+  if (!isLoaded) {
+    return (
+      <ViewportContainer className={`bg-gradient-to-br ${config.gradient}`}>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-white/80">Verifying access...</p>
+          </div>
+        </div>
+      </ViewportContainer>
+    )
+  }
+  
+  // Don't render the assessment if user is not signed in (they'll be redirected)
+  if (!isSignedIn) {
+    return null
+  }
+  
   return (
     <ViewportContainer className={`bg-gradient-to-br ${config.gradient}`}>
       <ToolNavigationWrapper />

@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSignIn, useSignUp, useUser } from '@clerk/nextjs'
 import { useRouter, useSearchParams } from 'next/navigation'
 import AuthLeftPanel from '@/components/AuthLeftPanel'
 
-export default function AuthEmailPage() {
+function AuthEmailContent() {
   const { isLoaded: signInLoaded, signIn } = useSignIn()
   const { isLoaded: signUpLoaded, signUp } = useSignUp()
   const { isSignedIn, isLoaded: userLoaded } = useUser()
@@ -193,5 +193,17 @@ export default function AuthEmailPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function AuthEmailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    }>
+      <AuthEmailContent />
+    </Suspense>
   )
 }

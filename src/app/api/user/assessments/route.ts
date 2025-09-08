@@ -1,9 +1,8 @@
-import { createApiHandlers } from '@/lib/api/handler'
+import { createApiHandlers, ApiContext } from '@/lib/api/handler'
 import { successResponse } from '@/lib/api/responses'
 import { CommonErrors } from '@/lib/api/errors'
 import { auth } from '@clerk/nextjs/server'
 import prisma from '@/lib/prisma'
-import { ApiContext } from '@/lib/api/types'
 
 async function handleGetAssessments(context: ApiContext) {
   const { userId } = await auth()

@@ -11,7 +11,8 @@ import {
   Brain,
   Inbox,
   TrendingUp as TrendIcon,
-  Users
+  Users,
+  CheckCircle
 } from 'lucide-react'
 
 interface AssignedAssessment {

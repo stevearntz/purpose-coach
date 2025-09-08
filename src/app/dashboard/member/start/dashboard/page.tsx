@@ -10,7 +10,8 @@ import {
   BarChart3,
   Brain,
   Inbox,
-  TrendingUp as TrendIcon
+  TrendingUp as TrendIcon,
+  Users
 } from 'lucide-react'
 
 interface AssignedAssessment {

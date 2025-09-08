@@ -229,22 +229,60 @@ Bob Johnson,bob@example.com,member`
   const generateInvitationLinks = async () => {
     setIsAdding(true)
     
-    // Here we would normally create the invitations in the backend
-    // For now, we'll generate mock invitation codes
-    const links: Record<string, string> = {}
-    
-    // By default, select all users to receive emails
-    const emailsToSelect = new Set<string>()
-    for (const user of pendingUsers) {
-      const inviteCode = Math.random().toString(36).substring(2, 15)
-      links[user.email] = `https://tools.getcampfire.com/invite/${inviteCode}`
-      emailsToSelect.add(user.email)
+    try {
+      // Call the API to create invitations in the database
+      const response = await fetch('/api/company/users/v2', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          users: pendingUsers.map(user => ({
+            email: user.email,
+            name: user.name,
+            role: user.role === 'admin' ? 'admin' : user.role === 'member' ? 'member' : 'participant'
+          }))
+        })
+      })
+      
+      if (!response.ok) {
+        const error = await response.json()
+        console.error('Failed to create invitations:', error)
+        alert(error.error || 'Failed to create invitations. Please try again.')
+        setIsAdding(false)
+        return
+      }
+      
+      const data = await response.json()
+      console.log('Created invitations:', data)
+      
+      // Build links from the created invitations
+      const links: Record<string, string> = {}
+      const emailsToSelect = new Set<string>()
+      
+      if (data.invitations && Array.isArray(data.invitations)) {
+        data.invitations.forEach((invitation: any) => {
+          links[invitation.email] = invitation.inviteUrl || `https://tools.getcampfire.com/invite/${invitation.inviteCode}`
+          emailsToSelect.add(invitation.email)
+        })
+      }
+      
+      // Show any errors that occurred
+      if (data.errors && data.errors.length > 0) {
+        console.error('Some invitations failed:', data.errors)
+        const failedEmails = data.errors.map((e: any) => e.email).join(', ')
+        alert(`Failed to create invitations for: ${failedEmails}`)
+      }
+      
+      setSelectedEmails(emailsToSelect)
+      setInvitationLinks(links)
+      setCurrentStep('send')
+    } catch (error) {
+      console.error('Error creating invitations:', error)
+      alert('Failed to create invitations. Please try again.')
+    } finally {
+      setIsAdding(false)
     }
-    
-    setSelectedEmails(emailsToSelect)
-    setInvitationLinks(links)
-    setIsAdding(false)
-    setCurrentStep('send')
   }
 
   const getDropdownPosition = (rowId: string) => {

@@ -220,3 +220,139 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
     );
   }
 });
+
+// Validation schema for creating users
+const CreateUsersSchema = z.object({
+  users: z.array(z.object({
+    email: z.string().email(),
+    name: z.string().min(1),
+    role: z.enum(['admin', 'member', 'participant']).default('participant')
+  })).min(1).max(100)
+});
+
+/**
+ * POST /api/company/users/v2
+ * Create multiple participants for the company
+ */
+export const POST = withAuth(async (req: AuthenticatedRequest) => {
+  const requestId = nanoid(10);
+  logger.info({ requestId, userId: req.user.id }, 'Creating company participants');
+  
+  try {
+    const body = await req.json();
+    const validation = CreateUsersSchema.safeParse(body);
+    
+    if (!validation.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid request body',
+          details: validation.error.errors.map(e => e.message)
+        },
+        { status: 400 }
+      );
+    }
+    
+    const { users } = validation.data;
+    
+    // Get user's company
+    const { orgId } = req.user;
+    let companyId: string | undefined;
+    
+    if (orgId) {
+      const company = await prisma.company.findUnique({
+        where: { clerkOrgId: orgId }
+      });
+      
+      if (company) {
+        companyId = company.id;
+      }
+    }
+    
+    if (!companyId) {
+      const userProfile = await prisma.userProfile.findUnique({
+        where: { clerkUserId: req.user.id },
+        include: { company: true }
+      });
+      
+      if (userProfile?.company) {
+        companyId = userProfile.company.id;
+      }
+    }
+    
+    if (!companyId) {
+      return NextResponse.json(
+        { error: 'Company not found for user' },
+        { status: 404 }
+      );
+    }
+    
+    // Create invitations for each user
+    const createdInvitations = [];
+    const errors = [];
+    
+    for (const user of users) {
+      try {
+        // Check if invitation already exists
+        const existing = await prisma.invitation.findFirst({
+          where: {
+            email: user.email,
+            companyId
+          }
+        });
+        
+        if (existing) {
+          logger.info({ email: user.email }, 'Invitation already exists');
+          createdInvitations.push(existing);
+          continue;
+        }
+        
+        // Create new invitation
+        const inviteCode = nanoid(10);
+        const invitation = await prisma.invitation.create({
+          data: {
+            email: user.email,
+            name: user.name,
+            inviteCode,
+            inviteUrl: `${process.env.NEXT_PUBLIC_URL || 'https://tools.getcampfire.com'}/invite/${inviteCode}`,
+            companyId,
+            status: 'PENDING',
+            metadata: {
+              create: {
+                role: user.role
+              }
+            }
+          },
+          include: {
+            metadata: true
+          }
+        });
+        
+        createdInvitations.push(invitation);
+        logger.info({ email: user.email, inviteCode }, 'Created participant invitation');
+        
+      } catch (error) {
+        logger.error({ email: user.email, error }, 'Failed to create invitation');
+        errors.push({ email: user.email, error: 'Failed to create invitation' });
+      }
+    }
+    
+    return NextResponse.json({
+      success: true,
+      invitations: createdInvitations,
+      errors: errors.length > 0 ? errors : undefined,
+      summary: {
+        requested: users.length,
+        created: createdInvitations.filter(inv => inv.status === 'PENDING').length,
+        existing: createdInvitations.filter(inv => inv.status !== 'PENDING').length,
+        failed: errors.length
+      }
+    });
+    
+  } catch (error) {
+    logger.error({ requestId, error }, 'Failed to create participants');
+    return NextResponse.json(
+      { error: 'Failed to create participants' },
+      { status: 500 }
+    );
+  }
+});

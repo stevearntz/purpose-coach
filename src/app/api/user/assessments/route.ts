@@ -45,10 +45,12 @@ async function handleGetAssessments(context: ApiContext) {
         id: result.id,
         toolId: result.toolId,
         toolName: result.toolName,
-        status: result.status,
+        status: 'COMPLETED', // All results in DB are completed
         completedAt: result.completedAt,
-        score: result.score,
-        resultsUrl: result.resultsUrl,
+        scores: result.scores,
+        summary: result.summary,
+        shareId: result.shareId,
+        pdfUrl: result.pdfUrl,
         campaignName: invitation.campaignName,
         campaignCode: invitation.campaignCode
       }))

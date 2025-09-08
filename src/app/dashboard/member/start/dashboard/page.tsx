@@ -35,8 +35,10 @@ interface CompletedAssessment {
   toolName: string
   status: string
   completedAt: string | null
-  score: number | null
-  resultsUrl: string | null
+  scores: any
+  summary: string | null
+  shareId: string | null
+  pdfUrl: string | null
   campaignName: string
   campaignCode: string
 }

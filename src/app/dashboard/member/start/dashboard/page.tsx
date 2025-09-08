@@ -29,10 +29,23 @@ interface AssignedAssessment {
   completedAt?: string
 }
 
+interface CompletedAssessment {
+  id: string
+  toolId: string
+  toolName: string
+  status: string
+  completedAt: string | null
+  score: number | null
+  resultsUrl: string | null
+  campaignName: string
+  campaignCode: string
+}
+
 export default function DashboardPage() {
   const router = useRouter()
   const { user } = useUser()
   const [assignedAssessments, setAssignedAssessments] = useState<AssignedAssessment[]>([])
+  const [completedAssessments, setCompletedAssessments] = useState<CompletedAssessment[]>([])
   const [loading, setLoading] = useState(true)
   const [userProfile, setUserProfile] = useState<any>(null)
 
@@ -60,12 +73,12 @@ export default function DashboardPage() {
         }
 
         // Fetch active campaigns assigned to this user
-        const response = await fetch(`/api/campaigns/assigned?email=${encodeURIComponent(email)}`)
-        if (response.ok) {
-          const data = await response.json()
+        const campaignsResponse = await fetch(`/api/campaigns/assigned?email=${encodeURIComponent(email)}`)
+        if (campaignsResponse.ok) {
+          const campaignsData = await campaignsResponse.json()
           
           // Transform and separate campaign data
-          const allAssessments = data.campaigns?.map((campaign: any) => ({
+          const allAssessments = campaignsData.campaigns?.map((campaign: any) => ({
             id: campaign.id,
             toolName: campaign.toolName || 'Assessment',
             toolId: campaign.toolId || '',
@@ -86,6 +99,13 @@ export default function DashboardPage() {
           )
           
           setAssignedAssessments(pending)
+        }
+        
+        // Fetch completed assessments
+        const assessmentsResponse = await fetch('/api/user/assessments')
+        if (assessmentsResponse.ok) {
+          const assessmentsData = await assessmentsResponse.json()
+          setCompletedAssessments(assessmentsData.assessments || [])
         }
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -268,21 +288,88 @@ export default function DashboardPage() {
             </h2>
           </div>
           
-          {/* Empty state for stats */}
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                <BarChart3 className="w-5 h-5 text-white/30" />
+          {completedAssessments.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Assessments Completed Card */}
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 text-green-400" />
+                  </div>
+                  <div>
+                    <p className="text-white/60 text-sm">Assessments Completed</p>
+                    <p className="text-2xl font-bold text-white">{completedAssessments.length}</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {completedAssessments.slice(0, 3).map((assessment) => (
+                    <div key={assessment.id} className="text-xs">
+                      <p className="text-white/70 font-medium">{assessment.toolName}</p>
+                      <p className="text-white/40">
+                        {assessment.completedAt ? new Date(assessment.completedAt).toLocaleDateString() : 'In progress'}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div>
-                <h3 className="text-white/70 font-medium mb-2">Your metrics will appear here</h3>
-                <p className="text-white/50 text-sm">
-                  As you complete assessments and engage with your team, we'll track your growth score, 
-                  learning streak, and other key performance indicators to help you visualize your progress.
+              
+              {/* Growth Score Card (placeholder for now) */}
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                    <TrendIcon className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="text-white/60 text-sm">Growth Score</p>
+                    <p className="text-2xl font-bold text-white">-</p>
+                  </div>
+                </div>
+                <p className="text-white/50 text-xs">
+                  Complete more assessments to calculate your growth score
+                </p>
+              </div>
+              
+              {/* Recent Activity Card */}
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                    <BarChart3 className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-white/60 text-sm">This Week</p>
+                    <p className="text-2xl font-bold text-white">
+                      {completedAssessments.filter(a => {
+                        if (!a.completedAt) return false
+                        const completed = new Date(a.completedAt)
+                        const weekAgo = new Date()
+                        weekAgo.setDate(weekAgo.getDate() - 7)
+                        return completed > weekAgo
+                      }).length}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-white/50 text-xs">
+                  Assessments completed in the last 7 days
                 </p>
               </div>
             </div>
-          </div>
+          ) : (
+            /* Empty state for stats */
+            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <BarChart3 className="w-5 h-5 text-white/30" />
+                </div>
+                <div>
+                  <h3 className="text-white/70 font-medium mb-2">Your metrics will appear here</h3>
+                  <p className="text-white/50 text-sm">
+                    As you complete assessments and engage with your team, we'll track your growth score, 
+                    learning streak, and other key performance indicators to help you visualize your progress.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Your Learning Path */}

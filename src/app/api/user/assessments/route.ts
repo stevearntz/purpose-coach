@@ -8,7 +8,7 @@ async function handleGetAssessments(context: ApiContext) {
   const { userId } = await auth()
   
   if (!userId) {
-    throw CommonErrors.UNAUTHORIZED
+    throw CommonErrors.unauthorized()
   }
 
   try {
@@ -57,7 +57,7 @@ async function handleGetAssessments(context: ApiContext) {
     return successResponse({ assessments })
   } catch (error) {
     console.error('[Assessments API] Error fetching assessments:', error)
-    throw CommonErrors.INTERNAL_SERVER_ERROR
+    throw CommonErrors.internalError('Failed to fetch assessments')
   }
 }
 

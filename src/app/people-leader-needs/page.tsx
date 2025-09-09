@@ -337,6 +337,38 @@ function PeopleLeaderNeedsContent() {
       return
     }
     
+    // Update UserProfile with the names from the form if they're empty in the profile
+    if (isSignedIn && user) {
+      try {
+        console.log('[PeopleLeaderNeeds] Updating profile with names:', {
+          firstName: managerData.firstName,
+          lastName: managerData.lastName
+        })
+        
+        const response = await fetch('/api/user/profile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName: managerData.firstName,
+            lastName: managerData.lastName,
+            partialUpdate: true // Only update these fields, don't touch onboardingComplete
+          })
+        })
+        
+        if (response.ok) {
+          const result = await response.json()
+          console.log('[PeopleLeaderNeeds] Profile updated successfully:', result.data?.profile)
+        } else {
+          console.error('[PeopleLeaderNeeds] Failed to update profile')
+        }
+      } catch (error) {
+        console.error('[PeopleLeaderNeeds] Error updating profile:', error)
+        // Don't block the assessment if profile update fails
+      }
+    }
+    
     // Check if profile data has changed and update if needed
     // Only sync profile if:
     // 1. User exists in database (has original profile data with email)

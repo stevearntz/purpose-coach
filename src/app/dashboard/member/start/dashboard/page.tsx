@@ -66,13 +66,9 @@ export default function DashboardPage() {
         const profileResponse = await fetch('/api/user/profile')
         if (profileResponse.ok) {
           const profileData = await profileResponse.json()
-          setUserProfile(profileData.profile)
-          
-          // Check if onboarding is complete, redirect if not
-          if (profileData.profile && profileData.profile.onboardingComplete === false) {
-            router.push('/dashboard/member/start/onboarding')
-            return
-          }
+          // Handle nested response format
+          const profile = profileData.data?.profile || profileData.profile
+          setUserProfile(profile)
         }
 
         // Fetch active campaigns assigned to this user
@@ -150,11 +146,14 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
-          ) : (userProfile && userProfile.onboardingComplete === false) || assignedAssessments.length > 0 ? (
-            // Show onboarding card and/or assigned assessments
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Onboarding Card - Shows first if not completed */}
-              {userProfile && userProfile.onboardingComplete === false && (
+          ) : (
+            // Check if we have anything to show
+            <div>
+              {/* Show cards if we have onboarding incomplete OR assessments */}
+              {((userProfile && !userProfile.onboardingComplete) || assignedAssessments.length > 0) ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {/* Onboarding Card - Shows first if not completed */}
+                  {userProfile && !userProfile.onboardingComplete && (
                 <div 
                   onClick={() => router.push('/dashboard/member/start/onboarding')}
                   className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-sm rounded-xl p-4 border-2 border-purple-400/30 hover:border-purple-400/50 transition-all cursor-pointer group relative overflow-hidden"
@@ -269,15 +268,17 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          ) : (
-            // Empty state
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10 text-center">
-              <Inbox className="w-12 h-12 text-white/30 mx-auto mb-4" />
-              <h3 className="text-white/70 font-medium mb-2">No tasks yet</h3>
-              <p className="text-white/50 text-sm max-w-md mx-auto">
-                When your team leader assigns assessments or schedules activities, they'll appear here
-              </p>
+                </div>
+              ) : (
+                // Empty state
+                <div className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10 text-center">
+                  <Inbox className="w-12 h-12 text-white/30 mx-auto mb-4" />
+                  <h3 className="text-white/70 font-medium mb-2">No tasks yet</h3>
+                  <p className="text-white/50 text-sm max-w-md mx-auto">
+                    When your team leader assigns assessments or schedules activities, they'll appear here
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>

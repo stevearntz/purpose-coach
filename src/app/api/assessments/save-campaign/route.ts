@@ -34,20 +34,9 @@ export async function POST(request: NextRequest) {
     const data = validationResult.data
     
     // Find the campaign by code
-    const campaigns = await prisma.campaign.findMany()
-    let campaign = null
-    
-    for (const c of campaigns) {
-      if (c.description) {
-        try {
-          const metadata = JSON.parse(c.description)
-          if (metadata.campaignCode === data.campaignCode) {
-            campaign = c
-            break
-          }
-        } catch {}
-      }
-    }
+    const campaign = await prisma.campaign.findUnique({
+      where: { campaignCode: data.campaignCode }
+    })
     
     if (!campaign) {
       return NextResponse.json(

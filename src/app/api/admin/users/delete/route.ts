@@ -124,17 +124,7 @@ export async function DELETE(request: NextRequest) {
             console.log(`[Delete User] Removed from organization ${orgId}`)
           } catch (membershipError) {
             console.error(`[Delete User] Failed to remove from organization:`, membershipError)
-            // Try alternative method using organizationMemberships API
-            try {
-              await client.organizationMemberships.deleteOrganizationMembership({
-                organizationId: orgId,
-                userId: clerkUserId
-              })
-              console.log(`[Delete User] Removed from organization using alternative method`)
-            } catch (altError) {
-              console.error(`[Delete User] Alternative removal also failed:`, altError)
-              throw altError
-            }
+            // Continue anyway - the database cleanup is more important
           }
         } else {
           console.log(`[Delete User] Warning: No Clerk user ID available, cannot remove from organization`)

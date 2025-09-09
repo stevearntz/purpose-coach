@@ -24,8 +24,12 @@ export default function AuthLoadingGuard({
   const { user, isLoaded: userLoaded, isSignedIn } = useUser()
   const [profileStatus, setProfileStatus] = useState<'checking' | 'ready' | 'error'>('checking')
   const [profileData, setProfileData] = useState<any>(null)
+  const [hasChecked, setHasChecked] = useState(false)
   
   useEffect(() => {
+    // Prevent multiple checks
+    if (hasChecked) return
+    
     // Wait for both Clerk org and user to be fully loaded
     if (!orgLoaded || !userLoaded) {
       return
@@ -103,12 +107,14 @@ export default function AuthLoadingGuard({
     }
     
     if (isSignedIn) {
+      setHasChecked(true)
       ensureProfileExists()
     } else {
       // Not signed in and not requiring auth, just show content
+      setHasChecked(true)
       setProfileStatus('ready')
     }
-  }, [orgLoaded, userLoaded, user, isSignedIn, requireAuth, redirectTo, router, onProfileReady])
+  }, [orgLoaded, userLoaded, user, isSignedIn, requireAuth, redirectTo, router, onProfileReady, hasChecked])
   
   // Show loading state while checking
   if (!userLoaded || !orgLoaded || profileStatus === 'checking') {

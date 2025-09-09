@@ -15,6 +15,8 @@ import { saveAssessmentResult } from '@/lib/assessment-utils'
 
 interface ManagerData {
   name: string
+  firstName: string
+  lastName: string
   email: string
   department: string
   teamSize: string
@@ -160,9 +162,12 @@ function PeopleLeaderNeedsContent() {
   // Update manager data when user loads
   useEffect(() => {
     if (user && isSignedIn) {
+      const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim()
       setManagerData(prev => ({
         ...prev,
-        name: prev.name || `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+        name: prev.name || fullName,
+        firstName: prev.firstName || user.firstName || '',
+        lastName: prev.lastName || user.lastName || '',
         email: prev.email || user.emailAddresses?.[0]?.emailAddress || ''
       }))
     }
@@ -175,6 +180,8 @@ function PeopleLeaderNeedsContent() {
   
   const [managerData, setManagerData] = useState<ManagerData>({
     name: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : '',
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
     email: user?.emailAddresses?.[0]?.emailAddress || '',
     department: '',
     teamSize: '',
@@ -818,13 +825,37 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
             </div>
             
             <div className="space-y-4 max-w-md mx-auto">
-              <input
-                type="text"
-                placeholder="Your name"
-                value={managerData.name}
-                onChange={(e) => setManagerData(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
+              {/* First and Last Name on same row */}
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  placeholder="First name"
+                  value={managerData.firstName}
+                  onChange={(e) => {
+                    const firstName = e.target.value
+                    setManagerData(prev => ({ 
+                      ...prev, 
+                      firstName,
+                      name: `${firstName} ${prev.lastName}`.trim()
+                    }))
+                  }}
+                  className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                <input
+                  type="text"
+                  placeholder="Last name"
+                  value={managerData.lastName}
+                  onChange={(e) => {
+                    const lastName = e.target.value
+                    setManagerData(prev => ({ 
+                      ...prev, 
+                      lastName,
+                      name: `${prev.firstName} ${lastName}`.trim()
+                    }))
+                  }}
+                  className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
               
               <div>
                 <input

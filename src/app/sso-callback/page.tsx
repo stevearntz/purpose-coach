@@ -11,10 +11,21 @@ export default function SSOCallbackPage() {
   useEffect(() => {
     async function handleCallback() {
       try {
+        // Check if we have a stored redirect URL from before OAuth
+        const storedRedirectUrl = sessionStorage.getItem('authRedirectUrl')
+        const finalRedirectUrl = storedRedirectUrl || '/dashboard'
+        
+        // Clear the stored URL after retrieving it
+        if (storedRedirectUrl) {
+          sessionStorage.removeItem('authRedirectUrl')
+        }
+        
+        console.log('[SSO Callback] Redirecting to:', finalRedirectUrl)
+        
         await handleRedirectCallback({
-          redirectUrl: '/dashboard',
-          signInFallbackRedirectUrl: '/dashboard',
-          signUpFallbackRedirectUrl: '/dashboard'
+          redirectUrl: finalRedirectUrl,
+          signInFallbackRedirectUrl: finalRedirectUrl,
+          signUpFallbackRedirectUrl: finalRedirectUrl
         })
       } catch (error: any) {
         console.error('SSO callback error:', error)
@@ -22,8 +33,14 @@ export default function SSOCallbackPage() {
         if (error?.errors?.[0]?.code === 'invalid_magic_link') {
           sessionStorage.setItem('authError', 'This magic link has expired or already been used. Please request a new one.')
         } else if (error?.errors?.[0]?.code === 'session_exists') {
-          // Already signed in, just redirect
-          router.push('/dashboard')
+          // Already signed in, check for stored redirect URL
+          const storedRedirectUrl = sessionStorage.getItem('authRedirectUrl')
+          if (storedRedirectUrl) {
+            sessionStorage.removeItem('authRedirectUrl')
+            window.location.href = storedRedirectUrl
+          } else {
+            router.push('/dashboard')
+          }
           return
         } else {
           sessionStorage.setItem('authError', error?.errors?.[0]?.message || 'Unable to complete sign in. Please try again.')

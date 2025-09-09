@@ -167,15 +167,24 @@ function AuthEmailContent() {
     
     // If already signed in, just redirect
     if (isSignedIn) {
-      router.push('/dashboard')
+      if (redirectUrl) {
+        window.location.href = redirectUrl
+      } else {
+        router.push('/dashboard')
+      }
       return
     }
     
     try {
+      // Store the redirect URL in sessionStorage so SSO callback can use it
+      if (redirectUrl) {
+        sessionStorage.setItem('authRedirectUrl', redirectUrl)
+      }
+      
       await signIn.authenticateWithRedirect({
         strategy: 'oauth_google',
         redirectUrl: '/sso-callback',
-        redirectUrlComplete: '/dashboard'
+        redirectUrlComplete: redirectUrl || '/dashboard'
       })
     } catch (err: any) {
       console.error('Google sign in error:', err)

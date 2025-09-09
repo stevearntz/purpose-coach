@@ -18,6 +18,74 @@ function AuthEmailContent() {
 
   const isLoaded = signInLoaded && signUpLoaded && userLoaded
 
+  // Determine contextual messaging based on redirect URL
+  const getContextualMessage = () => {
+    if (!redirectUrl) {
+      return {
+        title: 'Access your leadership tools',
+        subtitle: 'Sign in or create an account below!'
+      }
+    }
+
+    // Map tool paths to friendly names
+    const toolMapping: { [key: string]: { title: string, subtitle: string } } = {
+      '/people-leader-needs': {
+        title: 'Access your People Leadership Needs Assessment',
+        subtitle: 'Sign in or create an account to begin your assessment'
+      },
+      '/assessment/': {  // Campaign assessment URLs
+        title: 'Access your assessment',
+        subtitle: 'Sign in or create an account to begin'
+      },
+      '/purpose': {
+        title: 'Access your Purpose Discovery Tool',
+        subtitle: 'Sign in or create an account to explore your purpose'
+      },
+      '/values': {
+        title: 'Access your Values Assessment',
+        subtitle: 'Sign in or create an account to identify your core values'
+      },
+      '/strengths': {
+        title: 'Access your Strengths Assessment',
+        subtitle: 'Sign in or create an account to discover your strengths'
+      },
+      '/trust-audit': {
+        title: 'Access the Trust Audit Tool',
+        subtitle: 'Sign in or create an account to evaluate team trust'
+      },
+      '/burnout-assessment': {
+        title: 'Access the Burnout Assessment',
+        subtitle: 'Sign in or create an account to assess burnout levels'
+      },
+      '/team-charter': {
+        title: 'Access the Team Charter Builder',
+        subtitle: 'Sign in or create an account to create your team charter'
+      },
+      '/tools/': {  // Direct tool access
+        title: 'Access your assessment tool',
+        subtitle: 'Sign in or create an account to continue'
+      }
+    }
+
+    // Extract the base path from the redirect URL (remove query parameters)
+    const basePath = redirectUrl.split('?')[0]
+    
+    // Check if we have a mapping for this path
+    for (const [path, messages] of Object.entries(toolMapping)) {
+      if (basePath.includes(path)) {
+        return messages
+      }
+    }
+
+    // Default message if no specific mapping found
+    return {
+      title: 'Access your assessment',
+      subtitle: 'Sign in or create an account to continue'
+    }
+  }
+
+  const contextualMessage = getContextualMessage()
+
   // Check for errors from SSO callback
   useEffect(() => {
     const storedError = sessionStorage.getItem('authError')
@@ -138,10 +206,10 @@ function AuthEmailContent() {
             />
             
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Access your leadership tools
+              {contextualMessage.title}
             </h2>
             <p className="text-gray-700 text-base font-medium">
-              Sign in or create an account below!
+              {contextualMessage.subtitle}
             </p>
           </div>
 

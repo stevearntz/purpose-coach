@@ -331,7 +331,8 @@ function PeopleLeaderNeedsContent() {
     const validation = validateEmail(managerData.email)
     setEmailValidation(validation)
     
-    if (!validation.isValid || !managerData.name || !managerData.department || !managerData.teamSize) {
+    // Only require firstName, lastName, and valid email
+    if (!validation.isValid || !managerData.firstName || !managerData.lastName) {
       setShowSuggestion(!!validation.suggestion)
       return
     }

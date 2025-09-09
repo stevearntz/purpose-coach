@@ -38,11 +38,10 @@ import {
 
 interface TeamMember {
   id: string
-  name: string
-  email?: string
-  role?: string
-  nameError?: boolean
-  emailError?: boolean
+  firstName: string
+  lastName: string
+  firstNameError?: boolean
+  lastNameError?: boolean
 }
 
 interface OnboardingData {
@@ -136,7 +135,7 @@ export default function OnboardingPage() {
     lastName: user?.lastName || '',
     role: '',
     department: '',
-    teamMembers: [{ id: Date.now().toString(), name: '', email: '', role: '', nameError: false, emailError: false }],
+    teamMembers: [{ id: Date.now().toString(), firstName: '', lastName: '', firstNameError: false, lastNameError: false }],
     teamName: '',
     teamPurpose: '',
     teamEmoji: ''
@@ -150,20 +149,19 @@ export default function OnboardingPage() {
   const addTeamMember = () => {
     const newMember: TeamMember = {
       id: Date.now().toString(),
-      name: '',
-      email: '',
-      role: '',
-      nameError: false,
-      emailError: false
+      firstName: '',
+      lastName: '',
+      firstNameError: false,
+      lastNameError: false
     }
     setData(prev => ({
       ...prev,
       teamMembers: [...prev.teamMembers, newMember]
     }))
     
-    // Focus the new row's name input after a brief delay
+    // Focus the new row's first name input after a brief delay
     setTimeout(() => {
-      nameInputRefs.current[`${newMember.id}-name`]?.focus()
+      nameInputRefs.current[`${newMember.id}-firstName`]?.focus()
     }, 100)
   }
 
@@ -180,7 +178,8 @@ export default function OnboardingPage() {
       teamMembers: prev.teamMembers.map(member => {
         if (member.id === id) {
           const updated = { ...member, [field]: value }
-          if (field === 'name' && value) updated.nameError = false
+          if (field === 'firstName' && value) updated.firstNameError = false
+          if (field === 'lastName' && value) updated.lastNameError = false
           return updated
         }
         return member
@@ -195,7 +194,7 @@ export default function OnboardingPage() {
       
       if (!currentMember) return
       
-      if (currentMember.name) {
+      if (currentMember.firstName.trim() || currentMember.lastName.trim()) {
         // Check if this is the last member, if so add a new row
         const lastMember = data.teamMembers[data.teamMembers.length - 1]
         if (lastMember.id === memberId) {
@@ -205,12 +204,12 @@ export default function OnboardingPage() {
           handleNext()
         }
       } else {
-        // Show error if name is empty
+        // Show error if both names are empty
         setData(prev => ({
           ...prev,
           teamMembers: prev.teamMembers.map(m => {
             if (m.id === memberId) {
-              return { ...m, nameError: true }
+              return { ...m, firstNameError: !currentMember.firstName.trim(), lastNameError: !currentMember.lastName.trim() }
             }
             return m
           })
@@ -276,14 +275,20 @@ export default function OnboardingPage() {
           const teamData = await teamResponse.json()
           if (teamData.teamMembers && teamData.teamMembers.length > 0) {
             // Convert team members to the format used in the form
-            const formattedMembers = teamData.teamMembers.map((member: any) => ({
-              id: member.id,
-              name: member.name || '',
-              email: member.email || '',
-              role: member.role || '',
-              nameError: false,
-              emailError: false
-            }))
+            const formattedMembers = teamData.teamMembers.map((member: any) => {
+              // Split existing name into firstName and lastName
+              const nameParts = (member.name || '').split(' ')
+              const firstName = nameParts[0] || ''
+              const lastName = nameParts.slice(1).join(' ') || ''
+              
+              return {
+                id: member.id,
+                firstName,
+                lastName,
+                firstNameError: false,
+                lastNameError: false
+              }
+            })
             
             setData(prev => ({
               ...prev,
@@ -517,7 +522,7 @@ export default function OnboardingPage() {
         break
       case 5:
         // Validate at least one team member has a name
-        const validMembers = data.teamMembers.filter(m => m.name.trim())
+        const validMembers = data.teamMembers.filter(m => m.firstName.trim() || m.lastName.trim())
         if (validMembers.length === 0) {
           newErrors.teamMembers = 'Add at least one team member'
         }
@@ -609,7 +614,13 @@ export default function OnboardingPage() {
         })
       } else if (currentQuestion === 5) {
         // Save team members to database
-        const validMembers = data.teamMembers.filter(m => m.name.trim())
+        const validMembers = data.teamMembers.filter(m => m.firstName.trim() || m.lastName.trim())
+          .map(m => ({
+            id: m.id,
+            name: `${m.firstName.trim()} ${m.lastName.trim()}`.trim(),
+            email: '', // No email field anymore
+            role: ''   // No role field anymore
+          }))
         if (validMembers.length > 0) {
           // Save team size to user profile
           await saveProfileData({
@@ -1121,103 +1132,78 @@ export default function OnboardingPage() {
                 <h2 className="text-2xl font-bold text-white mb-2">Who's on your team?</h2>
                 <p className="text-white/60 text-sm">Add the people you work with directly</p>
               </div>
-              <div className="max-w-4xl mx-auto">
+              <div className="max-w-3xl mx-auto">
                 {/* Header row */}
-                <div className="grid grid-cols-10 gap-4 mb-3 px-1">
-                  <div className="col-span-3 text-xs font-medium text-white/60">Name *</div>
-                  <div className="col-span-3 text-xs font-medium text-white/60">Email (optional)</div>
-                  <div className="col-span-3 text-xs font-medium text-white/60">Role (optional)</div>
+                <div className="grid grid-cols-7 gap-4 mb-3 px-1">
+                  <div className="col-span-3 text-xs font-medium text-white/60">First Name *</div>
+                  <div className="col-span-3 text-xs font-medium text-white/60">Last Name *</div>
                   <div className="col-span-1"></div>
                 </div>
 
                 {/* Team member rows */}
                 <div className="space-y-2">
                   {data.teamMembers.map((member, index) => (
-                    <div key={member.id} className="grid grid-cols-10 gap-4 items-center">
+                    <div key={member.id} className="grid grid-cols-7 gap-4 items-center">
                       <div className="col-span-3">
                         <input
-                          ref={(el) => { nameInputRefs.current[`${member.id}-name`] = el }}
+                          ref={(el) => { nameInputRefs.current[`${member.id}-firstName`] = el }}
                           type="text"
-                          value={member.name}
-                          onChange={(e) => updateTeamMember(member.id, 'name', e.target.value)}
+                          value={member.firstName}
+                          onChange={(e) => updateTeamMember(member.id, 'firstName', e.target.value)}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                               e.preventDefault()
-                              if (member.name.trim()) {
-                                // If this is the last row, add a new one
-                                if (index === data.teamMembers.length - 1) {
-                                  addTeamMember()
-                                } else {
-                                  // Focus next row's name input
-                                  const nextMember = data.teamMembers[index + 1]
-                                  nameInputRefs.current[`${nextMember.id}-name`]?.focus()
-                                }
-                              } else {
-                                updateTeamMember(member.id, 'nameError', 'true')
-                              }
+                              // Move to lastName field
+                              nameInputRefs.current[`${member.id}-lastName`]?.focus()
                             }
                           }}
-                          placeholder="Jane Smith"
+                          placeholder="Jane"
                           className={`w-full px-4 py-2 bg-white/10 border ${
-                            member.nameError ? 'border-red-500' : 'border-white/20'
+                            member.firstNameError ? 'border-red-500' : 'border-white/20'
                           } rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all`}
                           autoFocus={index === 0}
                         />
                       </div>
                       <div className="col-span-3">
                         <input
-                          ref={(el) => { nameInputRefs.current[`${member.id}-email`] = el }}
-                          type="email"
-                          value={member.email || ''}
-                          onChange={(e) => updateTeamMember(member.id, 'email', e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault()
-                              if (member.name.trim()) {
-                                // If this is the last row, add a new one
-                                if (index === data.teamMembers.length - 1) {
-                                  addTeamMember()
-                                } else {
-                                  // Focus next row's name input
-                                  const nextMember = data.teamMembers[index + 1]
-                                  nameInputRefs.current[`${nextMember.id}-name`]?.focus()
-                                }
-                              } else {
-                                updateTeamMember(member.id, 'nameError', 'true')
-                              }
-                            }
-                          }}
-                          placeholder="jane@company.com"
-                          className={`w-full px-4 py-2 bg-white/10 border ${
-                            member.emailError ? 'border-red-500' : 'border-white/20'
-                          } rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all`}
-                        />
-                      </div>
-                      <div className="col-span-3">
-                        <input
-                          ref={(el) => { nameInputRefs.current[`${member.id}-role`] = el }}
+                          ref={(el) => { nameInputRefs.current[`${member.id}-lastName`] = el }}
                           type="text"
-                          value={member.role || ''}
-                          onChange={(e) => updateTeamMember(member.id, 'role', e.target.value)}
+                          value={member.lastName}
+                          onChange={(e) => updateTeamMember(member.id, 'lastName', e.target.value)}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                               e.preventDefault()
-                              if (member.name.trim()) {
+                              if (member.firstName.trim() || member.lastName.trim()) {
                                 // If this is the last row, add a new one
                                 if (index === data.teamMembers.length - 1) {
                                   addTeamMember()
                                 } else {
-                                  // Focus next row's name input
+                                  // Focus next row's firstName input
                                   const nextMember = data.teamMembers[index + 1]
-                                  nameInputRefs.current[`${nextMember.id}-name`]?.focus()
+                                  nameInputRefs.current[`${nextMember.id}-firstName`]?.focus()
                                 }
                               } else {
-                                updateTeamMember(member.id, 'nameError', 'true')
+                                // Show validation errors
+                                setData(prev => ({
+                                  ...prev,
+                                  teamMembers: prev.teamMembers.map(m => {
+                                    if (m.id === member.id) {
+                                      return { 
+                                        ...m, 
+                                        firstNameError: !member.firstName.trim(), 
+                                        lastNameError: !member.lastName.trim() 
+                                      }
+                                    }
+                                    return m
+                                  })
+                                }))
                               }
                             }
                           }}
-                          placeholder="Designer"
-                          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all"
+                          placeholder="Smith"
+                          className={`w-full px-4 py-2 bg-white/10 border ${
+                            member.lastNameError ? 'border-red-500' : 'border-white/20'
+                          } rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all`}
                         />
                       </div>
                       <div className="col-span-1 flex items-center justify-center gap-2">
@@ -1252,7 +1238,7 @@ export default function OnboardingPage() {
 
                 {/* Hint */}
                 <p className="text-white/40 text-xs text-center mt-6">
-                  Press Enter in any field to quickly add more team members
+                  Press Enter in First Name to move to Last Name, or Enter in Last Name to add more team members
                 </p>
               </div>
             </div>

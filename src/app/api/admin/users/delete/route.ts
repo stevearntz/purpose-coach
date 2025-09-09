@@ -23,7 +23,7 @@ export async function DELETE(request: NextRequest) {
     }
     
     // Get the user to delete from request body
-    const { email, clerkUserId, isClerkUser } = await request.json()
+    const { email, clerkUserId, membershipId, isClerkUser } = await request.json()
     
     if (!email) {
       return NextResponse.json(
@@ -109,41 +109,45 @@ export async function DELETE(request: NextRequest) {
     }
     
     // Step 2: Remove from Clerk organization (if they're a Clerk user)
-    if (isClerkUser && clerkUserId) {
+    if (isClerkUser && membershipId) {
       try {
         console.log(`[Delete User] Removing ${email} from Clerk organization...`)
         
-        // Get organization memberships for this user
-        const memberships = await client.users.getOrganizationMembershipList({
-          userId: clerkUserId
-        })
-        
-        // Find membership for current organization
-        const currentOrgMembership = memberships.data.find(
-          m => m.organization.id === orgId
-        )
-        
-        if (currentOrgMembership) {
-          // Remove from current organization
-          await client.organizations.deleteOrganizationMembership({
-            organizationId: orgId,
-            userId: clerkUserId
-          })
-          console.log(`[Delete User] Removed from organization ${orgId}`)
+        // Method 1: Try to remove using membership ID directly
+        try {
+          const org = await client.organizations.getOrganization({ organizationId: orgId })
+          await org.removeMember({ userId: membershipId })
+          console.log(`[Delete User] Removed from organization using membership ID`)
+        } catch (membershipError) {
+          console.log(`[Delete User] Direct membership removal failed, trying with user ID...`)
+          
+          // Method 2: If that fails and we have the user ID, try with that
+          if (clerkUserId) {
+            await client.organizations.deleteOrganizationMembership({
+              organizationId: orgId,
+              userId: clerkUserId
+            })
+            console.log(`[Delete User] Removed from organization using user ID`)
+          }
         }
         
-        // Check if user has other organization memberships
-        const remainingMemberships = await client.users.getOrganizationMembershipList({
-          userId: clerkUserId
-        })
-        
-        // If no other memberships, delete the user entirely from Clerk
-        if (remainingMemberships.data.length === 0) {
-          console.log(`[Delete User] No other org memberships, deleting Clerk user entirely...`)
-          await client.users.deleteUser(clerkUserId)
-          console.log(`[Delete User] Clerk user deleted completely`)
+        // Only check for remaining memberships if we have the actual user ID
+        if (clerkUserId) {
+          // Check if user has other organization memberships
+          const remainingMemberships = await client.users.getOrganizationMembershipList({
+            userId: clerkUserId
+          })
+          
+          // If no other memberships, delete the user entirely from Clerk
+          if (remainingMemberships.data.length === 0) {
+            console.log(`[Delete User] No other org memberships, deleting Clerk user entirely...`)
+            await client.users.deleteUser(clerkUserId)
+            console.log(`[Delete User] Clerk user deleted completely`)
+          } else {
+            console.log(`[Delete User] User has ${remainingMemberships.data.length} other org memberships, keeping Clerk account`)
+          }
         } else {
-          console.log(`[Delete User] User has ${remainingMemberships.data.length} other org memberships, keeping Clerk account`)
+          console.log(`[Delete User] No Clerk user ID available, skipping full user deletion check`)
         }
       } catch (clerkError) {
         console.error('[Delete User] Clerk deletion error:', clerkError)

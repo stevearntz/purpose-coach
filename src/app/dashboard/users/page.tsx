@@ -35,6 +35,7 @@ interface UnifiedUser {
   status: string
   createdAt: string
   isClerkUser: boolean
+  clerkUserId?: string  // Add the actual Clerk user ID
   profileImageUrl?: string | null
   department?: string
 }
@@ -128,6 +129,7 @@ export default function UsersPage() {
           status: 'Active',
           createdAt: member.createdAt,
           isClerkUser: true,
+          clerkUserId: member.publicUserData.userId,  // Add the actual Clerk user ID
           profileImageUrl: member.publicUserData.profileImageUrl
         })
         emailSet.add(member.publicUserData.identifier.toLowerCase())
@@ -234,7 +236,8 @@ export default function UsersPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: userToDelete.email,
-          clerkUserId: userToDelete.isClerkUser ? userToDelete.id : null,
+          clerkUserId: userToDelete.clerkUserId,  // Use the actual Clerk user ID
+          membershipId: userToDelete.id,  // Pass the membership ID too
           isClerkUser: userToDelete.isClerkUser
         })
       })

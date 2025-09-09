@@ -12,7 +12,9 @@ import {
   Inbox,
   TrendingUp as TrendIcon,
   Users,
-  CheckCircle
+  CheckCircle,
+  Calendar,
+  ExternalLink
 } from 'lucide-react'
 
 interface AssignedAssessment {
@@ -295,82 +297,61 @@ export default function DashboardPage() {
           </div>
           
           {completedAssessments.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Assessments Completed Card */}
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                    <CheckCircle className="w-5 h-5 text-green-400" />
-                  </div>
-                  <div>
-                    <p className="text-white/60 text-sm">Assessments Completed</p>
-                    <p className="text-2xl font-bold text-white">{completedAssessments.length}</p>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  {completedAssessments.slice(0, 3).map((assessment) => (
-                    <div key={assessment.id} className="text-xs">
-                      <p className="text-white/70 font-medium">{assessment.toolName}</p>
-                      <p className="text-white/40">
-                        {assessment.completedAt ? new Date(assessment.completedAt).toLocaleDateString() : 'In progress'}
-                      </p>
+            <div className="relative">
+              {/* Horizontal scrollable container */}
+              <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                {completedAssessments.map((assessment) => (
+                  <div 
+                    key={assessment.id}
+                    onClick={() => {
+                      // Navigate to results tab with specific assessment ID
+                      router.push(`/dashboard/member/start/results?assessment=${assessment.id}`)
+                    }}
+                    className="min-w-[300px] bg-gradient-to-br from-green-500/10 to-emerald-500/10 backdrop-blur-sm rounded-xl p-4 border border-green-400/20 hover:border-green-400/40 transition-all cursor-pointer group flex-shrink-0"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                        <CheckCircle className="w-5 h-5 text-green-400" />
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-green-300/70">
+                        <Calendar className="w-3 h-3" />
+                        {assessment.completedAt ? new Date(assessment.completedAt).toLocaleDateString() : 'Recently'}
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Growth Score Card (placeholder for now) */}
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                    <TrendIcon className="w-5 h-5 text-purple-400" />
-                  </div>
-                  <div>
-                    <p className="text-white/60 text-sm">Growth Score</p>
-                    <p className="text-2xl font-bold text-white">-</p>
-                  </div>
-                </div>
-                <p className="text-white/50 text-xs">
-                  Complete more assessments to calculate your growth score
-                </p>
-              </div>
-              
-              {/* Recent Activity Card */}
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                    <BarChart3 className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <div>
-                    <p className="text-white/60 text-sm">This Week</p>
-                    <p className="text-2xl font-bold text-white">
-                      {completedAssessments.filter(a => {
-                        if (!a.completedAt) return false
-                        const completed = new Date(a.completedAt)
-                        const weekAgo = new Date()
-                        weekAgo.setDate(weekAgo.getDate() - 7)
-                        return completed > weekAgo
-                      }).length}
+                    
+                    <h3 className="text-white font-semibold mb-1">
+                      {assessment.toolName}
+                    </h3>
+                    
+                    <p className="text-green-200/60 text-sm mb-3">
+                      Assessment completed
                     </p>
+                    
+                    {assessment.summary && (
+                      <p className="text-white/50 text-xs mb-3 line-clamp-2">
+                        {assessment.summary}
+                      </p>
+                    )}
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-green-300/50 font-medium">View Results</span>
+                      <ExternalLink className="w-4 h-4 text-green-300/50 group-hover:text-green-300 transition-colors" />
+                    </div>
                   </div>
-                </div>
-                <p className="text-white/50 text-xs">
-                  Assessments completed in the last 7 days
-                </p>
+                ))}
               </div>
             </div>
           ) : (
-            /* Empty state for stats */
+            /* Empty state */
             <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                  <BarChart3 className="w-5 h-5 text-white/30" />
+                  <TrendIcon className="w-5 h-5 text-white/30" />
                 </div>
                 <div>
-                  <h3 className="text-white/70 font-medium mb-2">Your metrics will appear here</h3>
+                  <h3 className="text-white/70 font-medium mb-2">Your completed assessments will appear here</h3>
                   <p className="text-white/50 text-sm">
-                    As you complete assessments and engage with your team, we'll track your growth score, 
-                    learning streak, and other key performance indicators to help you visualize your progress.
+                    As you complete assessments, they'll show up here with quick access to your results and insights.
                   </p>
                 </div>
               </div>

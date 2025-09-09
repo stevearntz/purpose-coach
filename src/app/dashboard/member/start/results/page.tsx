@@ -2,7 +2,8 @@
 
 import { useUser } from '@clerk/nextjs'
 import { BarChart3, FileText, Calendar, TrendingUp, Clock, ChevronDown, ChevronUp, Brain, Target, Users, Award, Download, ExternalLink, AlertTriangle, Sparkles, HeartHandshake, Flag, Lightbulb } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 interface AssessmentResult {
   id: string
@@ -24,11 +25,16 @@ interface AssessmentResult {
   pdfUrl?: string
 }
 
-export default function PersonalResultsPage() {
+function PersonalResultsContent() {
   const { user } = useUser()
+  const searchParams = useSearchParams()
   const [loading, setLoading] = useState(true)
   const [results, setResults] = useState<AssessmentResult[]>([])
   const [expandedResults, setExpandedResults] = useState<Set<string>>(new Set())
+  const resultRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
+
+  // Get the assessment ID from URL params
+  const targetAssessmentId = searchParams.get('assessment')
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -44,6 +50,11 @@ export default function PersonalResultsPage() {
         if (response.ok) {
           const data = await response.json()
           setResults(data.results || [])
+          
+          // If there's a target assessment, expand it
+          if (targetAssessmentId) {
+            setExpandedResults(new Set([targetAssessmentId]))
+          }
         }
       } catch (error) {
         console.error('Error fetching assessment results:', error)
@@ -55,7 +66,20 @@ export default function PersonalResultsPage() {
     if (user) {
       fetchResults()
     }
-  }, [user])
+  }, [user, targetAssessmentId])
+
+  // Scroll to the target assessment when it's rendered and expanded
+  useEffect(() => {
+    if (targetAssessmentId && resultRefs.current[targetAssessmentId] && !loading) {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        resultRefs.current[targetAssessmentId]?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        })
+      }, 100)
+    }
+  }, [targetAssessmentId, loading, expandedResults])
 
   const toggleResultExpansion = (resultId: string) => {
     setExpandedResults(prev => {
@@ -120,6 +144,7 @@ export default function PersonalResultsPage() {
             return (
               <div
                 key={result.id}
+                ref={(el) => { resultRefs.current[result.id] = el }}
                 className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 overflow-hidden transition-all"
               >
                 {/* Card Header - Clickable */}
@@ -325,5 +350,20 @@ export default function PersonalResultsPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function PersonalResultsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white/60">Loading results...</p>
+        </div>
+      </div>
+    }>
+      <PersonalResultsContent />
+    </Suspense>
   )
 }

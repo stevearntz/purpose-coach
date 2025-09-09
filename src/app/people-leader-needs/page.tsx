@@ -669,7 +669,7 @@ function PeopleLeaderNeedsContent() {
         // We'll check onboarding status there and show appropriate cards
         setTimeout(() => {
           console.log('[PeopleLeaderNeeds] Assessment completed, redirecting to dashboard')
-          router.push('/dashboard/member/start/dashboard')
+          router.push('/dashboard')
         }, 2000) // Small delay to show results briefly
         
         if (!response.ok) {

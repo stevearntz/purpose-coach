@@ -159,30 +159,6 @@ export default function UsersPage() {
     }
   }
 
-  const handleRemoveUser = async (user: UnifiedUser) => {
-    if (!organization) return
-    
-    if (!confirm(`Are you sure you want to remove ${user.name}?`)) return
-    
-    try {
-      if (user.isClerkUser) {
-        // Remove Clerk member
-        await organization.removeMember(user.id)
-      } else {
-        // Remove participant via API
-        const response = await fetch('/api/company/users/v2', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: user.email })
-        })
-        if (!response.ok) throw new Error('Failed to remove participant')
-      }
-      await fetchAllUsers(false)
-    } catch (error) {
-      console.error('Failed to remove user:', error)
-      alert('Failed to remove user')
-    }
-  }
 
   const formatRole = (role: string): string => {
     if (role === 'org:admin' || role === 'admin') return 'Admin'

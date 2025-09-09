@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useOrganization, useUser } from '@clerk/nextjs'
-import { Edit2, Trash2, Mail, Shield, Calendar, CheckCircle, UserCheck, Clock, AlertCircle, Plus, Search } from 'lucide-react'
+import { Edit2, Trash2, Mail, Shield, Calendar, CheckCircle, UserCheck, Clock, AlertCircle, Plus, Search, X, AlertTriangle } from 'lucide-react'
 
 interface OrganizationMember {
   id: string
@@ -49,6 +49,8 @@ export default function UsersPage() {
   const [isFetching, setIsFetching] = useState(false)
   const lastOrganizationIdRef = useRef<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [deleteModal, setDeleteModal] = useState<{ show: boolean; user: UnifiedUser | null }>({ show: false, user: null })
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     const currentOrgId = organization?.id
@@ -239,6 +241,54 @@ export default function UsersPage() {
     )
   })
 
+  const handleRemoveUser = (user: UnifiedUser) => {
+    setDeleteModal({ show: true, user })
+  }
+
+  const confirmDelete = async () => {
+    const userToDelete = deleteModal.user
+    if (!userToDelete) return
+    
+    setIsDeleting(true)
+    
+    try {
+      // Use the new comprehensive delete endpoint
+      const response = await fetch('/api/admin/users/delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: userToDelete.email,
+          clerkUserId: userToDelete.isClerkUser ? userToDelete.id : null,
+          isClerkUser: userToDelete.isClerkUser
+        })
+      })
+      
+      const result = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to delete user')
+      }
+      
+      // Show success message (you could add a toast notification here)
+      console.log(result.message)
+      
+      // Refresh the list
+      await fetchAllUsers(false)
+      
+      // Close modal
+      setDeleteModal({ show: false, user: null })
+    } catch (error) {
+      console.error('Error deleting user:', error)
+      alert(error instanceof Error ? error.message : 'Failed to delete user. Please try again.')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+  
+  const cancelDelete = () => {
+    setDeleteModal({ show: false, user: null })
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -389,6 +439,69 @@ export default function UsersPage() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.show && deleteModal.user && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 rounded-xl p-6 max-w-md w-full border border-white/10">
+            <div className="flex items-start gap-4 mb-6">
+              <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-6 h-6 text-red-400" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold text-white mb-2">
+                  Delete User
+                </h3>
+                <p className="text-white/70 text-sm">
+                  Are you sure you want to delete <span className="font-semibold text-white">{deleteModal.user.name}</span> ({deleteModal.user.email})?
+                </p>
+              </div>
+            </div>
+            
+            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-6">
+              <p className="text-red-300 text-sm font-medium mb-2">
+                This action will permanently delete:
+              </p>
+              <ul className="text-red-300/80 text-sm space-y-1 list-disc list-inside">
+                <li>User profile and all personal data</li>
+                <li>Team memberships and associations</li>
+                <li>Assessment invitations and results</li>
+                <li>Access to the organization</li>
+              </ul>
+              <p className="text-red-400 text-sm font-semibold mt-3">
+                This action cannot be undone!
+              </p>
+            </div>
+            
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={cancelDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    Delete User
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

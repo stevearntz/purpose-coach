@@ -113,22 +113,31 @@ export async function DELETE(request: NextRequest) {
       try {
         console.log(`[Delete User] Removing ${email} from Clerk organization...`)
         
-        // Method 1: Try to remove using membership ID directly
-        try {
-          const org = await client.organizations.getOrganization({ organizationId: orgId })
-          await org.removeMember({ userId: membershipId })
-          console.log(`[Delete User] Removed from organization using membership ID`)
-        } catch (membershipError) {
-          console.log(`[Delete User] Direct membership removal failed, trying with user ID...`)
-          
-          // Method 2: If that fails and we have the user ID, try with that
-          if (clerkUserId) {
+        // Remove user from organization
+        // We need the actual Clerk user ID for this operation
+        if (clerkUserId) {
+          try {
             await client.organizations.deleteOrganizationMembership({
               organizationId: orgId,
               userId: clerkUserId
             })
-            console.log(`[Delete User] Removed from organization using user ID`)
+            console.log(`[Delete User] Removed from organization ${orgId}`)
+          } catch (membershipError) {
+            console.error(`[Delete User] Failed to remove from organization:`, membershipError)
+            // Try alternative method using organizationMemberships API
+            try {
+              await client.organizationMemberships.deleteOrganizationMembership({
+                organizationId: orgId,
+                userId: clerkUserId
+              })
+              console.log(`[Delete User] Removed from organization using alternative method`)
+            } catch (altError) {
+              console.error(`[Delete User] Alternative removal also failed:`, altError)
+              throw altError
+            }
           }
+        } else {
+          console.log(`[Delete User] Warning: No Clerk user ID available, cannot remove from organization`)
         }
         
         // Only check for remaining memberships if we have the actual user ID

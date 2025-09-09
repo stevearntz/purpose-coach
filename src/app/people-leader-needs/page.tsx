@@ -6,7 +6,7 @@ import { useUser } from '@clerk/nextjs'
 import AuthLoadingGuard from '@/components/AuthLoadingGuard'
 import { ArrowLeft, ArrowRight, Users, Target, Heart, Brain, Lightbulb, MessageSquare, CheckCircle, X, Plus, AlertCircle, Shield, UserCheck, UsersIcon, MessagesSquare, Laptop, Briefcase, GitBranch, Settings, Handshake, ShieldCheck, DollarSign, Package, Link, Cog, Calendar, RefreshCw, Clock, ShieldAlert, Printer } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
-import ToolNavigationWrapper from '@/components/ToolNavigationWrapper'
+import AuthenticatedToolNavigation from '@/components/AuthenticatedToolNavigation'
 import { toolConfigs } from '@/lib/toolConfigs'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
@@ -1459,7 +1459,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
   
   return (
     <ViewportContainer className={`bg-gradient-to-br ${config.gradient}`}>
-      <ToolNavigationWrapper />
+      <AuthenticatedToolNavigation />
       
       <div className="min-h-screen flex items-center justify-center px-4 py-20">
         <div className="w-full max-w-4xl">

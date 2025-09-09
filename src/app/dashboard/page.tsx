@@ -55,14 +55,9 @@ export default function DashboardPage() {
                   return
                 }
                 
-                // Otherwise redirect based on onboarding status
-                if (data.profile.onboardingComplete === false) {
-                  console.log('[Dashboard] Redirecting to onboarding...')
-                  router.replace('/dashboard/member/start/onboarding')
-                } else {
-                  console.log('[Dashboard] Redirecting to dashboard...')
-                  router.replace('/dashboard/member/start/dashboard')
-                }
+                // Always redirect to dashboard - users will see onboarding card in Next Up if needed
+                console.log('[Dashboard] Redirecting to dashboard...')
+                router.replace('/dashboard/member/start/dashboard')
                 return
               } else {
                 console.log('[Dashboard] Profile is null, retrying...')
@@ -77,8 +72,8 @@ export default function DashboardPage() {
             
             // If we get here after all retries, profile still doesn't exist
             // This shouldn't happen with our new auto-create logic, but just in case
-            console.log('[Dashboard] Profile not found after retries, redirecting to onboarding')
-            router.replace('/dashboard/member/start/onboarding')
+            console.log('[Dashboard] Profile not found after retries, redirecting to dashboard anyway')
+            router.replace('/dashboard/member/start/dashboard')
             return
             
           } catch (error) {
@@ -88,10 +83,10 @@ export default function DashboardPage() {
             if (retries < maxRetries) {
               await new Promise(resolve => setTimeout(resolve, retryDelay))
             } else {
-              // After all retries failed, default to onboarding
+              // After all retries failed, default to dashboard
               console.error('[Dashboard] Failed to check profile after all retries')
               setProfileStatus('error')
-              router.replace('/dashboard/member/start/onboarding')
+              router.replace('/dashboard/member/start/dashboard')
               return
             }
           }

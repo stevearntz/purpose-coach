@@ -191,7 +191,41 @@ async function handleGetProfile({ userId }: ApiContext) {
       }
     } catch (error) {
       console.error('[Profile API] Error creating initial profile:', error)
-      return successResponse({ profile: null })
+      // Try to create a minimal profile without company linkage
+      try {
+        const client = await clerkClient()
+        const user = await client.users.getUser(userId)
+        const email = user.emailAddresses[0]?.emailAddress
+        
+        if (email) {
+          console.log(`[Profile API] Retrying with minimal profile for ${email}`)
+          profile = await prisma.userProfile.create({
+            data: {
+              clerkUserId: userId,
+              email,
+              firstName: user.firstName || '',
+              lastName: user.lastName || '',
+              role: '',
+              department: '',
+              teamSize: '',
+              teamName: '',
+              teamPurpose: '',
+              teamEmoji: '',
+              onboardingComplete: false,
+              clerkRole: null
+              // No companyId - let it be null
+            },
+            include: {
+              company: true
+            }
+          })
+          console.log(`[Profile API] Created minimal profile successfully`)
+        }
+      } catch (retryError) {
+        console.error('[Profile API] Failed to create even minimal profile:', retryError)
+        // Return null but don't fail the request
+        return successResponse({ profile: null })
+      }
     }
   }
 

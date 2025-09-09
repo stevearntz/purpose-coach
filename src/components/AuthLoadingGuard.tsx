@@ -61,16 +61,19 @@ export default function AuthLoadingGuard({
           const response = await fetch('/api/user/profile')
           
           if (response.ok) {
-            const data = await response.json()
+            const result = await response.json()
             
-            if (data.profile) {
-              console.log('[AuthLoadingGuard] Profile found:', data.profile)
-              setProfileData(data.profile)
+            // Handle new API response format: { success: true, data: { profile: {...} } }
+            const profile = result.data?.profile || result.profile
+            
+            if (profile) {
+              console.log('[AuthLoadingGuard] Profile found:', profile)
+              setProfileData(profile)
               setProfileStatus('ready')
               
               // Call the callback if provided
               if (onProfileReady) {
-                onProfileReady(data.profile)
+                onProfileReady(profile)
               }
               
               return
@@ -81,14 +84,18 @@ export default function AuthLoadingGuard({
                 await new Promise(resolve => setTimeout(resolve, retryDelay))
                 retries++
                 continue
+              } else {
+                // After all retries, proceed anyway without profile
+                console.log('[AuthLoadingGuard] No profile after retries, proceeding without profile')
+                setProfileStatus('ready')
+                if (onProfileReady) {
+                  // Pass null or empty profile
+                  onProfileReady(null)
+                }
+                return
               }
             }
           }
-          
-          // If we get here after all retries, profile still doesn't exist
-          console.log('[AuthLoadingGuard] Profile not found after retries')
-          setProfileStatus('ready') // Still set to ready to show content
-          return
           
         } catch (error) {
           console.error(`[AuthLoadingGuard] Error checking profile (attempt ${retries + 1}):`, error)

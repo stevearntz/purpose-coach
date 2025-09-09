@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
+import AuthLoadingGuard from '@/components/AuthLoadingGuard'
 import { ArrowLeft, ArrowRight, Users, Target, Heart, Brain, Lightbulb, MessageSquare, CheckCircle, X, Plus, AlertCircle, Shield, UserCheck, UsersIcon, MessagesSquare, Laptop, Briefcase, GitBranch, Settings, Handshake, ShieldCheck, DollarSign, Package, Link, Cog, Calendar, RefreshCw, Clock, ShieldAlert, Printer } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
 import ToolNavigationWrapper from '@/components/ToolNavigationWrapper'
@@ -154,16 +155,7 @@ function PeopleLeaderNeedsContent() {
   const inviteCode = searchParams.get('invite') || ''
   const campaignCode = searchParams.get('campaign') || ''
   
-  // Authentication check
-  useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      // Store the current URL to redirect back after sign-in
-      const returnUrl = window.location.pathname + window.location.search
-      const signInUrl = `/sign-in?redirect_url=${encodeURIComponent(returnUrl)}`
-      console.log('[PeopleLeaderNeeds] User not authenticated, redirecting to sign-in')
-      router.push(signInUrl)
-    }
-  }, [isLoaded, isSignedIn, router])
+  // Auth is now handled by AuthLoadingGuard wrapper
   
   // Update manager data when user loads
   useEffect(() => {
@@ -857,36 +849,6 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                 )}
               </div>
               
-              <input
-                type="text"
-                placeholder="Your department"
-                value={managerData.department}
-                onChange={(e) => setManagerData(prev => ({ ...prev, department: e.target.value }))}
-                className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              
-              <input
-                type="number"
-                placeholder="Team size (e.g., 12)"
-                value={managerData.teamSize}
-                onChange={(e) => {
-                  const value = e.target.value
-                  // Allow empty string or positive numbers only
-                  if (value === '' || (parseInt(value) > 0 && !value.includes('.'))) {
-                    setManagerData(prev => ({ ...prev, teamSize: value }))
-                  }
-                }}
-                onKeyDown={(e) => {
-                  // Prevent decimal point, negative sign, 'e' (scientific notation)
-                  if (e.key === '.' || e.key === '-' || e.key === 'e' || e.key === 'E') {
-                    e.preventDefault()
-                  }
-                }}
-                min="1"
-                step="1"
-                className="w-full p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              
               <button
                 onClick={handleStartAssessment}
                 className="w-full py-4 bg-white text-[#2A74B9] rounded-xl font-semibold hover:bg-white/90 transition-colors text-lg"
@@ -1547,7 +1509,16 @@ export default function PeopleLeaderNeedsPage() {
         <div className="text-white">Loading assessment...</div>
       </ViewportContainer>
     }>
-      <PeopleLeaderNeedsContent />
+      <AuthLoadingGuard 
+        requireAuth={true}
+        redirectTo="/auth"
+        loadingMessage="Loading assessment..."
+        onProfileReady={(profile) => {
+          console.log('[PeopleLeaderNeeds] Profile ready:', profile)
+        }}
+      >
+        <PeopleLeaderNeedsContent />
+      </AuthLoadingGuard>
     </Suspense>
   )
 }

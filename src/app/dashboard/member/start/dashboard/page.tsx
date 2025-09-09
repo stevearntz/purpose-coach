@@ -104,7 +104,9 @@ export default function DashboardPage() {
         const assessmentsResponse = await fetch('/api/user/assessments')
         if (assessmentsResponse.ok) {
           const assessmentsData = await assessmentsResponse.json()
-          setCompletedAssessments(assessmentsData.assessments || [])
+          // Handle new API response format: { success: true, data: { assessments: [...] } }
+          const assessments = assessmentsData.data?.assessments || assessmentsData.assessments || []
+          setCompletedAssessments(assessments)
         }
       } catch (error) {
         console.error('Error fetching data:', error)

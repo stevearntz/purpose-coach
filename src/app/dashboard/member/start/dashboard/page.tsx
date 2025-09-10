@@ -296,10 +296,55 @@ export default function DashboardPage() {
             </h2>
           </div>
           
-          {completedAssessments.length > 0 ? (
+          {(completedAssessments.length > 0 || (userProfile && userProfile.onboardingComplete)) ? (
             <div className="relative">
               {/* Horizontal scrollable container */}
               <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                {/* Onboarding Completed Card */}
+                {userProfile && userProfile.onboardingComplete && (
+                  <div 
+                    onClick={() => router.push('/dashboard/member/start/onboarding')}
+                    className="min-w-[300px] bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-sm rounded-xl p-4 border border-purple-400/20 hover:border-purple-400/40 transition-all cursor-pointer group flex-shrink-0"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                        <Users className="w-5 h-5 text-purple-400" />
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-purple-300/70">
+                        <CheckCircle className="w-3 h-3" />
+                        Completed
+                      </div>
+                    </div>
+                    
+                    <h3 className="text-white font-semibold mb-1">
+                      Profile Setup Complete
+                    </h3>
+                    
+                    <p className="text-purple-200/60 text-sm mb-3">
+                      Your team and profile are set up
+                    </p>
+                    
+                    {userProfile.teamName && (
+                      <div className="bg-purple-500/10 rounded-lg px-3 py-2 mb-3">
+                        <p className="text-white/70 text-xs">
+                          <span className="text-purple-300">Team:</span> {userProfile.teamEmoji} {userProfile.teamName}
+                        </p>
+                        {userProfile.role && (
+                          <p className="text-white/70 text-xs mt-1">
+                            <span className="text-purple-300">Role:</span> {userProfile.role}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-purple-300/50 font-medium">View/Edit Profile</span>
+                      <ExternalLink className="w-4 h-4 text-purple-300/50 group-hover:text-purple-300 transition-colors" />
+                    </div>
+                  </div>
+                )}
+                
+                {/* Completed Assessments */}
                 {completedAssessments.map((assessment) => (
                   <div 
                     key={assessment.id}

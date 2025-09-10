@@ -303,7 +303,7 @@ export default function DashboardPage() {
                 {/* Onboarding Completed Card */}
                 {userProfile && userProfile.onboardingComplete && (
                   <div 
-                    onClick={() => router.push('/dashboard/member/start/onboarding')}
+                    onClick={() => router.push('/dashboard/member/start/profile')}
                     className="min-w-[300px] bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-sm rounded-xl p-4 border border-purple-400/20 hover:border-purple-400/40 transition-all cursor-pointer group flex-shrink-0"
                   >
                     <div className="flex items-start justify-between mb-3">

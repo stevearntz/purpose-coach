@@ -230,9 +230,15 @@ export default function OnboardingPage() {
         console.log('[Onboarding] Profile fetch response:', profileResponse.status)
         if (profileResponse.ok) {
           const profileData = await profileResponse.json()
-          if (profileData.profile) {
+          console.log('[Onboarding] Raw profile data from API:', profileData)
+          
+          // Handle nested response format from new API pattern
+          const profile = profileData.data?.profile || profileData.profile
+          console.log('[Onboarding] Extracted profile:', profile)
+          
+          if (profile) {
             // Check if department is custom (not in predefined list)
-            const dept = profileData.profile.department
+            const dept = profile.department
             const isCustomDept = dept && !DEPARTMENTS.some(d => d.label === dept)
             
             if (isCustomDept) {
@@ -242,27 +248,27 @@ export default function OnboardingPage() {
             
             // Pre-populate form with existing data (without team members - they'll be fetched separately)
             setData(prev => ({
-              firstName: profileData.profile.firstName || prev.firstName || '',
-              lastName: profileData.profile.lastName || prev.lastName || '',
-              role: profileData.profile.role || '',
-              department: isCustomDept ? '' : (profileData.profile.department || ''),
+              firstName: profile.firstName || prev.firstName || '',
+              lastName: profile.lastName || prev.lastName || '',
+              role: profile.role || '',
+              department: isCustomDept ? '' : (profile.department || ''),
               teamMembers: prev.teamMembers, // Keep default for now, will be updated below
-              teamName: profileData.profile.teamName || '',
-              teamPurpose: profileData.profile.teamPurpose || '',
-              teamEmoji: profileData.profile.teamEmoji || ''
+              teamName: profile.teamName || '',
+              teamPurpose: profile.teamPurpose || '',
+              teamEmoji: profile.teamEmoji || ''
             }))
             
             // If profile has a company, set it
-            if (profileData.profile.companyId) {
-              setCompanyDatabaseId(profileData.profile.companyId)
+            if (profile.companyId) {
+              setCompanyDatabaseId(profile.companyId)
             }
             
             // Mark as edit mode if any data exists
-            if (profileData.profile.role || profileData.profile.department) {
+            if (profile.role || profile.department) {
               setIsEditMode(true)
             }
             
-            console.log('Loaded existing profile data:', profileData.profile)
+            console.log('[Onboarding] Loaded existing profile data:', profile)
           }
         }
         
@@ -273,9 +279,15 @@ export default function OnboardingPage() {
         console.log('[Onboarding] Team members fetch response:', teamResponse.status)
         if (teamResponse.ok) {
           const teamData = await teamResponse.json()
-          if (teamData.teamMembers && teamData.teamMembers.length > 0) {
+          console.log('[Onboarding] Raw team data from API:', teamData)
+          
+          // Handle nested response format
+          const teamMembers = teamData.data?.teamMembers || teamData.teamMembers
+          console.log('[Onboarding] Extracted team members:', teamMembers)
+          
+          if (teamMembers && teamMembers.length > 0) {
             // Convert team members to the format used in the form
-            const formattedMembers = teamData.teamMembers.map((member: any) => {
+            const formattedMembers = teamMembers.map((member: any) => {
               // Split existing name into firstName and lastName
               const nameParts = (member.name || '').split(' ')
               const firstName = nameParts[0] || ''

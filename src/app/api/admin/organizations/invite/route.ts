@@ -59,18 +59,28 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Create an invitation in Clerk organization (skip if resending for existing user)
+    // Create an organization invitation in Clerk (skip if resending for existing user)
     let invitation;
     if (!resend || !clerkUser) {
-      invitation = await client.invitations.createInvitation({
-        emailAddress: email,
-        redirectUrl: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/dashboard`,
-        publicMetadata: {
+      try {
+        invitation = await client.organizations.createOrganizationInvitation({
           organizationId: clerkOrgId,
-          role: 'admin',
-          invitedBy: userEmail
+          emailAddress: email,
+          role: 'org:admin',
+          redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://tools.getcampfire.com'}/dashboard`,
+          publicMetadata: {
+            invitedBy: userEmail
+          }
+        });
+      } catch (error: any) {
+        console.error('Failed to create organization invitation:', error);
+        // If the error is because user already has a pending invitation, that's ok
+        if (error.errors?.[0]?.code === 'duplicate_record') {
+          console.log('User already has a pending invitation');
+        } else {
+          throw error;
         }
-      });
+      }
     }
     
     // Store invitation in database for tracking (or update if resending)
@@ -97,8 +107,8 @@ export async function POST(request: NextRequest) {
           data: {
             email,
             name: name || null,
-            inviteCode: invitation?.id || 'resend',
-            inviteUrl: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/sign-up${invitation ? `?invitation=${invitation.id}` : ''}`,
+            inviteCode: Math.random().toString(36).substring(2, 10),
+            inviteUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://tools.getcampfire.com'}/dashboard`,
             companyId: organizationId,
             status: 'PENDING',
             sentAt: new Date(),
@@ -115,8 +125,8 @@ export async function POST(request: NextRequest) {
         data: {
           email,
           name: name || null,
-          inviteCode: invitation?.id || 'pending',
-          inviteUrl: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/sign-up${invitation ? `?invitation=${invitation.id}` : ''}`,
+          inviteCode: Math.random().toString(36).substring(2, 10),
+          inviteUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://tools.getcampfire.com'}/dashboard`,
           companyId: organizationId,
           status: 'PENDING',
           sentAt: new Date(),
@@ -161,7 +171,7 @@ export async function POST(request: NextRequest) {
                 <p>Hi ${name || 'there'},</p>
                 <p>You've been added as an administrator to ${organization?.name || 'an organization'} on Campfire.</p>
                 <p>You can access your dashboard here:</p>
-                <a href="${process.env.NEXT_PUBLIC_URL || 'https://tools.getcampfire.com'}/dashboard" 
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://tools.getcampfire.com'}/dashboard" 
                    style="display: inline-block; background-color: #9333ea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 16px 0;">
                   Go to Dashboard
                 </a>
@@ -176,7 +186,7 @@ export async function POST(request: NextRequest) {
                 <p>Best regards,<br>The Campfire Team</p>
               </div>
             `,
-            text: `Welcome to ${organization?.name || 'Campfire'}! You've been added as an administrator. Access your dashboard at ${process.env.NEXT_PUBLIC_URL || 'https://tools.getcampfire.com'}/dashboard`
+            text: `Welcome to ${organization?.name || 'Campfire'}! You've been added as an administrator. Access your dashboard at ${process.env.NEXT_PUBLIC_APP_URL || 'https://tools.getcampfire.com'}/dashboard`
           });
           console.log(`Sent admin notification email to ${email}`);
         } catch (emailError) {

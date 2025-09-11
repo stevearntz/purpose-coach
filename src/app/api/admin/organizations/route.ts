@@ -106,10 +106,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
     
-    const { name, logo, domains } = await request.json();
+    const { name, logo, domains, adminFirstName, adminLastName, adminEmail } = await request.json();
     
     if (!name) {
       return NextResponse.json({ error: 'Organization name is required' }, { status: 400 });
+    }
+    
+    if (!adminEmail || !adminFirstName || !adminLastName) {
+      return NextResponse.json({ error: 'Admin email, first name, and last name are required' }, { status: 400 });
     }
     
     // Check if company already exists in DB
@@ -166,10 +170,29 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Create organization in Clerk
+    // First, check if the admin user exists in Clerk
+    let adminUser;
+    try {
+      const users = await client.users.getUserList({
+        emailAddress: [adminEmail]
+      });
+      adminUser = users.data[0];
+    } catch (error) {
+      console.log('Admin user not found, will create new user');
+    }
+    
+    // If admin doesn't exist, create them
+    if (!adminUser) {
+      adminUser = await client.users.createUser({
+        emailAddress: [adminEmail],
+        firstName: adminFirstName,
+        lastName: adminLastName
+      });
+    }
+    
+    // Create organization in Clerk WITHOUT createdBy to avoid auto-adding current user
     const clerkOrg = await client.organizations.createOrganization({
       name,
-      createdBy: userId!,
       publicMetadata: {
         logo,
         domains: domains || []
@@ -185,6 +208,28 @@ export async function POST(request: NextRequest) {
         domains: domains || []
       }
     });
+    
+    // Add the admin user to the organization as an admin
+    await client.organizations.createOrganizationMembership({
+      organizationId: clerkOrg.id,
+      userId: adminUser.id,
+      role: 'org:admin'
+    });
+    
+    // Send invitation email if this is a new user
+    if (!adminUser.emailAddresses[0]?.verification?.status) {
+      // Create an invitation in the database to track it
+      await prisma.invitation.create({
+        data: {
+          email: adminEmail,
+          role: 'ADMIN',
+          inviteCode: Math.random().toString(36).substring(2, 10),
+          companyId: company.id,
+          status: 'PENDING',
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+        }
+      });
+    }
     
     // If domains are provided, update Clerk org with enrollment mode
     if (domains && domains.length > 0) {

@@ -54,7 +54,10 @@ export default function AdminOrganizationsPage() {
   const [orgForm, setOrgForm] = useState({
     name: '',
     logo: '',
-    domains: ''
+    domains: '',
+    adminFirstName: '',
+    adminLastName: '',
+    adminEmail: ''
   });
   const [creating, setCreating] = useState(false);
   
@@ -91,6 +94,16 @@ export default function AdminOrganizationsPage() {
       return;
     }
     
+    if (!orgForm.adminEmail.trim()) {
+      showError('Admin email is required');
+      return;
+    }
+    
+    if (!orgForm.adminFirstName.trim() || !orgForm.adminLastName.trim()) {
+      showError('Admin first and last name are required');
+      return;
+    }
+    
     // Parse and validate domains
     const domains = orgForm.domains
       .split(',')
@@ -124,7 +137,10 @@ export default function AdminOrganizationsPage() {
         body: JSON.stringify({
           name: orgForm.name.trim(),
           logo: orgForm.logo.trim() || null,
-          domains
+          domains,
+          adminFirstName: orgForm.adminFirstName.trim(),
+          adminLastName: orgForm.adminLastName.trim(),
+          adminEmail: orgForm.adminEmail.trim()
         })
       });
       
@@ -133,7 +149,7 @@ export default function AdminOrganizationsPage() {
       if (response.ok) {
         showSuccess(`Organization "${orgForm.name}" created successfully!`);
         setShowCreateModal(false);
-        setOrgForm({ name: '', logo: '', domains: '' });
+        setOrgForm({ name: '', logo: '', domains: '', adminFirstName: '', adminLastName: '', adminEmail: '' });
         await loadOrganizations();
       } else {
         showError(data.error || 'Failed to create organization');
@@ -492,6 +508,57 @@ export default function AdminOrganizationsPage() {
                     Comma-separated list of email domains (e.g., @company.com). Each domain can only belong to one organization.
                   </p>
                 </div>
+                
+                <div className="border-t pt-4">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Initial Admin User</h3>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        First Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={orgForm.adminFirstName}
+                        onChange={(e) => setOrgForm({ ...orgForm, adminFirstName: e.target.value })}
+                        placeholder="Jane"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        disabled={creating}
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Last Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={orgForm.adminLastName}
+                        onChange={(e) => setOrgForm({ ...orgForm, adminLastName: e.target.value })}
+                        placeholder="Doe"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        disabled={creating}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="mt-3">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Admin Email *
+                    </label>
+                    <input
+                      type="email"
+                      value={orgForm.adminEmail}
+                      onChange={(e) => setOrgForm({ ...orgForm, adminEmail: e.target.value })}
+                      placeholder="jane.doe@company.com"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      disabled={creating}
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      This user will be invited as the organization admin
+                    </p>
+                  </div>
+                </div>
               </div>
               
               <div className="flex justify-end gap-3 mt-6">
@@ -504,7 +571,7 @@ export default function AdminOrganizationsPage() {
                 </button>
                 <button
                   onClick={handleCreateOrganization}
-                  disabled={creating || !orgForm.name.trim()}
+                  disabled={creating || !orgForm.name.trim() || !orgForm.adminEmail.trim() || !orgForm.adminFirstName.trim() || !orgForm.adminLastName.trim()}
                   className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {creating ? (

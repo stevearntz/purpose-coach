@@ -6,7 +6,6 @@ import { useUser } from '@clerk/nextjs'
 import AuthLoadingGuard from '@/components/AuthLoadingGuard'
 import { ArrowLeft, ArrowRight, Users, Target, Heart, Brain, Lightbulb, MessageSquare, CheckCircle, X, Plus, AlertCircle, Shield, UserCheck, UsersIcon, MessagesSquare, Laptop, Briefcase, GitBranch, Settings, Handshake, ShieldCheck, DollarSign, Package, Link, Cog, Calendar, RefreshCw, Clock, ShieldAlert, Printer } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
-import AuthenticatedToolNavigation from '@/components/AuthenticatedToolNavigation'
 import { toolConfigs } from '@/lib/toolConfigs'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useEmailCapture } from '@/hooks/useEmailCapture'
@@ -665,12 +664,8 @@ function PeopleLeaderNeedsContent() {
           })
         })
         
-        // After assessment is complete, redirect to dashboard
-        // We'll check onboarding status there and show appropriate cards
-        setTimeout(() => {
-          console.log('[PeopleLeaderNeeds] Assessment completed, redirecting to dashboard')
-          router.push('/dashboard')
-        }, 2000) // Small delay to show results briefly
+        // Stay on results page - no redirect to dashboard
+        console.log('[PeopleLeaderNeeds] Assessment completed, staying on results page')
         
         if (!response.ok) {
           console.error('Failed to save assessment to legacy endpoint')
@@ -1523,8 +1518,6 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
   
   return (
     <ViewportContainer className={`bg-gradient-to-br ${config.gradient}`}>
-      <AuthenticatedToolNavigation />
-      
       <div className="min-h-screen flex items-center justify-center px-4 py-20">
         <div className="w-full max-w-4xl">
           {currentStage === 'intro' ? (

@@ -219,14 +219,23 @@ export async function POST(request: NextRequest) {
     // Send invitation email if this is a new user
     if (!adminUser.emailAddresses[0]?.verification?.status) {
       // Create an invitation in the database to track it
-      await prisma.invitation.create({
+      const inviteCode = Math.random().toString(36).substring(2, 10);
+      const invitation = await prisma.invitation.create({
         data: {
           email: adminEmail,
-          role: 'ADMIN',
-          inviteCode: Math.random().toString(36).substring(2, 10),
+          name: `${adminFirstName} ${adminLastName}`,
+          inviteCode,
+          inviteUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://tools.getcampfire.com'}/admin?invite=${inviteCode}`,
           companyId: company.id,
-          status: 'PENDING',
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+          status: 'PENDING'
+        }
+      });
+      
+      // Create metadata with role
+      await prisma.invitationMetadata.create({
+        data: {
+          invitationId: invitation.id,
+          role: 'ADMIN'
         }
       });
     }

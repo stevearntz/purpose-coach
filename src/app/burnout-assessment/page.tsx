@@ -524,6 +524,16 @@ function BurnoutAssessmentContent() {
     const { dimensions, overall } = calculateScores()
     const burnoutLevel = getBurnoutLevel(overall)
     
+    // Identify critical risk factors (4.0 or higher)
+    const criticalFactors = dimensions.filter(d => d.score >= 4.0)
+    const highRiskFactors = dimensions.filter(d => d.score >= 3.0 && d.score < 4.0)
+    
+    // Determine if we should escalate the overall risk level based on critical factors
+    const hasMultipleCritical = criticalFactors.length >= 2
+    const adjustedBurnoutLevel = hasMultipleCritical && overall < 4.0 
+      ? { level: 'High Risk (Critical Factors)', color: 'text-red-600' }
+      : burnoutLevel
+    
     return (
       <>
         <style jsx>{`
@@ -624,28 +634,104 @@ function BurnoutAssessmentContent() {
               
               <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 mb-8 border border-white/80 shadow-md">
                 <h2 className="text-2xl font-semibold text-nightfall mb-4 text-center">
-                  Overall Burnout Risk: <span className={burnoutLevel.color}>{burnoutLevel.level}</span>
+                  Overall Burnout Risk: <span className={adjustedBurnoutLevel.color}>{adjustedBurnoutLevel.level}</span>
                 </h2>
-                <div className="text-3xl font-bold text-[#30B859] text-center">
+                <div className="text-3xl font-bold text-[#30B859] text-center mb-4">
                   {overall.toFixed(1)} / 5.0
                 </div>
+                
+                {/* Critical Factors Alert */}
+                {criticalFactors.length > 0 && (
+                  <div className="mt-4 p-4 bg-red-50 border-2 border-red-200 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <span className="text-red-600 text-2xl">⚠️</span>
+                      <div>
+                        <h3 className="font-semibold text-red-900 mb-1">Critical Risk Factors Detected:</h3>
+                        <div className="space-y-1">
+                          {criticalFactors.map(factor => (
+                            <div key={factor.dimension} className="flex items-center gap-2">
+                              <span className="text-red-700 font-medium">
+                                • {dimensionInfo[factor.dimension as keyof typeof dimensionInfo].title}:
+                              </span>
+                              <span className="text-red-600 font-bold">{factor.score.toFixed(1)}/5.0</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* High Risk Factors (if no critical but has high) */}
+                {criticalFactors.length === 0 && highRiskFactors.length > 0 && (
+                  <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                    <h3 className="font-semibold text-orange-900 mb-2">Areas Needing Attention:</h3>
+                    <div className="space-y-1">
+                      {highRiskFactors.map(factor => (
+                        <div key={factor.dimension} className="flex items-center gap-2 text-sm">
+                          <span className="text-orange-700">
+                            • {dimensionInfo[factor.dimension as keyof typeof dimensionInfo].title}:
+                          </span>
+                          <span className="text-orange-600 font-semibold">{factor.score.toFixed(1)}/5.0</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
+              
+              {/* Focus Areas Callout Box */}
+              {criticalFactors.length > 0 && (
+                <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mb-8">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-amber-800">Immediate Focus Needed</h3>
+                      <div className="mt-2 text-sm text-amber-700">
+                        <p>This assessment shows critical risk in <strong>{criticalFactors.map(f => dimensionInfo[f.dimension as keyof typeof dimensionInfo].title).join(' and ')}</strong>. 
+                        Immediate attention and support are recommended in these areas to prevent burnout escalation.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             
             <div className="space-y-6 mb-8">
               {dimensions.map(({ dimension, score }) => {
                 const info = dimensionInfo[dimension as keyof typeof dimensionInfo]
                 const percentage = (score / 5) * 100
                 const riskLevel = getBurnoutLevel(score)
+                const isCritical = score >= 4.0
+                const isHigh = score >= 3.0 && score < 4.0
                 
                 return (
-                  <div key={dimension} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                  <div key={dimension} className={`rounded-xl p-6 shadow-sm transition-all ${
+                    isCritical 
+                      ? 'bg-red-50 border-2 border-red-300 ring-2 ring-red-100' 
+                      : isHigh
+                      ? 'bg-orange-50 border-2 border-orange-200'
+                      : 'bg-white border border-gray-200'
+                  }`}>
                     <div className="flex items-center justify-between mb-2">
                       <div>
-                        <h3 className="text-xl font-semibold text-nightfall">{info.title}</h3>
+                        <h3 className="text-xl font-semibold text-nightfall flex items-center gap-2">
+                          {info.title}
+                          {isCritical && (
+                            <span className="px-2 py-1 bg-red-600 text-white text-xs font-bold rounded-full uppercase">
+                              Critical
+                            </span>
+                          )}
+                        </h3>
                         <p className="text-sm text-gray-600">{info.description}</p>
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-[#30B859]">
+                        <div className={`text-2xl font-bold ${
+                          isCritical ? 'text-red-600' : isHigh ? 'text-orange-600' : 'text-[#30B859]'
+                        }`}>
                           {score.toFixed(1)} / 5.0
                         </div>
                         <div className={`text-sm font-medium ${riskLevel.color}`}>
@@ -656,7 +742,13 @@ function BurnoutAssessmentContent() {
                     
                     <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
                       <div
-                        className="h-3 rounded-full bg-gradient-to-r from-[#74DEDE] to-[#30B859] transition-all duration-500"
+                        className={`h-3 rounded-full transition-all duration-500 ${
+                          isCritical 
+                            ? 'bg-gradient-to-r from-red-400 to-red-600' 
+                            : isHigh
+                            ? 'bg-gradient-to-r from-orange-400 to-orange-600'
+                            : 'bg-gradient-to-r from-[#74DEDE] to-[#30B859]'
+                        }`}
                         style={{ width: `${percentage}%` }}
                       />
                     </div>

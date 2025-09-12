@@ -519,30 +519,27 @@ export default function OnboardingPage() {
     const newErrors: OnboardingErrors = {}
     
     switch(question) {
+      // Step 1 (names) removed - now collected during sign-up
       case 1:
-        if (!data.firstName) newErrors.firstName = 'First name is required'
-        if (!data.lastName) newErrors.lastName = 'Last name is required'
-        break
-      case 2:
         if (!data.role) newErrors.role = 'Role is required'
         break
-      case 3:
+      case 2:
         if (!data.department && !customDepartment) newErrors.department = 'Department is required'
         break
-      case 4:
+      case 3:
         if (!data.teamName) newErrors.teamName = 'Team name is required'
         break
-      case 5:
+      case 4:
         // Validate at least one team member has a name
         const validMembers = data.teamMembers.filter(m => m.firstName.trim() || m.lastName.trim())
         if (validMembers.length === 0) {
           newErrors.teamMembers = 'Add at least one team member'
         }
         break
-      case 6:
+      case 5:
         if (!data.teamPurpose) newErrors.teamPurpose = 'Team purpose is required'
         break
-      case 7:
+      case 6:
         if (!data.teamEmoji) newErrors.teamEmoji = 'Please select a team emoji'
         break
     }
@@ -594,7 +591,7 @@ export default function OnboardingPage() {
 
   const handleNext = async () => {
     // For department question, ensure we use customDepartment if that's what's selected
-    if (currentQuestion === 3 && showCustomDepartment && customDepartment) {
+    if (currentQuestion === 2 && showCustomDepartment && customDepartment) {
       setData(prev => ({...prev, department: customDepartment}))
     }
     
@@ -704,6 +701,9 @@ export default function OnboardingPage() {
         // Skip the mission interlude (8) when going back from offerings (9)
         if (currentQuestion === 9) {
           setCurrentQuestion(7) // Go back to team emoji selection
+        } else if (currentQuestion === 2) {
+          // Skip step 1 (names) when going back from step 2 (role)
+          setCurrentQuestion(0) // Go back to welcome screen
         } else {
           setCurrentQuestion(currentQuestion - 1)
         }
@@ -914,7 +914,10 @@ export default function OnboardingPage() {
                 </div>
                 
                 <button
-                  onClick={() => handleNext()}
+                  onClick={() => {
+                    // Skip step 1 (names) since we collect them during sign-up now
+                    setCurrentQuestion(2)
+                  }}
                   data-start-button
                   className="mt-8 px-8 py-4 bg-gradient-to-r from-orange-500 to-pink-600 text-white rounded-xl font-semibold text-lg hover:from-orange-600 hover:to-pink-700 transition-all transform hover:scale-105 animate-[fadeInUp_1s_ease-out_0.6s] opacity-0 shadow-lg"
                   style={{animationFillMode: 'forwards'}}

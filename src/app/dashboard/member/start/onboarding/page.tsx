@@ -519,27 +519,35 @@ export default function OnboardingPage() {
     const newErrors: OnboardingErrors = {}
     
     switch(question) {
-      // Step 1 (names) removed - now collected during sign-up
       case 1:
-        if (!data.role) newErrors.role = 'Role is required'
+        // Step 1 (names) is skipped - no validation needed
         break
       case 2:
-        if (!data.department && !customDepartment) newErrors.department = 'Department is required'
+        // Step 2 is now role
+        if (!data.role) newErrors.role = 'Role is required'
         break
       case 3:
-        if (!data.teamName) newErrors.teamName = 'Team name is required'
+        // Step 3 is now department
+        if (!data.department && !customDepartment) newErrors.department = 'Department is required'
         break
       case 4:
+        // Step 4 is now team name
+        if (!data.teamName) newErrors.teamName = 'Team name is required'
+        break
+      case 5:
+        // Step 5 is now team members
         // Validate at least one team member has a name
         const validMembers = data.teamMembers.filter(m => m.firstName.trim() || m.lastName.trim())
         if (validMembers.length === 0) {
           newErrors.teamMembers = 'Add at least one team member'
         }
         break
-      case 5:
+      case 6:
+        // Step 6 is now team purpose
         if (!data.teamPurpose) newErrors.teamPurpose = 'Team purpose is required'
         break
-      case 6:
+      case 7:
+        // Step 7 is now team emoji
         if (!data.teamEmoji) newErrors.teamEmoji = 'Please select a team emoji'
         break
     }
@@ -597,13 +605,8 @@ export default function OnboardingPage() {
     
     if (validateQuestion(currentQuestion)) {
       // Save data after each step
-      if (currentQuestion === 1 && data.firstName && data.lastName) {
-        // Save first and last name
-        await saveProfileData({
-          firstName: data.firstName,
-          lastName: data.lastName
-        })
-      } else if (currentQuestion === 2 && data.role) {
+      // Skip step 1 (names) - they're collected during sign-up
+      if (currentQuestion === 2 && data.role) {
         // Save role
         await saveProfileData({
           role: data.role

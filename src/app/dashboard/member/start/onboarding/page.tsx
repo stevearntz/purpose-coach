@@ -12,18 +12,6 @@ import {
   Briefcase,
   Plus,
   X,
-  Code,
-  TrendingUp,
-  Megaphone,
-  UserCheck,
-  DollarSign,
-  Settings,
-  Target,
-  Palette,
-  Handshake,
-  Scale,
-  HeadphonesIcon,
-  MoreHorizontal,
   Wrench,
   Flame,
   BookOpen,
@@ -47,7 +35,6 @@ interface TeamMember {
 interface OnboardingData {
   firstName: string
   lastName: string
-  department: string
   teamMembers: TeamMember[]
   teamName: string
   teamPurpose: string
@@ -57,7 +44,6 @@ interface OnboardingData {
 interface OnboardingErrors {
   firstName?: string
   lastName?: string
-  department?: string
   teamMembers?: string
   teamName?: string
   teamPurpose?: string
@@ -67,7 +53,6 @@ interface OnboardingErrors {
 interface ProfileUpdateData {
   firstName?: string
   lastName?: string
-  department?: string
   teamName?: string
   teamSize?: string
   teamPurpose?: string
@@ -79,19 +64,6 @@ interface ProfileUpdatePayload extends ProfileUpdateData {
   companyId?: string
 }
 
-const DEPARTMENTS = [
-  { id: 'engineering', label: 'Engineering', Icon: Code },
-  { id: 'sales', label: 'Sales', Icon: TrendingUp },
-  { id: 'marketing', label: 'Marketing', Icon: Megaphone },
-  { id: 'hr', label: 'Human Resources', Icon: UserCheck },
-  { id: 'finance', label: 'Finance', Icon: DollarSign },
-  { id: 'operations', label: 'Operations', Icon: Settings },
-  { id: 'product', label: 'Product', Icon: Target },
-  { id: 'design', label: 'Design', Icon: Palette },
-  { id: 'customer-success', label: 'Customer Success', Icon: Handshake },
-  { id: 'legal', label: 'Legal', Icon: Scale },
-  { id: 'support', label: 'Support', Icon: HeadphonesIcon },
-]
 
 // Primary team emojis - curated selection
 const TEAM_EMOJIS = [
@@ -118,8 +90,6 @@ export default function OnboardingPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [currentStep, setCurrentStep] = useState(0)
   const [animating, setAnimating] = useState(false)
-  const [customDepartment, setCustomDepartment] = useState('')
-  const [showCustomDepartment, setShowCustomDepartment] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [selectedEmojiCategory, setSelectedEmojiCategory] = useState('Smileys')
   const [hoveredEmoji, setHoveredEmoji] = useState<string | null>(null)
@@ -130,7 +100,6 @@ export default function OnboardingPage() {
   const [data, setData] = useState<OnboardingData>({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
-    department: '',
     teamMembers: [{ id: Date.now().toString(), firstName: '', lastName: '', firstNameError: false, lastNameError: false }],
     teamName: '',
     teamPurpose: '',
@@ -233,20 +202,10 @@ export default function OnboardingPage() {
           console.log('[Onboarding] Extracted profile:', profile)
           
           if (profile) {
-            // Check if department is custom (not in predefined list)
-            const dept = profile.department
-            const isCustomDept = dept && !DEPARTMENTS.some(d => d.label === dept)
-            
-            if (isCustomDept) {
-              setShowCustomDepartment(true)
-              setCustomDepartment(dept)
-            }
-            
             // Pre-populate form with existing data (without team members - they'll be fetched separately)
             setData(prev => ({
               firstName: profile.firstName || prev.firstName || '',
               lastName: profile.lastName || prev.lastName || '',
-              department: isCustomDept ? '' : (profile.department || ''),
               teamMembers: prev.teamMembers, // Keep default for now, will be updated below
               teamName: profile.teamName || '',
               teamPurpose: profile.teamPurpose || '',
@@ -259,7 +218,7 @@ export default function OnboardingPage() {
             }
             
             // Mark as edit mode if any data exists
-            if (profile.department) {
+            if (profile.teamName || profile.teamPurpose) {
               setIsEditMode(true)
             }
             
@@ -518,27 +477,23 @@ export default function OnboardingPage() {
         // Step 1 (names) is skipped - no validation needed
         break
       case 2:
-        // Step 2 is now department (role has been removed)
-        if (!data.department && !customDepartment) newErrors.department = 'Department is required'
-        break
-      case 3:
-        // Step 3 is now team name
+        // Step 2 is now team name (role and department have been removed)
         if (!data.teamName) newErrors.teamName = 'Team name is required'
         break
-      case 4:
-        // Step 4 is now team members
+      case 3:
+        // Step 3 is now team members
         // Validate at least one team member has a name
         const validMembers = data.teamMembers.filter(m => m.firstName.trim() || m.lastName.trim())
         if (validMembers.length === 0) {
           newErrors.teamMembers = 'Add at least one team member'
         }
         break
-      case 5:
-        // Step 5 is now team purpose
+      case 4:
+        // Step 4 is now team purpose
         if (!data.teamPurpose) newErrors.teamPurpose = 'Team purpose is required'
         break
-      case 6:
-        // Step 6 is now team emoji
+      case 5:
+        // Step 5 is now team emoji
         if (!data.teamEmoji) newErrors.teamEmoji = 'Please select a team emoji'
         break
     }
@@ -589,29 +544,16 @@ export default function OnboardingPage() {
   }
 
   const handleNext = async () => {
-    // For department question, ensure we use customDepartment if that's what's selected
-    if (currentQuestion === 2 && showCustomDepartment && customDepartment) {
-      setData(prev => ({...prev, department: customDepartment}))
-    }
-    
     if (validateQuestion(currentQuestion)) {
       // Save data after each step
       // Skip step 1 (names) - they're collected during sign-up
-      // Role has been removed from onboarding
-      if (currentQuestion === 2) {
-        // Save department (now step 2)
-        const deptToSave = showCustomDepartment ? customDepartment : data.department
-        if (deptToSave) {
-          await saveProfileData({
-            department: deptToSave
-          })
-        }
-      } else if (currentQuestion === 3 && data.teamName) {
-        // Save team name (now step 3)
+      // Role and department have been removed from onboarding
+      if (currentQuestion === 2 && data.teamName) {
+        // Save team name (now step 2)
         await saveProfileData({
           teamName: data.teamName
         })
-      } else if (currentQuestion === 4) {
+      } else if (currentQuestion === 3) {
         // Save team members to database
         const validMembers = data.teamMembers.filter(m => m.firstName.trim() || m.lastName.trim())
           .map(m => ({
@@ -662,13 +604,13 @@ export default function OnboardingPage() {
             console.error('Error saving team members:', error)
           }
         }
-      } else if (currentQuestion === 5 && data.teamPurpose) {
-        // Save team purpose (now step 5)
+      } else if (currentQuestion === 4 && data.teamPurpose) {
+        // Save team purpose (now step 4)
         await saveProfileData({
           teamPurpose: data.teamPurpose
         })
-      } else if (currentQuestion === 6 && data.teamEmoji) {
-        // Save team emoji (now step 6)
+      } else if (currentQuestion === 5 && data.teamEmoji) {
+        // Save team emoji (now step 5)
         await saveProfileData({
           teamEmoji: data.teamEmoji
         })
@@ -676,7 +618,7 @@ export default function OnboardingPage() {
       
       setAnimating(true)
       setTimeout(() => {
-        if (currentQuestion < 8) {
+        if (currentQuestion < 7) {
           setCurrentQuestion(currentQuestion + 1)
         }
         setAnimating(false)
@@ -688,11 +630,11 @@ export default function OnboardingPage() {
     setAnimating(true)
     setTimeout(() => {
       if (currentQuestion > 0) {
-        // Skip the mission interlude (7) when going back from offerings (8)
-        if (currentQuestion === 8) {
-          setCurrentQuestion(6) // Go back to team emoji selection
+        // Skip the mission interlude (6) when going back from offerings (7)
+        if (currentQuestion === 7) {
+          setCurrentQuestion(5) // Go back to team emoji selection
         } else if (currentQuestion === 2) {
-          // Skip step 1 (names) when going back from department
+          // Skip step 1 (names) when going back from team name
           setCurrentQuestion(0) // Go back to welcome screen
         } else {
           setCurrentQuestion(currentQuestion - 1)
@@ -706,11 +648,10 @@ export default function OnboardingPage() {
     // Clear any previous errors before validating
     setErrors({})
     
-    if (validateQuestion(6)) {
+    if (validateQuestion(5)) {
       // Save onboarding data
       const finalData = {
         ...data,
-        department: data.department || customDepartment,
         companyId: companyDatabaseId || null
       }
       
@@ -905,8 +846,8 @@ export default function OnboardingPage() {
                 
                 <button
                   onClick={() => {
-                    // Skip step 1 (names) and step 2 (role) - go straight to department
-                    setCurrentQuestion(3)
+                    // Skip step 1 (names) and step 2 (department) - go straight to team name
+                    setCurrentQuestion(2)
                   }}
                   data-start-button
                   className="mt-8 px-8 py-4 bg-gradient-to-r from-orange-500 to-pink-600 text-white rounded-xl font-semibold text-lg hover:from-orange-600 hover:to-pink-700 transition-all transform hover:scale-105 animate-[fadeInUp_1s_ease-out_0.6s] opacity-0 shadow-lg"
@@ -998,77 +939,6 @@ export default function OnboardingPage() {
           return (
             <div className="space-y-6">
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-white mb-2">Which department are you in?</h2>
-                <p className="text-white/60 text-sm">Select your team or add your own</p>
-              </div>
-              <div className="max-w-2xl mx-auto">
-                <div className="grid grid-cols-4 gap-3 mb-3">
-                  {DEPARTMENTS.map((dept) => {
-                    const IconComponent = dept.Icon
-                    return (
-                      <button
-                        key={dept.id}
-                        onClick={() => {
-                          setData({...data, department: dept.label})
-                          setShowCustomDepartment(false)
-                          setCustomDepartment('')
-                          setErrors({}) // Clear any errors when selecting
-                        }}
-                        className={`p-2.5 rounded-lg transition-all hover:scale-105 ${
-                          data.department === dept.label
-                            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
-                            : 'bg-white/10 border border-white/20 text-white/80 hover:border-white/40'
-                        }`}
-                      >
-                        <IconComponent className="w-5 h-5 mx-auto mb-1" />
-                        <div className="text-xs font-medium">{dept.label}</div>
-                      </button>
-                    )
-                  })}
-                  <button
-                    onClick={() => {
-                      setShowCustomDepartment(true)
-                      setData({...data, department: ''})
-                    }}
-                    className={`p-2.5 rounded-lg transition-all hover:scale-105 ${
-                      showCustomDepartment
-                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
-                        : 'bg-white/10 border border-white/20 text-white/80 hover:border-white/40'
-                    }`}
-                  >
-                    <MoreHorizontal className="w-5 h-5 mx-auto mb-1" />
-                    <div className="text-xs font-medium">Other</div>
-                  </button>
-                </div>
-                
-                {showCustomDepartment && (
-                  <input
-                    type="text"
-                    value={customDepartment}
-                    onChange={(e) => setCustomDepartment(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        handleNext()
-                      }
-                    }}
-                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/15 transition-all"
-                    placeholder="Enter your department"
-                    autoFocus
-                  />
-                )}
-                
-                {errors.department && (
-                  <p className="text-red-400 text-xs text-center mt-2">{errors.department}</p>
-                )}
-              </div>
-            </div>
-          )
-
-        case 3:
-          return (
-            <div className="space-y-6">
-              <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-white mb-2">What's your team called?</h2>
                 <p className="text-white/60 text-sm">Give your team a name that captures its identity</p>
               </div>
@@ -1096,7 +966,7 @@ export default function OnboardingPage() {
             </div>
           )
 
-        case 4:
+        case 3:
           return (
             <div className="space-y-6">
               <div className="text-center mb-6">
@@ -1215,7 +1085,7 @@ export default function OnboardingPage() {
             </div>
           )
 
-        case 5:
+        case 4:
           return (
             <div className="space-y-6">
               <div className="text-center mb-6">
@@ -1246,7 +1116,7 @@ export default function OnboardingPage() {
             </div>
           )
 
-        case 6:
+        case 5:
           return (
             <div className="space-y-6">
               <div className="text-center mb-6">
@@ -1293,7 +1163,7 @@ export default function OnboardingPage() {
             </div>
           )
           
-        case 7: // Mission Interlude
+        case 6: // Mission Interlude
           return (
             <div className="w-full max-w-3xl mx-auto">
               {/* Campfire Heart Illustration */}
@@ -1349,7 +1219,7 @@ export default function OnboardingPage() {
             </div>
           )
           
-        case 8: // What is Campfire
+        case 7: // What is Campfire
           return (
             <div className="w-full max-w-3xl mx-auto">
               <div className="text-center mb-8">
@@ -1509,11 +1379,11 @@ export default function OnboardingPage() {
                 )}
 
                 <div className="text-white/40 text-xs flex items-center">
-                  {currentQuestion === 0 || currentQuestion === 7 || currentQuestion === 8 ? '' : 
-                   `Question ${currentQuestion} of 6`}
+                  {currentQuestion === 0 || currentQuestion === 6 || currentQuestion === 7 ? '' : 
+                   `Question ${currentQuestion} of 5`}
                 </div>
 
-                {currentQuestion === 0 ? null : currentQuestion < 8 ? (
+                {currentQuestion === 0 ? null : currentQuestion < 7 ? (
                   <button
                     onClick={handleNext}
                     className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium text-sm hover:from-purple-700 hover:to-pink-700 transition-all flex items-center gap-2 group"

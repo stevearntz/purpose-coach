@@ -1,8 +1,8 @@
 'use client'
 
 import { useUser } from '@clerk/nextjs'
-import { Users, Mail, UserCircle, Edit2, X, Plus, Trash2, Star } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { Users, Mail, UserCircle, Edit2, X, Plus, Star, Save } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 
 interface UserProfileData {
@@ -24,22 +24,91 @@ interface TeamMember {
   createdAt: string
 }
 
+interface EditableMember {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  role: string
+  firstNameError?: boolean
+  lastNameError?: boolean
+}
+
 export default function TeamPage() {
   const { user } = useUser()
   const [profile, setProfile] = useState<UserProfileData | null>(null)
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
   const [loading, setLoading] = useState(true)
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null)
-  const [showEditModal, setShowEditModal] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
   const [teamName, setTeamName] = useState('')
   const [teamPurpose, setTeamPurpose] = useState('')
-  const [editedMembers, setEditedMembers] = useState<TeamMember[]>([])
+  const [editableMembers, setEditableMembers] = useState<EditableMember[]>([])
   const [savingTeam, setSavingTeam] = useState(false)
+  const nameInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({})
   
   const handleCopyEmail = (email: string) => {
     navigator.clipboard.writeText(email)
     setCopiedEmail(email)
     setTimeout(() => setCopiedEmail(null), 2000)
+  }
+  
+  const startEditing = () => {
+    // Convert existing team members to editable format
+    const editable = teamMembers.map(member => {
+      const nameParts = member.name.split(' ')
+      return {
+        id: member.id,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        email: member.email || '',
+        role: member.role || '',
+      }
+    })
+    
+    // If no members, start with one empty row
+    if (editable.length === 0) {
+      editable.push({
+        id: `new-${Date.now()}`,
+        firstName: '',
+        lastName: '',
+        email: '',
+        role: '',
+      })
+    }
+    
+    setEditableMembers(editable)
+    setIsEditing(true)
+  }
+  
+  const addTeamMember = () => {
+    setEditableMembers([...editableMembers, {
+      id: `new-${Date.now()}`,
+      firstName: '',
+      lastName: '',
+      email: '',
+      role: '',
+    }])
+  }
+  
+  const removeTeamMember = (id: string) => {
+    setEditableMembers(editableMembers.filter(m => m.id !== id))
+  }
+  
+  const updateTeamMember = (id: string, field: keyof EditableMember, value: string) => {
+    setEditableMembers(prev => prev.map(member => 
+      member.id === id 
+        ? { ...member, [field]: value, [`${field}Error`]: false }
+        : member
+    ))
+  }
+  
+  const cancelEditing = () => {
+    setIsEditing(false)
+    setEditableMembers([])
+    // Reset team info
+    setTeamName(profile?.teamName || '')
+    setTeamPurpose(profile?.teamPurpose || '')
   }
   
   useEffect(() => {
@@ -107,6 +176,55 @@ export default function TeamPage() {
     }
   }
   
+  const saveChanges = async () => {
+    setSavingTeam(true)
+    try {
+      // Validate at least one member has a name
+      const validMembers = editableMembers.filter(m => m.firstName.trim() || m.lastName.trim())
+      
+      // Save team info
+      await handleSaveTeamInfo()
+      
+      // Delete all existing team members
+      await fetch('/api/team/members/all', {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+      
+      // Save new team members
+      if (validMembers.length > 0) {
+        const membersToSave = validMembers.map(m => ({
+          id: m.id,
+          name: `${m.firstName.trim()} ${m.lastName.trim()}`.trim(),
+          email: m.email || '',
+          role: m.role || '',
+          status: 'ACTIVE'
+        }))
+        
+        const response = await fetch('/api/team/members', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ members: membersToSave })
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          setTeamMembers(data.teamMembers)
+        }
+      } else {
+        setTeamMembers([])
+      }
+      
+      setIsEditing(false)
+      setEditableMembers([])
+    } catch (error) {
+      console.error('Error saving team:', error)
+    } finally {
+      setSavingTeam(false)
+    }
+  }
+  
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Team Header */}
@@ -124,11 +242,32 @@ export default function TeamPage() {
         <div className="flex-1">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-white">
-                {profile?.teamName || 'Your Team'}
-              </h1>
-              {profile?.teamPurpose && (
-                <p className="text-white/80 text-lg mt-2">{profile.teamPurpose}</p>
+              {!isEditing ? (
+                <>
+                  <h1 className="text-4xl font-bold text-white">
+                    {profile?.teamName || 'Your Team'}
+                  </h1>
+                  {profile?.teamPurpose && (
+                    <p className="text-white/80 text-lg mt-2">{profile.teamPurpose}</p>
+                  )}
+                </>
+              ) : (
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={teamName}
+                    onChange={(e) => setTeamName(e.target.value)}
+                    placeholder="Team Name"
+                    className="text-4xl font-bold bg-transparent border-b-2 border-white/30 text-white placeholder-white/40 focus:outline-none focus:border-white/60 transition-colors pb-1"
+                  />
+                  <input
+                    type="text"
+                    value={teamPurpose}
+                    onChange={(e) => setTeamPurpose(e.target.value)}
+                    placeholder="Team Purpose (optional)"
+                    className="text-lg bg-transparent border-b border-white/20 text-white/80 placeholder-white/40 focus:outline-none focus:border-white/40 transition-colors pb-1 w-full"
+                  />
+                </div>
               )}
               <div className="flex items-center gap-4 mt-3">
                 <span className="text-white/60 text-sm">
@@ -136,15 +275,33 @@ export default function TeamPage() {
                 </span>
               </div>
             </div>
-            <button
-              onClick={() => {
-                setEditedMembers([...teamMembers].sort((a, b) => a.name.localeCompare(b.name)))
-                setShowEditModal(true)
-              }}
-              className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
-            >
-              <Edit2 className="w-5 h-5 text-white" />
-            </button>
+            {!isEditing ? (
+              <button
+                onClick={startEditing}
+                className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <Edit2 className="w-4 h-4 text-white" />
+                <span className="text-white text-sm font-medium">Edit</span>
+              </button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={cancelEditing}
+                  className="px-4 py-2 text-white/70 hover:text-white transition-colors"
+                  disabled={savingTeam}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={saveChanges}
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                  disabled={savingTeam}
+                >
+                  <Save className="w-4 h-4" />
+                  <span className="text-sm font-medium">{savingTeam ? 'Saving...' : 'Save'}</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -164,7 +321,7 @@ export default function TeamPage() {
               <div key={i} className="h-16 bg-white/5 rounded-lg" />
             ))}
           </div>
-        ) : (
+        ) : !isEditing ? (
           <div className="space-y-3">
             {/* Leader Card - Always First */}
             <Link
@@ -259,18 +416,129 @@ export default function TeamPage() {
                 </div>
               ))}
           </div>
+        ) : (
+          /* Inline Editing Mode */
+          <div className="space-y-4">
+            {/* Header row */}
+            <div className="grid grid-cols-12 gap-3 px-1">
+              <div className="col-span-3 text-xs font-medium text-white/60">First Name *</div>
+              <div className="col-span-3 text-xs font-medium text-white/60">Last Name *</div>
+              <div className="col-span-3 text-xs font-medium text-white/60">Email (optional)</div>
+              <div className="col-span-2 text-xs font-medium text-white/60">Role (optional)</div>
+              <div className="col-span-1"></div>
+            </div>
+            
+            {/* Editable team member rows */}
+            <div className="space-y-2">
+              {editableMembers.map((member, index) => (
+                <div key={member.id} className="grid grid-cols-12 gap-3 items-center">
+                  <div className="col-span-3">
+                    <input
+                      ref={(el) => { nameInputRefs.current[`${member.id}-firstName`] = el }}
+                      type="text"
+                      value={member.firstName}
+                      onChange={(e) => updateTeamMember(member.id, 'firstName', e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          nameInputRefs.current[`${member.id}-lastName`]?.focus()
+                        }
+                      }}
+                      placeholder="Jane"
+                      className={`w-full px-3 py-2 bg-white/10 border ${
+                        member.firstNameError ? 'border-red-500' : 'border-white/20'
+                      } rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all`}
+                      autoFocus={index === 0}
+                    />
+                  </div>
+                  <div className="col-span-3">
+                    <input
+                      ref={(el) => { nameInputRefs.current[`${member.id}-lastName`] = el }}
+                      type="text"
+                      value={member.lastName}
+                      onChange={(e) => updateTeamMember(member.id, 'lastName', e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          if (member.firstName.trim() || member.lastName.trim()) {
+                            if (index === editableMembers.length - 1) {
+                              addTeamMember()
+                            } else {
+                              nameInputRefs.current[`${editableMembers[index + 1].id}-firstName`]?.focus()
+                            }
+                          }
+                        }
+                      }}
+                      placeholder="Smith"
+                      className={`w-full px-3 py-2 bg-white/10 border ${
+                        member.lastNameError ? 'border-red-500' : 'border-white/20'
+                      } rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all`}
+                    />
+                  </div>
+                  <div className="col-span-3">
+                    <input
+                      type="email"
+                      value={member.email}
+                      onChange={(e) => updateTeamMember(member.id, 'email', e.target.value)}
+                      placeholder="jane@company.com"
+                      className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <input
+                      type="text"
+                      value={member.role}
+                      onChange={(e) => updateTeamMember(member.id, 'role', e.target.value)}
+                      placeholder="Designer"
+                      className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all"
+                    />
+                  </div>
+                  <div className="col-span-1 flex items-center justify-center">
+                    {index === editableMembers.length - 1 ? (
+                      <button
+                        onClick={addTeamMember}
+                        className="w-9 h-9 flex items-center justify-center bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
+                        title="Add team member"
+                      >
+                        <Plus className="w-4 h-4 text-white" />
+                      </button>
+                    ) : (
+                      editableMembers.length > 1 && (
+                        <button
+                          onClick={() => removeTeamMember(member.id)}
+                          className="w-9 h-9 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors"
+                          title="Remove team member"
+                        >
+                          <X className="w-4 h-4 text-white/60 hover:text-white" />
+                        </button>
+                      )
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {editableMembers.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-white/50 text-sm mb-3">No team members added yet</p>
+                <button
+                  onClick={addTeamMember}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-sm"
+                >
+                  Add First Member
+                </button>
+              </div>
+            )}
+          </div>
         )}
         
         
         {/* Add Team Members Button - Show when no team members (leader is always shown) */}
-        {teamMembers.length === 0 && (
+        {!isEditing && teamMembers.length === 0 && (
           <div className="mt-6 text-center py-8 bg-white/5 rounded-lg border border-white/10">
             <p className="text-white/60 text-sm mb-4">Add your team members to collaborate and track progress together</p>
             <button
-              onClick={() => {
-                setEditedMembers([{ id: Date.now().toString(), name: '', email: '', role: '', status: 'PENDING', createdAt: new Date().toISOString() }])
-                setShowEditModal(true)
-              }}
+              onClick={startEditing}
               className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
             >
               Add Team Members
@@ -278,205 +546,6 @@ export default function TeamPage() {
           </div>
         )}
       </div>
-
-      {/* Edit Team Modal */}
-      {showEditModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gradient-to-br from-gray-900 via-purple-900/90 to-indigo-900 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-white/20">
-            <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-white">Edit Team</h2>
-              <button
-                onClick={() => {
-                  setShowEditModal(false)
-                  setEditedMembers([])
-                }}
-                className="text-white/60 hover:text-white transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="px-6 py-4 space-y-6 overflow-y-auto max-h-[calc(90vh-140px)]">
-              {/* Team Info Section */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white">Team Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-white/70 mb-1">Team Name</label>
-                    <input
-                      type="text"
-                      value={teamName}
-                      onChange={(e) => setTeamName(e.target.value)}
-                      placeholder="e.g., Product Team, Engineering Squad"
-                      className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/15 transition-all"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-white/70 mb-1">Team Purpose</label>
-                    <input
-                      type="text"
-                      value={teamPurpose}
-                      onChange={(e) => setTeamPurpose(e.target.value)}
-                      placeholder="What is your team's mission?"
-                      className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/15 transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              {/* Team Members Section */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-white">Team Members</h3>
-                  <button
-                    onClick={() => {
-                      setEditedMembers([...editedMembers, { 
-                        id: `new-${Date.now()}`, 
-                        name: '', 
-                        email: '', 
-                        role: '', 
-                        status: 'PENDING',
-                        createdAt: new Date().toISOString()
-                      }])
-                    }}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-sm"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Add Member
-                  </button>
-                </div>
-                
-                <div className="space-y-3">
-                  {editedMembers.map((member, index) => (
-                    <div key={member.id} className="grid grid-cols-12 gap-3">
-                      <input
-                        type="text"
-                        value={member.name}
-                        onChange={(e) => {
-                          const updated = [...editedMembers]
-                          updated[index] = { ...updated[index], name: e.target.value }
-                          setEditedMembers(updated)
-                        }}
-                        placeholder="Name"
-                        className="col-span-4 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/15 transition-all"
-                      />
-                      <input
-                        type="email"
-                        value={member.email || ''}
-                        onChange={(e) => {
-                          const updated = [...editedMembers]
-                          updated[index] = { ...updated[index], email: e.target.value }
-                          setEditedMembers(updated)
-                        }}
-                        placeholder="Email (optional)"
-                        className="col-span-4 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/15 transition-all"
-                      />
-                      <input
-                        type="text"
-                        value={member.role || ''}
-                        onChange={(e) => {
-                          const updated = [...editedMembers]
-                          updated[index] = { ...updated[index], role: e.target.value }
-                          setEditedMembers(updated)
-                        }}
-                        placeholder="Role (optional)"
-                        className="col-span-3 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/15 transition-all"
-                      />
-                      <button
-                        onClick={() => {
-                          setEditedMembers(editedMembers.filter((_, i) => i !== index))
-                        }}
-                        className="col-span-1 p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors flex items-center justify-center"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                  
-                  {editedMembers.length === 0 && (
-                    <div className="text-center py-8 bg-white/5 rounded-lg border border-white/10">
-                      <p className="text-white/50 text-sm">No team members added yet</p>
-                      <p className="text-white/40 text-xs mt-1">Click "Add Member" to start building your team</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-            
-            <div className="px-6 py-4 border-t border-white/10 flex justify-end gap-3">
-              <button
-                onClick={() => {
-                  setShowEditModal(false)
-                  setEditedMembers([])
-                }}
-                className="px-4 py-2 text-white/70 hover:text-white transition-colors"
-                disabled={savingTeam}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  setSavingTeam(true)
-                  try {
-                    // Save team info
-                    const saveSuccess = await handleSaveTeamInfo()
-                    if (!saveSuccess) {
-                      console.error('Failed to save team info')
-                    }
-                    
-                    // Delete all existing team members
-                    await fetch('/api/team/members/all', {
-                      method: 'DELETE',
-                      credentials: 'include'
-                    })
-                    
-                    // Save new team members
-                    const validMembers = editedMembers.filter(m => m.name.trim())
-                    if (validMembers.length > 0) {
-                      const response = await fetch('/api/team/members', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        credentials: 'include',
-                        body: JSON.stringify({ members: validMembers })
-                      })
-                      
-                      if (response.ok) {
-                        const data = await response.json()
-                        setTeamMembers(data.teamMembers)
-                      }
-                    } else {
-                      setTeamMembers([])
-                    }
-                    
-                    // Refresh the page data to show the updated team name
-                    const profileResponse = await fetch('/api/user/profile', {
-                      credentials: 'include'
-                    })
-                    if (profileResponse.ok) {
-                      const data = await profileResponse.json()
-                      setProfile(data.profile)
-                      setTeamName(data.profile?.teamName || '')
-                      setTeamPurpose(data.profile?.teamPurpose || '')
-                    }
-                    
-                    setShowEditModal(false)
-                    setEditedMembers([])
-                  } catch (error) {
-                    console.error('Error saving team:', error)
-                  } finally {
-                    setSavingTeam(false)
-                  }
-                }}
-                className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50"
-                disabled={savingTeam}
-              >
-                {savingTeam ? 'Saving...' : 'Save Changes'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

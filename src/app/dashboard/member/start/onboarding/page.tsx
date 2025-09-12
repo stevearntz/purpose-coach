@@ -47,7 +47,6 @@ interface TeamMember {
 interface OnboardingData {
   firstName: string
   lastName: string
-  role: string
   department: string
   teamMembers: TeamMember[]
   teamName: string
@@ -58,7 +57,6 @@ interface OnboardingData {
 interface OnboardingErrors {
   firstName?: string
   lastName?: string
-  role?: string
   department?: string
   teamMembers?: string
   teamName?: string
@@ -69,7 +67,6 @@ interface OnboardingErrors {
 interface ProfileUpdateData {
   firstName?: string
   lastName?: string
-  role?: string
   department?: string
   teamName?: string
   teamSize?: string
@@ -133,7 +130,6 @@ export default function OnboardingPage() {
   const [data, setData] = useState<OnboardingData>({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
-    role: '',
     department: '',
     teamMembers: [{ id: Date.now().toString(), firstName: '', lastName: '', firstNameError: false, lastNameError: false }],
     teamName: '',
@@ -250,7 +246,6 @@ export default function OnboardingPage() {
             setData(prev => ({
               firstName: profile.firstName || prev.firstName || '',
               lastName: profile.lastName || prev.lastName || '',
-              role: profile.role || '',
               department: isCustomDept ? '' : (profile.department || ''),
               teamMembers: prev.teamMembers, // Keep default for now, will be updated below
               teamName: profile.teamName || '',
@@ -264,7 +259,7 @@ export default function OnboardingPage() {
             }
             
             // Mark as edit mode if any data exists
-            if (profile.role || profile.department) {
+            if (profile.department) {
               setIsEditMode(true)
             }
             
@@ -523,31 +518,27 @@ export default function OnboardingPage() {
         // Step 1 (names) is skipped - no validation needed
         break
       case 2:
-        // Step 2 is now role
-        if (!data.role) newErrors.role = 'Role is required'
-        break
-      case 3:
-        // Step 3 is now department
+        // Step 2 is now department (role has been removed)
         if (!data.department && !customDepartment) newErrors.department = 'Department is required'
         break
-      case 4:
-        // Step 4 is now team name
+      case 3:
+        // Step 3 is now team name
         if (!data.teamName) newErrors.teamName = 'Team name is required'
         break
-      case 5:
-        // Step 5 is now team members
+      case 4:
+        // Step 4 is now team members
         // Validate at least one team member has a name
         const validMembers = data.teamMembers.filter(m => m.firstName.trim() || m.lastName.trim())
         if (validMembers.length === 0) {
           newErrors.teamMembers = 'Add at least one team member'
         }
         break
-      case 6:
-        // Step 6 is now team purpose
+      case 5:
+        // Step 5 is now team purpose
         if (!data.teamPurpose) newErrors.teamPurpose = 'Team purpose is required'
         break
-      case 7:
-        // Step 7 is now team emoji
+      case 6:
+        // Step 6 is now team emoji
         if (!data.teamEmoji) newErrors.teamEmoji = 'Please select a team emoji'
         break
     }
@@ -606,25 +597,21 @@ export default function OnboardingPage() {
     if (validateQuestion(currentQuestion)) {
       // Save data after each step
       // Skip step 1 (names) - they're collected during sign-up
-      if (currentQuestion === 2 && data.role) {
-        // Save role
-        await saveProfileData({
-          role: data.role
-        })
-      } else if (currentQuestion === 3) {
-        // Save department
+      // Role has been removed from onboarding
+      if (currentQuestion === 2) {
+        // Save department (now step 2)
         const deptToSave = showCustomDepartment ? customDepartment : data.department
         if (deptToSave) {
           await saveProfileData({
             department: deptToSave
           })
         }
-      } else if (currentQuestion === 4 && data.teamName) {
-        // Save team name
+      } else if (currentQuestion === 3 && data.teamName) {
+        // Save team name (now step 3)
         await saveProfileData({
           teamName: data.teamName
         })
-      } else if (currentQuestion === 5) {
+      } else if (currentQuestion === 4) {
         // Save team members to database
         const validMembers = data.teamMembers.filter(m => m.firstName.trim() || m.lastName.trim())
           .map(m => ({
@@ -675,13 +662,13 @@ export default function OnboardingPage() {
             console.error('Error saving team members:', error)
           }
         }
-      } else if (currentQuestion === 6 && data.teamPurpose) {
-        // Save team purpose
+      } else if (currentQuestion === 5 && data.teamPurpose) {
+        // Save team purpose (now step 5)
         await saveProfileData({
           teamPurpose: data.teamPurpose
         })
-      } else if (currentQuestion === 7 && data.teamEmoji) {
-        // Save team emoji
+      } else if (currentQuestion === 6 && data.teamEmoji) {
+        // Save team emoji (now step 6)
         await saveProfileData({
           teamEmoji: data.teamEmoji
         })
@@ -689,7 +676,7 @@ export default function OnboardingPage() {
       
       setAnimating(true)
       setTimeout(() => {
-        if (currentQuestion < 9) {
+        if (currentQuestion < 8) {
           setCurrentQuestion(currentQuestion + 1)
         }
         setAnimating(false)
@@ -701,11 +688,11 @@ export default function OnboardingPage() {
     setAnimating(true)
     setTimeout(() => {
       if (currentQuestion > 0) {
-        // Skip the mission interlude (8) when going back from offerings (9)
-        if (currentQuestion === 9) {
-          setCurrentQuestion(7) // Go back to team emoji selection
+        // Skip the mission interlude (7) when going back from offerings (8)
+        if (currentQuestion === 8) {
+          setCurrentQuestion(6) // Go back to team emoji selection
         } else if (currentQuestion === 2) {
-          // Skip step 1 (names) when going back from step 2 (role)
+          // Skip step 1 (names) when going back from department
           setCurrentQuestion(0) // Go back to welcome screen
         } else {
           setCurrentQuestion(currentQuestion - 1)
@@ -918,8 +905,8 @@ export default function OnboardingPage() {
                 
                 <button
                   onClick={() => {
-                    // Skip step 1 (names) since we collect them during sign-up now
-                    setCurrentQuestion(2)
+                    // Skip step 1 (names) and step 2 (role) - go straight to department
+                    setCurrentQuestion(3)
                   }}
                   data-start-button
                   className="mt-8 px-8 py-4 bg-gradient-to-r from-orange-500 to-pink-600 text-white rounded-xl font-semibold text-lg hover:from-orange-600 hover:to-pink-700 transition-all transform hover:scale-105 animate-[fadeInUp_1s_ease-out_0.6s] opacity-0 shadow-lg"
@@ -1009,40 +996,6 @@ export default function OnboardingPage() {
 
         case 2:
           return (
-            <div className="space-y-6 w-full">
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-white mb-2">What's your role?</h2>
-                <p className="text-white/60 text-sm">Tell us about your title or position</p>
-              </div>
-              <div className="max-w-xl mx-auto">
-                <div className="relative">
-                  <Briefcase className="absolute left-3 top-3 w-5 h-5 text-white/40" />
-                  <input
-                    type="text"
-                    value={data.role}
-                    onChange={(e) => setData({...data, role: e.target.value})}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        handleNext()
-                      }
-                    }}
-                    className={`w-full pl-11 pr-4 py-2.5 bg-white/10 border ${
-                      errors.role ? 'border-red-500' : 'border-white/20'
-                    } rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/15 transition-all`}
-                    placeholder="e.g., Product Manager, Software Engineer"
-                    autoFocus
-                  />
-                </div>
-                {errors.role && (
-                  <p className="text-red-400 text-xs mt-1">{errors.role}</p>
-                )}
-              </div>
-            </div>
-          )
-
-        case 3:
-          return (
             <div className="space-y-6">
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-white mb-2">Which department are you in?</h2>
@@ -1112,7 +1065,7 @@ export default function OnboardingPage() {
             </div>
           )
 
-        case 4:
+        case 3:
           return (
             <div className="space-y-6">
               <div className="text-center mb-6">
@@ -1143,7 +1096,7 @@ export default function OnboardingPage() {
             </div>
           )
 
-        case 5:
+        case 4:
           return (
             <div className="space-y-6">
               <div className="text-center mb-6">
@@ -1262,7 +1215,7 @@ export default function OnboardingPage() {
             </div>
           )
 
-        case 6:
+        case 5:
           return (
             <div className="space-y-6">
               <div className="text-center mb-6">
@@ -1293,7 +1246,7 @@ export default function OnboardingPage() {
             </div>
           )
 
-        case 7:
+        case 6:
           return (
             <div className="space-y-6">
               <div className="text-center mb-6">
@@ -1340,7 +1293,7 @@ export default function OnboardingPage() {
             </div>
           )
           
-        case 8: // Mission Interlude
+        case 7: // Mission Interlude
           return (
             <div className="w-full max-w-3xl mx-auto">
               {/* Campfire Heart Illustration */}
@@ -1396,7 +1349,7 @@ export default function OnboardingPage() {
             </div>
           )
           
-        case 9: // What is Campfire
+        case 8: // What is Campfire
           return (
             <div className="w-full max-w-3xl mx-auto">
               <div className="text-center mb-8">
@@ -1556,11 +1509,11 @@ export default function OnboardingPage() {
                 )}
 
                 <div className="text-white/40 text-xs flex items-center">
-                  {currentQuestion === 0 || currentQuestion === 8 || currentQuestion === 9 ? '' : 
-                   `Question ${currentQuestion} of 7`}
+                  {currentQuestion === 0 || currentQuestion === 7 || currentQuestion === 8 ? '' : 
+                   `Question ${currentQuestion} of 6`}
                 </div>
 
-                {currentQuestion === 0 ? null : currentQuestion < 9 ? (
+                {currentQuestion === 0 ? null : currentQuestion < 8 ? (
                   <button
                     onClick={handleNext}
                     className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium text-sm hover:from-purple-700 hover:to-pink-700 transition-all flex items-center gap-2 group"

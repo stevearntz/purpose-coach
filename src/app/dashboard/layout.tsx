@@ -92,14 +92,10 @@ export default function DashboardLayout({
       secondary: []
     },
     { 
-      id: 'profile', 
-      label: 'Profile', 
-      href: '/dashboard/member/start',
-      secondary: [
-        { id: 'onboarding', label: 'Onboarding', href: '/dashboard/member/start/onboarding' },
-        { id: 'myprofile', label: 'My Profile', href: '/dashboard/member/start/profile' },
-        { id: 'myteam', label: 'My Team', href: '/dashboard/member/start/team' }
-      ]
+      id: 'tools', 
+      label: 'Tools', 
+      href: '/dashboard/member/start/tools',
+      secondary: []
     },
     { 
       id: 'results', 
@@ -111,16 +107,19 @@ export default function DashboardLayout({
       ]
     },
     { 
-      id: 'tools', 
-      label: 'Tools', 
-      href: '/dashboard/member/start/tools',
-      secondary: []
-    },
-    { 
       id: 'recommendations', 
       label: 'Recommendations', 
       href: '/dashboard/member/recommendations',
       secondary: []
+    },
+    { 
+      id: 'profile', 
+      label: 'Profile', 
+      href: '/dashboard/member/start',
+      secondary: [
+        { id: 'myprofile', label: 'My Profile', href: '/dashboard/member/start/profile' },
+        { id: 'myteam', label: 'My Team', href: '/dashboard/member/start/team' }
+      ]
     },
     // { 
     //   id: 'feed', 

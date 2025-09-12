@@ -12,6 +12,7 @@ import {
   Briefcase,
   Plus,
   X,
+  Target,
   Wrench,
   Flame,
   BookOpen,

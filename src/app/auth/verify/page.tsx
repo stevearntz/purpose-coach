@@ -17,6 +17,8 @@ function VerifyContent() {
   const email = searchParams.get('email') || ''
   const userExists = searchParams.get('exists') === 'true'
   const redirectUrl = searchParams.get('redirect_url')
+  const firstName = searchParams.get('firstName') || ''
+  const lastName = searchParams.get('lastName') || ''
   const isLoaded = signInLoaded && signUpLoaded
 
   // Verify magic link code
@@ -121,6 +123,11 @@ function VerifyContent() {
             <p className="text-gray-900 font-medium mt-2">
               {email}
             </p>
+            {!userExists && firstName && (
+              <p className="text-gray-600 text-sm mt-2">
+                Creating account for: <strong>{firstName} {lastName}</strong>
+              </p>
+            )}
           </div>
 
           {error && (

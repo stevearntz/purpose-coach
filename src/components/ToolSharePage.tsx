@@ -8,7 +8,8 @@ import { headers } from 'next/headers'
 interface ToolShareData {
   toolName: string
   userName?: string
-  results: any
+  results?: any
+  data?: any  // Some tools use 'data' instead of 'results'
   createdAt: string
 }
 

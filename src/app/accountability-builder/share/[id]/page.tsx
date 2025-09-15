@@ -93,7 +93,15 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params
+  let id: string
+  try {
+    const resolvedParams = await params
+    id = resolvedParams.id
+  } catch (error) {
+    console.error('Error resolving params in metadata:', error)
+    id = (params as any).id || 'share'
+  }
+  
   const baseUrl = 'https://tools.getcampfire.com'
   
   return {
@@ -127,7 +135,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function AccountabilityBuilderSharePage({ params }: Props) {
-  const { id } = await params
+  let id: string
+  try {
+    const resolvedParams = await params
+    id = resolvedParams.id
+  } catch (error) {
+    console.error('Error resolving params:', error)
+    // Fallback to direct access if await fails (for older Next.js behavior)
+    id = (params as any).id || ''
+  }
+  
   const config = toolConfigs.accountabilityBuilder
 
   // Get the icon for a major area
@@ -156,6 +173,15 @@ export default async function AccountabilityBuilderSharePage({ params }: Props) 
   }
 
   const renderResults = (sharedData: any) => {
+    // Handle missing data
+    if (!sharedData) {
+      return (
+        <div className="text-center py-12">
+          <p className="text-gray-600">Unable to load assessment data.</p>
+        </div>
+      )
+    }
+    
     // Handle both nested and non-nested data structures
     const data = sharedData.data || sharedData
     const weekOf = data.weekOf ? new Date(data.weekOf) : new Date()

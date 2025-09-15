@@ -83,7 +83,7 @@ export default async function ToolSharePage({ shareId, toolPath, toolConfig, ren
               Shared on {new Date(data.createdAt).toLocaleDateString()}
             </p>
             
-            {renderResults(data.results)}
+            {renderResults(data.results || data.data || data)}
             
             <div className="flex justify-center mt-8 no-print">
               <Link

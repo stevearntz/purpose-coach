@@ -1,7 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Users, Calendar, TrendingUp, ChevronDown, ChevronUp, User, Mail, Clock, CheckCircle } from 'lucide-react'
+import { ChevronDown, ChevronUp, Mail, CheckCircle, Clock } from 'lucide-react'
+import { mapPriorityToFullText } from '@/utils/priorityMapping'
 
 interface AssessmentResult {
   id: string
@@ -48,7 +49,7 @@ export default function TeamResultsView({
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'short',
+      month: 'short', 
       day: 'numeric'
     })
   }
@@ -64,133 +65,161 @@ export default function TeamResultsView({
     return formatDate(dateString)
   }
 
-  // Calculate team statistics
-  const totalAssessments = teamResults.length
-  const uniqueMembers = teamMemberResults.length
-  const completionRate = uniqueMembers > 0 ? Math.round((teamMemberResults.filter(m => m.completedAssessments > 0).length / uniqueMembers) * 100) : 0
-
-  if (teamMemberResults.length === 0) {
-    return (
-      <div className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10 text-center">
-        <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4">
-          <Users className="w-8 h-8 text-white/30" />
-        </div>
-        <h3 className="text-white/70 font-medium mb-2 text-lg">
-          No team results yet
-        </h3>
-        <p className="text-white/50 max-w-md mx-auto">
-          When team members complete assessments through your shared links, their results will appear here.
-        </p>
-      </div>
-    )
-  }
-
   return (
-    <div className="space-y-6">
-      {/* Individual Results */}
-      <div>
-        <h2 className="text-xl font-semibold text-white mb-4">Individual Results</h2>
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold text-white mb-4">Individual Results</h2>
+      
+      {teamMemberResults.map((member) => {
+        const isExpanded = expandedMembers.has(member.id)
+        const firstResult = member.results[0]
         
-        <div className="space-y-3">
-          {teamMemberResults.map((member) => {
-            const isExpanded = expandedMembers.has(member.id)
-            
-            return (
-              <div key={member.id} className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 overflow-hidden">
-                {/* Member Header */}
-                <div
-                  onClick={() => toggleMemberExpansion(member.id)}
-                  className="p-4 cursor-pointer hover:bg-white/5 transition-all"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                        <span className="text-white font-medium">
-                          {member.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-                        </span>
-                      </div>
-                      <div>
-                        <h3 className="text-white font-medium">{member.name}</h3>
-                        <div className="flex items-center gap-4 text-sm text-white/60">
-                          <span className="flex items-center gap-1">
-                            <Mail className="w-3 h-3" />
-                            {member.email}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3" />
-                            {member.completedAssessments} completed
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {formatTimeAgo(member.lastActivity)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-white/60">
-                      {isExpanded ? (
-                        <ChevronUp className="w-5 h-5" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5" />
-                      )}
+        return (
+          <div key={member.id} className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden">
+            {/* Member Header - Clickable */}
+            <div
+              onClick={() => toggleMemberExpansion(member.id)}
+              className="p-6 cursor-pointer hover:bg-white/10 transition-all"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-4">
+                  {/* Avatar */}
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-semibold text-lg">
+                      {member.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                    </span>
+                  </div>
+                  
+                  {/* Member Info */}
+                  <div>
+                    <h3 className="text-white font-semibold text-lg">{member.name}</h3>
+                    <div className="flex items-center gap-4 text-sm text-white/60 mt-1">
+                      <span className="flex items-center gap-1">
+                        <Mail className="w-3 h-3" />
+                        {member.email}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <CheckCircle className="w-3 h-3 text-green-400" />
+                        Completed
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {formatTimeAgo(member.lastActivity)}
+                      </span>
                     </div>
                   </div>
                 </div>
                 
-                {/* Expanded Content */}
-                {isExpanded && (
-                  <div className="border-t border-white/10 bg-white/5 p-4">
-                    <div className="space-y-3">
-                      {member.results.map((result) => (
-                        <div key={result.id} className="bg-white/10 rounded-lg p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-white font-medium">{result.toolName}</h4>
-                            <span className="text-white/60 text-sm">
-                              {formatDate(result.completedAt)}
-                            </span>
-                          </div>
-                          
-                          {/* Quick summary of key responses */}
-                          <div className="space-y-2 text-sm">
-                            {result.responses?.challenges && result.responses.challenges.length > 0 && (
-                              <div>
-                                <span className="text-white/60">Top Challenges: </span>
-                                <span className="text-white/80">
-                                  {result.responses.challenges[0]?.subcategories?.slice(0, 2).join(', ')}
-                                </span>
-                              </div>
-                            )}
-                            {result.responses?.skillsToGrow && result.responses.skillsToGrow.length > 0 && (
-                              <div>
-                                <span className="text-white/60">Skills to Develop: </span>
-                                <span className="text-white/80">
-                                  {result.responses.skillsToGrow.slice(0, 2).join(', ')}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                          
-                          {result.pdfUrl && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                window.open(result.pdfUrl, '_blank')
-                              }}
-                              className="mt-3 text-purple-400 hover:text-purple-300 text-sm"
-                            >
-                              View Full Report →
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {/* Expand Icon and Date */}
+                <div className="flex items-center gap-4">
+                  <span className="text-white/60 text-sm">
+                    {formatDate(member.lastActivity)}
+                  </span>
+                  {isExpanded ? (
+                    <ChevronUp className="w-5 h-5 text-white/40" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-white/40" />
+                  )}
+                </div>
               </div>
-            )
-          })}
-        </div>
-      </div>
+              
+              {/* Assessment Type Badge */}
+              <div className="mt-4">
+                <span className="text-sm text-white/60">
+                  # {firstResult?.toolName || 'Assessment'}
+                </span>
+              </div>
+            </div>
+            
+            {/* Expanded Content */}
+            {isExpanded && firstResult && (
+              <div className="px-6 pb-6 border-t border-white/10">
+                <div className="mt-6 space-y-6 bg-white/5 rounded-lg p-6">
+                  {/* Challenge Areas */}
+                  {firstResult.responses?.categoryDetails && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-3">Challenge Areas</h3>
+                      <div className="space-y-3">
+                        {Object.entries(firstResult.responses.categoryDetails).map(([category, details]: [string, any]) => {
+                          const categoryNames: Record<string, string> = {
+                            'performance': 'Individual Performance',
+                            'leadership': 'Leadership Skills',
+                            'compliance': 'Compliance & Risk'
+                          }
+                          const categoryName = categoryNames[category.toLowerCase()] || category
+                          
+                          return (
+                            <div key={category} className="border-l-4 border-red-400 pl-4">
+                              <h4 className="font-medium text-white/90 mb-2">{categoryName}</h4>
+                              <div className="flex flex-wrap gap-2">
+                                {details.challenges?.map((challenge: string) => (
+                                  <span key={challenge} className="px-3 py-1 bg-red-500/20 text-red-300 rounded-full text-sm">
+                                    {challenge}
+                                  </span>
+                                ))}
+                              </div>
+                              {details.additionalContext && (
+                                <p className="text-sm text-white/60 italic mt-2">
+                                  "{details.additionalContext}"
+                                </p>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Skills to Develop */}
+                  {firstResult.responses?.skillGaps && firstResult.responses.skillGaps.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-3">Skills to Develop</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {firstResult.responses.skillGaps.map((skill: string) => (
+                          <span key={skill} className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Support Needs */}
+                  {firstResult.responses?.supportNeeds && firstResult.responses.supportNeeds.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-3">Support Needs</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {firstResult.responses.supportNeeds.map((need: string) => (
+                          <span key={need} className="px-3 py-1 bg-yellow-500/20 text-yellow-300 rounded-full text-sm">
+                            {need}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Focus Areas */}
+                  {firstResult.responses?.selectedPriorities && firstResult.responses.selectedPriorities.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-3">Focus Areas</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {firstResult.responses.selectedPriorities.map((priority: string) => {
+                          const displayPriority = mapPriorityToFullText(priority)
+                          
+                          return (
+                            <span key={priority} className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">
+                              {displayPriority}
+                            </span>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }

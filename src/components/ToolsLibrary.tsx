@@ -27,8 +27,8 @@ const tools: Tool[] = [
   {
     id: 'people-leader-needs',
     path: '/people-leader-needs',
-    title: 'People Leadership Needs Assessment',
-    subtitle: 'Bridge the gap with HR',
+    title: 'Needs Assessment',
+    subtitle: 'Identify leader pain points',
     description: 'Help managers articulate their needs for growth, support, and strategic direction.',
     gradient: 'from-[#30C7C7] to-[#2A74B9]',
     icon: <Lightbulb className="w-8 h-8" />,

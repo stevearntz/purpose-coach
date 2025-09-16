@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import AuthLoadingGuard from '@/components/AuthLoadingGuard'
+import CampaignWrapper from '@/components/CampaignWrapper'
 import { ArrowLeft, ArrowRight, Users, Target, Heart, Brain, Lightbulb, MessageSquare, CheckCircle, X, Plus, AlertCircle, Shield, UserCheck, UsersIcon, MessagesSquare, Laptop, Briefcase, GitBranch, Settings, Handshake, ShieldCheck, DollarSign, Package, Link, Cog, Calendar, RefreshCw, Clock, ShieldAlert, Printer } from 'lucide-react'
 import ViewportContainer from '@/components/ViewportContainer'
 import { toolConfigs } from '@/lib/toolConfigs'
@@ -296,7 +297,7 @@ function PeopleLeaderNeedsContent() {
   const progress = ((currentStageIndex + 1) / stages.length) * 100
 
   useEffect(() => {
-    analytics.trackToolStart('People Leadership Needs Assessment', {
+    analytics.trackToolStart('Needs Assessment', {
       inviteCode,
       campaignCode
     })
@@ -410,7 +411,7 @@ function PeopleLeaderNeedsContent() {
     }
     
     if (managerData.email) {
-      await captureEmailForTool(managerData.email, 'People Leadership Needs Assessment', 'people-leader-needs')
+      await captureEmailForTool(managerData.email, 'Needs Assessment', 'people-leader-needs')
     }
     setCurrentStage('categories')
   }
@@ -581,45 +582,33 @@ function PeopleLeaderNeedsContent() {
       try {
         let saveResult;
         
-        // If we have a campaign but no invite code, use campaign-based saving
-        if (campaignCode && !inviteCode && managerData.email) {
-          // Saving with campaign code
-          
-          const response = await fetch('/api/assessments/save-campaign', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              campaignCode: campaignCode,
-              email: managerData.email,
+        // If we have a campaign code, use it as the invite code
+        if (campaignCode && !inviteCode) {
+          // Use campaign code as invite code for saving
+          const assessmentData = {
+            inviteCode: campaignCode, // Use campaign code directly as invite code
+            toolId: 'people-leader-needs',
+            toolName: 'Needs Assessment',
+            responses: managerData,
+            scores: {
+              challengeCount,
+              categoryCount: managerData.selectedCategories.length,
+              skillGapCount: managerData.skillGaps.length,
+              supportNeedCount: managerData.supportNeeds.length
+            },
+            summary: `Manager assessment completed with ${challengeCount} challenges identified across ${managerData.selectedCategories.length} categories`,
+            insights,
+            recommendations,
+            userProfile: {
               name: managerData.name,
-              toolId: 'hr-partnership',
-              toolName: 'People Leadership Needs Assessment',
-              responses: managerData,
-              scores: {
-                challengeCount,
-                categoryCount: managerData.selectedCategories.length,
-                skillGapCount: managerData.skillGaps.length,
-                supportNeedCount: managerData.supportNeeds.length
-              },
-              summary: `Manager assessment completed with ${challengeCount} challenges identified across ${managerData.selectedCategories.length} categories`,
-              insights,
-              recommendations,
-              userProfile: {
-                name: managerData.name,
-                email: managerData.email,
-                role: 'Manager',
-                department: managerData.department,
-                teamSize: managerData.teamSize
-              }
-            })
-          })
-          
-          if (!response.ok) {
-            const error = await response.json()
-            throw new Error(error.error || 'Failed to save assessment')
+              email: managerData.email,
+              role: 'Manager',
+              department: managerData.department,
+              teamSize: managerData.teamSize
+            }
           }
           
-          saveResult = await response.json()
+          saveResult = await saveAssessmentResult(assessmentData)
         } else if (inviteCode) {
           // Use original invite code based saving
           // Saving with invite code
@@ -678,7 +667,7 @@ function PeopleLeaderNeedsContent() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
               inviteCode,
-              assessmentType: 'People Leadership Needs Assessment'
+              assessmentType: 'Needs Assessment'
             })
           })
         }
@@ -686,7 +675,7 @@ function PeopleLeaderNeedsContent() {
         console.error('Error saving assessment:', error)
       }
       
-      analytics.trackToolComplete('People Leadership Needs Assessment', {
+      analytics.trackToolComplete('Needs Assessment', {
         completionTime,
         categoriesSelected: managerData.selectedCategories.length,
         hasAIFollowUp: !!managerData.aiFollowUp,
@@ -845,7 +834,7 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                 <Lightbulb className="w-12 h-12" />
               </div>
               <h1 className="text-4xl font-bold text-white mb-4">
-                People Leadership Needs Assessment
+                Needs Assessment
               </h1>
               <p className="text-xl text-white/80 max-w-2xl mx-auto mb-8">
                 This assessment helps all people leaders identify core needs for leading their teams effectively so that we can help you get the right support and resources.
@@ -1469,24 +1458,6 @@ Context: They've identified challenges in these areas: ${managerData.selectedCat
                     </div>
                   </div>
                 </div>
-                
-                {/* Footer buttons */}
-                <div className="flex justify-center gap-4 mt-8 no-print">
-                  <button
-                    onClick={() => {
-                      setCurrentStage('insights')
-                    }}
-                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={() => window.location.href = '/toolkit'}
-                    className="px-8 py-3 bg-[#2A74B9] text-white rounded-lg font-semibold hover:bg-blue-800 transition-colors"
-                  >
-                    Explore All Tools
-                  </button>
-                </div>
               </div>
               </>
             )
@@ -1574,7 +1545,9 @@ export default function PeopleLeaderNeedsPage() {
           console.log('[PeopleLeaderNeeds] Profile ready:', profile)
         }}
       >
-        <PeopleLeaderNeedsContent />
+        <CampaignWrapper>
+          <PeopleLeaderNeedsContent />
+        </CampaignWrapper>
       </AuthLoadingGuard>
     </Suspense>
   )

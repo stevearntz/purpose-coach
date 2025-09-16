@@ -36,7 +36,12 @@ model UserProfile {
   teamEmoji        String?
   companyId        String?
   onboardingComplete Boolean @default(false)
-  clerkRole        String?   // 'admin', 'manager', 'member', 'team_member'
+  
+  // Role management
+  userType         UserType  @default(MANAGER)  // Our custom role system
+  invitedBy        String?   // clerkUserId of the manager who invited them
+  invitedVia       String?   // Campaign code they used to join
+  
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   
@@ -127,6 +132,7 @@ model Campaign {
   description  String?
   companyId    String
   status       CampaignStatus @default(DRAFT)
+  campaignType CampaignType   @default(TEAM_SHARE)
   startDate    DateTime?
   endDate      DateTime?
   toolId       String?
@@ -144,6 +150,7 @@ model Campaign {
   @@index([companyId])
   @@index([createdBy])
   @@index([status])
+  @@index([campaignType])
 }
 
 enum InvitationStatus {
@@ -159,6 +166,11 @@ enum CampaignStatus {
   ACTIVE
   PAUSED
   COMPLETED
+}
+
+enum CampaignType {
+  TEAM_SHARE    // Manager sharing with their team
+  HR_CAMPAIGN   // HR/Admin company-wide campaign
 }
 
 model Lead {
@@ -255,4 +267,10 @@ enum TeamInvitationStatus {
   OPENED
   COMPLETED
   EXPIRED
+}
+
+enum UserType {
+  ADMIN
+  MANAGER
+  TEAM_MEMBER
 }

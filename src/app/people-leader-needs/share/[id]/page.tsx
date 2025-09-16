@@ -39,10 +39,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const baseUrl = 'https://tools.getcampfire.com'
   
   return {
-    title: 'People Leadership Needs Assessment Results - Campfire',
+    title: 'Needs Assessment Results - Campfire',
     description: 'View leadership insights on core needs for leading teams effectively and required support resources.',
     openGraph: {
-      title: 'People Leadership Needs Assessment Results - Campfire',
+      title: 'Needs Assessment Results - Campfire',
       description: 'View leadership insights on core needs for leading teams effectively and required support resources.',
       url: `${baseUrl}/people-leader-needs/share/${id}`,
       siteName: 'Campfire',

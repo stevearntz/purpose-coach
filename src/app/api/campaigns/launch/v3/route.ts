@@ -91,6 +91,14 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
       // Extract email addresses from participants for the campaign
       const participantEmails = participants.map(p => p.email.toLowerCase().trim());
       
+      // Determine campaign type based on user role
+      // Check if user is admin/HR
+      const userProfile = await tx.userProfile.findUnique({
+        where: { clerkUserId: req.user.id }
+      });
+      
+      const campaignType = userProfile?.userType === 'ADMIN' ? 'HR_CAMPAIGN' : 'TEAM_SHARE';
+      
       // Create campaign with participants and tool info
       const campaign = await tx.campaign.create({
         data: {
@@ -105,7 +113,9 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
           toolPath: toolPath,
           participants: participantEmails,
           campaignCode: campaignCode,
-          campaignLink: campaignLink
+          campaignLink: campaignLink,
+          campaignType: campaignType,
+          createdBy: req.user.id
         }
       });
       

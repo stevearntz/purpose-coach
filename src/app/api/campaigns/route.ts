@@ -65,9 +65,13 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    // Get all campaigns for this company
+    // Get only HR_CAMPAIGN types for this company
+    // This endpoint is used by admin dashboard, should not show TEAM_SHARE
     const campaigns = await prisma.campaign.findMany({
-      where: { companyId: company.id },
+      where: { 
+        companyId: company.id,
+        campaignType: 'HR_CAMPAIGN'  // Only show HR campaigns
+      },
       orderBy: { createdAt: 'desc' }
     });
     

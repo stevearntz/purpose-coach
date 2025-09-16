@@ -5,6 +5,24 @@ import { Users, Mail, UserCircle, Edit2, X, Plus, Star, Save } from 'lucide-reac
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 
+// Primary team emojis - curated selection
+const TEAM_EMOJIS = [
+  '😊', '🎯', '🚀', '💪', '🌟', '🎨', '🧠', '💡',
+  '🦁', '🐻', '🦊', '🐧', '🦋', '🐢', '🦅', '🐙',
+  '🔥', '⚡', '🌈', '🎪', '🎭', '🏆', '💎', '🎵',
+  '🤝', '👑', '🌺', '🍀', '🌞'
+]
+
+// Full emoji library for picker
+const EMOJI_LIBRARY = {
+  'Smileys': ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😉', '😊', '😇', '🥰', '😍', '🤩', '😘'],
+  'Animals': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🦄'],
+  'Nature': ['🌵', '🌲', '🌳', '🌴', '🌱', '🌿', '☘️', '🍀', '🌺', '🌸', '🌼', '🌻', '🌷', '🌹', '🥀', '🌾'],
+  'Objects': ['💎', '💍', '🏆', '🎯', '🎪', '🎨', '🎭', '🎲', '🎮', '🎸', '🎺', '🥁', '🎬', '🎤', '📚', '🎧'],
+  'Symbols': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💝'],
+  'Activities': ['⚽', '🏀', '🏈', '⚾', '🎾', '🏐', '🏉', '🎱', '🏓', '🏸', '🥊', '🥋', '🤸', '🤺', '🏌️', '🏇']
+}
+
 interface UserProfileData {
   firstName: string | null
   lastName: string | null
@@ -43,9 +61,17 @@ export default function TeamPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [teamName, setTeamName] = useState('')
   const [teamPurpose, setTeamPurpose] = useState('')
+  const [teamEmoji, setTeamEmoji] = useState('')
   const [editableMembers, setEditableMembers] = useState<EditableMember[]>([])
   const [savingTeam, setSavingTeam] = useState(false)
-  const nameInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({})
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [selectedEmojiCategory, setSelectedEmojiCategory] = useState('Smileys')
+  const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({})
+  
+  const selectEmoji = (emoji: string) => {
+    setTeamEmoji(emoji)
+    setShowEmojiPicker(false)
+  }
   
   const handleCopyEmail = (email: string) => {
     navigator.clipboard.writeText(email)
@@ -54,6 +80,11 @@ export default function TeamPage() {
   }
   
   const startEditing = () => {
+    // Initialize team info for editing
+    setTeamName(profile?.teamName || '')
+    setTeamPurpose(profile?.teamPurpose || '')
+    setTeamEmoji(profile?.teamEmoji || '')
+    
     // Convert existing team members to editable format
     const editable = teamMembers.map(member => {
       const nameParts = member.name.split(' ')
@@ -82,13 +113,16 @@ export default function TeamPage() {
   }
   
   const addTeamMember = () => {
+    const newMemberId = `new-${Date.now()}`
     setEditableMembers([...editableMembers, {
-      id: `new-${Date.now()}`,
+      id: newMemberId,
       firstName: '',
       lastName: '',
       email: '',
       role: '',
     }])
+    // Return the new member ID so we can focus it
+    return newMemberId
   }
   
   const removeTeamMember = (id: string) => {
@@ -109,6 +143,7 @@ export default function TeamPage() {
     // Reset team info
     setTeamName(profile?.teamName || '')
     setTeamPurpose(profile?.teamPurpose || '')
+    setTeamEmoji(profile?.teamEmoji || '')
   }
   
   useEffect(() => {
@@ -125,6 +160,7 @@ export default function TeamPage() {
           setProfile(profileData)
           setTeamName(profileData?.teamName || '')
           setTeamPurpose(profileData?.teamPurpose || '')
+          setTeamEmoji(profileData?.teamEmoji || '')
         }
         
         // Fetch team members
@@ -147,7 +183,7 @@ export default function TeamPage() {
   
   const handleSaveTeamInfo = async () => {
     try {
-      console.log('[Team Page] Saving team info:', { teamName, teamPurpose })
+      console.log('[Team Page] Saving team info:', { teamName, teamPurpose, teamEmoji })
       const response = await fetch('/api/user/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -155,6 +191,7 @@ export default function TeamPage() {
         body: JSON.stringify({
           teamName,
           teamPurpose,
+          teamEmoji,
           partialUpdate: true
         })
       })
@@ -162,8 +199,13 @@ export default function TeamPage() {
       console.log('[Team Page] Save response status:', response.status)
       if (response.ok) {
         const data = await response.json()
-        console.log('[Team Page] Profile after save:', data.profile)
-        setProfile(data.profile)
+        const updatedProfile = data.data?.profile || data.profile
+        console.log('[Team Page] Profile after save:', updatedProfile)
+        setProfile(updatedProfile)
+        // Also update the local state to match
+        setTeamName(updatedProfile?.teamName || '')
+        setTeamPurpose(updatedProfile?.teamPurpose || '')
+        setTeamEmoji(updatedProfile?.teamEmoji || '')
         return true
       } else {
         const errorData = await response.text()
@@ -230,13 +272,25 @@ export default function TeamPage() {
       {/* Team Header */}
       <div className="flex items-center gap-6 mb-8">
         {/* Team Emoji Avatar */}
-        <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full border-2 border-white/30 flex items-center justify-center flex-shrink-0">
-          {profile?.teamEmoji ? (
-            <span className="text-6xl animate-bounce-slow">{profile.teamEmoji}</span>
+        <button
+          onClick={isEditing ? () => setShowEmojiPicker(true) : undefined}
+          disabled={!isEditing}
+          className={`w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full border-2 border-white/30 flex items-center justify-center flex-shrink-0 relative ${
+            isEditing ? 'cursor-pointer hover:bg-white/30 hover:border-white/50 transition-all group' : 'cursor-default'
+          }`}
+          title={isEditing ? "Click to choose team emoji" : undefined}
+        >
+          {(isEditing ? teamEmoji : profile?.teamEmoji) ? (
+            <span className="text-6xl animate-bounce-slow">{isEditing ? teamEmoji : profile?.teamEmoji}</span>
           ) : (
             <Users className="w-12 h-12 text-white" />
           )}
-        </div>
+          {isEditing && (
+            <div className="absolute inset-0 rounded-full bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <Edit2 className="w-6 h-6 text-white" />
+            </div>
+          )}
+        </button>
         
         {/* Team Name and Info */}
         <div className="flex-1">
@@ -258,7 +312,7 @@ export default function TeamPage() {
                     value={teamName}
                     onChange={(e) => setTeamName(e.target.value)}
                     placeholder="Team Name"
-                    className="text-4xl font-bold bg-transparent border-b-2 border-white/30 text-white placeholder-white/40 focus:outline-none focus:border-white/60 transition-colors pb-1"
+                    className="text-4xl font-bold bg-transparent border-b-2 border-white/30 text-white placeholder-white/40 focus:outline-none focus:border-white/60 transition-colors pb-1 w-full"
                   />
                   <input
                     type="text"
@@ -434,14 +488,14 @@ export default function TeamPage() {
                 <div key={member.id} className="grid grid-cols-12 gap-3 items-center">
                   <div className="col-span-3">
                     <input
-                      ref={(el) => { nameInputRefs.current[`${member.id}-firstName`] = el }}
+                      ref={(el) => { inputRefs.current[`${member.id}-firstName`] = el }}
                       type="text"
                       value={member.firstName}
                       onChange={(e) => updateTeamMember(member.id, 'firstName', e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault()
-                          nameInputRefs.current[`${member.id}-lastName`]?.focus()
+                          inputRefs.current[`${member.id}-lastName`]?.focus()
                         }
                       }}
                       placeholder="Jane"
@@ -453,20 +507,14 @@ export default function TeamPage() {
                   </div>
                   <div className="col-span-3">
                     <input
-                      ref={(el) => { nameInputRefs.current[`${member.id}-lastName`] = el }}
+                      ref={(el) => { inputRefs.current[`${member.id}-lastName`] = el }}
                       type="text"
                       value={member.lastName}
                       onChange={(e) => updateTeamMember(member.id, 'lastName', e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault()
-                          if (member.firstName.trim() || member.lastName.trim()) {
-                            if (index === editableMembers.length - 1) {
-                              addTeamMember()
-                            } else {
-                              nameInputRefs.current[`${editableMembers[index + 1].id}-firstName`]?.focus()
-                            }
-                          }
+                          inputRefs.current[`${member.id}-email`]?.focus()
                         }
                       }}
                       placeholder="Smith"
@@ -477,18 +525,45 @@ export default function TeamPage() {
                   </div>
                   <div className="col-span-3">
                     <input
+                      ref={(el) => { inputRefs.current[`${member.id}-email`] = el }}
                       type="email"
                       value={member.email}
                       onChange={(e) => updateTeamMember(member.id, 'email', e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          inputRefs.current[`${member.id}-role`]?.focus()
+                        }
+                      }}
                       placeholder="jane@company.com"
                       className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all"
                     />
                   </div>
                   <div className="col-span-2">
                     <input
+                      ref={(el) => { inputRefs.current[`${member.id}-role`] = el }}
                       type="text"
                       value={member.role}
                       onChange={(e) => updateTeamMember(member.id, 'role', e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          // If this is the last row, add a new one and focus it
+                          if (index === editableMembers.length - 1) {
+                            // Only add if there's at least a name
+                            if (member.firstName.trim() || member.lastName.trim()) {
+                              const newMemberId = addTeamMember()
+                              // Use setTimeout to ensure the new row is rendered before focusing
+                              setTimeout(() => {
+                                inputRefs.current[`${newMemberId}-firstName`]?.focus()
+                              }, 50)
+                            }
+                          } else {
+                            // Focus the next row's first name field
+                            inputRefs.current[`${editableMembers[index + 1].id}-firstName`]?.focus()
+                          }
+                        }
+                      }}
                       placeholder="Designer"
                       className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all"
                     />
@@ -533,19 +608,93 @@ export default function TeamPage() {
         )}
         
         
-        {/* Add Team Members Button - Show when no team members (leader is always shown) */}
-        {!isEditing && teamMembers.length === 0 && (
-          <div className="mt-6 text-center py-8 bg-white/5 rounded-lg border border-white/10">
-            <p className="text-white/60 text-sm mb-4">Add your team members to collaborate and track progress together</p>
+        {/* Add Team Members Button - Always show when not editing */}
+        {!isEditing && (
+          <div className="mt-6 flex justify-center">
             <button
               onClick={startEditing}
-              className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+              className="flex items-center gap-2 px-6 py-3 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 hover:text-white rounded-lg transition-all border border-purple-500/30 hover:border-purple-500/50"
             >
-              Add Team Members
+              <Plus className="w-5 h-5" />
+              <span className="font-medium">Add Team Members</span>
             </button>
           </div>
         )}
       </div>
+      
+      {/* Emoji Picker Modal */}
+      {showEmojiPicker && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowEmojiPicker(false)}>
+          <div 
+            className="bg-gray-900 rounded-xl border border-white/20 shadow-2xl max-w-2xl w-full max-h-[70vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4 border-b border-white/10 flex items-center justify-between">
+              <h3 className="text-white font-semibold">Choose a Team Emoji</h3>
+              <button
+                onClick={() => setShowEmojiPicker(false)}
+                className="text-white/60 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Quick Selection */}
+            <div className="p-4 border-b border-white/10">
+              <p className="text-white/60 text-sm mb-3">Popular choices</p>
+              <div className="grid grid-cols-8 gap-2">
+                {TEAM_EMOJIS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    onClick={() => selectEmoji(emoji)}
+                    className={`p-2 rounded-lg transition-all hover:bg-white/10 ${
+                      teamEmoji === emoji ? 'bg-purple-600/30 ring-2 ring-purple-500' : ''
+                    }`}
+                  >
+                    <span className="text-2xl">{emoji}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            <div className="flex">
+              {/* Categories */}
+              <div className="w-32 border-r border-white/10 p-2">
+                {Object.keys(EMOJI_LIBRARY).map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedEmojiCategory(category)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      selectedEmojiCategory === category
+                        ? 'bg-purple-600/30 text-white'
+                        : 'text-white/60 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+              
+              {/* Emojis */}
+              <div className="flex-1 p-4 overflow-y-auto max-h-[40vh]">
+                <div className="grid grid-cols-8 gap-2">
+                  {EMOJI_LIBRARY[selectedEmojiCategory as keyof typeof EMOJI_LIBRARY].map((emoji) => (
+                    <button
+                      key={emoji}
+                      onClick={() => selectEmoji(emoji)}
+                      className={`p-2 rounded-lg transition-all hover:bg-white/10 ${
+                        teamEmoji === emoji ? 'bg-purple-600/30 ring-2 ring-purple-500' : ''
+                      }`}
+                    >
+                      <span className="text-2xl">{emoji}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

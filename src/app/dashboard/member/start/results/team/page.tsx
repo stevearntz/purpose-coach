@@ -4,6 +4,7 @@ import { useUser } from '@clerk/nextjs'
 import { Users, UserCheck } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import TeamResultsView from '@/components/TeamResultsView'
+import CampaignResultCard from '@/components/CampaignResultCard'
 
 interface AssessmentResult {
   id: string
@@ -34,11 +35,31 @@ interface TeamMemberResult {
   results: AssessmentResult[]
 }
 
+interface Campaign {
+  id: string
+  name: string
+  toolName: string
+  toolPath: string
+  campaignCode: string
+  campaignLink: string
+  createdAt: string
+  responseCount: number
+  responses?: Array<{
+    id: string
+    userName?: string
+    userEmail?: string
+    completedAt: string
+    scores?: any
+    summary?: string
+  }>
+}
+
 export default function TeamResultsPage() {
   const { user } = useUser()
   const [loading, setLoading] = useState(true)
   const [teamResults, setTeamResults] = useState<AssessmentResult[]>([])
   const [teamMemberResults, setTeamMemberResults] = useState<TeamMemberResult[]>([])
+  const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [expandedMembers, setExpandedMembers] = useState<Set<string>>(new Set())
   const [activeTab, setActiveTab] = useState<'shared' | 'individuals'>('shared')
 
@@ -52,6 +73,7 @@ export default function TeamResultsPage() {
         if (teamResponse.ok) {
           const teamData = await teamResponse.json()
           setTeamResults(teamData.results || [])
+          setCampaigns(teamData.campaigns || [])
           
           // Group results by team member for Individuals tab
           const memberMap = new Map<string, TeamMemberResult>()
@@ -154,14 +176,21 @@ export default function TeamResultsPage() {
               Track the assessments you've shared with your team and their overall completion
             </p>
             
-            {/* Placeholder for shared assessment campaigns - will be populated when sharing is implemented */}
-            <div className="text-center py-8">
-              <Users className="w-12 h-12 text-white/30 mx-auto mb-3" />
-              <p className="text-white/60">No assessments shared yet</p>
-              <p className="text-white/40 text-sm mt-1">
-                Go to the Tools page to share assessments with your team
-              </p>
-            </div>
+            {campaigns.length > 0 ? (
+              <div className="space-y-4">
+                {campaigns.map((campaign) => (
+                  <CampaignResultCard key={campaign.id} campaign={campaign} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Users className="w-12 h-12 text-white/30 mx-auto mb-3" />
+                <p className="text-white/60">No assessments shared yet</p>
+                <p className="text-white/40 text-sm mt-1">
+                  Go to the Tools page to share assessments with your team
+                </p>
+              </div>
+            )}
           </div>
         </div>
       ) : (

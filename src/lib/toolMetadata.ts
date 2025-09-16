@@ -58,12 +58,12 @@ export const toolsMetadata: Record<string, ToolMetadataConfig> = {
     ogImage: '/og-user-guide.png'
   },
   'hr-partnership': {
-    name: 'People Leadership Needs Assessment',
+    name: 'Needs Assessment',
     description: 'Help managers articulate their needs for HR support across growth, development, strategy, and culture to strengthen the HR-manager partnership.',
     ogImage: '/og-hr-partnership.png'
   },
   'people-leader-needs': {
-    name: 'People Leadership Needs Assessment',
+    name: 'Needs Assessment',
     description: 'Help managers articulate their needs for HR support across growth, development, strategy, and culture to strengthen the HR-manager partnership.',
     ogImage: '/og-hr-partnership.png'
   }

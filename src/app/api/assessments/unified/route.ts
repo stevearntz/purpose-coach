@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { auth } from '@clerk/nextjs/server'
+import { mapPriorityToFullText } from '@/utils/priorityMapping'
 
 // Standardized data structure for all assessment results
 interface UnifiedAssessmentResult {
@@ -149,18 +150,8 @@ function transformToUnifiedFormat(data: any, source: 'postgres' | 'redis'): Unif
         data.insights?.priorities || 
         []
       
-      // Map abbreviated priorities to full descriptions
-      const priorityMap: Record<string, string> = {
-        'revenue': 'Revenue, sales, or growth targets',
-        'strategy': 'Strategy or planning',
-        'culture': 'Culture or engagement',
-        'operations': 'Operations or efficiency',
-        'innovation': 'Innovation or product development',
-        'customer': 'Customer satisfaction or retention'
-      }
-      
       result.responses.teamImpact = rawPriorities.map((priority: string) => 
-        priorityMap[priority.toLowerCase()] || priority
+        mapPriorityToFullText(priority)
       )
       
       // Additional context
@@ -217,17 +208,8 @@ function transformToUnifiedFormat(data: any, source: 'postgres' | 'redis'): Unif
       
       // Transform priorities to full text for Redis data too
       if (data.selectedPriorities) {
-        const priorityMap: Record<string, string> = {
-          'revenue': 'Revenue, sales, or growth targets',
-          'strategy': 'Strategy or planning',
-          'culture': 'Culture or engagement',
-          'operations': 'Operations or efficiency',
-          'innovation': 'Innovation or product development',
-          'customer': 'Customer satisfaction or retention'
-        }
-        
         result.responses.teamImpact = data.selectedPriorities.map((priority: string) => 
-          priorityMap[priority.toLowerCase()] || priority
+          mapPriorityToFullText(priority)
         )
       }
       
@@ -294,6 +276,31 @@ export async function GET(request: NextRequest) {
         completedAt: 'desc'
       }
     })
+    
+    // Filter out TEAM_SHARE results when viewing company-wide data (admin view)
+    // Only show results from HR_CAMPAIGN or no campaign
+    let filteredResults = pgResults
+    if (companyId && !email && !invitationId) {
+      // This is likely an admin view requesting all company results
+      // Filter out results from TEAM_SHARE campaigns
+      const teamShareCampaigns = await prisma.campaign.findMany({
+        where: {
+          companyId,
+          campaignType: 'TEAM_SHARE'
+        },
+        select: {
+          campaignCode: true
+        }
+      })
+      
+      const teamShareCodes = teamShareCampaigns.map(c => c.campaignCode).filter(Boolean)
+      
+      // Remove results that belong to TEAM_SHARE campaigns
+      filteredResults = pgResults.filter(result => {
+        const inviteCode = result.invitation?.inviteCode
+        return !inviteCode || !teamShareCodes.includes(inviteCode)
+      })
+    }
     
     // Transform PostgreSQL results
     for (const pgResult of pgResults) {

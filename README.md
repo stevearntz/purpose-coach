@@ -98,6 +98,26 @@ src/
 
 ## Enterprise Features
 
+### Campaign Management System
+
+The platform supports two distinct types of assessment campaigns:
+
+#### 1. HR/Admin Campaigns (HR_CAMPAIGN)
+- Company-wide assessment initiatives
+- Managed through admin dashboard at `/dashboard/campaigns`
+- Bulk participant management
+- Company analytics and insights
+- Export capabilities for HR reporting
+
+#### 2. Manager Team Shares (TEAM_SHARE)  
+- Team-specific assessments shared by managers
+- Private to the creating manager
+- Auto-adds team members upon completion
+- Accessed via `/dashboard/member/start/results`
+- Complete separation from HR data
+
+### Key Features
+
 ### Assessment Campaign Management
 
 The platform includes a comprehensive campaign management system designed for HR leaders managing 50-250+ participants:
@@ -539,6 +559,27 @@ showError('Failed to send invitations')
    const results = await campaignStorage.getCampaignResults(campaignId)
    const averageScore = results.reduce((sum, r) => sum + r.score, 0) / results.length
    ```
+
+## Data Architecture
+
+### Campaign Separation
+The system maintains complete separation between HR campaigns and manager team shares:
+- Different campaign types (`HR_CAMPAIGN` vs `TEAM_SHARE`)
+- Filtered views based on user role
+- Private team data for managers
+- Company-wide visibility for HR
+
+### User Roles
+- **ADMIN**: HR/Admin users with company-wide access
+- **MANAGER**: Can share assessments with their team
+- **TEAM_MEMBER**: Regular users who complete assessments
+
+### Auto Team Member Addition
+When team members complete assessments through manager share links:
+1. Automatically created as TeamMember
+2. Linked to the sharing manager
+3. Status set to ACTIVE
+4. Visible only to their manager
 
 ## Configuration
 

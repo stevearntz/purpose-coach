@@ -541,7 +541,7 @@ export default function CampaignsTab() {
                     <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
                       {participants.map((participant) => (
                         <div
-                          key={participant.id}
+                          key={participant.email || participant.id}
                           className="bg-white/5 rounded-lg px-4 py-3"
                         >
                           <div className="flex items-center justify-between">
@@ -648,7 +648,7 @@ export default function CampaignsTab() {
                 <div className="space-y-3">
                   {participants.map((participant) => (
                     <div
-                      key={participant.id}
+                      key={participant.email || participant.id}
                       className="bg-white/5 rounded-lg p-4"
                     >
                       <div className="flex items-center justify-between">

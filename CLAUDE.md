@@ -443,6 +443,111 @@ console.log('[Profile API] Upserting with dbUpdateData:', dbUpdateData)
 console.log('[Profile API] Profile after upsert - teamName:', profile.teamName)
 ```
 
+## 🎯 Campaign System Architecture (December 2024)
+
+### Campaign Types and Separation
+The system has two distinct campaign types that MUST remain completely separated:
+
+1. **HR_CAMPAIGN** - Created by Admin/HR users
+   - Shows in admin dashboard at `/dashboard/campaigns`
+   - Created via Campaign Creation Wizard
+   - Company-wide assessments
+   - Visible to all admins in the organization
+
+2. **TEAM_SHARE** - Created by Managers
+   - Shows ONLY to the creating manager at `/dashboard/member/start/results`
+   - Created via "Share with Team" feature in tools
+   - Team-specific assessments
+   - NEVER visible to HR/Admin users
+   - Auto-adds team members when they complete assessments
+
+### Critical Implementation Details
+
+#### Campaign Type Assignment
+```typescript
+// In /api/campaigns/launch/v3/route.ts
+const userProfile = await tx.userProfile.findUnique({
+  where: { clerkUserId: req.user.id }
+});
+const campaignType = userProfile?.userType === 'ADMIN' ? 'HR_CAMPAIGN' : 'TEAM_SHARE';
+```
+
+#### Filtering by Campaign Type
+```typescript
+// Admin view - only HR_CAMPAIGN
+const campaigns = await prisma.campaign.findMany({
+  where: { 
+    companyId: company.id,
+    campaignType: 'HR_CAMPAIGN'
+  }
+});
+
+// Manager view - only their TEAM_SHARE campaigns
+const campaigns = await prisma.campaign.findMany({
+  where: {
+    createdBy: userId,
+    campaignType: 'TEAM_SHARE'
+  }
+});
+```
+
+#### Auto Team Member Addition
+When someone completes an assessment through a TEAM_SHARE campaign:
+1. System checks if it's a TEAM_SHARE campaign
+2. Finds the manager who created it
+3. Automatically creates a TeamMember record
+4. Links them to the manager's team
+
+### Common Issues and Fixes
+
+#### Issue: Campaign participants showing Clerk IDs instead of emails
+**Cause**: `/api/campaigns/register` was pushing `userId` instead of email
+**Fix**: Always store emails in the participants array, never Clerk IDs
+
+#### Issue: Duplicate key errors in CampaignsTab
+**Cause**: Using non-unique `participant.id` as React key
+**Fix**: Use `participant.email || participant.id` as key
+
+#### Issue: HR campaigns created as TEAM_SHARE
+**Cause**: Missing campaignType field in campaign creation
+**Fix**: Check user's userType and set appropriate campaignType
+
+### Database Cleanup Scripts
+```bash
+# Clean up test data while preserving key users
+npx tsx scripts/cleanup-local-data.ts
+
+# Fix campaign participants (remove duplicates and Clerk IDs)
+npx tsx -e "
+  const campaigns = await prisma.campaign.findMany()
+  for (const campaign of campaigns) {
+    const cleanParticipants = campaign.participants.filter(p => 
+      p.includes('@') && !p.startsWith('user_')
+    )
+    const uniqueParticipants = [...new Set(cleanParticipants)]
+    await prisma.campaign.update({
+      where: { id: campaign.id },
+      data: { participants: uniqueParticipants }
+    })
+  }
+"
+```
+
+### User Types and Roles
+- **ADMIN**: HR/Admin users who create company-wide campaigns
+- **MANAGER**: Users who can share assessments with their team
+- **TEAM_MEMBER**: Regular users who complete assessments
+
+Set user type:
+```bash
+npx tsx -e "
+  await prisma.userProfile.updateMany({
+    where: { email: 'steve@getcampfire.com' },
+    data: { userType: 'ADMIN' }
+  })
+"
+```
+
 ## 📚 Useful Database Scripts
 
 ### Debug Scripts (Already Created)
@@ -507,6 +612,35 @@ npx prisma db push
 npx prisma migrate dev
 ```
 
+## Assessment Results Data Flow
+
+### Unified API Pattern
+The `/api/assessments/unified/route.ts` provides a standardized way to fetch assessment results:
+- Transforms various data formats into a unified structure
+- Maps priority shortcuts to full text using `priorityMapping.ts`
+- Filters TEAM_SHARE results from admin view automatically
+
+### Priority/Focus Area Mapping
+Always use full professional titles for focus areas:
+```typescript
+import { mapPriorityToFullText } from '@/utils/priorityMapping'
+
+// Maps 'risk' → 'Risk management or compliance'
+// Maps 'revenue' → 'Revenue, sales, or growth targets'
+const displayText = mapPriorityToFullText(priority)
+```
+
+### Assessment Result Display Components
+- **IndividualResultsViewEnhanced**: For displaying individual assessment details
+- **TeamResultsView**: For displaying team member results with expandable cards
+- **CampaignResultCard**: For aggregated campaign data with colored pills
+
+Color coding for result pills:
+- Red: Challenge areas
+- Blue: Skills to develop
+- Yellow: Support needs
+- Purple: Focus areas
+
 ## Recent Session Discoveries (December 2024)
 
 ### API Response Format
@@ -542,3 +676,120 @@ body: JSON.stringify({
   2. Fetch fresh data
   3. Update local state
   4. Close modals/reset forms
+## Session Update - January 2025
+
+### Admin Organization Management Features
+Successfully implemented comprehensive organization management for the admin portal:
+
+#### Features Added
+1. **Delete Organization Functionality**
+   - Complete removal with confirmation modal
+   - Cleans up both Clerk and database records
+   - Handles all related data (profiles, invitations, etc.)
+
+2. **Manage Admins Modal**
+   - View all organization admins
+   - Shows invite status (Active/Pending)
+   - Resend invitations to pending admins
+   - Quick invite new admin button
+
+3. **API Endpoints Created**
+   - `GET /api/admin/organizations/[id]/admins` - Fetch organization admins
+   - `DELETE /api/admin/organizations/[id]` - Delete entire organization
+   - `POST /api/admin/organizations/invite` - Enhanced with resend capability
+
+#### TypeScript Fixes Applied
+- Added `inviteStatus` to Admin interface
+- Fixed Clerk `OrganizationMembership.userId` access using type assertions
+- Corrected `deleteOrganization` method signature (string vs object)
+- Removed non-existent `assessmentCampaign` table reference
+
+### Deployment Process Clarification
+
+#### Vercel Branch Strategy
+- **development branch** → Preview deployments (automatic)
+- **main branch** → Production deployment (automatic)
+- Vercel watches ALL branches by default via GitHub webhooks
+
+#### Deployment Commands
+```bash
+# Development (preview)
+git push origin development
+
+# Production
+git checkout main
+git merge development --no-edit
+git push origin main
+git checkout development
+```
+
+#### Database Migration Reality
+- Migrations are NOT automatically executed on Vercel
+- Only `prisma generate` runs (creates client, doesn't touch DB)
+- Must manually run `prisma db push` after deployment
+- Consider adding `vercel-build` script for automation
+
+### Development Process Improvements Planned
+
+Created comprehensive documentation in `/docs/improvements/`:
+
+1. **Local PostgreSQL Setup** (`01-local-postgres-setup.md`)
+   - 10x faster development
+   - Offline capability
+   - Safe testing environment
+
+2. **Prisma Migrations** (`02-prisma-migrations.md`)
+   - Version-controlled schema changes
+   - Rollback capability
+   - Team collaboration
+
+3. **Pre-commit Hooks** (`03-pre-commit-hooks.md`)
+   - Prevent broken commits
+   - TypeScript checking
+   - Build verification
+
+4. **Automated Migrations** (`04-automated-migrations-deployment.md`)
+   - Zero-downtime deployments
+   - Automatic schema sync
+   - Rollback on failure
+
+5. **Database Backup/Restore** (`05-database-backup-restore.md`)
+   - Neon backup configuration
+   - Point-in-time recovery
+   - Disaster recovery procedures
+
+6. **Deployment Rollback** (`06-deployment-rollback.md`)
+   - Quick rollback procedures
+   - Code and database rollback
+   - Automated triggers
+
+**Implementation Order**: See `00-implementation-order.md` for phased approach
+
+### Critical Reminders
+
+#### ID Pattern (Still #1 Issue)
+- **Clerk IDs**: `org_xxx`, `user_xxx` (prefixed)
+- **Database IDs**: `cmeuy...` (cuid format, no prefix)
+- **NEVER use Clerk IDs as foreign keys directly**
+
+#### Email Service
+- Using Resend (configured and working)
+- Fallback messages if not configured
+- Dynamic URL detection for invitations
+
+#### Database Environments
+- **Production**: `ep-dawn-river-adge7l6h` (Neon)
+- **Development**: `ep-flat-butterfly-adx1ubzt` (Neon)
+- Keep these separated to avoid data pollution
+
+### Useful Scripts
+```bash
+# Kill all dev servers
+lsof -i :3000,:3001,:3002 -t | xargs kill -9
+
+# Check database connection
+DATABASE_URL="..." npx prisma db push --dry-run
+
+# Quick production deploy
+git checkout main && git merge development --no-edit && git push origin main && git checkout development
+```

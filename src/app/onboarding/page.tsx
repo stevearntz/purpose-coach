@@ -21,6 +21,14 @@ export default function OnboardingPage() {
   // Always wait for webhook to potentially assign organization
   const shouldWaitForWebhook = true // Webhook will handle domain matching
   
+  // Clean up sessionStorage on component unmount or when user navigates away
+  useEffect(() => {
+    return () => {
+      // Clean up the flag when component unmounts
+      sessionStorage.removeItem('onboarding-manual-tried')
+    }
+  }, [])
+
   useEffect(() => {
     // Once everything is loaded, check if user has an org
     if (userLoaded && membershipsLoaded && userMemberships?.data?.length > 0) {
@@ -35,40 +43,42 @@ export default function OnboardingPage() {
   useEffect(() => {
     // If user is loaded and has no memberships, try manual assignment
     if (userLoaded && membershipsLoaded && (!userMemberships?.data || userMemberships.data.length === 0)) {
-      // Try manual organization assignment (works locally when webhooks aren't configured)
-      const tryManualAssignment = async () => {
-        setWaitingForWebhook(true)
+      // Only try once to avoid loops - check this FIRST before any state changes
+      const hasTried = sessionStorage.getItem('onboarding-manual-tried')
+      
+      if (!hasTried) {
+        // Mark as tried immediately to prevent re-runs
+        sessionStorage.setItem('onboarding-manual-tried', 'true')
         
-        try {
-          const response = await fetch('/api/manual-org-assign')
-          const data = await response.json()
+        // Try manual organization assignment (works locally when webhooks aren't configured)
+        const tryManualAssignment = async () => {
+          setWaitingForWebhook(true)
           
-          if (data.success && data.organizationId) {
-            console.log('[Onboarding] Manual assignment successful:', data.message)
-            // Reload to pick up the new organization membership
-            window.location.reload()
-          } else {
-            console.log('[Onboarding] No org to assign:', data.message)
-            // No matching org, show creation form
+          try {
+            const response = await fetch('/api/manual-org-assign')
+            const data = await response.json()
+            
+            if (data.success && data.organizationId) {
+              console.log('[Onboarding] Manual assignment successful:', data.message)
+              // Reload to pick up the new organization membership
+              window.location.reload()
+            } else {
+              console.log('[Onboarding] No org to assign:', data.message)
+              // No matching org, show creation form
+              setWaitingForWebhook(false)
+              setShowOrgCreation(true)
+            }
+          } catch (error) {
+            console.error('[Onboarding] Manual assignment failed:', error)
+            // On error, show org creation
             setWaitingForWebhook(false)
             setShowOrgCreation(true)
           }
-        } catch (error) {
-          console.error('[Onboarding] Manual assignment failed:', error)
-          // On error, show org creation
-          setWaitingForWebhook(false)
-          setShowOrgCreation(true)
         }
-      }
-      
-      // Only try once to avoid loops
-      const hasTried = sessionStorage.getItem('onboarding-manual-tried')
-      if (!hasTried) {
-        sessionStorage.setItem('onboarding-manual-tried', 'true')
+        
         tryManualAssignment()
       } else {
-        // Already tried, clean up and show org creation
-        sessionStorage.removeItem('onboarding-manual-tried')
+        // Already tried, show org creation
         setShowOrgCreation(true)
       }
     }

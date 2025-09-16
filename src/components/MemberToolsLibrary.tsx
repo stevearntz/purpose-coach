@@ -6,7 +6,7 @@ import {
   Target, Heart, Briefcase, Brain, Users, ShieldCheck, 
   Lightbulb, ArrowRight, ArrowLeft, ClipboardCheck, MessageCircle, BookOpen
 } from 'lucide-react'
-import TeamShareWizard from './TeamShareWizard'
+import SimpleShareModal from './SimpleShareModal'
 
 export type ToolType = 'assessment' | 'reflection' | 'conversation-guide'
 
@@ -26,8 +26,8 @@ const tools: Tool[] = [
   {
     id: 'people-leader-needs',
     path: '/people-leader-needs',
-    title: 'People Leadership Needs Assessment',
-    subtitle: 'Understand leadership gaps',
+    title: 'Needs Assessment',
+    subtitle: 'Identify leader pain points',
     description: 'Discover what your team leaders really need - the support, resources, and development that will help them lead more effectively.',
     gradient: 'from-[#30C7C7] to-[#2A74B9]',
     icon: <Lightbulb className="w-8 h-8" />,
@@ -297,9 +297,9 @@ export default function MemberToolsLibrary({
         </div>
       )}
       
-      {/* Team Share Wizard */}
+      {/* Simple Share Modal */}
       {showWizard && selectedTool && (
-        <TeamShareWizard
+        <SimpleShareModal
           toolId={selectedTool.id}
           toolTitle={selectedTool.title}
           toolPath={selectedTool.path}

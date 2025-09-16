@@ -26,11 +26,13 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    // Get all campaigns for this company with completed assessments
+    // Get only HR_CAMPAIGN types for this company (not TEAM_SHARE)
+    // Admin dashboard should only see official HR campaigns
     const campaigns = await prisma.campaign.findMany({
       where: { 
         companyId: company.id,
-        status: { in: ['ACTIVE', 'COMPLETED'] }
+        status: { in: ['ACTIVE', 'COMPLETED'] },
+        campaignType: 'HR_CAMPAIGN'  // Only show HR campaigns, not manager team shares
       },
       orderBy: { createdAt: 'desc' }
     });

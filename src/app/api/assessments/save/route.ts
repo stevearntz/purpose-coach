@@ -66,9 +66,44 @@ async function handleSaveAssessment({ request }: ApiContext) {
   // Find the invitation
   let invitation
   if (data.inviteCode) {
+    // First check if this is a campaign (generic invitation)
     invitation = await prisma.invitation.findFirst({
-      where: { inviteCode: data.inviteCode }
+      where: { 
+        inviteCode: data.inviteCode,
+        metadata: {
+          isGenericLink: true
+        }
+      },
+      include: { metadata: true }
     })
+    
+    // If it's a campaign invitation, we'll allow multiple uses
+    if (invitation && invitation.metadata?.isGenericLink) {
+      // For campaign links, check if this specific user already completed it
+      const userEmail = data.userProfile?.email
+      if (userEmail) {
+        const existingResult = await prisma.assessmentResult.findFirst({
+          where: {
+            invitationId: invitation.id,
+            toolId: data.toolId,
+            userEmail: userEmail
+          }
+        })
+        
+        if (existingResult) {
+          throw new ApiError(
+            ErrorCodes.ALREADY_EXISTS,
+            'You have already completed this assessment',
+            409
+          )
+        }
+      }
+    } else {
+      // Not a campaign, find regular invitation
+      invitation = await prisma.invitation.findFirst({
+        where: { inviteCode: data.inviteCode }
+      })
+    }
   } else if (data.invitationId) {
     invitation = await prisma.invitation.findUnique({
       where: { id: data.invitationId }
@@ -79,20 +114,26 @@ async function handleSaveAssessment({ request }: ApiContext) {
     throw CommonErrors.notFound('Invitation')
   }
   
-  // Check if already completed
-  const existingResult = await prisma.assessmentResult.findFirst({
-    where: {
-      invitationId: invitation.id,
-      toolId: data.toolId
-    }
-  })
+  // For non-campaign invitations, check if already completed
+  const isGenericLink = await prisma.invitationMetadata.findUnique({
+    where: { invitationId: invitation.id }
+  }).then(meta => meta?.isGenericLink)
   
-  if (existingResult) {
-    throw new ApiError(
-      ErrorCodes.ALREADY_EXISTS,
-      'Assessment already completed for this invitation',
-      409
-    )
+  if (!isGenericLink) {
+    const existingResult = await prisma.assessmentResult.findFirst({
+      where: {
+        invitationId: invitation.id,
+        toolId: data.toolId
+      }
+    })
+    
+    if (existingResult) {
+      throw new ApiError(
+        ErrorCodes.ALREADY_EXISTS,
+        'Assessment already completed for this invitation',
+        409
+      )
+    }
   }
   
   // Generate a unique share ID
@@ -122,14 +163,74 @@ async function handleSaveAssessment({ request }: ApiContext) {
     }
   })
   
-  // Update invitation status to COMPLETED
-  await prisma.invitation.update({
-    where: { id: invitation.id },
-    data: { 
-      status: 'COMPLETED',
-      completedAt: new Date()
+  // Check if this is a TEAM_SHARE campaign and auto-add team member
+  if (invitation.inviteCode) {
+    const campaign = await prisma.campaign.findFirst({
+      where: {
+        campaignCode: invitation.inviteCode,
+        campaignType: 'TEAM_SHARE'
+      }
+    })
+    
+    if (campaign && campaign.createdBy) {
+      // Find the manager's profile
+      const managerProfile = await prisma.userProfile.findUnique({
+        where: { clerkUserId: campaign.createdBy }
+      })
+      
+      if (managerProfile) {
+        const userEmail = data.userProfile?.email || invitation.email
+        const userName = data.userProfile?.name || 'Unknown Team Member'
+        
+        // Check if team member already exists
+        let teamMember = await prisma.teamMember.findFirst({
+          where: {
+            email: userEmail,
+            managerId: managerProfile.id
+          }
+        })
+        
+        // If not, create the team member
+        if (!teamMember && userEmail) {
+          teamMember = await prisma.teamMember.create({
+            data: {
+              managerId: managerProfile.id,
+              name: userName,
+              email: userEmail,
+              role: data.userProfile?.role || null,
+              status: 'ACTIVE', // Mark as active since they completed an assessment
+              companyId: campaign.companyId
+            }
+          })
+          
+          // Also create the team membership linking them to this manager's team
+          await prisma.teamMembership.create({
+            data: {
+              teamMemberId: teamMember.id,
+              teamOwnerId: managerProfile.id
+            }
+          })
+          
+          console.log(`[Assessment Save] Auto-added team member ${userName} (${userEmail}) to manager ${campaign.createdBy}'s team`)
+        }
+      }
     }
-  })
+  }
+  
+  // Update invitation status to COMPLETED (only for non-campaign invitations)
+  const isGenericLinkCheck = await prisma.invitationMetadata.findUnique({
+    where: { invitationId: invitation.id }
+  }).then(meta => meta?.isGenericLink)
+  
+  if (!isGenericLinkCheck) {
+    await prisma.invitation.update({
+      where: { id: invitation.id },
+      data: { 
+        status: 'COMPLETED',
+        completedAt: new Date()
+      }
+    })
+  }
   
   // Note: User profile updates would happen separately if needed
   // The invitation model doesn't have clerkUserId in this schema

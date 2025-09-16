@@ -8,7 +8,7 @@
 import { z } from 'zod'
 import { NextRequest } from 'next/server'
 import { clerkClient } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 import { createApiHandlers, ApiContext } from '@/lib/api/handler'
 import { successResponse, SuccessResponses } from '@/lib/api/responses'
 import { CommonErrors, ApiError } from '@/lib/api/errors'

@@ -6,6 +6,7 @@ import {
   Building2, ChevronDown, ChevronUp,
   Clock, CheckCircle, Users, Hash, Loader2, Mail, TrendingUp, X, Copy, Rocket
 } from 'lucide-react'
+import { mapPriorityToFullText } from '@/utils/priorityMapping'
 
 interface AssessmentData {
   id: string
@@ -338,21 +339,7 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
     // Now render only the single relevant assessment
     const assessment = relevantAssessment;
     
-    // Priority names mapping
-    const priorityLabels: Record<string, string> = {
-      'revenue': 'Revenue, sales, or growth targets',
-      'customer': 'Customer success or retention',
-      'product': 'Product or delivery milestones',
-      'team': 'Team performance or growth',
-      'collaboration': 'Cross-functional collaboration',
-      'culture': 'Culture or engagement',
-      'operations': 'Operational efficiency',
-      'budget': 'Budget or cost management',
-      'strategy': 'Strategy or planning',
-      'change': 'Change or transformation efforts',
-      'focus': 'My own focus / effectiveness',
-      'risk': 'Risk management or compliance'
-    };
+    // Use centralized priority mapping
     
     return (
       <div className="space-y-4">
@@ -448,7 +435,7 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                         : Object.values(assessment.insights.priorities).flat()
                       ).map((priority: string, idx: number) => (
                         <span key={idx} className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">
-                          {priorityLabels[priority] || priority}
+                          {mapPriorityToFullText(priority)}
                         </span>
                       ))}
                     </div>

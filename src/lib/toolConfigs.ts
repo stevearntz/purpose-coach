@@ -62,8 +62,8 @@ export const toolConfigs = {
   },
   peopleLeaderNeeds: {
     gradient: "from-[#30C7C7] to-[#2A74B9]",
-    title: "People Leadership Needs Assessment",
-    subtitle: "Identify core needs for leading teams effectively.",
+    title: "Needs Assessment",
+    subtitle: "Identify leader pain points.",
     description: "This assessment helps all people leaders identify core needs for leading their teams effectively. Share your challenges and get the right support and resources."
   },
   // Add more tools here as you create them

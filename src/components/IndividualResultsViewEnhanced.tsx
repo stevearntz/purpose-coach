@@ -344,8 +344,8 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
     return (
       <div className="space-y-4">
         <div className="space-y-4 bg-white/5 rounded-lg p-6">
-          {/* Handle responses format (used by unified API) */}
-          {assessment.responses && typeof assessment.responses === 'object' && (
+          {/* Handle responses format (used by unified API) - prioritize this format */}
+          {assessment.responses && typeof assessment.responses === 'object' ? (
             <div className="space-y-6">
               {/* Challenge Areas from responses */}
               {assessment.responses.challenges && assessment.responses.challenges.length > 0 && (
@@ -424,10 +424,8 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                 </div>
               )}
             </div>
-          )}
-
-          {/* Also keep insights format for backward compatibility */}
-          {assessment.insights && typeof assessment.insights === 'object' && (
+          ) : /* Fall back to insights format if responses not available */
+          assessment.insights && typeof assessment.insights === 'object' ? (
             <div className="space-y-6">
                 {/* Challenge Areas - Main focus */}
                 {assessment.insights.mainChallengeAreas && (
@@ -540,7 +538,7 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
                   </div>
                 )}
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     )

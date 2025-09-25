@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
       where: { clerkUserId: userId }
     });
     
-    if (!userProfile || userProfile.clerkRole !== 'admin') {
+    if (!userProfile || userProfile.userType !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
     

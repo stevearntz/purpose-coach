@@ -59,15 +59,15 @@ export async function GET(request: NextRequest) {
     // Get response counts and details for each campaign
     const campaignsWithDetails = await Promise.all(campaigns.map(async (campaign) => {
       // Count completed invitations
-      const responseCount = await prisma.invitation.count({
+      const responseCount = campaign.campaignCode ? await prisma.invitation.count({
         where: {
           inviteCode: campaign.campaignCode,
           status: 'COMPLETED'
         }
-      })
+      }) : 0
 
       // Get the actual responses
-      const responses = await prisma.assessmentResult.findMany({
+      const responses = campaign.campaignCode ? await prisma.assessmentResult.findMany({
         where: {
           invitation: {
             inviteCode: campaign.campaignCode
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
         orderBy: {
           completedAt: 'desc'
         }
-      })
+      }) : []
 
       // Get creator info
       const creator = await prisma.userProfile.findUnique({

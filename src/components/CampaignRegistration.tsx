@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useUser, useAuth } from '@clerk/nextjs'
+import { useUser } from '@clerk/nextjs'
 import { Sparkles, ArrowRight, Users, AlertCircle } from 'lucide-react'
 
 interface CampaignData {
@@ -23,7 +23,6 @@ export default function CampaignRegistration({ onComplete }: CampaignRegistratio
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user, isSignedIn, isLoaded } = useUser()
-  const { signIn } = useAuth()
   const [campaignCode] = useState(searchParams.get('campaign'))
   const [campaignData, setCampaignData] = useState<CampaignData | null>(null)
   const [loading, setLoading] = useState(true)

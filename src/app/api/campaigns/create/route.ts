@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
         email: `campaign-${campaignCode}@team.local`, // Placeholder email for campaign
         name: `Campaign: ${toolTitle}`,
         inviteCode: campaignCode, // Use campaign code as invite code
-        inviteUrl: campaign.campaignLink,
+        inviteUrl: campaign.campaignLink || '', // Provide empty string if null
         status: 'SENT',
         companyId: company.id,
         metadata: {

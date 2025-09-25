@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
           lastName: user.lastName,
           role: teamMember.role,
           companyId: teamMember.companyId,
-          clerkRole: 'team_member'
+          userType: 'TEAM_MEMBER'
         }
       })
     }

@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     // For each campaign, get the response count from invitations
     const campaignsWithCounts = await Promise.all(campaigns.map(async (campaign) => {
       // Get the actual responses (don't rely on invitation status)
-      const responses = await prisma.assessmentResult.findMany({
+      const responses = campaign.campaignCode ? await prisma.assessmentResult.findMany({
         where: {
           invitation: {
             inviteCode: campaign.campaignCode
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         orderBy: {
           completedAt: 'desc'
         }
-      })
+      }) : []
       
       // Count actual responses, not invitation status
       const responseCount = responses.length

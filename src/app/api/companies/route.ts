@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     // Only return companies the user has access to
     // Admin users could see all, regular users only see their own
-    const whereClause = userProfile.clerkRole === 'admin' 
+    const whereClause = userProfile.userType === 'ADMIN' 
       ? {} 
       : userProfile.companyId 
         ? { id: userProfile.companyId }
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Only admins can create companies
-    if (userProfile.clerkRole !== 'admin') {
+    if (userProfile.userType !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 

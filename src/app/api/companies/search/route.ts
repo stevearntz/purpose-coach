@@ -55,9 +55,9 @@ export async function GET(request: NextRequest) {
     };
 
     // Non-admin users can only search within their own company
-    if (userProfile.clerkRole !== 'admin' && userProfile.companyId) {
+    if (userProfile.userType !== 'ADMIN' && userProfile.companyId) {
       whereClause.id = userProfile.companyId;
-    } else if (userProfile.clerkRole !== 'admin') {
+    } else if (userProfile.userType !== 'ADMIN') {
       // No company and not admin = no results
       return NextResponse.json({ companies: [] });
     }

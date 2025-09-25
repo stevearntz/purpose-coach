@@ -30,7 +30,7 @@ export default function SimpleShareModal({
   
   useEffect(() => {
     // Prevent duplicate creation
-    if (hasCreated || !isOpen) {
+    if (hasCreated) {
       return
     }
     
@@ -74,7 +74,7 @@ export default function SimpleShareModal({
     }
     
     createCampaign()
-  }, [toolId, toolTitle, toolPath, user, isOpen, hasCreated])
+  }, [toolId, toolTitle, toolPath, user, hasCreated])
   
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareLink)

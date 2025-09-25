@@ -13,6 +13,7 @@ import { createApiHandlers, ApiContext } from '@/lib/api/handler'
 import { successResponse, SuccessResponses } from '@/lib/api/responses'
 import { CommonErrors, ApiError } from '@/lib/api/errors'
 import { ErrorCodes } from '@/lib/api/types'
+import { UserType } from '@prisma/client'
 
 // Simple validation function to avoid import issues
 async function validateBody<T extends z.ZodType>(
@@ -63,7 +64,7 @@ const UserProfileResponseSchema = z.object({
   teamEmoji: z.string().nullable(),
   companyId: z.string().nullable(),
   onboardingComplete: z.boolean(),
-  clerkRole: z.string().nullable(),
+  userType: z.nativeEnum(UserType).optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
   company: z.object({
@@ -179,7 +180,7 @@ async function handleGetProfile({ userId }: ApiContext) {
             teamPurpose: '',
             teamEmoji: '',
             onboardingComplete: false,
-            clerkRole: orgMemberships.data[0]?.role || null,
+            userType: 'MANAGER',
             ...(companyId ? { companyId } : {})
           },
           include: {
@@ -212,7 +213,7 @@ async function handleGetProfile({ userId }: ApiContext) {
               teamPurpose: '',
               teamEmoji: '',
               onboardingComplete: false,
-              clerkRole: null
+              userType: 'MANAGER'
               // No companyId - let it be null
             },
             include: {

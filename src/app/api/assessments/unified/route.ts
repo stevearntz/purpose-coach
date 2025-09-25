@@ -311,8 +311,8 @@ export async function GET(request: NextRequest) {
       })
     }
     
-    // Transform PostgreSQL results
-    for (const pgResult of pgResults) {
+    // Transform PostgreSQL results (use filtered results)
+    for (const pgResult of filteredResults) {
       const unified = transformToUnifiedFormat(pgResult, 'postgres')
       if (unified) {
         results.push(unified)

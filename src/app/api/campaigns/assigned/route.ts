@@ -43,46 +43,25 @@ export async function GET(request: Request) {
       }
     })
 
-    // Get all completed assessments for this user
-    // We need to check which campaign codes they've already completed
-    const completedAssessments = await prisma.assessmentResult.findMany({
-      where: {
-        userEmail: userEmail
-      },
-      select: {
-        id: true,
-        completedAt: true,
-        invitation: {
-          select: {
-            inviteCode: true
-          }
-        }
-      }
-    })
+    // Get completed campaign IDs for this user
+    const completedCampaignIds = new Set<string>()
     
-    // Extract campaign codes from completed assessments
-    // The inviteCode often contains or matches the campaign code
-    const completedCampaignCodes = new Set<string>()
-    
-    // Also check invitations directly to see which campaigns have been marked as completed
+    // Check invitations that are completed for this user
     const completedInvitations = await prisma.invitation.findMany({
       where: {
         email: userEmail,
-        status: 'COMPLETED'
+        status: 'COMPLETED',
+        campaignId: { not: null }
       },
       select: {
-        inviteCode: true
+        campaignId: true
       }
     })
     
-    // Add completed invitation codes that match campaign codes
+    // Add completed campaign IDs
     for (const invitation of completedInvitations) {
-      // Check if this invite code matches any campaign code
-      const matchingCampaign = campaigns.find(c => 
-        c.campaignCode && invitation.inviteCode.includes(c.campaignCode)
-      )
-      if (matchingCampaign?.campaignCode) {
-        completedCampaignCodes.add(matchingCampaign.campaignCode)
+      if (invitation.campaignId) {
+        completedCampaignIds.add(invitation.campaignId)
       }
     }
     
@@ -91,8 +70,7 @@ export async function GET(request: Request) {
     const transformedCampaigns = campaigns
       .filter(campaign => {
         // Only show campaigns that haven't been completed
-        // Each campaign with a unique campaign code should be treated independently
-        return !completedCampaignCodes.has(campaign.campaignCode || '')
+        return !completedCampaignIds.has(campaign.id)
       })
       .map(campaign => {
         // For campaign-based assessments, we don't track individual invitations

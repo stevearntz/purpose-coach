@@ -103,7 +103,7 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
       // 2. If context is 'admin', create HR_CAMPAIGN
       // 3. If context is 'manager' OR user is not ADMIN, create TEAM_SHARE
       // 4. Default for ADMIN users without context: HR_CAMPAIGN
-      let campaignType = 'TEAM_SHARE';
+      let campaignType: 'HR_CAMPAIGN' | 'TEAM_SHARE' = 'TEAM_SHARE';
       
       if (campaignContext === 'admin') {
         // Explicitly from admin view

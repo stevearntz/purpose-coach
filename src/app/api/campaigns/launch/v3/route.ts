@@ -28,7 +28,8 @@ const CreateCampaignSchema = z.object({
     name: z.string().optional()
   })).min(1).max(500),
   senderEmail: z.string().email(),
-  companyName: z.string().optional()
+  companyName: z.string().optional(),
+  campaignContext: z.enum(['admin', 'manager']).optional() // Which view is creating this
 });
 
 /**
@@ -64,7 +65,8 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
       deadline,
       participants,
       senderEmail,
-      companyName
+      companyName,
+      campaignContext
     } = validation.data;
     
     // Generate campaign link
@@ -91,13 +93,29 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
       // Extract email addresses from participants for the campaign
       const participantEmails = participants.map(p => p.email.toLowerCase().trim());
       
-      // Determine campaign type based on user role
-      // Check if user is admin/HR
+      // Determine campaign type based on context and user role
       const userProfile = await tx.userProfile.findUnique({
         where: { clerkUserId: req.user.id }
       });
       
-      const campaignType = userProfile?.userType === 'ADMIN' ? 'HR_CAMPAIGN' : 'TEAM_SHARE';
+      // Campaign type logic:
+      // 1. If campaignContext is explicitly set, use it
+      // 2. If context is 'admin', create HR_CAMPAIGN
+      // 3. If context is 'manager' OR user is not ADMIN, create TEAM_SHARE
+      // 4. Default for ADMIN users without context: HR_CAMPAIGN
+      let campaignType = 'TEAM_SHARE';
+      
+      if (campaignContext === 'admin') {
+        // Explicitly from admin view
+        campaignType = 'HR_CAMPAIGN';
+      } else if (campaignContext === 'manager') {
+        // Explicitly from manager view
+        campaignType = 'TEAM_SHARE';
+      } else if (userProfile?.userType === 'ADMIN') {
+        // Admin without context defaults to HR_CAMPAIGN
+        campaignType = 'HR_CAMPAIGN';
+      }
+      // Everyone else (MANAGER, TEAM_MEMBER) gets TEAM_SHARE
       
       // Create campaign with participants and tool info
       const campaign = await tx.campaign.create({

@@ -246,6 +246,7 @@ export default function ToolsLibrary({
             toolPath={selectedTool.path}
             toolGradient={selectedTool.gradient}
             toolIcon={selectedTool.icon}
+            campaignContext="admin" // Admin launch page always creates HR_CAMPAIGN
             onClose={() => {
               setShowWizard(false)
               setSelectedTool(null)

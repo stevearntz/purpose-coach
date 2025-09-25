@@ -374,6 +374,7 @@ export default function CampaignsTab() {
             toolIcon={<Target className="w-6 h-6" />}
             editingCampaign={campaign}
             initialStep={wizardInitialStep}
+            campaignContext="admin" // Admin dashboard always creates HR_CAMPAIGN
             onClose={() => {
               setViewMode('list')
               setEditingCampaign(null)

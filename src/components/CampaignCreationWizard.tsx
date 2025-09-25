@@ -39,6 +39,7 @@ interface CampaignCreationWizardProps {
   onClose: () => void
   editingCampaign?: any // Campaign being edited
   initialStep?: number // Initial step to show
+  campaignContext?: 'admin' | 'manager' // Which view is creating this campaign
 }
 
 export default function CampaignCreationWizard({
@@ -49,7 +50,8 @@ export default function CampaignCreationWizard({
   toolIcon,
   onClose,
   editingCampaign,
-  initialStep = 1
+  initialStep = 1,
+  campaignContext
 }: CampaignCreationWizardProps) {
   const router = useRouter()
   const { user } = useUser()
@@ -434,7 +436,8 @@ ${user?.firstName || 'Your Name'}`)
             name: p.name
           })),
           senderEmail: user?.primaryEmailAddress?.emailAddress,
-          companyName: organization?.name
+          companyName: organization?.name,
+          campaignContext: campaignContext // Pass the context to determine campaign type
         })
       })
       

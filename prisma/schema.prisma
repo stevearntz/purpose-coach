@@ -65,6 +65,7 @@ model Invitation {
   status            InvitationStatus    @default(PENDING)
   personalMessage   String?
   companyId         String
+  campaignId        String?             // Optional link to campaign
   createdAt         DateTime            @default(now())
   sentAt            DateTime?
   openedAt          DateTime?
@@ -74,11 +75,13 @@ model Invitation {
   currentStage      String?
   assessmentResults AssessmentResult[]
   company           Company             @relation(fields: [companyId], references: [id])
+  campaign          Campaign?           @relation(fields: [campaignId], references: [id])
   metadata          InvitationMetadata?
 
   @@index([email])
   @@index([companyId])
   @@index([status])
+  @@index([campaignId])
 }
 
 model InvitationMetadata {
@@ -145,6 +148,7 @@ model Campaign {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   company      Company        @relation(fields: [companyId], references: [id])
+  invitations  Invitation[]
   teamInvitations TeamInvitation[]
   
   @@index([companyId])

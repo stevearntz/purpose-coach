@@ -146,6 +146,7 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
               inviteUrl: individualLink, // Individual link with invite code
               personalMessage: customMessage,
               companyId: company.id,
+              campaignId: campaign.id, // Link to campaign
               status: 'PENDING', // Not sent, just created
               sentAt: null // No email sent
             }
@@ -162,6 +163,7 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
               inviteCode: existingCode,
               inviteUrl: updatedLink, // Update URL to individual campaign link
               personalMessage: customMessage || invitation.personalMessage,
+              campaignId: campaign.id, // Link to campaign
               // Keep existing status unless it's already completed
               status: invitation.status === 'COMPLETED' ? 'COMPLETED' : 'PENDING'
             }
@@ -200,7 +202,7 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
             year: 'numeric'
           }) : 'soon',
           companyName: result.company.name,
-          senderName: req.user.name?.split(' ')[0] || req.user.email.split('@')[0]
+          senderName: req.user.name?.split(' ')[0] || req.user.email?.split('@')[0] || 'Team Leader'
         }),
         emailSubject: `Action Required: Complete Your ${toolName}`
       }
@@ -216,8 +218,15 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
     
   } catch (error) {
     logger.error({ requestId, error }, 'Failed to create campaign');
+    console.error('[Campaign Launch v3] Error details:', error);
+    
+    // Return more detailed error in development
+    const errorMessage = process.env.NODE_ENV === 'development' 
+      ? `Failed to create campaign: ${error instanceof Error ? error.message : 'Unknown error'}`
+      : 'Failed to create campaign';
+    
     return NextResponse.json(
-      { error: 'Failed to create campaign' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

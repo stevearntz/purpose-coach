@@ -251,8 +251,17 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    if (companyId) {
+    // If campaignId is provided, filter by campaign
+    if (campaignId) {
+      // Results are linked to campaigns through invitations
       whereClause.invitation = {
+        ...whereClause.invitation,
+        campaignId: campaignId
+      }
+    } else if (companyId) {
+      // Only use companyId filter if campaignId is not provided
+      whereClause.invitation = {
+        ...whereClause.invitation,
         companyId: companyId
       }
     }

@@ -41,30 +41,36 @@ export async function GET(request: NextRequest) {
     const campaignResults = await Promise.all(
       campaigns.map(async (campaign) => {
         // Get invitations for this campaign
-        // For v3 campaigns with participants array, match by email
-        // For older campaigns, match by URL pattern
-        let invitations;
+        // First try to get invitations directly linked to this campaign (v3 campaigns)
+        let invitations = await prisma.invitation.findMany({
+          where: {
+            campaignId: campaign.id
+          }
+        });
         
-        if (campaign.participants && campaign.participants.length > 0) {
-          // V3 campaign - match by participant emails
-          invitations = await prisma.invitation.findMany({
-            where: {
-              companyId: company.id,
-              email: {
-                in: campaign.participants
+        // If no directly linked invitations, fall back to old methods
+        if (invitations.length === 0) {
+          if (campaign.participants && campaign.participants.length > 0) {
+            // V3 campaign without proper linkage - match by participant emails
+            invitations = await prisma.invitation.findMany({
+              where: {
+                companyId: company.id,
+                email: {
+                  in: campaign.participants
+                }
               }
-            }
-          });
-        } else {
-          // Older campaigns - match by URL pattern
-          invitations = await prisma.invitation.findMany({
-            where: {
-              companyId: company.id,
-              inviteUrl: {
-                contains: `campaign=${encodeURIComponent(campaign.name)}`
+            });
+          } else {
+            // Older campaigns - match by URL pattern
+            invitations = await prisma.invitation.findMany({
+              where: {
+                companyId: company.id,
+                inviteUrl: {
+                  contains: `campaign=${encodeURIComponent(campaign.name)}`
+                }
               }
-            }
-          });
+            });
+          }
         }
         
         // Use campaign participants count if available, otherwise invitation count

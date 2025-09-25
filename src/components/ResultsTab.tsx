@@ -145,8 +145,22 @@ export default function ResultsTab() {
           teamSize: result.user.teamSize,
           hasResults: true,
           assessmentId: result.id,
-          // Include the full result for detail view
-          fullResult: result
+          // Include the assessment data for the enhanced component
+          assessmentData: {
+            id: result.id,
+            invitationId: result.invitationId,
+            toolId: result.toolId,
+            toolName: result.toolName,
+            completedAt: result.completedAt,
+            shareId: result.shareId,
+            user: result.user,
+            responses: result.responses,
+            scores: result.scores,
+            summary: result.summary,
+            insights: result.insights,
+            recommendations: result.recommendations,
+            userProfile: result.userProfile
+          }
         })) || []
         
         setIndividualResults(transformedResults)

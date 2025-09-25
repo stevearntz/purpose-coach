@@ -707,9 +707,12 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
               
               {/* Expanded Details */}
               {isExpanded && status === 'COMPLETED' && (
-                <div className="px-6 pb-6 border-t border-gray-100">
+                <div className="px-6 pb-6 border-t border-white/10">
                   <div className="mt-4">
-                    {renderAssessmentDetails(result.id, resultAssessments, result)}
+                    {result.assessmentData ? 
+                      renderAssessmentDetails(result.id, [result.assessmentData], result) :
+                      renderAssessmentDetails(result.id, resultAssessments, result)
+                    }
                   </div>
                 </div>
               )}

@@ -35,56 +35,84 @@ export async function GET(request: Request) {
           }
         ]
       },
+      include: {
+        company: true
+      },
       orderBy: {
         createdAt: 'desc'
       }
     })
 
-    // Get invite codes and status for this user
-    const invitations = await prisma.invitation.findMany({
+    // Get all completed assessments for this user
+    // We need to check which campaign codes they've already completed
+    const completedAssessments = await prisma.assessmentResult.findMany({
       where: {
-        email: userEmail,
-        companyId: { in: campaigns.map(c => c.companyId) }
+        userEmail: userEmail
       },
       select: {
-        inviteCode: true,
-        companyId: true,
-        status: true,
-        completedAt: true
+        id: true,
+        completedAt: true,
+        invitation: {
+          select: {
+            inviteCode: true
+          }
+        }
       }
     })
     
-    // Create a map of companyId to invitation data
-    const inviteMap = new Map(invitations.map(inv => [inv.companyId, {
-      inviteCode: inv.inviteCode,
-      status: inv.status,
-      completedAt: inv.completedAt
-    }]))
+    // Extract campaign codes from completed assessments
+    // The inviteCode often contains or matches the campaign code
+    const completedCampaignCodes = new Set<string>()
+    
+    // Also check invitations directly to see which campaigns have been marked as completed
+    const completedInvitations = await prisma.invitation.findMany({
+      where: {
+        email: userEmail,
+        status: 'COMPLETED'
+      },
+      select: {
+        inviteCode: true
+      }
+    })
+    
+    // Add completed invitation codes that match campaign codes
+    for (const invitation of completedInvitations) {
+      // Check if this invite code matches any campaign code
+      const matchingCampaign = campaigns.find(c => 
+        c.campaignCode && invitation.inviteCode.includes(c.campaignCode)
+      )
+      if (matchingCampaign?.campaignCode) {
+        completedCampaignCodes.add(matchingCampaign.campaignCode)
+      }
+    }
     
     // Transform campaigns for the dashboard
-    const transformedCampaigns = campaigns.map(campaign => {
-      const invitationData = inviteMap.get(campaign.companyId) || {
-        inviteCode: '',
-        status: 'PENDING',
-        completedAt: null
-      }
-      
-      return {
-        id: campaign.id,
-        name: campaign.name,
-        description: campaign.description || 'Complete this assessment to help us understand your needs',
-        toolId: campaign.toolId || '',
-        toolName: campaign.toolName || 'Assessment',
-        toolPath: campaign.toolPath || '',
-        campaignCode: campaign.campaignCode || '',
-        inviteCode: invitationData.inviteCode || '',
-        status: invitationData.status || 'PENDING',
-        completedAt: invitationData.completedAt,
-        startDate: campaign.startDate,
-        endDate: campaign.endDate,
-        createdAt: campaign.createdAt
-      }
-    })
+    // Filter out only campaigns that haven't been completed yet
+    const transformedCampaigns = campaigns
+      .filter(campaign => {
+        // Only show campaigns that haven't been completed
+        // Each campaign with a unique campaign code should be treated independently
+        return !completedCampaignCodes.has(campaign.campaignCode || '')
+      })
+      .map(campaign => {
+        // For campaign-based assessments, we don't track individual invitations
+        // Each campaign is independent
+        return {
+          id: campaign.id,
+          name: campaign.name,
+          description: campaign.description || 'Complete this assessment to help us understand your needs',
+          toolId: campaign.toolId || '',
+          toolName: campaign.toolName || 'Assessment',
+          toolPath: campaign.toolPath || '',
+          campaignCode: campaign.campaignCode || '',
+          inviteCode: '', // Campaign-based assessments don't need individual invite codes
+          status: 'PENDING', // If it's in the list, it's pending
+          completedAt: null,
+          startDate: campaign.startDate,
+          endDate: campaign.endDate,
+          createdAt: campaign.createdAt
+        }
+      })
 
     return NextResponse.json({ 
       campaigns: transformedCampaigns,

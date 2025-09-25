@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser, useOrganization } from '@clerk/nextjs'
 import { 
-  Users, Mail, Calendar, MessageSquare, Rocket, 
+  Users, Mail, Calendar, MessageSquare, 
   ChevronRight, ChevronLeft, X, Plus, Check, 
   AlertCircle, Loader2, Clock, User, Search, Copy
 } from 'lucide-react'
@@ -1106,8 +1106,8 @@ Thanks!`}
                     </>
                   ) : (
                     <>
-                      <Rocket className="w-5 h-5" />
-                      Launch & Get Email Template
+                      <Mail className="w-5 h-5" />
+                      Complete Invites & Get Email Template
                     </>
                   )}
                 </button>

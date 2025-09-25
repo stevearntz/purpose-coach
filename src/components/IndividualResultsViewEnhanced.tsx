@@ -344,8 +344,90 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
     return (
       <div className="space-y-4">
         <div className="space-y-4 bg-white/5 rounded-lg p-6">
-          {/* Only show insights for HR Partnership */}
-          {assessment.toolId === 'hr-partnership' && assessment.insights && typeof assessment.insights === 'object' && (
+          {/* Handle responses format (used by unified API) */}
+          {assessment.responses && typeof assessment.responses === 'object' && (
+            <div className="space-y-6">
+              {/* Challenge Areas from responses */}
+              {assessment.responses.challenges && assessment.responses.challenges.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-3">Challenge Areas</h3>
+                  <div className="space-y-3">
+                    {assessment.responses.challenges.map((challenge: any, idx: number) => (
+                      <div key={idx} className="border-l-4 border-red-400 pl-4">
+                        <h4 className="font-medium text-white/90 mb-2">
+                          {challenge.name ? challenge.name.charAt(0).toUpperCase() + challenge.name.slice(1) : 'Challenge'}
+                        </h4>
+                        {challenge.subcategories && challenge.subcategories.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {challenge.subcategories.map((sub: string, sidx: number) => (
+                              <span key={sidx} className="px-3 py-1 bg-red-500/20 text-red-300 rounded-full text-sm">
+                                {sub}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Skills to Develop */}
+              {assessment.responses.skillsToGrow && assessment.responses.skillsToGrow.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-3">Skills to Develop</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {assessment.responses.skillsToGrow.map((skill: string, idx: number) => (
+                      <span key={idx} className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Support Needs */}
+              {assessment.responses.supportNeeds && assessment.responses.supportNeeds.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-3">Support Needs</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {assessment.responses.supportNeeds.map((need: string, idx: number) => (
+                      <span key={idx} className="px-3 py-1 bg-yellow-500/20 text-yellow-300 rounded-full text-sm">
+                        {need}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Focus Areas */}
+              {assessment.responses.teamImpact && assessment.responses.teamImpact.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-3">Focus Areas</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {assessment.responses.teamImpact.map((area: string, idx: number) => (
+                      <span key={idx} className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">
+                        {mapPriorityToFullText(area)}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Additional Context */}
+              {assessment.responses.additionalContext && assessment.responses.additionalContext.trim() && (
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-3">Additional Context</h3>
+                  <blockquote className="border-l-4 border-white/30 pl-4 italic text-white/70 text-sm">
+                    {assessment.responses.additionalContext}
+                  </blockquote>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Also keep insights format for backward compatibility */}
+          {assessment.insights && typeof assessment.insights === 'object' && (
             <div className="space-y-6">
                 {/* Challenge Areas - Main focus */}
                 {assessment.insights.mainChallengeAreas && (

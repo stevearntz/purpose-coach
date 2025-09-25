@@ -66,43 +66,101 @@ async function handleSaveAssessment({ request }: ApiContext) {
   // Find the invitation
   let invitation
   if (data.inviteCode) {
-    // First check if this is a campaign (generic invitation)
-    invitation = await prisma.invitation.findFirst({
-      where: { 
-        inviteCode: data.inviteCode,
-        metadata: {
-          isGenericLink: true
-        }
-      },
-      include: { metadata: true }
+    // First check if this is a campaign code
+    const campaign = await prisma.campaign.findFirst({
+      where: { campaignCode: data.inviteCode }
     })
     
-    // If it's a campaign invitation, we'll allow multiple uses
-    if (invitation && invitation.metadata?.isGenericLink) {
-      // For campaign links, check if this specific user already completed it
+    if (campaign) {
+      // This is a campaign code, find or create invitation for this user
       const userEmail = data.userProfile?.email
-      if (userEmail) {
-        const existingResult = await prisma.assessmentResult.findFirst({
-          where: {
-            invitationId: invitation.id,
-            toolId: data.toolId,
-            userEmail: userEmail
+      if (!userEmail) {
+        throw new ApiError(
+          ErrorCodes.INVALID_INPUT,
+          'Email is required for campaign assessments',
+          400
+        )
+      }
+      
+      // Find existing invitation for this email and campaign
+      invitation = await prisma.invitation.findFirst({
+        where: {
+          email: userEmail,
+          campaignId: campaign.id
+        }
+      })
+      
+      if (!invitation) {
+        // Create a new invitation for this participant
+        const inviteCode = nanoid(10)
+        invitation = await prisma.invitation.create({
+          data: {
+            email: userEmail,
+            name: data.userProfile?.name || userEmail.split('@')[0],
+            inviteCode,
+            inviteUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://tools.getcampfire.com'}/assessment/${campaign.campaignCode}?invite=${inviteCode}`,
+            companyId: campaign.companyId,
+            campaignId: campaign.id,
+            status: 'PENDING'
           }
         })
-        
-        if (existingResult) {
-          throw new ApiError(
-            ErrorCodes.ALREADY_EXISTS,
-            'You have already completed this assessment',
-            409
-          )
+      }
+      
+      // Check if user already completed this campaign assessment
+      const existingResult = await prisma.assessmentResult.findFirst({
+        where: {
+          invitationId: invitation.id,
+          toolId: data.toolId
         }
+      })
+      
+      if (existingResult) {
+        throw new ApiError(
+          ErrorCodes.ALREADY_EXISTS,
+          'You have already completed this assessment',
+          409
+        )
       }
     } else {
-      // Not a campaign, find regular invitation
+      // Not a campaign code, check if it's a regular invite code
+      // First check if this is a campaign (generic invitation)
       invitation = await prisma.invitation.findFirst({
-        where: { inviteCode: data.inviteCode }
+        where: { 
+          inviteCode: data.inviteCode,
+          metadata: {
+            isGenericLink: true
+          }
+        },
+        include: { metadata: true }
       })
+      
+      // If it's a campaign invitation, we'll allow multiple uses
+      if (invitation && invitation.metadata?.isGenericLink) {
+        // For campaign links, check if this specific user already completed it
+        const userEmail = data.userProfile?.email
+        if (userEmail) {
+          const existingResult = await prisma.assessmentResult.findFirst({
+            where: {
+              invitationId: invitation.id,
+              toolId: data.toolId,
+              userEmail: userEmail
+            }
+          })
+          
+          if (existingResult) {
+            throw new ApiError(
+              ErrorCodes.ALREADY_EXISTS,
+              'You have already completed this assessment',
+              409
+            )
+          }
+        }
+      } else {
+        // Not a campaign, find regular invitation
+        invitation = await prisma.invitation.findFirst({
+          where: { inviteCode: data.inviteCode }
+        })
+      }
     }
   } else if (data.invitationId) {
     invitation = await prisma.invitation.findUnique({
@@ -217,20 +275,14 @@ async function handleSaveAssessment({ request }: ApiContext) {
     }
   }
   
-  // Update invitation status to COMPLETED (only for non-campaign invitations)
-  const isGenericLinkCheck = await prisma.invitationMetadata.findUnique({
-    where: { invitationId: invitation.id }
-  }).then(meta => meta?.isGenericLink)
-  
-  if (!isGenericLinkCheck) {
-    await prisma.invitation.update({
-      where: { id: invitation.id },
-      data: { 
-        status: 'COMPLETED',
-        completedAt: new Date()
-      }
-    })
-  }
+  // Update invitation status to COMPLETED (for all invitations now)
+  await prisma.invitation.update({
+    where: { id: invitation.id },
+    data: { 
+      status: 'COMPLETED',
+      completedAt: new Date()
+    }
+  })
   
   // Note: User profile updates would happen separately if needed
   // The invitation model doesn't have clerkUserId in this schema

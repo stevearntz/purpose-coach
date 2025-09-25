@@ -97,10 +97,20 @@ export async function GET(request: Request) {
       .map(campaign => {
         // For campaign-based assessments, we don't track individual invitations
         // Each campaign is independent
+        // Use better description for Needs Assessment
+        let description = campaign.description;
+        if (!description || description.includes('assessment campaign')) {
+          if (campaign.toolName?.includes('Needs Assessment')) {
+            description = 'Share your needs so we can help you on your leadership journey';
+          } else {
+            description = 'Complete this assessment to help us understand your needs';
+          }
+        }
+        
         return {
           id: campaign.id,
           name: campaign.name,
-          description: campaign.description || 'Complete this assessment to help us understand your needs',
+          description: description,
           toolId: campaign.toolId || '',
           toolName: campaign.toolName || 'Assessment',
           toolPath: campaign.toolPath || '',

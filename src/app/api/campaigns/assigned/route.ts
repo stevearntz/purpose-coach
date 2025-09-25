@@ -101,7 +101,7 @@ export async function GET(request: Request) {
         let description = campaign.description;
         if (!description || description.includes('assessment campaign')) {
           if (campaign.toolName?.includes('Needs Assessment')) {
-            description = 'Share your needs so we can help you on your leadership journey';
+            description = 'Share your needs so that we can provide you with growth and support you on your leadership journey';
           } else {
             description = 'Complete this assessment to help us understand your needs';
           }

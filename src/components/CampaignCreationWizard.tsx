@@ -1079,8 +1079,8 @@ Thanks!`}
                   </>
                 ) : (
                   <>
-                    <Rocket className="w-5 h-5" />
-                    Launch Assessment
+                    <Mail className="w-5 h-5" />
+                    Complete Invites
                   </>
                 )}
               </button>

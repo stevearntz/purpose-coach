@@ -445,11 +445,11 @@ export default function ResultsTab() {
                           <div className="space-y-6 bg-white/5 rounded-lg p-6">
                             {/* Challenge Areas */}
                             {campaignData.challengeAreas && Object.keys(campaignData.challengeAreas).length > 0 && (
-                              <div>
+                              <div className="border-l-4 border-red-400 pl-4">
                                 <h3 className="text-lg font-semibold text-white mb-3">Challenge Areas</h3>
                                 <div className="space-y-3">
                                   {Object.entries(campaignData.challengeAreas).map(([key, area]: [string, any]) => (
-                                    <div key={key} className="border-l-4 border-red-400 pl-4">
+                                    <div key={key}>
                                       <h4 className="font-medium text-white/90 mb-2">{area.category}</h4>
                                       <div className="flex flex-wrap gap-2">
                                         {Object.entries(area.challenges || {}).filter(([_, count]) => Number(count) > 0).map(([challenge, count]) => (
@@ -467,7 +467,7 @@ export default function ResultsTab() {
                             
                             {/* Skills to Develop */}
                             {campaignData.skills && Object.keys(campaignData.skills).length > 0 && (
-                              <div>
+                              <div className="border-l-4 border-blue-400 pl-4">
                                 <h3 className="text-lg font-semibold text-white mb-3">Skills to Develop</h3>
                                 <div className="flex flex-wrap gap-2">
                                   {Object.entries(campaignData.skills).filter(([_, count]) => Number(count) > 0).map(([skill, count]) => (
@@ -482,7 +482,7 @@ export default function ResultsTab() {
                             
                             {/* Support Needs */}
                             {campaignData.supportNeeds && Object.keys(campaignData.supportNeeds).length > 0 && (
-                              <div>
+                              <div className="border-l-4 border-yellow-400 pl-4">
                                 <h3 className="text-lg font-semibold text-white mb-3">Support Needs</h3>
                                 <div className="flex flex-wrap gap-2">
                                   {Object.entries(campaignData.supportNeeds).filter(([_, count]) => Number(count) > 0).map(([need, count]) => (
@@ -497,7 +497,7 @@ export default function ResultsTab() {
                             
                             {/* Focus Areas */}
                             {campaignData.focusAreas && Object.keys(campaignData.focusAreas).length > 0 && (
-                              <div>
+                              <div className="border-l-4 border-purple-400 pl-4">
                                 <h3 className="text-lg font-semibold text-white mb-3">Focus Areas</h3>
                                 <div className="flex flex-wrap gap-2">
                                   {Object.entries(campaignData.focusAreas).filter(([_, count]) => Number(count) > 0).map(([area, count]) => (

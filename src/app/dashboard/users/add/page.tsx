@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { useOrganization, useUser } from '@clerk/nextjs'
-import { ArrowLeft, Plus, X, Upload, Download, Loader2, AlertCircle, Users, UserPlus, Mail, ChevronDown, Check, Copy, Rocket, User, Info } from 'lucide-react'
+import { ArrowLeft, Plus, X, Upload, Download, Loader2, AlertCircle, Users, UserPlus, Mail, ChevronDown, Check, Copy, Rocket, User, Info, CheckCircle } from 'lucide-react'
 
 interface UserRow {
   id: string
@@ -41,6 +41,7 @@ export default function AddUsersPage() {
   const [copiedField, setCopiedField] = useState<string | null>(null)
   const [focusedOptionIndex, setFocusedOptionIndex] = useState(0)
   const [selectedEmails, setSelectedEmails] = useState<Set<string>>(new Set())
+  const [csvUploadSuccess, setCsvUploadSuccess] = useState<string | null>(null)
 
   useEffect(() => {
     setIsMounted(true)
@@ -176,6 +177,16 @@ export default function AddUsersPage() {
         } else {
           setUserRows([...userRows, ...newRows])
         }
+        // Show success message
+        setCsvUploadSuccess(`Successfully imported ${newRows.length} user${newRows.length > 1 ? 's' : ''} from CSV`)
+        // Switch to single mode to show the imported users
+        setAddMode('single')
+        // Clear success message after 5 seconds
+        setTimeout(() => setCsvUploadSuccess(null), 5000)
+      } else {
+        // Show error if no valid rows found
+        setCsvUploadSuccess('No valid users found in CSV. Please check the file format.')
+        setTimeout(() => setCsvUploadSuccess(null), 5000)
       }
     }
     reader.readAsText(file)
@@ -681,6 +692,26 @@ ${user?.firstName || 'Your Team Admin'}`
       </div>
 
       <StepIndicator />
+
+      {/* Success Message */}
+      {csvUploadSuccess && (
+        <div className={`px-6 py-4 rounded-lg flex items-center gap-3 ${
+          csvUploadSuccess.includes('Successfully') 
+            ? 'bg-green-500/20 border border-green-500/30' 
+            : 'bg-yellow-500/20 border border-yellow-500/30'
+        }`}>
+          {csvUploadSuccess.includes('Successfully') ? (
+            <CheckCircle className="w-5 h-5 text-green-400" />
+          ) : (
+            <AlertCircle className="w-5 h-5 text-yellow-400" />
+          )}
+          <p className={`${
+            csvUploadSuccess.includes('Successfully') ? 'text-green-200' : 'text-yellow-200'
+          } font-medium`}>
+            {csvUploadSuccess}
+          </p>
+        </div>
+      )}
 
       {/* Add Users Form */}
       <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-visible">

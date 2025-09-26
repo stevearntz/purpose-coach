@@ -212,7 +212,7 @@ export default function CampaignResultCard({ campaign }: CampaignResultCardProps
                 {/* Challenge Areas */}
                 {aggregatedData.challengeAreas && Object.keys(aggregatedData.challengeAreas).length > 0 && (
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">Challenge Areas</h3>
+                    <h3 className="text-lg font-semibold text-white mb-3 border-l-4 border-red-400 pl-4">Challenge Areas</h3>
                     <div className="space-y-3">
                       {Object.entries(aggregatedData.challengeAreas).map(([key, area]: [string, any]) => (
                         <div key={key} className="border-l-4 border-red-400 pl-4">
@@ -234,7 +234,7 @@ export default function CampaignResultCard({ campaign }: CampaignResultCardProps
                 {/* Skills to Develop */}
                 {aggregatedData.skills && Object.keys(aggregatedData.skills).length > 0 && (
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">Skills to Develop</h3>
+                    <h3 className="text-lg font-semibold text-white mb-3 border-l-4 border-blue-400 pl-4">Skills to Develop</h3>
                     <div className="flex flex-wrap gap-2">
                       {Object.entries(aggregatedData.skills).filter(([_, count]) => Number(count) > 0).map(([skill, count]) => (
                         <span key={skill} className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm flex items-center gap-1">
@@ -249,7 +249,7 @@ export default function CampaignResultCard({ campaign }: CampaignResultCardProps
                 {/* Support Needs */}
                 {aggregatedData.supportNeeds && Object.keys(aggregatedData.supportNeeds).length > 0 && (
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">Support Needs</h3>
+                    <h3 className="text-lg font-semibold text-white mb-3 border-l-4 border-yellow-400 pl-4">Support Needs</h3>
                     <div className="flex flex-wrap gap-2">
                       {Object.entries(aggregatedData.supportNeeds).filter(([_, count]) => Number(count) > 0).map(([need, count]) => (
                         <span key={need} className="px-3 py-1 bg-yellow-500/20 text-yellow-300 rounded-full text-sm flex items-center gap-1">
@@ -264,7 +264,7 @@ export default function CampaignResultCard({ campaign }: CampaignResultCardProps
                 {/* Focus Areas */}
                 {aggregatedData.focusAreas && Object.keys(aggregatedData.focusAreas).length > 0 && (
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">Focus Areas</h3>
+                    <h3 className="text-lg font-semibold text-white mb-3 border-l-4 border-purple-400 pl-4">Focus Areas</h3>
                     <div className="flex flex-wrap gap-2">
                       {Object.entries(aggregatedData.focusAreas).filter(([_, count]) => Number(count) > 0).map(([area, count]) => (
                         <span key={area} className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm flex items-center gap-1">

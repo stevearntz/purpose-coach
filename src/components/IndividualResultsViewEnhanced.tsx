@@ -374,8 +374,8 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
 
               {/* Skills to Develop */}
               {assessment.responses.skillsToGrow && assessment.responses.skillsToGrow.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-3 border-l-4 border-blue-400 pl-4">Skills to Develop</h3>
+                <div className="border-l-4 border-blue-400 pl-4">
+                  <h3 className="text-lg font-semibold text-white mb-3">Skills to Develop</h3>
                   <div className="flex flex-wrap gap-2">
                     {assessment.responses.skillsToGrow.map((skill: string, idx: number) => (
                       <span key={idx} className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm">
@@ -388,8 +388,8 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
 
               {/* Support Needs */}
               {assessment.responses.supportNeeds && assessment.responses.supportNeeds.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-3 border-l-4 border-yellow-400 pl-4">Support Needs</h3>
+                <div className="border-l-4 border-yellow-400 pl-4">
+                  <h3 className="text-lg font-semibold text-white mb-3">Support Needs</h3>
                   <div className="flex flex-wrap gap-2">
                     {assessment.responses.supportNeeds.map((need: string, idx: number) => (
                       <span key={idx} className="px-3 py-1 bg-yellow-500/20 text-yellow-300 rounded-full text-sm">
@@ -402,8 +402,8 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
 
               {/* Focus Areas */}
               {assessment.responses.teamImpact && assessment.responses.teamImpact.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-3 border-l-4 border-purple-400 pl-4">Focus Areas</h3>
+                <div className="border-l-4 border-purple-400 pl-4">
+                  <h3 className="text-lg font-semibold text-white mb-3">Focus Areas</h3>
                   <div className="flex flex-wrap gap-2">
                     {assessment.responses.teamImpact.map((area: string, idx: number) => (
                       <span key={idx} className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">
@@ -429,8 +429,8 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
             <div className="space-y-6">
                 {/* Challenge Areas - Main focus */}
                 {assessment.insights.mainChallengeAreas && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-3 border-l-4 border-red-400 pl-4">Challenge Areas</h3>
+                  <div className="border-l-4 border-red-400 pl-4">
+                    <h3 className="text-lg font-semibold text-white mb-3">Challenge Areas</h3>
                     <div className="space-y-3">
                       {(Array.isArray(assessment.insights.mainChallengeAreas) 
                         ? assessment.insights.mainChallengeAreas 
@@ -461,8 +461,8 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
 
                 {/* Skills to Develop */}
                 {assessment.insights.skillGaps && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-3 border-l-4 border-blue-400 pl-4">Skills to Develop</h3>
+                  <div className="border-l-4 border-blue-400 pl-4">
+                    <h3 className="text-lg font-semibold text-white mb-3">Skills to Develop</h3>
                     <div className="flex flex-wrap gap-2 mb-2">
                       {(Array.isArray(assessment.insights.skillGaps) 
                         ? assessment.insights.skillGaps 
@@ -484,8 +484,8 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
 
                 {/* Support Needs - as pills */}
                 {assessment.insights.supportNeeds && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-3 border-l-4 border-yellow-400 pl-4">Support Needs</h3>
+                  <div className="border-l-4 border-yellow-400 pl-4">
+                    <h3 className="text-lg font-semibold text-white mb-3">Support Needs</h3>
                     <div className="flex flex-wrap gap-2 mb-2">
                       {(Array.isArray(assessment.insights.supportNeeds) 
                         ? assessment.insights.supportNeeds 
@@ -507,8 +507,8 @@ export default function IndividualResultsViewEnhanced({ results, loading = false
 
                 {/* Focus Areas (Priorities) with full names */}
                 {assessment.insights.priorities && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-3 border-l-4 border-purple-400 pl-4">Focus Areas</h3>
+                  <div className="border-l-4 border-purple-400 pl-4">
+                    <h3 className="text-lg font-semibold text-white mb-3">Focus Areas</h3>
                     <div className="flex flex-wrap gap-2 mb-2">
                       {(Array.isArray(assessment.insights.priorities) 
                         ? assessment.insights.priorities 

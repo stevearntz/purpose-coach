@@ -16,6 +16,18 @@ const nextConfig = {
       },
     ]
   },
+  rewrites: async () => {
+    return [
+      {
+        source: '/sales',
+        destination: 'https://campfire-sales-production.up.railway.app/sales',
+      },
+      {
+        source: '/sales/:path*',
+        destination: 'https://campfire-sales-production.up.railway.app/sales/:path*',
+      },
+    ]
+  },
 }
 
 module.exports = nextConfig

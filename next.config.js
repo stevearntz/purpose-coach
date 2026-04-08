@@ -26,6 +26,14 @@ const nextConfig = {
         source: '/sales/:path*',
         destination: 'https://campfire-sales-production.up.railway.app/sales/:path*',
       },
+      {
+        source: '/lab',
+        destination: 'https://connection-lab-production.up.railway.app/lab',
+      },
+      {
+        source: '/lab/:path*',
+        destination: 'https://connection-lab-production.up.railway.app/lab/:path*',
+      },
     ]
   },
 }

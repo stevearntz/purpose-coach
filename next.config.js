@@ -34,6 +34,14 @@ const nextConfig = {
         source: '/lab/:path*',
         destination: 'https://connection-lab-production.up.railway.app/lab/:path*',
       },
+      {
+        source: '/games',
+        destination: 'https://campfire-games-production.up.railway.app/games',
+      },
+      {
+        source: '/games/:path*',
+        destination: 'https://campfire-games-production.up.railway.app/games/:path*',
+      },
     ]
   },
 }

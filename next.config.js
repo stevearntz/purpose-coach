@@ -42,6 +42,14 @@ const nextConfig = {
         source: '/games/:path*',
         destination: 'https://campfire-games-production.up.railway.app/games/:path*',
       },
+      {
+        source: '/from-day-one',
+        destination: 'https://from-day-one.vercel.app/from-day-one',
+      },
+      {
+        source: '/from-day-one/:path*',
+        destination: 'https://from-day-one.vercel.app/from-day-one/:path*',
+      },
     ]
   },
 }

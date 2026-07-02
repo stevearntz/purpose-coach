@@ -18,6 +18,16 @@ const nextConfig = {
   },
   rewrites: async () => {
     return [
+      // Hearth experiment (Vercel). MUST precede the '/lab/:path*' Connection Lab
+      // rule below — rewrites match in order, so the more specific path wins.
+      {
+        source: '/lab/hearth',
+        destination: 'https://hearth-two-blue.vercel.app/lab/hearth',
+      },
+      {
+        source: '/lab/hearth/:path*',
+        destination: 'https://hearth-two-blue.vercel.app/lab/hearth/:path*',
+      },
       {
         source: '/sales',
         destination: 'https://campfire-sales-production.up.railway.app/sales',
